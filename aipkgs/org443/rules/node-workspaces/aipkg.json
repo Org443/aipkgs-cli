@@ -1,0 +1,15 @@
+{
+  "type": "rule",
+  "ref": "org443/node-workspaces",
+  "version": "0.0.3",
+  "description": "Node + TypeScript rules for an npm-workspaces monorepo: workspace scopes, build contracts, dependency placement.",
+  "homepage": "https://aipkgs.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Org443/aipkgs-cli.git"
+  },
+  "issues": {
+    "url": "https://github.com/Org443/aipkgs-cli/issues"
+  },
+  "deps": {}
+}

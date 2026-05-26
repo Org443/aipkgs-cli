@@ -1,0 +1,45 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.9.0/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "ignore": ["**/dist/**", "**/node_modules/**", "**/coverage/**", "**/.terraform/**", "**/public/js/**"]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 120
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "style": {
+        "noUnusedTemplateLiteral": "off"
+      }
+    }
+  },
+  "overrides": [
+    {
+      "include": ["**/*.test.ts", "**/test/**/*.ts", "**/tests/**/*.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off"
+          }
+        }
+      }
+    }
+  ],
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "semicolons": "always",
+      "trailingCommas": "all"
+    }
+  }
+}

@@ -1,0 +1,35 @@
+/**
+ * When we install a package, we also need to install its dependencies recursively.
+ * This means pulling in the dependencies of the dependencies, and so on.
+ *
+ * We will add the resolved dependencies to the lockfile.
+ * If we find an existing entry in the lockfile with same type and slug, we will throw a ConflictError.
+ */
+
+import { type AIpkgArchive, type AgentTarget, DEPS_KEYS } from '@local/archive';
+import { place } from '@local/placement';
+import type { Lockfile } from '../../files/lockfile.ts';
+import { installPkg } from './pkg.ts';
+
+export async function resolveDeps(args: { archive: AIpkgArchive; lockfile: Lockfile; target: AgentTarget }) {
+  const { archive, lockfile, target } = args;
+
+  const { manifest } = archive;
+  const { deps } = manifest;
+  const parent = archive.pkgRef.aipkgRef;
+
+  for (const assetKey of DEPS_KEYS) {
+    const assetBucket = deps[assetKey];
+    if (!assetBucket) continue;
+    for (const [alias, entry] of Object.entries(assetBucket)) {
+      await installPkg({ pkgRef: entry, alias, lockfile, target, parent });
+    }
+  }
+
+  const mcps = deps.mcps;
+  if (!mcps) return;
+  for (const [name, entry] of Object.entries(mcps)) {
+    lockfile.upsertMcp({ slug: name, entry, parent });
+    await place.installMcp({ slug: name, entry, target });
+  }
+}

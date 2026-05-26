@@ -1,0 +1,7 @@
+{
+  "type": "cmd",
+  "ref": "org443/pr-create",
+  "version": "0.2.1",
+  "description": "Create a GitHub PR from the current branch — detects base, merges latest, drafts a structured body.",
+  "deps": {}
+}

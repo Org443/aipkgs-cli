@@ -1,0 +1,19 @@
+{
+  "type": "cmd",
+  "ref": "org443/search-aipkgs",
+  "version": "0.0.2",
+  "description": "Search the AIpkgs registry and find the right package for your task.",
+  "homepage": "https://aipkgs.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Org443/aipkgs-cli.git"
+  },
+  "issues": {
+    "url": "https://github.com/Org443/aipkgs-cli/issues"
+  },
+  "deps": {
+    "skills": {
+      "search-aipkgs": "aipkg://skill/org443/search-aipkgs@latest"
+    }
+  }
+}

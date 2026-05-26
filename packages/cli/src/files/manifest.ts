@@ -1,0 +1,100 @@
+import { readFile, writeFile } from 'node:fs/promises';
+import { isAbsolute, join } from 'node:path';
+import { MANIFEST_FILENAME, Manifest, type McpEntry, type PackageRef } from '@local/archive';
+import { isENOENT } from '../io/fs.ts';
+
+export class ManifestFile extends Manifest {
+  readonly path: string;
+
+  constructor(args: { text: string; path: string }) {
+    super({ text: args.text });
+    this.path = args.path;
+  }
+
+  // Resolve a manifest file location. `file` may be an absolute path or a
+  // filename/relative path (resolved against `dir` or cwd). Falls back to
+  // `aipkg.json` in the working directory.
+  static resolvePath({ dir, file }: { dir?: string; file?: string } = {}): string {
+    if (file && isAbsolute(file)) return file;
+    return join(dir ?? process.cwd(), file ?? MANIFEST_FILENAME);
+  }
+
+  // Read and parse the manifest at the resolved path. Throws if missing —
+  // ENOENT propagates so callers can detect it via `isENOENT`.
+  static async read({ dir, file }: { dir?: string; file?: string } = {}): Promise<ManifestFile> {
+    const path = ManifestFile.resolvePath({ dir, file });
+    const text = await readFile(path, 'utf8');
+    return new ManifestFile({ text, path });
+  }
+
+  // Read the manifest if present, otherwise create + persist an empty agent
+  // manifest at the resolved path and return it.
+  static async resolve({ file }: { file?: string } = {}): Promise<ManifestFile> {
+    const path = ManifestFile.resolvePath({ file });
+    try {
+      return await ManifestFile.read({ file: path });
+    } catch (err) {
+      if (isENOENT(err)) {
+        const empty = Manifest.empty();
+        const mf = new ManifestFile({ text: JSON.stringify(empty.toObject()), path });
+        await mf.write();
+        return mf;
+      }
+      throw err;
+    }
+  }
+
+  async write() {
+    const obj = this.toObject();
+    const body = `${JSON.stringify(obj, null, 2)}\n`;
+    await writeFile(this.path, body, 'utf8');
+  }
+
+  async upsertEntry(args: { slug: string; pkgRef: PackageRef }) {
+    const { slug, pkgRef } = args;
+
+    const key = Manifest.assetKey(pkgRef.type);
+
+    const assets = this.deps[key] ?? {};
+    assets[slug] = pkgRef;
+    this.deps[key] = assets;
+  }
+
+  async removeEntry(args: { type: Manifest['type']; slug: string }) {
+    const { type, slug } = args;
+
+    const key = Manifest.assetKey(type);
+
+    const assets = this.deps[key];
+    if (!assets) return { removed: false, pkgRef: null };
+
+    const pkgRef = assets[slug];
+    if (!pkgRef) return { removed: false, pkgRef: null };
+
+    delete assets[slug];
+    this.deps[key] = assets;
+
+    return { removed: true, pkgRef };
+  }
+
+  upsertMcp(args: { slug: string; entry: McpEntry }) {
+    const { slug, entry } = args;
+    const mcps = this.deps.mcps ?? {};
+    mcps[slug] = entry;
+    this.deps.mcps = mcps;
+  }
+
+  removeMcp(args: { slug: string }) {
+    const { slug } = args;
+    const mcps = this.deps.mcps;
+    if (!mcps?.[slug]) return { removed: false, entry: null as McpEntry | null };
+    const entry = mcps[slug];
+    delete mcps[slug];
+    return { removed: true, entry };
+  }
+
+  getMcp(args: { slug: string }): McpEntry | undefined {
+    const { slug } = args;
+    return this.deps.mcps?.[slug];
+  }
+}

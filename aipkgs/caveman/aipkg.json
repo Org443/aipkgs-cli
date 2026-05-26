@@ -1,0 +1,11 @@
+{
+  "type": "box",
+  "ref": "caveman/Caveman",
+  "version": "0.1.0",
+  "description": "Ultra-compressed (caveman-style) communication mode for AI coding agents, bundled as a single box.",
+  "homepage": "https://github.com/JuliusBrussee/caveman",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JuliusBrussee/caveman.git"
+  }
+}

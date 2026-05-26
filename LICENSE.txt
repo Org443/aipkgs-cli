@@ -1,0 +1,81 @@
+AIpkg Source License
+
+Parameters
+
+Licensor:             org443
+
+Licensed Work:        AIpkg
+                      The Licensed Work is (c) 2026 org443.
+                      The Licensed Work consists of the AIpkg command-line
+                      interface (CLI) tool, the aipkgs API (consuming),
+                      the aipkg.json manifest format, and the
+                      aipkg.lock lockfile format, including all source
+                      code, binaries, specifications, schemas, and
+                      documentation distributed by Licensor under this
+                      License.
+
+Additional Use Grant: You may make production use of the Licensed Work,
+                      including use within a for-profit organization,
+                      provided that you do not make the functionality of
+                      the Licensed Work available to third parties as a
+                      commercial offering. A "commercial offering" is a
+                      product or service made available to third parties
+                      for a fee or other consideration (including through
+                      paid support arrangements) that:
+
+                        (a) consists of, embeds, or is substantially
+                            derived from the Licensed Work, the aipkgs
+                            API, the aipkg.json manifest format, or the
+                            aipkg.lock lockfile format; or
+
+                        (b) provides users the primary value of the
+                            Licensed Work, such as resolving, installing,
+                            distributing, hosting, serving, or managing
+                            packages described by aipkg.json or
+                            aipkg.lock, or exposing an API that is
+                            substantially compatible with the aipkgs API.
+
+                      For commercial licensing of uses outside this
+                      Additional Use Grant, contact support@org443.com.
+
+Terms
+
+The Licensor hereby grants you the right to copy, modify, create derivative
+works, redistribute, and make non-production use of the Licensed Work. The
+Licensor may make an Additional Use Grant, above, permitting limited
+production use.
+
+If your use of the Licensed Work does not comply with the requirements
+currently in effect as described in this License, you must obtain a
+commercial license from the Licensor, its affiliated entities, or authorized
+resellers by contacting support@org443.com, or you must refrain from using
+the Licensed Work.
+
+All copies of the original and modified Licensed Work, and derivative works
+of the Licensed Work, are subject to this License. This License applies
+separately for each version of the Licensed Work released by Licensor.
+
+You must conspicuously display this License on each original or modified copy
+of the Licensed Work. If you receive the Licensed Work in original or
+modified form from a third party, the terms and conditions set forth in this
+License apply to your use of that work.
+
+Any use of the Licensed Work in violation of this License will automatically
+terminate your rights under this License for the current and all other
+versions of the Licensed Work.
+
+This License does not grant you any right in any trademark or logo of
+Licensor or its affiliates (provided that you may use a trademark or logo of
+Licensor as expressly required by this License).
+
+TO THE EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSED WORK IS PROVIDED ON
+AN "AS IS" BASIS. LICENSOR HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS,
+EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
+TITLE.
+
+IN NO EVENT SHALL LICENSOR BE LIABLE TO YOU FOR ANY DAMAGES, INCLUDING
+DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, ARISING OUT
+OF OR IN CONNECTION WITH THIS LICENSE OR YOUR USE OF THE LICENSED WORK.
+
+For commercial licensing inquiries: support@org443.com

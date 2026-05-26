@@ -1,0 +1,17 @@
+{
+  "type": "agent",
+  "ref": "org443/node/main",
+  "version": "0.0.0",
+  "deps": {
+    "cmds": {
+      "pr-create": "aipkg://cmd/org443/pr-create@0.2.0",
+      "search-aipkgs": "aipkg://cmd/org443/search-aipkgs@latest"
+    },
+    "skills": {
+      "code-review": "aipkg://skill/anthropic/code-review@1.3.0"
+    },
+    "rules": {},
+    "subagents": {},
+    "mcps": {}
+  }
+}

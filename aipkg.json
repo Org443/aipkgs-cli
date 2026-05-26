@@ -1,0 +1,27 @@
+{
+  "type": "box",
+  "ref": "org443/node/main",
+  "version": "0.0.2",
+  "deps": {
+    "cmds": {
+      "search-aipkgs": "aipkg://cmd/org443/search-aipkgs@latest",
+      "code-review": "aipkg://cmd/org443/code-review@latest"
+    },
+    "skills": {
+      "frontend-design": "aipkg://skill/os/frontend-design@latest"
+    },
+    "rules": {
+      "node-general": "aipkg://rule/org443/node-general@latest",
+      "node-workspaces": "aipkg://rule/org443/node-workspaces@latest",
+      "short-comments": "aipkg://rule/org443/short-comments@latest"
+    },
+    "boxes": {
+      "agent": "aipkg://box/superpowers/agent@latest"
+    },
+    "mcps": {
+      "linear": {
+        "url": "https://mcp.linear.app/mcp"
+      }
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "packages": [
+    {
+      "package": {
+        "id": "8a3e1c10-1d6a-4e8a-9b6f-1f6c1a2d3e4f",
+        "org_namespace": "org443",
+        "key": null,
+        "slug": "pr-create",
+        "type": "cmd",
+        "visibility": "public",
+        "tags": ["git", "github", "pr"],
+        "supports": ["claude"],
+        "latest_version": "0.2.1",
+        "latest_version_created_at": 1716400000000,
+        "total_downloads": 142,
+        "total_likes": 18,
+        "recent_likes": 4,
+        "created_at": 1715000000000,
+        "updated_at": 1716400000000
+      },
+      "app_url": "https://app.aipkgs.com/packages/commands/org443/pr-create"
+    },
+    {
+      "package": {
+        "id": "b2d4c821-7e2c-4d9f-8a01-2b3c4d5e6f70",
+        "org_namespace": "anthropic",
+        "key": null,
+        "slug": "code-review",
+        "type": "skill",
+        "visibility": "public",
+        "tags": ["review", "diff", "github"],
+        "supports": ["claude"],
+        "latest_version": "1.4.0",
+        "latest_version_created_at": 1716200000000,
+        "total_downloads": 980,
+        "total_likes": 122,
+        "recent_likes": 31,
+        "created_at": 1713000000000,
+        "updated_at": 1716200000000
+      },
+      "app_url": "https://app.aipkgs.com/packages/skills/anthropic/code-review"
+    },
+    {
+      "package": {
+        "id": "c9e0f7a3-3a1b-4c5d-9e2f-001122334455",
+        "org_namespace": "org443",
+        "key": "github",
+        "slug": "stack-pr",
+        "type": "cmd",
+        "visibility": "public",
+        "tags": ["git", "stacked-prs"],
+        "supports": ["claude"],
+        "latest_version": "0.0.4",
+        "latest_version_created_at": 1716100000000,
+        "total_downloads": 31,
+        "total_likes": 5,
+        "recent_likes": 2,
+        "created_at": 1715800000000,
+        "updated_at": 1716100000000
+      },
+      "app_url": "https://app.aipkgs.com/packages/commands/org443/github/stack-pr"
+    }
+  ],
+  "next_cursor": "eyJsYXN0VmFsdWVzIjpbMzEsNSwiYzllMGY3YTMtM2ExYi00YzVkLTllMmYtMDAxMTIyMzM0NDU1Il0sIm9yZGVyQnkiOltbInRvdGFsX2Rvd25sb2FkcyIsImRlc2MiXSxbInRvdGFsX2xpa2VzIiwiZGVzYyJdLFsiaWQiLCJhc2MiXV0sImxpbWl0IjoyNX0="
+}

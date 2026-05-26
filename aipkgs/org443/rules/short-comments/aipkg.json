@@ -1,0 +1,14 @@
+{
+  "type": "rule",
+  "ref": "org443/short-comments",
+  "version": "0.1.1",
+  "description": "Comments earn their line. Keep the why; remove the paraphrase.",
+  "homepage": "https://aipkgs.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Org443/aipkgs-cli.git"
+  },
+  "issues": {
+    "url": "https://github.com/Org443/aipkgs-cli/issues"
+  }
+}

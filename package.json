@@ -1,0 +1,40 @@
+{
+  "name": "@aipkgs/cli",
+  "version": "0.0.0",
+  "private": true,
+  "description": "AIPKGS CLI",
+  "type": "module",
+  "engines": {
+    "node": ">=26"
+  },
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "dev": "npm run dev --workspace=packages/cli",
+    "local": "npm run local --workspace=packages/cli",
+    "install:global": "npm run install:global --workspace=packages/cli",
+    "release:dry": "npm run release:dry --workspace=packages/cli",
+    "release": "npm run release --workspace=packages/cli",
+    "release:patch": "npm run release:patch --workspace=packages/cli",
+    "release:minor": "npm run release:minor --workspace=packages/cli",
+    "release:major": "npm run release:major --workspace=packages/cli"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.0",
+    "@types/node": "^22.19.18",
+    "typescript": "^6.0.0",
+    "vitest": "^2.1.0"
+  },
+  "dependencies": {
+    "@colors/colors": "^1.6.0",
+    "p-map": "^7.0.4",
+    "p-retry": "^8.0.0",
+    "zod": "^4.4.3"
+  }
+}

@@ -1,3 +1,8 @@
+.DS_Store
+.claude
+.mcp.json
+.npmrc
+
 # Logs
 logs
 *.log

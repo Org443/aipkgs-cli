@@ -1,0 +1,52 @@
+{
+  "name": "@aipkgs/cli",
+  "version": "0.1.7",
+  "description": "aipkg CLI.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Org443/aipkgs-cli.git"
+  },
+  "homepage": "https://aipkgs.com",
+  "bugs": {
+    "url": "https://github.com/Org443/aipkgs-cli/issues"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "aipkg": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "node esbuild.config.mjs",
+    "start": "node dist/index.js",
+    "local": "AIPKG_API=http://localhost:3001 AIPKG_APP=http://localhost:3000 node --experimental-strip-types src/index.ts",
+    "dev": "node --experimental-strip-types src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run typecheck && npm run build",
+    "install:global": "npm uninstall -g @aipkgs/cli && npm run build && npm install -g .",
+    "release:dry": "npm publish --dry-run",
+    "release": "npm publish",
+    "release:patch": "npm version patch --no-git-tag-version && npm publish",
+    "release:minor": "npm version minor --no-git-tag-version && npm publish",
+    "release:major": "npm version major --no-git-tag-version && npm publish"
+  },
+  "devDependencies": {
+    "@types/tar-stream": "^3.1.4",
+    "esbuild": "^0.24.0",
+    "@local/archive": "*",
+    "@local/placement": "*"
+  },
+  "dependencies": {
+    "commander": "^14.0.3",
+    "picocolors": "^1.1.1",
+    "tar-stream": "^3.2.0"
+  }
+}
