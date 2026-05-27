@@ -6,6 +6,7 @@ import type { PackageRef } from './ref.ts';
 import { type TarEntry, tarballService } from './tarball.ts';
 import { assertBoxArchive } from './validate/box.ts';
 import { assertCmdArchive } from './validate/cmd.ts';
+import { assertHookArchive } from './validate/hook.ts';
 import { assertRuleArchive } from './validate/rule.ts';
 import { assertSkillArchive } from './validate/skill.ts';
 import { assertSubagentArchive } from './validate/subagent.ts';
@@ -71,6 +72,8 @@ function assertArchive(args: { manifest: Manifest; files: TarEntry[] }): { files
       return assertSubagentArchive({ manifest, files });
     case 'rule':
       return assertRuleArchive({ manifest, files });
+    case 'hook':
+      return assertHookArchive({ manifest, files });
 
     default:
       throw new InvalidArchive({ message: `invalid package type: ${type}` });

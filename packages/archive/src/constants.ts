@@ -1,5 +1,5 @@
-export const MANIFEST_TYPES = ['cmd', 'skill', 'subagent', 'rule', 'box'] as const;
-export const DEPS_KEYS = ['cmds', 'skills', 'subagents', 'rules', 'boxes'] as const;
+export const MANIFEST_TYPES = ['cmd', 'skill', 'subagent', 'rule', 'hook', 'box'] as const;
+export const DEPS_KEYS = ['cmds', 'skills', 'subagents', 'rules', 'hooks', 'boxes'] as const;
 
 export const AGENT_TARGETS = ['claude', 'codex'] as const;
 
@@ -12,5 +12,6 @@ export const MANIFEST_TYPE_TO_DEPS_KEY: Record<ManifestType, DepsKey> = {
   skill: 'skills',
   subagent: 'subagents',
   rule: 'rules',
+  hook: 'hooks',
   box: 'boxes',
 };

@@ -16,7 +16,7 @@
       "short-comments": "aipkg://rule/org443/short-comments@latest"
     },
     "boxes": {
-      "agent": "aipkg://box/superpowers/agent@latest"
+      "Superpowers": "aipkg://box/superpowers/Superpowers@latest"
     },
     "mcps": {
       "linear": {

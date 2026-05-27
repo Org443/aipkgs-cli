@@ -93,4 +93,24 @@ describe('assertBoxArchive', () => {
     const files = [file('aipkg.json'), file('skills/loose.md')];
     expect(() => assertBoxArchive({ manifest, files })).toThrow(/disallowed file: skills\/loose\.md/);
   });
+
+  it('accepts a flat hook bundle under hooks/', () => {
+    const manifest = buildManifest();
+    const files = [
+      file('aipkg.json'),
+      file('hooks/hooks.json', '{"hooks":[]}'),
+      file('hooks/script.cmd'),
+      file('hooks/scripts/lint.sh'),
+    ];
+    const result = assertBoxArchive({ manifest, files });
+    expect(result.files.map((f) => f.path).sort()).toEqual(
+      ['aipkg.json', 'hooks/hooks.json', 'hooks/script.cmd', 'hooks/scripts/lint.sh'].sort(),
+    );
+  });
+
+  it('throws when hooks/ has files but hooks.json is missing', () => {
+    const manifest = buildManifest();
+    const files = [file('aipkg.json'), file('hooks/scripts/lint.sh')];
+    expect(() => assertBoxArchive({ manifest, files })).toThrow(/missing required file: hooks\/hooks\.json/);
+  });
 });

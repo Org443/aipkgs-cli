@@ -2,7 +2,7 @@ import { type ManifestType, archiveService } from '@local/archive';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CredentialsFile } from '../../../files/credentials.ts';
 import { setupTestCwd, teardownTestCwd, testDir, writeTestFile } from '../../../test/helpers.ts';
-import { publishAction } from '../local.ts';
+import { publishAction } from '../publish.ts';
 
 beforeEach(async () => {
   setupTestCwd({ prefix: 'aipkg-publish-test-' });
@@ -245,6 +245,38 @@ describe('publishAction', () => {
         ref: 'org443/my-agent',
         version: '1.0.0',
       });
+    });
+
+    it('skips upload and prints manifest + archive contents on --dry', async () => {
+      const dir = ['cmds', 'pr-create'];
+      await writePkgManifest({
+        dir,
+        type: 'cmd',
+        ref: 'org443/pr-create',
+        version: '1.0.0',
+        description: 'Create a pull request',
+      });
+      await writeTestFile('# pr-create', ...dir, 'pr-create.md');
+      await writeTestFile('# README', ...dir, 'README.md');
+      const fetchSpy = mockUpload();
+
+      await publishAction({ path: testDir(...dir), dry: true });
+
+      expect(fetchSpy).not.toHaveBeenCalled();
+
+      const logSpy = console.log as unknown as ReturnType<typeof vi.fn>;
+      const lines = logSpy.mock.calls.map((args: unknown[]) => args.join(' '));
+      const joined = lines.join('\n');
+      expect(joined).toContain('Manifest');
+      expect(joined).toContain('"ref": "org443/pr-create"');
+      expect(joined).toContain('"version": "1.0.0"');
+      expect(joined).toContain('"description": "Create a pull request"');
+      expect(joined).toContain('Archive contents');
+      expect(joined).toContain('aipkg.json');
+      expect(joined).toContain('pr-create.md');
+      expect(joined).toContain('README.md');
+      expect(joined).toContain('Dry run');
+      expect(joined).not.toContain('Published');
     });
 
     it('logs the archive contents to stdout', async () => {

@@ -33,6 +33,7 @@ export class Manifest {
     skills?: Record<string, PackageRef>;
     subagents?: Record<string, PackageRef>;
     rules?: Record<string, PackageRef>;
+    hooks?: Record<string, PackageRef>;
     boxes?: Record<string, PackageRef>;
     mcps?: Record<string, McpEntry>;
   };
@@ -99,6 +100,8 @@ export class Manifest {
         return 'subagents';
       case 'rule':
         return 'rules';
+      case 'hook':
+        return 'hooks';
       case 'box':
         return 'boxes';
     }
@@ -113,6 +116,8 @@ export class Manifest {
         return 'subagent';
       case 'rules':
         return 'rule';
+      case 'hooks':
+        return 'hook';
       case 'boxes':
         return 'box';
     }
@@ -130,6 +135,7 @@ export class Manifest {
       skills: serializeBucket(this.deps.skills),
       subagents: serializeBucket(this.deps.subagents),
       rules: serializeBucket(this.deps.rules),
+      hooks: serializeBucket(this.deps.hooks),
       boxes: serializeBucket(this.deps.boxes),
       mcps: this.deps.mcps,
     };
@@ -179,6 +185,7 @@ const ManifestZ = z.object({
       skills: z.record(z.string(), z.string()).optional(),
       subagents: z.record(z.string(), z.string()).optional(),
       rules: z.record(z.string(), z.string()).optional(),
+      hooks: z.record(z.string(), z.string()).optional(),
       boxes: z.record(z.string(), z.string()).optional(),
       mcps: z.record(z.string(), McpEntryZ).optional(),
     })

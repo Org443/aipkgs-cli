@@ -7,10 +7,11 @@ import { installAction } from './actions/install/index.ts';
 import { loginAction } from './actions/login.ts';
 import { logoutAction } from './actions/logout.ts';
 import { mcpAddAction, mcpRemoveAction } from './actions/mcp.ts';
-import { publishAction } from './actions/publish/index.ts';
+import { publishAction } from './actions/publish/publish.ts';
 import { removeAction } from './actions/remove.ts';
 import { isAgentTarget, setTargetAction } from './actions/set.ts';
 import { whoamiAction } from './actions/whoami.ts';
+import { HttpError } from './api/http.ts';
 
 const program = new Command();
 
@@ -68,8 +69,9 @@ program
     '[path]',
     `path to a manifest file, or a directory containing ${MANIFEST_FILENAME} (defaults to current working directory)`,
   )
-  .action(async (path: string | undefined) => {
-    await publishAction({ path });
+  .option('--dry', 'collect and print the manifest + archive contents without uploading')
+  .action(async (path: string | undefined, opts: { dry?: boolean }) => {
+    await publishAction({ path, dry: opts.dry });
   });
 
 const mcpCmd = program.command('mcp').description('Manage MCP server entries in aipkg.json + .mcp.json');
@@ -119,7 +121,17 @@ setCmd
   });
 
 program.parseAsync().catch((err: unknown) => {
-  console.error(pc.red(`error: ${err instanceof Error ? err.message : String(err)}`));
+  let stack = '';
+  if (err instanceof Error && err.stack) {
+    stack = `\n${err.stack}`;
+  }
+
+  if (err instanceof HttpError) {
+    console.error(pc.red(`error: ${err.message} (${err.url})${stack}`));
+    process.exit(1);
+  }
+
+  console.error(pc.red(`error: ${err instanceof Error ? err.message : String(err)}${stack}`));
   process.exit(1);
 });
 

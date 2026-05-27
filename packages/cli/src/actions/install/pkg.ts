@@ -63,7 +63,7 @@ async function installBox(args: {
 
   await lockfile.upsertEntry({ pkgRef, archive, parent });
 
-  const children = parseBoxChildren({ files: archive.files });
+  const children = parseBoxChildren({ files: archive.files, boxSlug: pkgRef.slug });
   for (const child of children) {
     const { written } = await place.installFiles({
       type: child.type,
@@ -80,16 +80,17 @@ async function installBox(args: {
   return { archive, pkgRef };
 }
 
-function parseBoxChildren(args: { files: TarEntry[] }): Array<{
+function parseBoxChildren(args: { files: TarEntry[]; boxSlug: string }): Array<{
   type: Manifest['type'];
   slug: string;
   files: TarEntry[];
 }> {
+  const { files, boxSlug } = args;
   const groups = new Map<string, { type: Manifest['type']; slug: string; files: TarEntry[] }>();
 
-  for (const file of args.files) {
+  for (const file of files) {
     if (file.path === MANIFEST_FILENAME) continue;
-    const parsed = parseChildPath(file.path);
+    const parsed = parseChildPath({ path: file.path, boxSlug });
     if (!parsed) continue;
 
     const { type, slug, rel } = parsed;
@@ -102,7 +103,11 @@ function parseBoxChildren(args: { files: TarEntry[] }): Array<{
   return Array.from(groups.values());
 }
 
-function parseChildPath(path: string): { type: Manifest['type']; slug: string; rel: string } | null {
+function parseChildPath(args: {
+  path: string;
+  boxSlug: string;
+}): { type: Manifest['type']; slug: string; rel: string } | null {
+  const { path, boxSlug } = args;
   const [top, ...rest] = path.split('/');
   if (!top || rest.length === 0) return null;
 
@@ -110,6 +115,12 @@ function parseChildPath(path: string): { type: Manifest['type']; slug: string; r
     const [slug, ...sub] = rest;
     if (!slug || sub.length === 0) return null;
     return { type: 'skill', slug, rel: sub.join('/') };
+  }
+
+  // Box hooks are a flat bundle under `hooks/`, owned by the box's slug —
+  // the entire `hooks/` subtree becomes one hook child keyed off the box.
+  if (top === 'hooks') {
+    return { type: 'hook', slug: boxSlug, rel: rest.join('/') };
   }
 
   if (rest.length !== 1) return null;

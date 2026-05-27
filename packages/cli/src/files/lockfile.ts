@@ -31,6 +31,7 @@ type LockfileStruct = {
     skills?: Record<string, LockEntry>;
     subagents?: Record<string, LockEntry>;
     rules?: Record<string, LockEntry>;
+    hooks?: Record<string, LockEntry>;
     boxes?: Record<string, LockEntry>;
     mcps?: Record<string, LockMcpEntry>;
   };
@@ -42,6 +43,7 @@ export class Lockfile implements LockfileStruct {
     skills?: Record<string, LockEntry>;
     subagents?: Record<string, LockEntry>;
     rules?: Record<string, LockEntry>;
+    hooks?: Record<string, LockEntry>;
     boxes?: Record<string, LockEntry>;
     mcps?: Record<string, LockMcpEntry>;
   };

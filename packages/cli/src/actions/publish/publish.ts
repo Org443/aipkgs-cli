@@ -5,17 +5,17 @@ import pc from 'picocolors';
 import { api } from '../../api/index.ts';
 import { ConfigFile } from '../../files/config.ts';
 import { ManifestFile } from '../../files/manifest.ts';
-import { collectFromManifestDir, resolveLocalPath } from '../../io/archive.ts';
+import { collectArchiveFiles, resolveLocalPath } from '../../io/archive.ts';
 import { isENOENT } from '../../io/fs.ts';
-import { publishBoxManifestAction } from './box.ts';
 
 // Publish the package described by an `aipkg.json` (or alternate manifest
 // file). `path` may point to a directory containing the manifest, or directly
 // to the manifest file itself. The manifest's `type` decides what to do:
 // `box` is routed to the box-manifest publish flow, every other type packs
 // that directory directly.
-export async function publishAction(input: { path?: string } = {}) {
-  const { dir, file } = await resolveManifestLocation(input.path);
+export async function publishAction(input: { path?: string; dry?: boolean } = {}) {
+  const { path, dry } = input;
+  const { dir, file } = await resolveManifestLocation(path);
 
   let manifest: Manifest;
   try {
@@ -25,16 +25,18 @@ export async function publishAction(input: { path?: string } = {}) {
     throw err;
   }
 
-  if (manifest.type === 'box') {
-    await publishBoxManifestAction({ dir, file });
-    return;
-  }
-
   const { type, pkgRef } = manifest;
   const { slug, version } = pkgRef;
 
-  const files = await collectFromManifestDir({ type, dir, slug, manifestFilename: file });
+  const files = await collectArchiveFiles({ type, dir, slug, manifestFilename: file });
   const { tgz } = await archiveService.pack({ manifest, files });
+
+  if (dry) {
+    logManifest({ manifest });
+    logArchiveContents({ manifest, files, tgz });
+    console.log(pc.yellow('Dry run — skipped upload'), pc.bold(`${type} ${slug}`), pc.dim(version));
+    return;
+  }
 
   logArchiveContents({ manifest, files, tgz });
 
@@ -44,6 +46,12 @@ export async function publishAction(input: { path?: string } = {}) {
 
   console.log(pc.green('Published'), pc.bold(`${type} ${slug}`), pc.dim(version));
   console.log(pc.green('App URL:'), pc.bold(appUrl));
+}
+
+function logManifest(args: { manifest: Manifest }) {
+  const { manifest } = args;
+  console.log(pc.bold('Manifest'));
+  console.log(JSON.stringify(manifest.toObject(), null, 2));
 }
 
 function logArchiveContents(args: {

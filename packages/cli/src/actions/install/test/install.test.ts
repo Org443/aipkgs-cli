@@ -29,7 +29,7 @@ afterEach(() => {
 });
 
 async function buildTestTarball(args: {
-  type: 'cmd' | 'skill' | 'subagent' | 'rule';
+  type: 'cmd' | 'skill' | 'subagent' | 'rule' | 'box';
   org: string;
   key?: string;
   slug: string;
@@ -146,6 +146,39 @@ describe('installAction', () => {
       // biome-ignore lint/style/noNonNullAssertion: test assertion
       const calledUrl = vi.mocked(globalThis.fetch).mock.calls[0]![0] as string;
       expect(calledUrl).toContain('/v1/packages/cmd/org443/pr-create/1.1.1/archive.tgz');
+    });
+  });
+
+  describe('box with hooks', () => {
+    it('extracts the hooks/ subtree into a single bundle keyed by the box slug', async () => {
+      const tarball = await buildTestTarball({
+        type: 'box',
+        org: 'org443',
+        slug: 'my-box',
+        version: '1.0.0',
+        files: [
+          { path: 'hooks/hooks.json', body: Buffer.from('{"PreToolUse":[{"matcher":"Bash","hooks":[{"type":"command","command":"scripts/lint.sh"}]}]}') },
+          { path: 'hooks/scripts/lint.sh', body: Buffer.from('#!/bin/sh\necho lint\n') },
+          { path: 'cmds/pr-create.md', body: Buffer.from('# pr-create') },
+        ],
+      });
+      mockFetch(tarball);
+
+      await installAction({ type: 'box', ref: 'org443/my-box' });
+
+      expect(await readTestFile('.claude', 'hooks', 'my-box', 'scripts', 'lint.sh')).toBe('#!/bin/sh\necho lint\n');
+      expect(testFileExists('.claude', 'hooks', 'my-box', 'hooks.json')).toBe(false);
+      expect(testFileExists('.claude', 'hooks', 'scripts')).toBe(false);
+
+      const settings = await readTestJson('.claude', 'settings.local.json');
+      expect(settings.hooks.PreToolUse).toHaveLength(1);
+      expect(settings.hooks.PreToolUse[0]).toMatchObject({
+        matcher: 'Bash',
+        hooks: [{ type: 'command', command: 'scripts/lint.sh' }],
+        __aipkg: 'my-box',
+      });
+
+      expect(await readTestFile('.claude', 'commands', 'pr-create.md')).toBe('# pr-create');
     });
   });
 
