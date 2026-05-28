@@ -107,6 +107,16 @@
         "version": "0.1.5",
         "sha": "sha256:bb0b8b0bef49930b74a30313579e0951fbc14c931bb9de3aa41477667d2427f2",
         "parent": "aipkg://box/superpowers/Superpowers@0.1.5"
+      },
+      "skill-creator": {
+        "aipkgRef": "aipkg://skill/os/skill-creator@latest",
+        "version": "0.1.0",
+        "sha": "sha256:7e651bae13b58b78c9b7cf15b4adaaff0420c0c7b2a898d0e030893ab0ef3141"
+      },
+      "import-aipkgs": {
+        "aipkgRef": "aipkg://skill/org443/import-aipkgs@latest",
+        "version": "0.1.0",
+        "sha": "sha256:1f2f6cacf6c0f7bc08598f7c3a1b2fac3e208e2d476d78d36e5f4557970385cf"
       }
     },
     "rules": {

@@ -22,7 +22,8 @@ export async function resolveDeps(args: { archive: AIpkgArchive; lockfile: Lockf
     const assetBucket = deps[assetKey];
     if (!assetBucket) continue;
     for (const [alias, entry] of Object.entries(assetBucket)) {
-      await installPkg({ pkgRef: entry, alias, lockfile, target, parent });
+      const pkgRef = lockfile.resolvePkgRef({ pkgRef: entry, alias });
+      await installPkg({ pkgRef, alias, lockfile, target, parent });
     }
   }
 

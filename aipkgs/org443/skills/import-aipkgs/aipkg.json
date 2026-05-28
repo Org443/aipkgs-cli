@@ -1,0 +1,15 @@
+{
+  "type": "skill",
+  "ref": "org443/import-aipkgs",
+  "version": "0.1.0",
+  "description": "Import skills, commands, subagents, rules, and hooks from a git repo into aipkgs/ as a publishable box with the correct manifest, LICENSE, and README.",
+  "homepage": "https://aipkgs.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Org443/aipkgs-cli.git"
+  },
+  "issues": {
+    "url": "https://github.com/Org443/aipkgs-cli/issues"
+  },
+  "deps": {}
+}

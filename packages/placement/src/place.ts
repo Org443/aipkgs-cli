@@ -36,4 +36,16 @@ export const place = {
     const targetRoute = routeTarget(target);
     return targetRoute.removeMcp({ slug });
   },
+
+  async setStatusLine(args: { slug: string; statusLine: Record<string, unknown>; target: AgentTarget }) {
+    const { slug, statusLine, target } = args;
+    const targetRoute = routeTarget(target);
+    return targetRoute.setStatusLine({ slug, statusLine });
+  },
+
+  async clearStatusLine(args: { target: AgentTarget }) {
+    const { target } = args;
+    const targetRoute = routeTarget(target);
+    return targetRoute.clearStatusLine();
+  },
 };

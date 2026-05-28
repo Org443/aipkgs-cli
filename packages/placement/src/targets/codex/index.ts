@@ -20,4 +20,10 @@ export const codexTarget: Target = {
   async removeMcp() {
     unsupported();
   },
+  async setStatusLine() {
+    unsupported();
+  },
+  async clearStatusLine() {
+    unsupported();
+  },
 };

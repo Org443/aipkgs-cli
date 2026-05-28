@@ -8,6 +8,7 @@ import {
   testFileExists,
 } from '../../../test/helpers.ts';
 import { install, installFiles, remove } from '../install.ts';
+import { settingsConfig } from '../settings-config.ts';
 
 beforeEach(() => setupTestCwd({ prefix: 'aipkg-claude-install-hooks-' }));
 afterEach(teardownTestCwd);
@@ -54,6 +55,32 @@ describe('install (hook)', () => {
         ],
       },
     });
+  });
+
+  it('returns the parsed statusLine without writing it to settings', async () => {
+    const archive = await buildTestArchive({
+      type: 'hook',
+      slug: 'lint',
+      files: [
+        {
+          path: 'hooks.json',
+          body: Buffer.from(
+            JSON.stringify({
+              hooks: { PreToolUse: [{ matcher: 'Bash', hooks: [{ type: 'command', command: 'lint.sh' }] }] },
+              statusLine: { type: 'command', command: 'status.sh' },
+            }),
+          ),
+        },
+      ],
+    });
+
+    const result = await install({ archive, slug: 'lint' });
+
+    expect(result.statusLine).toMatchObject({ type: 'command', command: 'status.sh' });
+
+    const settings = await readTestJson('.claude', 'settings.local.json');
+    expect(settings.statusLine).toBeUndefined();
+    expect(settings.hooks.PreToolUse).toHaveLength(1);
   });
 
   it('merges hooks for multiple slugs without clobbering prior entries', async () => {
@@ -168,9 +195,7 @@ describe('install (hook)', () => {
       installFiles({
         type: 'hook',
         slug: 'lint',
-        files: [
-          { path: 'hooks.json', body: Buffer.from(JSON.stringify({ PreToolUse: { matcher: 'Bash' } })) },
-        ],
+        files: [{ path: 'hooks.json', body: Buffer.from(JSON.stringify({ PreToolUse: { matcher: 'Bash' } })) }],
       }),
     ).rejects.toThrow(/event "PreToolUse" must be an array/);
   });
@@ -225,5 +250,27 @@ describe('remove (hook)', () => {
     const settings = await readTestJson('.claude', 'settings.local.json');
     expect(settings.hooks.PreToolUse).toHaveLength(1);
     expect(settings.hooks.PreToolUse[0]).toMatchObject({ matcher: 'Write', __aipkg: 'fmt' });
+  });
+});
+
+describe('statusLine settings', () => {
+  it('setStatusLine writes the block tagged with __aipkg', async () => {
+    await settingsConfig.setStatusLine({ slug: 'lint', statusLine: { type: 'command', command: 'status.sh' } });
+    const settings = await readTestJson('.claude', 'settings.local.json');
+    expect(settings.statusLine).toMatchObject({ type: 'command', command: 'status.sh', __aipkg: 'lint' });
+  });
+
+  it('clearStatusLine removes the block', async () => {
+    await settingsConfig.setStatusLine({ slug: 'lint', statusLine: { command: 'status.sh' } });
+    const { removed } = await settingsConfig.clearStatusLine();
+    expect(removed).toBe(true);
+    const settings = await readTestJson('.claude', 'settings.local.json');
+    expect(settings.statusLine).toBeUndefined();
+  });
+
+  it('clearStatusLine reports removed=false when nothing is set', async () => {
+    await settingsConfig.write({});
+    const { removed } = await settingsConfig.clearStatusLine();
+    expect(removed).toBe(false);
   });
 });

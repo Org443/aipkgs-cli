@@ -58,4 +58,40 @@ describe('assertHookArchive', () => {
     const files = [file('aipkg.json'), file('hooks.json', 'not-json{')];
     expect(() => assertHookArchive({ manifest, files })).toThrow(/hooks\.json is not valid JSON/);
   });
+
+  it('accepts wrapper hooks.json with a statusLine object', () => {
+    const manifest = buildManifest();
+    const body = JSON.stringify({
+      hooks: { PreToolUse: [] },
+      statusLine: { type: 'command', command: 'status.sh' },
+    });
+    const files = [file('aipkg.json'), file('hooks.json', body)];
+    const result = assertHookArchive({ manifest, files });
+    expect(result.files.map((f) => f.path).sort()).toEqual(['aipkg.json', 'hooks.json']);
+  });
+
+  it('accepts a statusLine-only hooks.json (no event hooks)', () => {
+    const manifest = buildManifest();
+    const body = JSON.stringify({ statusLine: { type: 'command', command: 'status.sh' } });
+    const files = [file('aipkg.json'), file('hooks.json', body)];
+    const result = assertHookArchive({ manifest, files });
+    expect(result.files).toHaveLength(2);
+  });
+
+  it('rejects statusLine alongside a bare event map', () => {
+    const manifest = buildManifest();
+    const body = JSON.stringify({
+      PreToolUse: [],
+      statusLine: { type: 'command', command: 'status.sh' },
+    });
+    const files = [file('aipkg.json'), file('hooks.json', body)];
+    expect(() => assertHookArchive({ manifest, files })).toThrow(/statusLine .* wrapper/);
+  });
+
+  it('rejects a non-object statusLine', () => {
+    const manifest = buildManifest();
+    const body = JSON.stringify({ hooks: {}, statusLine: 'nope' });
+    const files = [file('aipkg.json'), file('hooks.json', body)];
+    expect(() => assertHookArchive({ manifest, files })).toThrow(/statusLine .* object/);
+  });
 });

@@ -8,18 +8,12 @@ CLI for [AIpkg](https://app.aipkgs.com) — a registry for AI commands, skills, 
 - CLI docs: https://app.aipkgs.com/docs/cli
 - Browse packages: https://app.aipkgs.com/packages
 
-## Install
-
-```bash
-npm install -g @aipkgs/cli
-```
-
 ## Quick start
 
 ```bash
-aipkg init
-aipkg cmd org443/search-aipkgs
-aipkg mcp add linear --url https://mcp.linear.app/mcp
+npx @aipkgs/cli init
+npx @aipkgs/cli cmd org443/search-aipkgs
+npx @aipkgs/cli mcp add linear --url https://mcp.linear.app/mcp
 ```
 
 ## Layout

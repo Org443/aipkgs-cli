@@ -5,8 +5,6 @@ import { collectFlatFiles, collectSidecars, collectSingleFlat } from './collect-
 import { collectHookFiles } from './collect-hooks.ts';
 import { collectSkillFiles } from './collect-skill.ts';
 
-export { collectSidecars };
-
 // Resolve a path provided on the CLI or in aipkg.json. Bare paths resolve
 // against cwd. Returns the absolute path on disk.
 export function resolveLocalPath(path: string): string {

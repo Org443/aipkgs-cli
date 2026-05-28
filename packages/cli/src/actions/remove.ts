@@ -22,7 +22,10 @@ export async function removeAction(input: { type: Manifest['type']; slugOrRef: s
   const { removed: removedFromManifest, pkgRef } = await manifest.removeEntry({ type, slug });
   const removedFromLock = pkgRef ? await lockfile.removeEntry({ type, slug }) : false;
 
-  if (!removedFromManifest && !removedFromLock) {
+  const removedStatusLine = lockfile.removeStatusLine({ slug });
+  if (removedStatusLine) await place.clearStatusLine({ target });
+
+  if (!removedFromManifest && !removedFromLock && !removedStatusLine) {
     console.log(pc.yellow(`Nothing to remove — no ${type} "${slug}" tracked in aipkg.json`));
     return;
   }

@@ -19,6 +19,7 @@ export type HooksByEvent = Record<string, HookMatcher[]>;
 
 export type SettingsLocal = {
   hooks?: HooksByEvent;
+  statusLine?: Record<string, unknown>;
   [key: string]: unknown;
 };
 
@@ -83,6 +84,22 @@ export const settingsConfig = {
 
     if (changed) await settingsConfig.write(next);
     return changed;
+  },
+
+  async setStatusLine(args: { slug: string; statusLine: Record<string, unknown> }) {
+    const { slug, statusLine } = args;
+    const settings = await settingsConfig.read();
+    settings.statusLine = { ...statusLine, [AIPKG_OWNER_KEY]: slug };
+    await settingsConfig.write(settings);
+    return { path: settingsConfig.path() };
+  },
+
+  async clearStatusLine() {
+    const settings = await settingsConfig.read();
+    if (settings.statusLine === undefined) return { removed: false, path: settingsConfig.path() };
+    settings.statusLine = undefined;
+    await settingsConfig.write(settings);
+    return { removed: true, path: settingsConfig.path() };
   },
 };
 

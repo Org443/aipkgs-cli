@@ -1,6 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, join } from 'node:path';
-import { type AIpkgArchive, MANIFEST_FILENAME, Manifest, type McpEntry, type PackageRef } from '@local/archive';
+import { type AIpkgArchive, MANIFEST_FILENAME, Manifest, type McpEntry, PackageRef } from '@local/archive';
 import { isENOENT } from '../io/fs.ts';
 
 export const LOCKFILE_FILENAME = 'aipkg.lock';
@@ -25,6 +25,12 @@ export type LockEntry = {
 
 export type LockMcpEntry = McpEntry & { parent?: string };
 
+export type LockStatusLineEntry = {
+  slug: string;
+  statusLine: Record<string, unknown>;
+  parent?: string;
+};
+
 type LockfileStruct = {
   deps?: {
     cmds?: Record<string, LockEntry>;
@@ -34,6 +40,7 @@ type LockfileStruct = {
     hooks?: Record<string, LockEntry>;
     boxes?: Record<string, LockEntry>;
     mcps?: Record<string, LockMcpEntry>;
+    statusLine?: LockStatusLineEntry;
   };
 };
 
@@ -46,6 +53,7 @@ export class Lockfile implements LockfileStruct {
     hooks?: Record<string, LockEntry>;
     boxes?: Record<string, LockEntry>;
     mcps?: Record<string, LockMcpEntry>;
+    statusLine?: LockStatusLineEntry;
   };
 
   readonly path: string;
@@ -145,6 +153,13 @@ export class Lockfile implements LockfileStruct {
     return true;
   }
 
+  resolvePkgRef(args: { pkgRef: PackageRef; alias?: string }): PackageRef {
+    const { pkgRef, alias } = args;
+    const lock = this.getEntry({ type: pkgRef.type, slug: alias ?? pkgRef.slug });
+    if (!lock) return pkgRef;
+    return new PackageRef({ refStr: lock.aipkgRef });
+  }
+
   getEntry(args: { type: Manifest['type']; slug: string }): LockEntry | undefined {
     const { type, slug } = args;
     const typeKey = Manifest.assetKey(type);
@@ -184,6 +199,39 @@ export class Lockfile implements LockfileStruct {
   getMcp(args: { slug: string }): LockMcpEntry | undefined {
     const { slug } = args;
     return this.deps?.mcps?.[slug];
+  }
+
+  upsertStatusLine(args: { slug: string; statusLine: Record<string, unknown>; parent?: string }) {
+    const { slug, statusLine, parent } = args;
+
+    const deps = this.deps ?? {};
+    this.deps = deps;
+
+    const existing = deps.statusLine;
+    if (existing) {
+      const sameOwner = existing.slug === slug;
+      const sameLine = stableStringify(existing.statusLine) === stableStringify(statusLine);
+      if (sameOwner && sameLine) return;
+      throw new Error(
+        `lockfile statusLine conflict: statusLine is already claimed by "${existing.slug}"; "${slug}" also defines one — only one statusLine is allowed`,
+      );
+    }
+
+    const locked: LockStatusLineEntry = { slug, statusLine };
+    if (parent) locked.parent = parent;
+    deps.statusLine = locked;
+  }
+
+  removeStatusLine(args: { slug: string }) {
+    const { slug } = args;
+    const deps = this.deps;
+    if (!deps?.statusLine || deps.statusLine.slug !== slug) return false;
+    deps.statusLine = undefined;
+    return true;
+  }
+
+  getStatusLine(): LockStatusLineEntry | undefined {
+    return this.deps?.statusLine;
   }
 
   toObject(): LockfileStruct {

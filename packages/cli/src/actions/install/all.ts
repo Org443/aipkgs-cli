@@ -11,7 +11,7 @@ export async function installAllAction(args: { manifest?: string } = {}) {
   const manifest = await ManifestFile.resolve({ file: args.manifest });
   const lockfile = await Lockfile.resolve({ file: lockfilePathFor(manifest.path) });
 
-  const { tasks, mcps } = collectTasks(manifest);
+  const { tasks, mcps } = collectTasks({ manifest, lockfile });
 
   if (tasks.length === 0 && mcps.length === 0) {
     console.log(pc.dim(`Nothing to install — ${MANIFEST_FILENAME} has no deps`));
@@ -39,20 +39,22 @@ export async function installAllAction(args: { manifest?: string } = {}) {
   console.log(pc.green(`Installed ${parts.join(' + ')}.`));
 }
 
-function collectTasks(m: Manifest) {
+function collectTasks(args: { manifest: Manifest; lockfile: Lockfile }) {
+  const { manifest, lockfile } = args;
   const tasks: { alias: string; pkgRef: PackageRef }[] = [];
   const mcps: { name: string; entry: McpEntry }[] = [];
 
   for (const key of DEPS_KEYS) {
-    const assetBucket = m.deps[key];
+    const assetBucket = manifest.deps[key];
     if (!assetBucket) continue;
 
     for (const [alias, entry] of Object.entries(assetBucket)) {
-      tasks.push({ alias, pkgRef: entry });
+      const pkgRef = lockfile.resolvePkgRef({ pkgRef: entry, alias });
+      tasks.push({ alias, pkgRef });
     }
   }
 
-  for (const [name, entry] of Object.entries(m.deps.mcps ?? {})) {
+  for (const [name, entry] of Object.entries(manifest.deps.mcps ?? {})) {
     mcps.push({ name, entry });
   }
 

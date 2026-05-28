@@ -38,12 +38,18 @@ export async function installPkg(args: {
     return installBox({ archive, lockfile, target, parent });
   }
 
-  const { written } = await place.install({ archive, slug, target });
+  const { written, statusLine } = await place.install({ archive, slug, target });
 
   if (written.length === 0) {
     throw new Error(`Archive for ${pkgRef.aipkgRef} contained nothing installable`);
   }
   for (const file of written) console.log(pc.dim(`  ${file}`));
+
+  if (statusLine) {
+    lockfile.upsertStatusLine({ slug, statusLine, parent });
+    const { path } = await place.setStatusLine({ slug, statusLine, target });
+    console.log(pc.dim(`  ${path}`));
+  }
 
   await lockfile.upsertEntry({ pkgRef, archive, slug, parent });
 
@@ -65,13 +71,18 @@ async function installBox(args: {
 
   const children = parseBoxChildren({ files: archive.files, boxSlug: pkgRef.slug });
   for (const child of children) {
-    const { written } = await place.installFiles({
+    const { written, statusLine } = await place.installFiles({
       type: child.type,
       slug: child.slug,
       files: child.files,
       target,
     });
     for (const file of written) console.log(pc.dim(`  ${file}`));
+    if (statusLine) {
+      lockfile.upsertStatusLine({ slug: child.slug, statusLine, parent: pkgRef.aipkgRef });
+      const { path } = await place.setStatusLine({ slug: child.slug, statusLine, target });
+      console.log(pc.dim(`  ${path}`));
+    }
     await lockfile.upsertBoxChild({ archive, type: child.type, slug: child.slug });
   }
 

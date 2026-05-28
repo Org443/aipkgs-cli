@@ -172,7 +172,17 @@ describe('resolveDeps', () => {
 
       // Pre-seed the lockfile with the matching SHA so the integrity check passes.
       await writeTestFile(
-        JSON.stringify({ deps: { cmds: { 'pr-create': { version: '1.0.0', sha: cmdArchive.sha } } } }),
+        JSON.stringify({
+          deps: {
+            cmds: {
+              'pr-create': {
+                aipkgRef: 'aipkg://cmd/org443/pr-create@1.0.0',
+                version: '1.0.0',
+                sha: cmdArchive.sha,
+              },
+            },
+          },
+        }),
         'aipkg.lock',
       );
 
@@ -243,6 +253,49 @@ describe('resolveDeps', () => {
       await expect(resolveDeps({ archive: parentArchive, lockfile, target: 'claude' })).rejects.toThrow(
         /mcps conflict/,
       );
+    });
+
+    it('downloads the locked version when the archive manifest pins a transitive dep at @latest', async () => {
+      const ruleTarball = await buildTarball({ type: 'rule', org: 'org443', slug: 'no-any', version: '0.1.0' });
+      const ruleArchive = await archiveService.parse(ruleTarball);
+
+      // Parent archive declares the rule at @latest, but the lockfile pins it to @0.1.0.
+      const parentManifest = new Manifest({
+        type: 'box',
+        ref: 'org443/parent',
+        version: '0.1.0',
+        targets: ['claude'],
+        deps: { rules: { 'no-any': 'aipkg://rule/org443/no-any@latest' } },
+      });
+      const { tgz: parentTgz } = await archiveService.pack({ manifest: parentManifest, files: [] });
+      const parentArchive = await archiveService.parse(parentTgz);
+
+      await writeTestFile(
+        JSON.stringify({
+          deps: {
+            rules: {
+              'no-any': {
+                aipkgRef: 'aipkg://rule/org443/no-any@0.1.0',
+                version: '0.1.0',
+                sha: ruleArchive.sha,
+              },
+            },
+          },
+        }),
+        'aipkg.lock',
+      );
+
+      const fetchSpy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValue(new Response(ruleTarball, { status: 200, headers: { 'Content-Type': 'application/gzip' } }));
+
+      const lockfile = await Lockfile.resolve();
+      await resolveDeps({ archive: parentArchive, lockfile, target: 'claude' });
+
+      // biome-ignore lint/style/noNonNullAssertion: test assertion
+      const calledUrl = vi.mocked(fetchSpy).mock.calls[0]![0] as string;
+      expect(calledUrl).toContain('/v1/packages/rule/org443/no-any/0.1.0/archive.tgz');
+      expect(calledUrl).not.toContain('/latest/');
     });
 
     it('recursively installs transitive deps and pins each entry to its immediate parent', async () => {

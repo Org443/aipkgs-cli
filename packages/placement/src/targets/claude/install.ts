@@ -68,14 +68,17 @@ async function installHook(args: { slug: string; files: TarEntry[] }) {
     written.push(dest);
   }
 
-  const parsed = parseHooksJson({ slug, body: hooksEntry.body });
-  await settingsConfig.mergeHooks({ slug, hooks: parsed });
+  const { events, statusLine } = parseHooksJson({ slug, body: hooksEntry.body });
+  await settingsConfig.mergeHooks({ slug, hooks: events });
   written.push(settingsConfig.path());
 
-  return { written };
+  return { written, statusLine };
 }
 
-function parseHooksJson(args: { slug: string; body: Buffer }): HooksByEvent {
+function parseHooksJson(args: { slug: string; body: Buffer }): {
+  events: HooksByEvent;
+  statusLine?: Record<string, unknown>;
+} {
   const { slug, body } = args;
   let parsed: unknown;
   try {
@@ -89,20 +92,38 @@ function parseHooksJson(args: { slug: string; body: Buffer }): HooksByEvent {
     throw new Error(`Hook "${slug}" ${HOOKS_JSON_FILENAME} must be a JSON object keyed by hook event name`);
   }
 
+  // statusLine is only valid inside the wrapper shape ({ hooks: {...}, statusLine: {...} }) —
+  // a top-level statusLine alongside a bare event map would be ambiguous with an event name.
+  if ('statusLine' in parsed) {
+    const extraKeys = Object.keys(parsed).filter((k) => k !== 'hooks' && k !== 'statusLine');
+    if (extraKeys.length > 0) {
+      throw new Error(
+        `Hook "${slug}" ${HOOKS_JSON_FILENAME}: statusLine is only allowed inside the wrapper shape ({ "hooks": {...}, "statusLine": {...} })`,
+      );
+    }
+    if (!isPlainObject(parsed.statusLine)) {
+      throw new Error(`Hook "${slug}" ${HOOKS_JSON_FILENAME}: statusLine must be a JSON object`);
+    }
+    const events = isPlainObject(parsed.hooks) ? parsed.hooks : {};
+    assertEventArrays({ slug, events });
+    return { events: events as HooksByEvent, statusLine: parsed.statusLine };
+  }
+
   // Accept either the bare event map ({ PreToolUse: [...] }) or the settings.json
   // wrapper shape ({ hooks: { PreToolUse: [...] } }) — unwrap the latter so authors
   // can paste straight from their settings file.
   const events = isPlainObject(parsed.hooks) ? parsed.hooks : parsed;
+  assertEventArrays({ slug, events });
+  return { events: events as HooksByEvent };
+}
 
+function assertEventArrays(args: { slug: string; events: Record<string, unknown> }) {
+  const { slug, events } = args;
   for (const [event, matchers] of Object.entries(events)) {
     if (!Array.isArray(matchers)) {
-      throw new Error(
-        `Hook "${slug}" ${HOOKS_JSON_FILENAME} event "${event}" must be an array of matcher objects`,
-      );
+      throw new Error(`Hook "${slug}" ${HOOKS_JSON_FILENAME} event "${event}" must be an array of matcher objects`);
     }
   }
-
-  return events as HooksByEvent;
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {

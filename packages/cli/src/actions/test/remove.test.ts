@@ -64,6 +64,43 @@ async function seedSkill(args: { slug: string; ref: string; version: string }) {
 }
 
 describe('removeAction', () => {
+  describe('statusLine', () => {
+    it('clears the statusLine from settings when the owning hook is removed', async () => {
+      const aipkgRef = 'aipkg://hook/org443/lint@1.0.0';
+      await writeTestFile(
+        JSON.stringify({
+          type: 'box',
+          ref: 'test/app',
+          version: '0.0.0',
+          deps: { hooks: { lint: aipkgRef } },
+        }),
+        'aipkg.json',
+      );
+      await writeTestFile(
+        JSON.stringify({
+          deps: {
+            hooks: { lint: { aipkgRef, version: '1.0.0', sha: 'sha256:x' } },
+            statusLine: { slug: 'lint', statusLine: { command: 'status.sh' } },
+          },
+        }),
+        'aipkg.lock',
+      );
+      await writeTestFile(
+        JSON.stringify({ statusLine: { command: 'status.sh', __aipkg: 'lint' } }),
+        '.claude',
+        'settings.local.json',
+      );
+
+      await removeAction({ type: 'hook', slugOrRef: 'lint' });
+
+      const settings = await readTestJson('.claude', 'settings.local.json');
+      expect(settings.statusLine).toBeUndefined();
+
+      const lockfile = await readTestJson('aipkg.lock');
+      expect(lockfile.deps?.statusLine).toBeUndefined();
+    });
+  });
+
   describe('happy path', () => {
     it('removes a cmd from disk, manifest, and lockfile', async () => {
       await seedCmd({

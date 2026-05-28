@@ -17,11 +17,10 @@ npm install -g @aipkgs/cli
 ## Quick start
 
 ```bash
-aipkg init
-aipkg cmd org443/search-aipkgs
-aipkg mcp add linear --url https://mcp.linear.app/mcp
+npx @aipkgs/cli init
+npx @aipkgs/cli cmd org443/search-aipkgs
+npx @aipkgs/cli mcp add linear --url https://mcp.linear.app/mcp
 ```
-
 
 ## Layout
 
@@ -72,11 +71,11 @@ Examples of assets published to the registry, organized by kind (`cmds/`, `skill
 
 ## Publishing
 
-Publish a single package by running `aipkg publish` from the directory containing its `aipkg.json`:
+Publish a single package by running `npx @aipkgs/cli publish` from the directory containing its `aipkg.json`:
 
 ```bash
 cd aipkgs/cmds/org443/search-aipkgs
-aipkg publish
+npx @aipkgs/cli publish
 ```
 
 The CLI packs the manifest plus its assets into a tarball and uploads it to the AIpkg registry. The package's `ref`/`type`/`version` come from `aipkg.json` — bump the `version` field before republishing.
@@ -89,7 +88,7 @@ scripts/publish-all.sh --dry-run        # show what would be published
 scripts/publish-all.sh aipkgs/caveman   # restrict to one or more roots
 ```
 
-The script recurses for every `aipkg.json` it finds, runs `aipkg publish` in each directory, continues on failure, and prints a success/failure summary at the end.
+The script recurses for every `aipkg.json` it finds, runs `npx @aipkgs/cli publish` in each directory, continues on failure, and prints a success/failure summary at the end.
 
 ## License
 
