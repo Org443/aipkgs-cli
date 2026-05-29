@@ -190,6 +190,39 @@ describe('install (hook)', () => {
     expect(settings.hooks.PreToolUse[0]).toMatchObject({ matcher: 'Bash', __aipkg: 'lint' });
   });
 
+  it('namespaces a ref-keyed hook under nested dirs and rewrites ${AIPKG_REF} to its install dir', async () => {
+    const archive = await buildTestArchive({
+      type: 'hook',
+      slug: 'Superpowers',
+      files: [
+        {
+          path: 'hooks.json',
+          body: Buffer.from(
+            JSON.stringify({
+              PreToolUse: [{ matcher: 'Bash', hooks: [{ type: 'command', command: '${AIPKG_REF}/scripts/run.sh' }] }],
+            }),
+          ),
+        },
+        { path: 'scripts/run.sh', body: Buffer.from('#!/bin/sh\n') },
+      ],
+    });
+
+    const { written } = await install({ archive, slug: 'superpowers/Superpowers' });
+
+    expect(written).toEqual(
+      expect.arrayContaining([expect.stringMatching(/\.claude\/hooks\/superpowers\/Superpowers\/scripts\/run\.sh$/)]),
+    );
+    expect(await readTestFile('.claude', 'hooks', 'superpowers', 'Superpowers', 'scripts', 'run.sh')).toBe(
+      '#!/bin/sh\n',
+    );
+
+    const settings = await readTestJson('.claude', 'settings.local.json');
+    expect(settings.hooks.PreToolUse[0]).toMatchObject({
+      hooks: [{ type: 'command', command: '.claude/hooks/superpowers/Superpowers/scripts/run.sh' }],
+      __aipkg: 'superpowers/Superpowers',
+    });
+  });
+
   it('throws when an event value is not an array', async () => {
     await expect(
       installFiles({

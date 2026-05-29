@@ -1,31 +1,57 @@
-import type { Manifest } from '@local/archive';
+import { type Manifest, PackageRef } from '@local/archive';
 import { place } from '@local/placement';
 import pc from 'picocolors';
-import { SEGMENT } from '../constants.ts';
 import { ConfigFile } from '../files/config.ts';
 import { Lockfile } from '../files/lockfile.ts';
 import { ManifestFile } from '../files/manifest.ts';
 
-export async function removeAction(input: { type: Manifest['type']; slugOrRef: string }) {
-  const { type, slugOrRef } = input;
-  const slug = slugOrRef.includes('/') ? (slugOrRef.split('/').filter(Boolean).pop() ?? '') : slugOrRef;
-
-  if (!SEGMENT.test(slug)) {
-    throw new Error(`Invalid name "${slug}" — Good: "aipkg cmd remove pr-create" or "aipkg cmd remove acme/pr-create"`);
-  }
+export async function removeAction(input: { type: Manifest['type']; ref: string }) {
+  const { type, ref } = input;
+  const pkgRef = new PackageRef({ refStr: `${type}/${ref}` });
+  const slug = pkgRef.entryKey();
 
   const target = await ConfigFile.resolvedTarget();
   const manifest = await ManifestFile.resolve();
   const lockfile = await Lockfile.resolve();
 
-  const { path: installed } = await place.remove({ type, slug, target });
-  const { removed: removedFromManifest, pkgRef } = await manifest.removeEntry({ type, slug });
-  const removedFromLock = pkgRef ? await lockfile.removeEntry({ type, slug }) : false;
+  const rootLock = lockfile.getEntry({ pkgRef });
 
-  const removedStatusLine = lockfile.removeStatusLine({ slug });
-  if (removedStatusLine) await place.clearStatusLine({ target });
+  if (!rootLock) {
+    console.log(pc.yellow(`Nothing to remove — no ${type} "${ref}" tracked in aipkg.lock`));
+    return;
+  }
 
-  if (!removedFromManifest && !removedFromLock && !removedStatusLine) {
+  const { entries, mcps } = lockfile.collectSubtree({ rootRef: rootLock.aipkgRef });
+
+  const removedPaths: string[] = [];
+  let clearedStatusLine = false;
+
+  // Boxes have no placeable path of their own; everything else writes one file/dir.
+  if (type !== 'box') {
+    const { path } = await place.remove({ type, slug, target });
+    removedPaths.push(path);
+  }
+
+  for (const child of entries) {
+    const { path } = await place.remove({ type: child.type, slug: child.slug, target });
+    removedPaths.push(path);
+    if (lockfile.removeStatusLine({ slug: child.slug })) clearedStatusLine = true;
+    await lockfile.removeEntry({ type: child.type, slug: child.slug });
+  }
+
+  for (const name of mcps) {
+    await place.removeMcp({ slug: name, target });
+    lockfile.removeMcp({ slug: name });
+    manifest.removeMcp({ slug: name });
+  }
+
+  if (lockfile.removeStatusLine({ slug })) clearedStatusLine = true;
+  if (clearedStatusLine) await place.clearStatusLine({ target });
+
+  const { removed: removedFromManifest } = await manifest.removeEntry({ type, key: slug });
+  const removedFromLock = await lockfile.removeEntry({ type, slug });
+
+  if (!removedFromManifest && !removedFromLock && !clearedStatusLine && entries.length === 0) {
     console.log(pc.yellow(`Nothing to remove — no ${type} "${slug}" tracked in aipkg.json`));
     return;
   }
@@ -34,7 +60,7 @@ export async function removeAction(input: { type: Manifest['type']; slugOrRef: s
   await lockfile.write();
 
   console.log(`${pc.green('Removed')} ${pc.bold(`${type} ${slug}`)}`);
-  console.log(pc.dim(`  ${installed}`));
+  for (const path of removedPaths) console.log(pc.dim(`  ${path}`));
   if (removedFromManifest) console.log(pc.dim('  aipkg.json'));
   if (removedFromLock) console.log(pc.dim('  aipkg.lock'));
 }

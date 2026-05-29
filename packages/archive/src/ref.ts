@@ -3,7 +3,6 @@ import type { Manifest } from './manifest.ts';
 
 type SegmentArgs = { type: string; org: string; key?: string | null; slug: string; version: string };
 type Args = SegmentArgs | { refStr: string };
-type LocalArgs = Args & { localPath?: string };
 
 export class PackageRef {
   type: Manifest['type'];
@@ -13,6 +12,7 @@ export class PackageRef {
   aipkgRef: string;
   path: string;
   version: string;
+  manifestRef: string;
 
   constructor(args: SegmentArgs);
   constructor(args: { refStr: string });
@@ -25,16 +25,24 @@ export class PackageRef {
     assertSegment(slug);
     assertVersion(version);
 
-    const path = segmentsToPath({ type, org, key, slug, version });
-    const aipkgRef = segmentsToRef({ type, org, key, slug, version });
+    const { ref, path, aipkgRef } = composeSegments({ type, org, key, slug, version });
 
     this.type = type;
     this.org = org;
     this.key = key;
     this.slug = slug;
+    this.manifestRef = ref;
     this.aipkgRef = aipkgRef;
     this.path = path;
     this.version = version;
+  }
+
+  // The key a package is tracked under in the manifest, lockfile, and on disk.
+  // Hooks and boxes are namespaced by their full ref (org/key?/slug); every
+  // other type lives in a flat directory keyed by the bare slug.
+  entryKey(): string {
+    if (this.type === 'hook' || this.type === 'box') return this.manifestRef;
+    return this.slug;
   }
 
   appPath(): string {
@@ -47,15 +55,15 @@ export class PackageRef {
   }
 }
 
-function segmentsToPath(args: SegmentArgs) {
+function composeSegments(args: SegmentArgs) {
   const { type, org, key, slug, version } = args;
-  return [type, org, key, slug, version].filter(Boolean).join('/');
-}
-
-function segmentsToRef(args: SegmentArgs) {
-  const { type, org, key, slug, version } = args;
-  const base = [type, org, key, slug].filter(Boolean).join('/');
-  return `aipkg://${base}@${version}`;
+  // `ref` is the namespaced identifier without the type (org/key?/slug);
+  // `path` and `aipkgRef` carry the type so they round-trip to the registry.
+  const ref = [org, key, slug].filter(Boolean).join('/');
+  const typedRef = `${type}/${ref}`;
+  const path = `${typedRef}/${version}`;
+  const aipkgRef = `aipkg://${typedRef}@${version}`;
+  return { ref, path, aipkgRef };
 }
 
 function extractSegments(args: { ref: string }) {

@@ -40,7 +40,7 @@ describe('install', () => {
     expect(await readTestFile('.claude', 'rules', 'no-any.md')).toBe('# no-any\nTest content.');
   });
 
-  it('honors an alias slug different from the manifest ref', async () => {
+  it('writes to the provided slug rather than the archive slug', async () => {
     const archive = await buildTestArchive({ type: 'cmd', slug: 'pr-create' });
 
     await install({ archive, slug: 'open-pr' });

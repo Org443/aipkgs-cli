@@ -1,6 +1,13 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, join } from 'node:path';
-import { type AIpkgArchive, MANIFEST_FILENAME, Manifest, type McpEntry, PackageRef } from '@local/archive';
+import {
+  type AIpkgArchive,
+  MANIFEST_FILENAME,
+  MANIFEST_TYPES,
+  Manifest,
+  type McpEntry,
+  PackageRef,
+} from '@local/archive';
 import { isENOENT } from '../io/fs.ts';
 
 export const LOCKFILE_FILENAME = 'aipkg.lock';
@@ -90,32 +97,34 @@ export class Lockfile implements LockfileStruct {
     await writeFile(this.path, body, 'utf8');
   }
 
-  async upsertEntry(args: { pkgRef: PackageRef; archive: AIpkgArchive; slug?: string; parent?: string }) {
+  async upsertEntry(args: { pkgRef: PackageRef; archive: AIpkgArchive; parent?: string }) {
     const { pkgRef, archive, parent } = args;
-    const slug = args.slug ?? pkgRef.slug;
-    const typeKey = Manifest.assetKey(pkgRef.type);
+
+    const entryKey = pkgRef.entryKey();
+
+    const typeKey = Manifest.depsKey(pkgRef.type);
 
     const bucket = this.deps?.[typeKey] ?? {};
     const deps = this.deps ?? {};
     deps[typeKey] = bucket;
     this.deps = deps;
 
-    const existing = bucket[slug];
+    const existing = bucket[entryKey];
     if (existing) {
       if (existing.sha === archive.sha && existing.version === archive.version) return;
       throw new Error(
-        `lockfile deps conflict importing ${pkgRef.aipkgRef}: ${typeKey} ${slug} already locked with a different archive`,
+        `lockfile deps conflict importing ${pkgRef.aipkgRef}: ${typeKey} ${entryKey} already locked with a different archive`,
       );
     }
 
     const entry: LockEntry = { aipkgRef: pkgRef.aipkgRef, version: archive.version, sha: archive.sha };
     if (parent) entry.parent = parent;
-    bucket[slug] = entry;
+    bucket[entryKey] = entry;
   }
 
   async upsertBoxChild(args: { archive: AIpkgArchive; type: Manifest['type']; slug: string }) {
     const { archive, type, slug } = args;
-    const typeKey = Manifest.assetKey(type);
+    const typeKey = Manifest.depsKey(type);
 
     const bucket = this.deps?.[typeKey] ?? {};
     const deps = this.deps ?? {};
@@ -143,7 +152,7 @@ export class Lockfile implements LockfileStruct {
   async removeEntry(args: { type: Manifest['type']; slug: string }) {
     const { type, slug } = args;
 
-    const typeKey = Manifest.assetKey(type);
+    const typeKey = Manifest.depsKey(type);
     const bucket = this.deps?.[typeKey] ?? {};
 
     if (!bucket[slug]) return false;
@@ -153,18 +162,64 @@ export class Lockfile implements LockfileStruct {
     return true;
   }
 
-  resolvePkgRef(args: { pkgRef: PackageRef; alias?: string }): PackageRef {
-    const { pkgRef, alias } = args;
-    const lock = this.getEntry({ type: pkgRef.type, slug: alias ?? pkgRef.slug });
+  /**
+   * Collect the child deps of the root ref.
+   */
+  collectSubtree(args: { rootRef: string }): {
+    entries: Array<{ type: Manifest['type']; slug: string }>;
+    mcps: string[];
+  } {
+    const { rootRef } = args;
+    const deps = this.deps ?? {};
+
+    const nodes: Array<{ type: Manifest['type']; slug: string; aipkgRef: string; parent?: string }> = [];
+    for (const type of MANIFEST_TYPES) {
+      const bucket = deps[Manifest.depsKey(type)];
+      if (!bucket) continue;
+      for (const [slug, entry] of Object.entries(bucket)) {
+        nodes.push({ type, slug, aipkgRef: entry.aipkgRef, parent: entry.parent });
+      }
+    }
+
+    const entries: Array<{ type: Manifest['type']; slug: string }> = [];
+    const mcps = new Set<string>();
+    const queue = [rootRef];
+    const seen = new Set<string>();
+    while (queue.length > 0) {
+      const parent = queue.shift();
+      if (parent === undefined || seen.has(parent)) continue;
+      seen.add(parent);
+
+      for (const node of nodes) {
+        if (node.parent !== parent) continue;
+        entries.push({ type: node.type, slug: node.slug });
+        queue.push(node.aipkgRef);
+      }
+      for (const [name, mcp] of Object.entries(deps.mcps ?? {})) {
+        if (mcp.parent === parent) mcps.add(name);
+      }
+    }
+
+    return { entries, mcps: Array.from(mcps) };
+  }
+
+  resolvePkgRef(args: { pkgRef: PackageRef }): PackageRef {
+    const { pkgRef } = args;
+
+    const lock = this.getEntry({ pkgRef });
+
     if (!lock) return pkgRef;
     return new PackageRef({ refStr: lock.aipkgRef });
   }
 
-  getEntry(args: { type: Manifest['type']; slug: string }): LockEntry | undefined {
-    const { type, slug } = args;
-    const typeKey = Manifest.assetKey(type);
+  getEntry(args: { pkgRef: PackageRef }): LockEntry | undefined {
+    const { pkgRef } = args;
+
+    const key = pkgRef.entryKey();
+    const typeKey = Manifest.depsKey(pkgRef.type);
+
     const bucket = this.deps?.[typeKey] ?? {};
-    return bucket[slug];
+    return bucket[key];
   }
 
   upsertMcp(args: { slug: string; entry: McpEntry; parent?: string }) {

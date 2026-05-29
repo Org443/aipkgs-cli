@@ -50,29 +50,33 @@ export class ManifestFile extends Manifest {
     await writeFile(this.path, body, 'utf8');
   }
 
-  async upsertEntry(args: { slug: string; pkgRef: PackageRef }) {
-    const { slug, pkgRef } = args;
+  async upsertEntry(args: { pkgRef: PackageRef }) {
+    const { pkgRef } = args;
 
-    const key = Manifest.assetKey(pkgRef.type);
+    const slug = pkgRef.entryKey();
+
+    const key = Manifest.depsKey(pkgRef.type);
 
     const assets = this.deps[key] ?? {};
     assets[slug] = pkgRef;
     this.deps[key] = assets;
+
+    return { slug };
   }
 
-  async removeEntry(args: { type: Manifest['type']; slug: string }) {
-    const { type, slug } = args;
+  async removeEntry(args: { type: Manifest['type']; key: string }) {
+    const { type, key } = args;
 
-    const key = Manifest.assetKey(type);
+    const depKey = Manifest.depsKey(type);
 
-    const assets = this.deps[key];
-    if (!assets) return { removed: false, pkgRef: null };
+    const deps = this.deps[depKey];
+    if (!deps) return { removed: false, pkgRef: null };
 
-    const pkgRef = assets[slug];
+    const pkgRef = deps[key];
     if (!pkgRef) return { removed: false, pkgRef: null };
 
-    delete assets[slug];
-    this.deps[key] = assets;
+    delete deps[key];
+    this.deps[depKey] = deps;
 
     return { removed: true, pkgRef };
   }

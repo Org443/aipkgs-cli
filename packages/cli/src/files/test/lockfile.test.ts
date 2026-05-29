@@ -45,29 +45,6 @@ describe('Lockfile.resolvePkgRef', () => {
     expect(result.aipkgRef).toBe('aipkg://skill/org/foo@0.1.5');
     expect(result.version).toBe('0.1.5');
   });
-
-  it('uses the alias for lookup when alias differs from pkgRef.slug', async () => {
-    await writeTestFile(
-      JSON.stringify({
-        deps: {
-          skills: {
-            'my-alias': {
-              aipkgRef: 'aipkg://skill/org/foo@0.1.5',
-              version: '0.1.5',
-              sha: 'sha256:abc',
-            },
-          },
-        },
-      }),
-      'aipkg.lock',
-    );
-    const lockfile = await Lockfile.resolve();
-
-    const pkgRef = new PackageRef({ refStr: 'skill/org/foo@latest' });
-    const result = lockfile.resolvePkgRef({ pkgRef, alias: 'my-alias' });
-
-    expect(result.aipkgRef).toBe('aipkg://skill/org/foo@0.1.5');
-  });
 });
 
 describe('Lockfile.upsertStatusLine / removeStatusLine / getStatusLine', () => {

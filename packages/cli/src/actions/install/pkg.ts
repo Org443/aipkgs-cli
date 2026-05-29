@@ -15,15 +15,14 @@ import { resolveDeps } from './deps-resolution.ts';
 
 export async function installPkg(args: {
   pkgRef: PackageRef;
-  alias?: string;
   lockfile: Lockfile;
   target: AgentTarget;
   parent?: string;
 }) {
-  const { pkgRef, alias, parent, lockfile, target } = args;
-  const slug = alias ?? pkgRef.slug;
+  const { pkgRef, parent, lockfile, target } = args;
+  const slug = pkgRef.entryKey();
 
-  const lock = lockfile.getEntry({ type: pkgRef.type, slug });
+  const lock = lockfile.getEntry({ pkgRef });
 
   const tarball = await api.packages.downloadArchive({ pkgRef });
   const archive = await archiveService.parse(tarball);
@@ -51,7 +50,7 @@ export async function installPkg(args: {
     console.log(pc.dim(`  ${path}`));
   }
 
-  await lockfile.upsertEntry({ pkgRef, archive, slug, parent });
+  await lockfile.upsertEntry({ pkgRef, archive, parent });
 
   await resolveDeps({ archive, lockfile, target });
 
@@ -69,7 +68,7 @@ async function installBox(args: {
 
   await lockfile.upsertEntry({ pkgRef, archive, parent });
 
-  const children = parseBoxChildren({ files: archive.files, boxSlug: pkgRef.slug });
+  const children = parseBoxChildren({ files: archive.files, boxRef: pkgRef.manifestRef });
   for (const child of children) {
     const { written, statusLine } = await place.installFiles({
       type: child.type,
@@ -91,17 +90,17 @@ async function installBox(args: {
   return { archive, pkgRef };
 }
 
-function parseBoxChildren(args: { files: TarEntry[]; boxSlug: string }): Array<{
+function parseBoxChildren(args: { files: TarEntry[]; boxRef: string }): Array<{
   type: Manifest['type'];
   slug: string;
   files: TarEntry[];
 }> {
-  const { files, boxSlug } = args;
+  const { files, boxRef } = args;
   const groups = new Map<string, { type: Manifest['type']; slug: string; files: TarEntry[] }>();
 
   for (const file of files) {
     if (file.path === MANIFEST_FILENAME) continue;
-    const parsed = parseChildPath({ path: file.path, boxSlug });
+    const parsed = parseChildPath({ path: file.path, boxRef });
     if (!parsed) continue;
 
     const { type, slug, rel } = parsed;
@@ -116,9 +115,9 @@ function parseBoxChildren(args: { files: TarEntry[]; boxSlug: string }): Array<{
 
 function parseChildPath(args: {
   path: string;
-  boxSlug: string;
+  boxRef: string;
 }): { type: Manifest['type']; slug: string; rel: string } | null {
-  const { path, boxSlug } = args;
+  const { path, boxRef } = args;
   const [top, ...rest] = path.split('/');
   if (!top || rest.length === 0) return null;
 
@@ -128,10 +127,10 @@ function parseChildPath(args: {
     return { type: 'skill', slug, rel: sub.join('/') };
   }
 
-  // Box hooks are a flat bundle under `hooks/`, owned by the box's slug —
+  // Box hooks are a flat bundle under `hooks/`, owned by the box's ref —
   // the entire `hooks/` subtree becomes one hook child keyed off the box.
   if (top === 'hooks') {
-    return { type: 'hook', slug: boxSlug, rel: rest.join('/') };
+    return { type: 'hook', slug: boxRef, rel: rest.join('/') };
   }
 
   if (rest.length !== 1) return null;

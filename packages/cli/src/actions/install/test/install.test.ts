@@ -10,7 +10,7 @@ import {
   testFileExists,
   writeTestFile,
 } from '../../../test/helpers.ts';
-import { installAction } from '../index.ts';
+import { installAction } from '../install.ts';
 
 beforeEach(async () => {
   setupTestCwd({ prefix: 'aipkg-install-test-' });
@@ -150,7 +150,7 @@ describe('installAction', () => {
   });
 
   describe('box with hooks', () => {
-    it('extracts the hooks/ subtree into a single bundle keyed by the box slug', async () => {
+    it('extracts the hooks/ subtree into a single bundle keyed by the box ref', async () => {
       const tarball = await buildTestTarball({
         type: 'box',
         org: 'org443',
@@ -171,8 +171,10 @@ describe('installAction', () => {
 
       await installAction({ type: 'box', ref: 'org443/my-box' });
 
-      expect(await readTestFile('.claude', 'hooks', 'my-box', 'scripts', 'lint.sh')).toBe('#!/bin/sh\necho lint\n');
-      expect(testFileExists('.claude', 'hooks', 'my-box', 'hooks.json')).toBe(false);
+      expect(await readTestFile('.claude', 'hooks', 'org443', 'my-box', 'scripts', 'lint.sh')).toBe(
+        '#!/bin/sh\necho lint\n',
+      );
+      expect(testFileExists('.claude', 'hooks', 'org443', 'my-box', 'hooks.json')).toBe(false);
       expect(testFileExists('.claude', 'hooks', 'scripts')).toBe(false);
 
       const settings = await readTestJson('.claude', 'settings.local.json');
@@ -180,7 +182,7 @@ describe('installAction', () => {
       expect(settings.hooks.PreToolUse[0]).toMatchObject({
         matcher: 'Bash',
         hooks: [{ type: 'command', command: 'scripts/lint.sh' }],
-        __aipkg: 'my-box',
+        __aipkg: 'org443/my-box',
       });
 
       expect(await readTestFile('.claude', 'commands', 'pr-create.md')).toBe('# pr-create');
@@ -210,10 +212,83 @@ describe('installAction', () => {
       await installAction({ type: 'box', ref: 'org443/my-box' });
 
       const settings = await readTestJson('.claude', 'settings.local.json');
-      expect(settings.statusLine).toMatchObject({ command: 'box-status.sh', __aipkg: 'my-box' });
+      expect(settings.statusLine).toMatchObject({ command: 'box-status.sh', __aipkg: 'org443/my-box' });
 
       const lockfile = await readTestJson('aipkg.lock');
-      expect(lockfile.deps.statusLine).toMatchObject({ slug: 'my-box', statusLine: { command: 'box-status.sh' } });
+      expect(lockfile.deps.statusLine).toMatchObject({
+        slug: 'org443/my-box',
+        statusLine: { command: 'box-status.sh' },
+      });
+    });
+  });
+
+  describe('hook ref keying', () => {
+    it('keys the manifest, lockfile, and on-disk dir by the full ref', async () => {
+      const tarball = await buildTestTarball({
+        type: 'hook',
+        org: 'superpowers',
+        slug: 'Superpowers',
+        version: '1.0.0',
+        files: [
+          {
+            path: 'hooks.json',
+            body: Buffer.from(
+              '{"PreToolUse":[{"matcher":"Bash","hooks":[{"type":"command","command":"scripts/lint.sh"}]}]}',
+            ),
+          },
+          { path: 'scripts/lint.sh', body: Buffer.from('#!/bin/sh\n') },
+        ],
+      });
+      const expectedArchive = await archiveService.parse(tarball);
+      mockFetch(tarball);
+
+      await installAction({ type: 'hook', ref: 'superpowers/Superpowers' });
+
+      expect(await readTestFile('.claude', 'hooks', 'superpowers', 'Superpowers', 'scripts', 'lint.sh')).toBe(
+        '#!/bin/sh\n',
+      );
+
+      const manifest = await readTestJson('aipkg.json');
+      expect(manifest.deps.hooks).toMatchObject({
+        'superpowers/Superpowers': 'aipkg://hook/superpowers/Superpowers@latest',
+      });
+
+      const lockfile = await readTestJson('aipkg.lock');
+      expect(lockfile.deps.hooks).toMatchObject({
+        'superpowers/Superpowers': {
+          aipkgRef: 'aipkg://hook/superpowers/Superpowers@latest',
+          version: '1.0.0',
+          sha: expectedArchive.sha,
+        },
+      });
+    });
+
+    it('keys a box by its full ref in the manifest and lockfile', async () => {
+      const tarball = await buildTestTarball({
+        type: 'box',
+        org: 'superpowers',
+        slug: 'Superpowers',
+        version: '1.0.0',
+        files: [{ path: 'cmds/pr-create.md', body: Buffer.from('# pr-create') }],
+      });
+      const expectedArchive = await archiveService.parse(tarball);
+      mockFetch(tarball);
+
+      await installAction({ type: 'box', ref: 'superpowers/Superpowers' });
+
+      const manifest = await readTestJson('aipkg.json');
+      expect(manifest.deps.boxes).toMatchObject({
+        'superpowers/Superpowers': 'aipkg://box/superpowers/Superpowers@latest',
+      });
+
+      const lockfile = await readTestJson('aipkg.lock');
+      expect(lockfile.deps.boxes).toMatchObject({
+        'superpowers/Superpowers': {
+          aipkgRef: 'aipkg://box/superpowers/Superpowers@1.0.0',
+          version: '1.0.0',
+          sha: expectedArchive.sha,
+        },
+      });
     });
   });
 
@@ -246,10 +321,10 @@ describe('installAction', () => {
       await installAction({ type: 'hook', ref: 'org443/lint' });
 
       const settings = await readTestJson('.claude', 'settings.local.json');
-      expect(settings.statusLine).toMatchObject({ type: 'command', command: 'status.sh', __aipkg: 'lint' });
+      expect(settings.statusLine).toMatchObject({ type: 'command', command: 'status.sh', __aipkg: 'org443/lint' });
 
       const lockfile = await readTestJson('aipkg.lock');
-      expect(lockfile.deps.statusLine).toMatchObject({ slug: 'lint', statusLine: { command: 'status.sh' } });
+      expect(lockfile.deps.statusLine).toMatchObject({ slug: 'org443/lint', statusLine: { command: 'status.sh' } });
     });
 
     it('throws a conflict when a second hook defines a statusLine', async () => {
@@ -273,30 +348,6 @@ describe('installAction', () => {
       mockFetch(fmtTar);
 
       await expect(installAction({ type: 'hook', ref: 'org443/fmt' })).rejects.toThrow(/statusLine conflict/);
-    });
-  });
-
-  describe('alias support', () => {
-    it('installs under the alias name', async () => {
-      const tarball = await buildTestTarball({ type: 'cmd', org: 'org443', slug: 'pr-create', version: '1.0.0' });
-      mockFetch(tarball);
-
-      await installAction({ type: 'cmd', ref: 'org443/pr-create', alias: 'my-pr' });
-
-      const content = await readTestFile('.claude', 'commands', 'my-pr.md');
-      expect(content).toBe('# pr-create\nTest content.');
-
-      const manifest = await readTestJson('aipkg.json');
-      expect(manifest.deps.cmds).toHaveProperty('my-pr');
-      expect(manifest.deps.cmds).not.toHaveProperty('pr-create');
-    });
-  });
-
-  describe('validation', () => {
-    it('rejects an alias with invalid characters', async () => {
-      await expect(installAction({ type: 'cmd', ref: 'org443/pr-create', alias: 'bad alias!' })).rejects.toThrow(
-        'Invalid alias',
-      );
     });
   });
 

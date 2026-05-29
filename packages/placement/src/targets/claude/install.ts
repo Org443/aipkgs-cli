@@ -69,10 +69,29 @@ async function installHook(args: { slug: string; files: TarEntry[] }) {
   }
 
   const { events, statusLine } = parseHooksJson({ slug, body: hooksEntry.body });
-  await settingsConfig.mergeHooks({ slug, hooks: events });
+  // `${AIPKG_REF}` resolves to the hook's install directory so authored commands can
+  // reference their own placed scripts regardless of the namespacing key.
+  const installDir = ['.claude', 'hooks', slug].join('/');
+  const resolved = substituteRef({ events, installDir });
+  await settingsConfig.mergeHooks({ slug, hooks: resolved });
   written.push(settingsConfig.path());
 
   return { written, statusLine };
+}
+
+const REF_TOKEN = /\$\{AIPKG_REF\}/g;
+function substituteRef(args: { events: HooksByEvent; installDir: string }): HooksByEvent {
+  const { events, installDir } = args;
+  const out: HooksByEvent = {};
+  for (const [event, matchers] of Object.entries(events)) {
+    out[event] = matchers.map((matcher) => ({
+      ...matcher,
+      hooks: matcher.hooks.map((hook) =>
+        hook.command === undefined ? hook : { ...hook, command: hook.command.replace(REF_TOKEN, installDir) },
+      ),
+    }));
+  }
+  return out;
 }
 
 function parseHooksJson(args: { slug: string; body: Buffer }): {

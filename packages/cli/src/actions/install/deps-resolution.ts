@@ -18,12 +18,12 @@ export async function resolveDeps(args: { archive: AIpkgArchive; lockfile: Lockf
   const { deps } = manifest;
   const parent = archive.pkgRef.aipkgRef;
 
-  for (const assetKey of DEPS_KEYS) {
-    const assetBucket = deps[assetKey];
-    if (!assetBucket) continue;
-    for (const [alias, entry] of Object.entries(assetBucket)) {
-      const pkgRef = lockfile.resolvePkgRef({ pkgRef: entry, alias });
-      await installPkg({ pkgRef, alias, lockfile, target, parent });
+  for (const depsKey of DEPS_KEYS) {
+    const depsBucket = deps[depsKey];
+    if (!depsBucket) continue;
+    for (const entry of Object.values(depsBucket)) {
+      const pkgRef = lockfile.resolvePkgRef({ pkgRef: entry });
+      await installPkg({ pkgRef, lockfile, target, parent });
     }
   }
 

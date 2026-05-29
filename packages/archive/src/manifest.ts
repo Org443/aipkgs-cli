@@ -90,7 +90,7 @@ export class Manifest {
     });
   }
 
-  static assetKey(type: Manifest['type']): DepsKey {
+  static depsKey(type: Manifest['type']): DepsKey {
     switch (type) {
       case 'cmd':
         return 'cmds';
@@ -125,7 +125,7 @@ export class Manifest {
 
   getEntry(args: { type: Manifest['type']; slug: string }) {
     const { type, slug } = args;
-    const key = Manifest.assetKey(type);
+    const key = Manifest.depsKey(type);
     return this.deps[key]?.[slug];
   }
 

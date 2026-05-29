@@ -136,12 +136,23 @@ describe('PackageRef', () => {
       });
     });
 
-    it('produces correct path and aipkgRef', () => {
+    it('produces correct ref, path, and aipkgRef for a keyed ref', () => {
       const ref = new PackageRef({ refStr: 'box/myorg/core/bot@3.0.0' });
 
       expect(ref).toMatchObject({
+        manifestRef: 'myorg/core/bot',
         path: 'box/myorg/core/bot/3.0.0',
         aipkgRef: 'aipkg://box/myorg/core/bot@3.0.0',
+      });
+    });
+
+    it('produces correct ref, path, and aipkgRef for an unkeyed ref', () => {
+      const ref = new PackageRef({ refStr: 'hook/superpowers/Superpowers@1.2.0' });
+
+      expect(ref).toMatchObject({
+        manifestRef: 'superpowers/Superpowers',
+        path: 'hook/superpowers/Superpowers/1.2.0',
+        aipkgRef: 'aipkg://hook/superpowers/Superpowers@1.2.0',
       });
     });
   });

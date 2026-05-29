@@ -17,8 +17,11 @@
       "node-workspaces": "aipkg://rule/org443/node-workspaces@latest",
       "short-comments": "aipkg://rule/org443/short-comments@latest"
     },
+    "hooks": {
+      "org443/status-line": "aipkg://hook/org443/status-line@latest"
+    },
     "boxes": {
-      "Superpowers": "aipkg://box/superpowers/Superpowers@latest"
+      "superpowers/Superpowers": "aipkg://box/superpowers/Superpowers@latest"
     },
     "mcps": {
       "linear": {

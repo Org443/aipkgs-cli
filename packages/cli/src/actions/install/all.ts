@@ -18,9 +18,8 @@ export async function installAllAction(args: { manifest?: string } = {}) {
     return;
   }
 
-  for (const task of tasks) {
-    const { alias, pkgRef } = task;
-    const { archive } = await installPkg({ pkgRef, alias, lockfile, target });
+  for (const pkgRef of tasks) {
+    const { archive } = await installPkg({ pkgRef, lockfile, target });
 
     await lockfile.upsertEntry({ pkgRef, archive });
   }
@@ -41,16 +40,16 @@ export async function installAllAction(args: { manifest?: string } = {}) {
 
 function collectTasks(args: { manifest: Manifest; lockfile: Lockfile }) {
   const { manifest, lockfile } = args;
-  const tasks: { alias: string; pkgRef: PackageRef }[] = [];
+  const tasks: PackageRef[] = [];
   const mcps: { name: string; entry: McpEntry }[] = [];
 
   for (const key of DEPS_KEYS) {
     const assetBucket = manifest.deps[key];
     if (!assetBucket) continue;
 
-    for (const [alias, entry] of Object.entries(assetBucket)) {
-      const pkgRef = lockfile.resolvePkgRef({ pkgRef: entry, alias });
-      tasks.push({ alias, pkgRef });
+    for (const entry of Object.values(assetBucket)) {
+      const pkgRef = lockfile.resolvePkgRef({ pkgRef: entry });
+      tasks.push(pkgRef);
     }
   }
 

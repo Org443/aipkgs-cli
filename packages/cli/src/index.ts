@@ -3,7 +3,7 @@ import { Command } from 'commander';
 import pc from 'picocolors';
 import { initAction } from './actions/init.ts';
 import { installAllAction } from './actions/install/all.ts';
-import { installAction } from './actions/install/index.ts';
+import { installAction } from './actions/install/install.ts';
 import { loginAction } from './actions/login.ts';
 import { logoutAction } from './actions/logout.ts';
 import { mcpAddAction, mcpRemoveAction } from './actions/mcp.ts';
@@ -145,22 +145,20 @@ function defineInstallCommand(input: { program: Command; type: Manifest['type'] 
     .command(type)
     .description(`Install a ${type} package`)
     .argument('<ref>', '<org>/<slug> or <org>/<key>/<slug> — install into cwd')
-    .option('--alias <name>', 'install under a different name (folder/filename and aipkg.json key)')
-    .action(async (ref: string | undefined, opts: { alias?: string }) => {
+    .action(async (ref: string | undefined) => {
       if (!ref) {
         group.help();
         return;
       }
-      await installAction({ type, ref, alias: opts.alias });
+
+      await installAction({ type, ref });
     });
 
   group
-    .command('remove <slug-or-ref>')
-    .description(
-      `Uninstall a ${type} — accepts a slug ("pr-create") or a ref ("acme/pr-create"); drops files, aipkg.json, and aipkg.lock entries`,
-    )
-    .action(async (slugOrRef: string) => {
-      await removeAction({ type, slugOrRef });
+    .command('remove <ref>')
+    .description(`Uninstall a ${type} — accepts a ref ("acme/pr-create")`)
+    .action(async (ref: string) => {
+      await removeAction({ type, ref });
     });
 }
 
