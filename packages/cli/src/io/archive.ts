@@ -24,7 +24,7 @@ export async function collectArchiveFiles(args: {
   }
 
   const assetFiles = await collectCoreFiles({ type, dir, slug, manifestFilename });
-  const sidecars = await collectSidecars({ dir }); // README, HERO_CARD, LICENSE
+  const sidecars = await collectSidecars({ dir }); // README, LICENSE
 
   return [...sidecars, ...assetFiles];
 }

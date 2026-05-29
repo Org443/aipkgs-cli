@@ -76,7 +76,7 @@ describe('install (hook)', () => {
 
     const result = await install({ archive, slug: 'lint' });
 
-    expect(result.statusLine).toMatchObject({ type: 'command', command: 'status.sh' });
+    expect((result as any).statusLine).toMatchObject({ type: 'command', command: 'status.sh' });
 
     const settings = await readTestJson('.claude', 'settings.local.json');
     expect(settings.statusLine).toBeUndefined();
@@ -190,7 +190,7 @@ describe('install (hook)', () => {
     expect(settings.hooks.PreToolUse[0]).toMatchObject({ matcher: 'Bash', __aipkg: 'lint' });
   });
 
-  it('namespaces a ref-keyed hook under nested dirs and rewrites ${AIPKG_REF} to its install dir', async () => {
+  it('namespaces a ref-keyed hook under nested dirs and rewrites ${PKG_ROOT} to its install dir', async () => {
     const archive = await buildTestArchive({
       type: 'hook',
       slug: 'Superpowers',
@@ -199,7 +199,7 @@ describe('install (hook)', () => {
           path: 'hooks.json',
           body: Buffer.from(
             JSON.stringify({
-              PreToolUse: [{ matcher: 'Bash', hooks: [{ type: 'command', command: '${AIPKG_REF}/scripts/run.sh' }] }],
+              PreToolUse: [{ matcher: 'Bash', hooks: [{ type: 'command', command: '${PKG_ROOT}/scripts/run.sh' }] }],
             }),
           ),
         },

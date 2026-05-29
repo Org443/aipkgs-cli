@@ -25,14 +25,13 @@ describe('assertSkillArchive', () => {
       file('aipkg.json'),
       file('SKILL.md'),
       file('README.md'),
-      file('HERO_CARD.md'),
       file('LICENSE.txt'),
       file('scripts/run.py'),
       file('assets/template.txt'),
       file('references/spec.md'),
     ];
     const result = assertSkillArchive({ manifest, files });
-    expect(result.files).toHaveLength(8);
+    expect(result.files).toHaveLength(7);
   });
 
   it('prunes cruft', () => {
