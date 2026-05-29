@@ -24,13 +24,11 @@ describe('assertBoxArchive', () => {
     expect(result.files.map((f) => f.path)).toEqual(['aipkg.json']);
   });
 
-  it('accepts optional README.md, LICENSE.txt, HERO_CARD.md siblings', () => {
+  it('accepts optional README.md, LICENSE.txt siblings', () => {
     const manifest = buildManifest();
-    const files = [file('aipkg.json'), file('README.md'), file('LICENSE.txt', 'MIT'), file('HERO_CARD.md')];
+    const files = [file('aipkg.json'), file('README.md'), file('LICENSE.txt', 'MIT')];
     const result = assertBoxArchive({ manifest, files });
-    expect(result.files.map((f) => f.path).sort()).toEqual(
-      ['HERO_CARD.md', 'LICENSE.txt', 'README.md', 'aipkg.json'].sort(),
-    );
+    expect(result.files.map((f) => f.path).sort()).toEqual(['LICENSE.txt', 'README.md', 'aipkg.json'].sort());
   });
 
   it('prunes .DS_Store and other cruft silently', () => {

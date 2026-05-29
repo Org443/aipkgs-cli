@@ -69,7 +69,7 @@ async function installHook(args: { slug: string; files: TarEntry[] }) {
   }
 
   const { events, statusLine } = parseHooksJson({ slug, body: hooksEntry.body });
-  // `${AIPKG_REF}` resolves to the hook's install directory so authored commands can
+  // `${PKG_ROOT}` resolves to the hook's install directory so authored commands can
   // reference their own placed scripts regardless of the namespacing key.
   const installDir = ['.claude', 'hooks', slug].join('/');
   const resolved = substituteRef({ events, installDir });
@@ -79,7 +79,7 @@ async function installHook(args: { slug: string; files: TarEntry[] }) {
   return { written, statusLine };
 }
 
-const REF_TOKEN = /\$\{AIPKG_REF\}/g;
+const REF_TOKEN = /\$\{PKG_ROOT\}/g;
 function substituteRef(args: { events: HooksByEvent; installDir: string }): HooksByEvent {
   const { events, installDir } = args;
   const out: HooksByEvent = {};

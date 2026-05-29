@@ -21,7 +21,7 @@ program
   .version('0.0.0', '-v, --version', 'output the version number')
   .showHelpAfterError();
 
-// Asset types: every type supports install (default), remove, hero-card.
+// Asset types: every type supports install (default) and remove.
 // Publishing for asset types is unified under `aipkg publish <type> <name>` below.
 for (const type of MANIFEST_TYPES) defineInstallCommand({ program, type });
 

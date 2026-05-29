@@ -116,7 +116,7 @@ describe('publishAction', () => {
       expect(paths).toEqual(['README.md', 'SKILL.md', 'assets/logo.txt']);
     });
 
-    it('packs optional README.md and HERO_CARD.md sidecars for non-skill types', async () => {
+    it('packs optional README.md sidecar for non-skill types', async () => {
       const dir = ['rules', 'safety'];
       await writePkgManifest({
         dir,
@@ -126,7 +126,6 @@ describe('publishAction', () => {
       });
       await writeTestFile('# safety', ...dir, 'safety.md');
       await writeTestFile('# README', ...dir, 'README.md');
-      await writeTestFile('# HERO', ...dir, 'HERO_CARD.md');
       const fetchSpy = mockUpload();
 
       await publishAction({ path: testDir(...dir) });
@@ -137,7 +136,7 @@ describe('publishAction', () => {
         .map((f) => f.path)
         .filter((p) => p !== 'aipkg.json')
         .sort();
-      expect(paths).toEqual(['HERO_CARD.md', 'README.md', 'safety.md']);
+      expect(paths).toEqual(['README.md', 'safety.md']);
     });
 
     it('ignores unrelated files in non-skill directories', async () => {

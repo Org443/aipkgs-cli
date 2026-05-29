@@ -25,13 +25,12 @@ describe('assertHookArchive', () => {
       file('aipkg.json'),
       file('hooks.json', '{"hooks":[]}'),
       file('README.md'),
-      file('HERO_CARD.md'),
       file('LICENSE.txt'),
       file('scripts/lint.sh'),
       file('scripts/lib/util.sh'),
     ];
     const result = assertHookArchive({ manifest, files });
-    expect(result.files).toHaveLength(7);
+    expect(result.files).toHaveLength(6);
   });
 
   it('prunes cruft', () => {

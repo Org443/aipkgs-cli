@@ -3,9 +3,9 @@ import { MANIFEST_FILENAME, type Manifest } from '../manifest.ts';
 import type { TarEntry } from '../tarball.ts';
 import { HOOKS_JSON_FILENAME } from './hook.ts';
 import { pruneCruft } from './prune.ts';
-import { HERO_CARD_FILENAME, LICENSE_FILENAME, README_FILENAME } from './shared.ts';
+import { LICENSE_FILENAME, README_FILENAME } from './shared.ts';
 
-const BOX_ROOT_FILES = new Set([MANIFEST_FILENAME, README_FILENAME, HERO_CARD_FILENAME, LICENSE_FILENAME]);
+const BOX_ROOT_FILES = new Set([MANIFEST_FILENAME, README_FILENAME, LICENSE_FILENAME]);
 const FLAT_DEP_DIRS = new Set(['cmds', 'subagents', 'rules']);
 const HOOKS_DIR = 'hooks';
 

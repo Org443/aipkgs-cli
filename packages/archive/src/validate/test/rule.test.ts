@@ -19,9 +19,9 @@ describe('assertRuleArchive', () => {
     expect(result.files.map((f) => f.path)).toEqual(['aipkg.json', 'lint.md']);
   });
 
-  it('accepts LICENSE.txt and HERO_CARD.md siblings', () => {
+  it('accepts LICENSE.txt and README.md siblings', () => {
     const manifest = buildManifest();
-    const files = [file('aipkg.json'), file('lint.md'), file('LICENSE.txt'), file('HERO_CARD.md')];
+    const files = [file('aipkg.json'), file('lint.md'), file('LICENSE.txt'), file('README.md')];
     const result = assertRuleArchive({ manifest, files });
     expect(result.files).toHaveLength(4);
   });

@@ -117,7 +117,7 @@ export class Lockfile implements LockfileStruct {
       );
     }
 
-    const entry: LockEntry = { aipkgRef: pkgRef.aipkgRef, version: archive.version, sha: archive.sha };
+    const entry: LockEntry = { aipkgRef: archive.pkgRef.aipkgRef, version: archive.version, sha: archive.sha };
     if (parent) entry.parent = parent;
     bucket[entryKey] = entry;
   }

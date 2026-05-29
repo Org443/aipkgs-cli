@@ -19,18 +19,12 @@ describe('assertCmdArchive', () => {
     expect(result.files.map((f) => f.path)).toEqual(['aipkg.json', 'pr-create.md']);
   });
 
-  it('accepts optional LICENSE.txt, HERO_CARD.md, README.md siblings', () => {
+  it('accepts optional LICENSE.txt, README.md siblings', () => {
     const manifest = buildManifest();
-    const files = [
-      file('aipkg.json'),
-      file('pr-create.md'),
-      file('LICENSE.txt', 'MIT'),
-      file('HERO_CARD.md'),
-      file('README.md'),
-    ];
+    const files = [file('aipkg.json'), file('pr-create.md'), file('LICENSE.txt', 'MIT'), file('README.md')];
     const result = assertCmdArchive({ manifest, files });
     expect(result.files.map((f) => f.path).sort()).toEqual(
-      ['HERO_CARD.md', 'LICENSE.txt', 'README.md', 'aipkg.json', 'pr-create.md'].sort(),
+      ['LICENSE.txt', 'README.md', 'aipkg.json', 'pr-create.md'].sort(),
     );
   });
 

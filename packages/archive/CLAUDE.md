@@ -27,14 +27,12 @@ type Manifest = {
 
 - `aipkg.json`
 - `<cmd-name>.md`
-- `HERO_CARD.md` (optional)
 - `LICENSE.txt` (optional)
 
 ### Rule Archive
 
 - `aipkg.json`
 - `<rule-name>.md`
-- `HERO_CARD.md` (optional)
 - `LICENSE.txt` (optional)
 
 
@@ -42,7 +40,6 @@ type Manifest = {
 
 - `aipkg.json`
 - `<subagent-name>.md`
-- `HERO_CARD.md` (optional)
 - `LICENSE.txt` (optional)
 
 
@@ -55,7 +52,6 @@ alongside it at any depth.
 - `aipkg.json`
 - `SKILL.md`
 - `README.md` (optional)
-- `HERO_CARD.md` (optional)
 - `LICENSE.txt` (optional)
 - `assets/`, `scripts/`, `references/`, … (optional, arbitrary)
 

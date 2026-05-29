@@ -4,7 +4,7 @@ import type { TarEntry } from '@local/archive';
 
 // Optional human-facing files that can sit at the root of any package
 // regardless of type. Collected once at the top of the pipeline.
-export const SIDECAR_FILES = ['README.md', 'HERO_CARD.md', 'LICENSE.txt'] as const;
+export const SIDECAR_FILES = ['README.md', 'LICENSE.txt'] as const;
 export const SIDECAR_FILENAMES = new Set<string>(SIDECAR_FILES);
 
 // Pack a single flat package (cmd / rule / subagent): just `<slug>.md`.

@@ -70,7 +70,7 @@ describe('installAction', () => {
       const lockfile = await readTestJson('aipkg.lock');
       expect(lockfile.deps.cmds).toMatchObject({
         'pr-create': {
-          aipkgRef: 'aipkg://cmd/org443/pr-create@latest',
+          aipkgRef: 'aipkg://cmd/org443/pr-create@1.0.0',
           version: '1.0.0',
           sha: expectedArchive.sha,
         },
@@ -108,7 +108,7 @@ describe('installAction', () => {
       const lockfile = await readTestJson('aipkg.lock');
       expect(lockfile.deps.cmds).toMatchObject({
         'pr-create': {
-          aipkgRef: 'aipkg://cmd/org443/core/pr-create@latest',
+          aipkgRef: 'aipkg://cmd/org443/core/pr-create@2.0.0',
           version: '2.0.0',
           sha: expectedArchive.sha,
         },
@@ -256,7 +256,7 @@ describe('installAction', () => {
       const lockfile = await readTestJson('aipkg.lock');
       expect(lockfile.deps.hooks).toMatchObject({
         'superpowers/Superpowers': {
-          aipkgRef: 'aipkg://hook/superpowers/Superpowers@latest',
+          aipkgRef: 'aipkg://hook/superpowers/Superpowers@1.0.0',
           version: '1.0.0',
           sha: expectedArchive.sha,
         },

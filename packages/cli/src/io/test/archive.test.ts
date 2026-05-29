@@ -37,10 +37,9 @@ describe('collectArchiveFiles', () => {
       expect(bodyFor(entries, 'pr-create.md')).toBe('# pr-create');
     });
 
-    it('emits <slug>.md plus README, HERO_CARD, and LICENSE sidecars', async () => {
+    it('emits <slug>.md plus README and LICENSE sidecars', async () => {
       await writeTestFile('# pr-create', 'pr-create.md');
       await writeTestFile('# readme', 'README.md');
-      await writeTestFile('# hero', 'HERO_CARD.md');
       await writeTestFile('mit', 'LICENSE.txt');
 
       const entries = await collectArchiveFiles({
@@ -49,7 +48,7 @@ describe('collectArchiveFiles', () => {
         slug: 'pr-create',
       });
 
-      expect(paths(entries)).toEqual(['HERO_CARD.md', 'LICENSE.txt', 'README.md', 'pr-create.md']);
+      expect(paths(entries)).toEqual(['LICENSE.txt', 'README.md', 'pr-create.md']);
     });
   });
 
@@ -205,10 +204,9 @@ describe('collectArchiveFiles', () => {
       expect(paths(entries)).toEqual(['cmds/pr-create.md']);
     });
 
-    it('includes README, HERO_CARD, and LICENSE sidecars at the box root', async () => {
+    it('includes README and LICENSE sidecars at the box root', async () => {
       await writeTestFile(JSON.stringify({ type: 'box', ref: 'org/x', version: '1.0.0' }), 'aipkg.json');
       await writeTestFile('# readme', 'README.md');
-      await writeTestFile('# hero', 'HERO_CARD.md');
       await writeTestFile('mit', 'LICENSE.txt');
       await writeTestFile('# pr-create', 'cmds/pr-create.md');
 
@@ -218,7 +216,7 @@ describe('collectArchiveFiles', () => {
         slug: 'my-box',
       });
 
-      expect(paths(entries)).toEqual(['HERO_CARD.md', 'LICENSE.txt', 'README.md', 'cmds/pr-create.md']);
+      expect(paths(entries)).toEqual(['LICENSE.txt', 'README.md', 'cmds/pr-create.md']);
       expect(bodyFor(entries, 'README.md')).toBe('# readme');
     });
 
