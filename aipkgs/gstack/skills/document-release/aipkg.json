@@ -5,7 +5,8 @@
   "description": "Post-ship documentation update. (gstack)",
   "deps": {
     "skills": {
-      "document-generate": "aipkg://skill/gstack/document-generate@latest"
+      "document-generate": "aipkg://skill/gstack/document-generate@latest",
+      "gstack": "aipkg://skill/gstack/gstack@latest"
     }
   }
 }

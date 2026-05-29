@@ -2,5 +2,10 @@
   "type": "skill",
   "ref": "gstack/retro",
   "version": "0.1.0",
-  "description": "Weekly engineering retrospective. (gstack)"
+  "description": "Weekly engineering retrospective. (gstack)",
+  "deps": {
+    "skills": {
+      "gstack": "aipkg://skill/gstack/gstack@latest"
+    }
+  }
 }

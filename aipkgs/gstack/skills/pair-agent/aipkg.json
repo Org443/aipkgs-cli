@@ -2,5 +2,10 @@
   "type": "skill",
   "ref": "gstack/pair-agent",
   "version": "0.1.0",
-  "description": "Pair a remote AI agent with your browser. (gstack)"
+  "description": "Pair a remote AI agent with your browser. (gstack)",
+  "deps": {
+    "skills": {
+      "gstack": "aipkg://skill/gstack/gstack@latest"
+    }
+  }
 }

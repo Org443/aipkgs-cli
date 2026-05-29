@@ -5,7 +5,8 @@
   "description": "OpenAI Codex CLI wrapper — three modes. (gstack)",
   "deps": {
     "skills": {
-      "autoplan": "aipkg://skill/gstack/autoplan@latest"
+      "autoplan": "aipkg://skill/gstack/autoplan@latest",
+      "gstack": "aipkg://skill/gstack/gstack@latest"
     }
   }
 }

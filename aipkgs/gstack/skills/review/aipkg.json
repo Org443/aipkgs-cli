@@ -2,5 +2,10 @@
   "type": "skill",
   "ref": "gstack/review",
   "version": "0.1.0",
-  "description": "Pre-landing PR review. (gstack)"
+  "description": "Pre-landing PR review. (gstack)",
+  "deps": {
+    "skills": {
+      "gstack": "aipkg://skill/gstack/gstack@latest"
+    }
+  }
 }

@@ -2,5 +2,10 @@
   "type": "skill",
   "ref": "gstack/ios-sync",
   "version": "0.1.0",
-  "description": "Regenerate the iOS debug bridge against the latest upstream gstack templates. (gstack)"
+  "description": "Regenerate the iOS debug bridge against the latest upstream gstack templates. (gstack)",
+  "deps": {
+    "skills": {
+      "gstack": "aipkg://skill/gstack/gstack@latest"
+    }
+  }
 }

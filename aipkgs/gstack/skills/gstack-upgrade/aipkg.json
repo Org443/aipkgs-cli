@@ -2,5 +2,10 @@
   "type": "skill",
   "ref": "gstack/gstack-upgrade",
   "version": "0.1.0",
-  "description": "Upgrade gstack to the latest version."
+  "description": "Upgrade gstack to the latest version.",
+  "deps": {
+    "skills": {
+      "gstack": "aipkg://skill/gstack/gstack@latest"
+    }
+  }
 }

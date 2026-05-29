@@ -2,5 +2,10 @@
   "type": "skill",
   "ref": "gstack/qa-only",
   "version": "0.1.0",
-  "description": "Report-only QA testing. (gstack)"
+  "description": "Report-only QA testing. (gstack)",
+  "deps": {
+    "skills": {
+      "gstack": "aipkg://skill/gstack/gstack@latest"
+    }
+  }
 }

@@ -2,5 +2,10 @@
   "type": "skill",
   "ref": "gstack/setup-deploy",
   "version": "0.1.0",
-  "description": "Configure deployment settings for /land-and-deploy."
+  "description": "Configure deployment settings for /land-and-deploy.",
+  "deps": {
+    "skills": {
+      "gstack": "aipkg://skill/gstack/gstack@latest"
+    }
+  }
 }

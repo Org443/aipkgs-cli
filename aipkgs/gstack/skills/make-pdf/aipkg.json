@@ -5,7 +5,8 @@
   "description": "Turn any markdown file into a publication-quality PDF. (gstack)",
   "deps": {
     "skills": {
-      "browse": "aipkg://skill/gstack/browse@latest"
+      "browse": "aipkg://skill/gstack/browse@latest",
+      "gstack": "aipkg://skill/gstack/gstack@latest"
     }
   }
 }

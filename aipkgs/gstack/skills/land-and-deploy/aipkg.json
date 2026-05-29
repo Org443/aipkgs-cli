@@ -6,6 +6,7 @@
   "deps": {
     "skills": {
       "canary": "aipkg://skill/gstack/canary@latest",
+      "gstack": "aipkg://skill/gstack/gstack@latest",
       "setup-deploy": "aipkg://skill/gstack/setup-deploy@latest"
     }
   }

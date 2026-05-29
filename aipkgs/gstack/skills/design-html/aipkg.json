@@ -5,7 +5,8 @@
   "description": "Design finalization: generates production-quality Pretext-native HTML/CSS. (gstack)",
   "deps": {
     "skills": {
-      "design-shotgun": "aipkg://skill/gstack/design-shotgun@latest"
+      "design-shotgun": "aipkg://skill/gstack/design-shotgun@latest",
+      "gstack": "aipkg://skill/gstack/gstack@latest"
     }
   }
 }

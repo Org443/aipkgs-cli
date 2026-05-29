@@ -2,5 +2,10 @@
   "type": "skill",
   "ref": "gstack/office-hours",
   "version": "0.1.0",
-  "description": "YC Office Hours — two modes. (gstack)"
+  "description": "YC Office Hours — two modes. (gstack)",
+  "deps": {
+    "skills": {
+      "gstack": "aipkg://skill/gstack/gstack@latest"
+    }
+  }
 }

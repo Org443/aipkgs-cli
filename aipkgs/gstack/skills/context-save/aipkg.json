@@ -5,7 +5,8 @@
   "description": "Save working context. (gstack)",
   "deps": {
     "skills": {
-      "context-restore": "aipkg://skill/gstack/context-restore@latest"
+      "context-restore": "aipkg://skill/gstack/context-restore@latest",
+      "gstack": "aipkg://skill/gstack/gstack@latest"
     }
   }
 }

@@ -5,7 +5,8 @@
   "description": "Clear the freeze boundary set by /freeze, allowing edits to all directories again. (gstack)",
   "deps": {
     "skills": {
-      "freeze": "aipkg://skill/gstack/freeze@latest"
+      "freeze": "aipkg://skill/gstack/freeze@latest",
+      "gstack": "aipkg://skill/gstack/gstack@latest"
     }
   }
 }

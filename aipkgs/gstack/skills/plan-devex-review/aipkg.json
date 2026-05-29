@@ -5,6 +5,7 @@
   "description": "Interactive developer experience plan review. (gstack)",
   "deps": {
     "skills": {
+      "gstack": "aipkg://skill/gstack/gstack@latest",
       "office-hours": "aipkg://skill/gstack/office-hours@latest"
     }
   }

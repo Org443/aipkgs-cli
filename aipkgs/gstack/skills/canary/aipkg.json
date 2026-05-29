@@ -2,5 +2,10 @@
   "type": "skill",
   "ref": "gstack/canary",
   "version": "0.1.0",
-  "description": "Post-deploy canary monitoring. (gstack)"
+  "description": "Post-deploy canary monitoring. (gstack)",
+  "deps": {
+    "skills": {
+      "gstack": "aipkg://skill/gstack/gstack@latest"
+    }
+  }
 }

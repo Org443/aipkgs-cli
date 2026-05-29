@@ -2,5 +2,10 @@
   "type": "skill",
   "ref": "gstack/browse",
   "version": "0.1.0",
-  "description": "Fast headless browser for QA testing and site dogfooding. (gstack)"
+  "description": "Fast headless browser for QA testing and site dogfooding. (gstack)",
+  "deps": {
+    "skills": {
+      "gstack": "aipkg://skill/gstack/gstack@latest"
+    }
+  }
 }

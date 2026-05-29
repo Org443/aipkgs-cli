@@ -2,5 +2,10 @@
   "type": "skill",
   "ref": "gstack/learn",
   "version": "0.1.0",
-  "description": "Manage project learnings."
+  "description": "Manage project learnings.",
+  "deps": {
+    "skills": {
+      "gstack": "aipkg://skill/gstack/gstack@latest"
+    }
+  }
 }

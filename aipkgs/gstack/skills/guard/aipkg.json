@@ -6,7 +6,8 @@
   "deps": {
     "skills": {
       "careful": "aipkg://skill/gstack/careful@latest",
-      "freeze": "aipkg://skill/gstack/freeze@latest"
+      "freeze": "aipkg://skill/gstack/freeze@latest",
+      "gstack": "aipkg://skill/gstack/gstack@latest"
     }
   }
 }
