@@ -1,6 +1,6 @@
 {
   "statusLine": {
     "type": "command",
-    "command": "node .claude/hooks/org443/status-line/status-line.js"
+    "command": "node ${AIPKG_REF}/status-line.js"
   }
 }

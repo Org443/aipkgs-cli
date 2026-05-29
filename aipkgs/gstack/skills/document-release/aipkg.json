@@ -1,0 +1,11 @@
+{
+  "type": "skill",
+  "ref": "gstack/document-release",
+  "version": "0.1.0",
+  "description": "Post-ship documentation update. (gstack)",
+  "deps": {
+    "skills": {
+      "document-generate": "aipkg://skill/gstack/document-generate@latest"
+    }
+  }
+}

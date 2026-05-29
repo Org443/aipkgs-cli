@@ -1,0 +1,12 @@
+{
+  "type": "skill",
+  "ref": "gstack/land-and-deploy",
+  "version": "0.1.0",
+  "description": "Land and deploy workflow. (gstack)",
+  "deps": {
+    "skills": {
+      "canary": "aipkg://skill/gstack/canary@latest",
+      "setup-deploy": "aipkg://skill/gstack/setup-deploy@latest"
+    }
+  }
+}

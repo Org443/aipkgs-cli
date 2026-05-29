@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\".claude/hooks/superpowers/Superpowers/session-start\" session-start",
+            "command": "\"${AIPKG_REF}/session-start\" session-start",
             "async": false
           }
         ]

@@ -1,0 +1,6 @@
+{
+  "type": "skill",
+  "ref": "gstack/gstack",
+  "version": "0.1.0",
+  "description": "Fast headless browser for QA testing and site dogfooding. (gstack)"
+}

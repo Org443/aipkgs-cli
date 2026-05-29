@@ -1,0 +1,11 @@
+{
+  "type": "skill",
+  "ref": "gstack/investigate",
+  "version": "0.1.0",
+  "description": "Systematic debugging with root cause investigation. (gstack)",
+  "deps": {
+    "skills": {
+      "freeze": "aipkg://skill/gstack/freeze@latest"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "type": "skill",
+  "ref": "notebooklm/notebooklm",
+  "version": "0.1.0",
+  "description": "Query your Google NotebookLM notebooks from Claude Code for source-grounded, citation-backed answers via browser automation.",
+  "homepage": "https://github.com/PleasePrompto/notebooklm-skill",
+  "repository": { "type": "git", "url": "https://github.com/PleasePrompto/notebooklm-skill.git" }
+}

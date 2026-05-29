@@ -1,0 +1,11 @@
+{
+  "type": "skill",
+  "ref": "gstack/plan-devex-review",
+  "version": "0.1.0",
+  "description": "Interactive developer experience plan review. (gstack)",
+  "deps": {
+    "skills": {
+      "office-hours": "aipkg://skill/gstack/office-hours@latest"
+    }
+  }
+}

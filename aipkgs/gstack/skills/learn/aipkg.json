@@ -1,0 +1,6 @@
+{
+  "type": "skill",
+  "ref": "gstack/learn",
+  "version": "0.1.0",
+  "description": "Manage project learnings."
+}

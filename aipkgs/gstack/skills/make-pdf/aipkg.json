@@ -1,0 +1,11 @@
+{
+  "type": "skill",
+  "ref": "gstack/make-pdf",
+  "version": "0.1.0",
+  "description": "Turn any markdown file into a publication-quality PDF. (gstack)",
+  "deps": {
+    "skills": {
+      "browse": "aipkg://skill/gstack/browse@latest"
+    }
+  }
+}

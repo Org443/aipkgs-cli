@@ -1,0 +1,6 @@
+{
+  "type": "skill",
+  "ref": "gstack/benchmark",
+  "version": "0.1.0",
+  "description": "Performance regression detection using the browse daemon. (gstack)"
+}

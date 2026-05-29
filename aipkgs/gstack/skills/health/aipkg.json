@@ -1,0 +1,6 @@
+{
+  "type": "skill",
+  "ref": "gstack/health",
+  "version": "0.1.0",
+  "description": "Code quality dashboard. (gstack)"
+}

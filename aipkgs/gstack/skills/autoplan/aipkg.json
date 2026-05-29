@@ -1,0 +1,14 @@
+{
+  "type": "skill",
+  "ref": "gstack/autoplan",
+  "version": "0.1.0",
+  "description": "Auto-review pipeline — reads the full CEO, design, eng, and DX review skills from disk and runs them sequentially with auto-decisions using 6 decision principles. (gstack)",
+  "deps": {
+    "skills": {
+      "plan-ceo-review": "aipkg://skill/gstack/plan-ceo-review@latest",
+      "plan-design-review": "aipkg://skill/gstack/plan-design-review@latest",
+      "plan-eng-review": "aipkg://skill/gstack/plan-eng-review@latest",
+      "plan-devex-review": "aipkg://skill/gstack/plan-devex-review@latest"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "type": "skill",
+  "ref": "gstack/design-html",
+  "version": "0.1.0",
+  "description": "Design finalization: generates production-quality Pretext-native HTML/CSS. (gstack)",
+  "deps": {
+    "skills": {
+      "design-shotgun": "aipkg://skill/gstack/design-shotgun@latest"
+    }
+  }
+}

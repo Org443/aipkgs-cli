@@ -1,0 +1,11 @@
+{
+  "type": "skill",
+  "ref": "gstack/plan-ceo-review",
+  "version": "0.1.0",
+  "description": "CEO/founder-mode plan review. (gstack)",
+  "deps": {
+    "skills": {
+      "office-hours": "aipkg://skill/gstack/office-hours@latest"
+    }
+  }
+}

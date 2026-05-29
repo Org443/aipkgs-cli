@@ -1,0 +1,11 @@
+{
+  "type": "skill",
+  "ref": "gstack/ios-fix",
+  "version": "0.1.0",
+  "description": "Autonomous iOS bug fixer. (gstack)",
+  "deps": {
+    "skills": {
+      "ios-qa": "aipkg://skill/gstack/ios-qa@latest"
+    }
+  }
+}
