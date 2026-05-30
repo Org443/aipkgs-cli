@@ -1,0 +1,6 @@
+{
+  "type": "skill",
+  "ref": "gstack/hackernews-frontpage",
+  "version": "0.1.0",
+  "description": "Scrape the Hacker News front page (titles, points, comment counts)."
+}

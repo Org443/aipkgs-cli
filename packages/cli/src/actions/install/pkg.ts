@@ -24,10 +24,19 @@ export async function installPkg(args: {
 
   const lock = lockfile.getEntry({ pkgRef });
 
+  // A lock entry pinned to a different version means this is an upgrade/
+  // downgrade — drop the stale pin so the SHA guard below and the later
+  // upsertEntry don't reject the new archive.
+  if (lock && lock.version !== pkgRef.version) {
+    await lockfile.removeEntry({ type: pkgRef.type, slug });
+  }
+
   const tarball = await api.packages.downloadArchive({ pkgRef });
   const archive = await archiveService.parse(tarball);
 
-  if (lock && lock.sha !== archive.sha) {
+  // The SHA guard only defends against a tampered archive for the *same*
+  // pinned version; a version change is handled by clearing the pin above.
+  if (lock && lock.version === pkgRef.version && lock.sha !== archive.sha) {
     throw new Error(
       `SHA mismatch for ${pkgRef.aipkgRef}: lockfile expects ${lock.sha}, but the downloaded archive hashes to ${archive.sha}`,
     );

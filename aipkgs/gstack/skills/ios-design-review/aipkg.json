@@ -1,0 +1,11 @@
+{
+  "type": "skill",
+  "ref": "gstack/ios-design-review",
+  "version": "0.1.0",
+  "description": "Visual design audit for iOS apps on real hardware. (gstack)",
+  "deps": {
+    "skills": {
+      "gstack": "aipkg://skill/gstack/gstack@latest"
+    }
+  }
+}

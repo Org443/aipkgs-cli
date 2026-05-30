@@ -1,0 +1,11 @@
+{
+  "type": "skill",
+  "ref": "superpowers/requesting-code-review",
+  "version": "0.1.0",
+  "description": "Use when completing tasks, implementing major features, or before merging to verify work meets requirements",
+  "homepage": "https://github.com/obra/superpowers",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/obra/superpowers.git"
+  }
+}

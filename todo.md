@@ -2,16 +2,16 @@ add
 
 - [x] superpowers https://github.com/obra/superpowers
 - [ ] codex-plugin-cc https://github.com/openai/codex-plugin-cc
-- [ ] claude-skills https://github.com/anthropics/skills
-- [ ] marketingskills https://github.com/coreyhaines31/marketingskills
-- [ ] gstack https://github.com/garrytan/gstack
+- [ ] claude-skills https://github.com/anthropics/skills (mixed license: docx/pdf/pptx/xlsx proprietary — needs split import)
+- [x] marketingskills https://github.com/coreyhaines31/marketingskills
+- [x] gstack https://github.com/garrytan/gstack
 - [ ] frontend-design https://claude.com/plugins/frontend-design
-- [ ] hyperframes https://github.com/heygen-com/hyperframes
-- [ ] ai-second-brain https://github.com/coleam00/second-brain-starter
-- [ ] notebooklm-skill https://github.com/PleasePrompto/notebooklm-skill
+- [x] hyperframes https://github.com/heygen-com/hyperframes
+- [x] ai-second-brain https://github.com/coleam00/second-brain-starter (imported WITHOUT license — upstream has none)
+- [x] notebooklm-skill https://github.com/PleasePrompto/notebooklm-skill
 - [x] humanizer https://github.com/blader/humanizer
 - [ ] claude-seo https://github.com/AgriciDaniel/claude-seo
-- [ ] antfu-skills https://github.com/antfu/skills
+- [x] antfu-skills https://github.com/antfu/skills
 - [x] caveman https://github.com/JuliusBrussee/caveman
 - [ ] granola mcp https://github.com/proofsh/granola-mcp-server
 - [ ] slack mcp https://github.com/atlasfutures/claude-mcp-slack

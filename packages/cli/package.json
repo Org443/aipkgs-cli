@@ -15,7 +15,9 @@
   "bin": {
     "aipkg": "dist/index.js"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "engines": {
     "node": ">=22"
   },
@@ -37,12 +39,13 @@
     "release:major": "npm version major --no-git-tag-version && npm publish"
   },
   "devDependencies": {
-    "@types/tar-stream": "^3.1.4",
-    "esbuild": "^0.24.0",
     "@local/archive": "*",
-    "@local/placement": "*"
+    "@local/placement": "*",
+    "@types/tar-stream": "^3.1.4",
+    "esbuild": "^0.24.0"
   },
   "dependencies": {
+    "@clack/core": "^1.4.0",
     "commander": "^14.0.3",
     "picocolors": "^1.1.1",
     "tar-stream": "^3.2.0"

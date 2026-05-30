@@ -1,0 +1,16 @@
+{
+  "type": "hook",
+  "ref": "superpowers/session-start",
+  "version": "0.1.0",
+  "description": "Superpowers bootstrap: a SessionStart hook that injects the using-superpowers skill at the start of every conversation so skills are discovered and used. Publishable standalone and referenced by the Superpowers box.",
+  "homepage": "https://github.com/obra/superpowers",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/obra/superpowers.git"
+  },
+  "deps": {
+    "skills": {
+      "using-superpowers": "aipkg://skill/superpowers/using-superpowers@latest"
+    }
+  }
+}

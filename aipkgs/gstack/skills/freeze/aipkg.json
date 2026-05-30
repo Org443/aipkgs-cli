@@ -1,0 +1,11 @@
+{
+  "type": "skill",
+  "ref": "gstack/freeze",
+  "version": "0.1.0",
+  "description": "Restrict file edits to a specific directory for the session. (gstack)",
+  "deps": {
+    "skills": {
+      "gstack": "aipkg://skill/gstack/gstack@latest"
+    }
+  }
+}

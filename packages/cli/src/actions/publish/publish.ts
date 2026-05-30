@@ -3,6 +3,7 @@ import { basename, dirname } from 'node:path';
 import { MANIFEST_FILENAME, type Manifest, archiveService } from '@local/archive';
 import pc from 'picocolors';
 import { api } from '../../api/index.ts';
+import { confirm } from '../../autocomplete/confirm.ts';
 import { ConfigFile } from '../../files/config.ts';
 import { ManifestFile } from '../../files/manifest.ts';
 import { collectArchiveFiles, resolveLocalPath } from '../../io/archive.ts';
@@ -13,8 +14,8 @@ import { isENOENT } from '../../io/fs.ts';
 // to the manifest file itself. The manifest's `type` decides what to do:
 // `box` is routed to the box-manifest publish flow, every other type packs
 // that directory directly.
-export async function publishAction(input: { path?: string; dry?: boolean } = {}) {
-  const { path, dry } = input;
+export async function publishAction(input: { path?: string; dry?: boolean; yes?: boolean } = {}) {
+  const { path, dry, yes } = input;
   const { dir, file } = await resolveManifestLocation(path);
 
   let manifest: Manifest;
@@ -38,7 +39,21 @@ export async function publishAction(input: { path?: string; dry?: boolean } = {}
     return;
   }
 
-  logArchiveContents({ manifest, files, tgz });
+  // Interactive confirmation: show the manifest and the files that will be
+  // packed, then ask before uploading. Skipped with `--yes`, and in a non-TTY
+  // (CI, pipes) where there's nothing to drive the prompt — there we just print
+  // the archive contents and publish, preserving the non-interactive behavior.
+  if (!yes && process.stdout.isTTY) {
+    logManifest({ manifest });
+    logArchiveContents({ manifest, files, tgz });
+    const confirmed = await confirm({ message: `Publish ${type} ${slug} ${version}?` });
+    if (!confirmed) {
+      console.log(pc.dim('Cancelled.'));
+      return;
+    }
+  } else {
+    logArchiveContents({ manifest, files, tgz });
+  }
 
   await api.packages.uploadArchive({ tarball: tgz });
 

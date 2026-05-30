@@ -83,6 +83,32 @@ describe('install (hook)', () => {
     expect(settings.hooks.PreToolUse).toHaveLength(1);
   });
 
+  it('rewrites ${PKG_ROOT} in the returned statusLine command to the install dir', async () => {
+    const archive = await buildTestArchive({
+      type: 'hook',
+      slug: 'Superpowers',
+      files: [
+        {
+          path: 'hooks.json',
+          body: Buffer.from(
+            JSON.stringify({
+              hooks: {},
+              statusLine: { type: 'command', command: '${PKG_ROOT}/scripts/status.sh' },
+            }),
+          ),
+        },
+        { path: 'scripts/status.sh', body: Buffer.from('#!/bin/sh\n') },
+      ],
+    });
+
+    const result = await install({ archive, slug: 'superpowers/Superpowers' });
+
+    expect((result as any).statusLine).toMatchObject({
+      type: 'command',
+      command: '.claude/hooks/superpowers/Superpowers/scripts/status.sh',
+    });
+  });
+
   it('merges hooks for multiple slugs without clobbering prior entries', async () => {
     const lintArchive = await buildTestArchive({
       type: 'hook',

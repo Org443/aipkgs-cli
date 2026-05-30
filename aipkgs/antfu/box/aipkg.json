@@ -1,0 +1,32 @@
+{
+  "type": "box",
+  "ref": "antfu/AntfuKit",
+  "version": "0.1.0",
+  "description": "Anthony Fu's skills collection — best-practice Claude Code skills for the Vue/Vite ecosystem: Vue, Nuxt, Pinia, Vite, Vitest, UnoCSS, pnpm, VitePress, Slidev, and more. Bundles the individually-published antfu/* skills as one box.",
+  "homepage": "https://github.com/antfu/skills",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/antfu/skills.git"
+  },
+  "deps": {
+    "skills": {
+      "antfu": "aipkg://skill/antfu/antfu@latest",
+      "nuxt": "aipkg://skill/antfu/nuxt@latest",
+      "pinia": "aipkg://skill/antfu/pinia@latest",
+      "pnpm": "aipkg://skill/antfu/pnpm@latest",
+      "slidev": "aipkg://skill/antfu/slidev@latest",
+      "tsdown": "aipkg://skill/antfu/tsdown@latest",
+      "turborepo": "aipkg://skill/antfu/turborepo@latest",
+      "unocss": "aipkg://skill/antfu/unocss@latest",
+      "vite": "aipkg://skill/antfu/vite@latest",
+      "vitepress": "aipkg://skill/antfu/vitepress@latest",
+      "vitest": "aipkg://skill/antfu/vitest@latest",
+      "vue": "aipkg://skill/antfu/vue@latest",
+      "vue-best-practices": "aipkg://skill/antfu/vue-best-practices@latest",
+      "vue-router-best-practices": "aipkg://skill/antfu/vue-router-best-practices@latest",
+      "vue-testing-best-practices": "aipkg://skill/antfu/vue-testing-best-practices@latest",
+      "vueuse-functions": "aipkg://skill/antfu/vueuse-functions@latest",
+      "web-design-guidelines": "aipkg://skill/antfu/web-design-guidelines@latest"
+    }
+  }
+}

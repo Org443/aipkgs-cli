@@ -4,8 +4,16 @@ import { CredentialsFile } from '../../../files/credentials.ts';
 import { setupTestCwd, teardownTestCwd, testDir, writeTestFile } from '../../../test/helpers.ts';
 import { publishAction } from '../publish.ts';
 
+const { confirmMock } = vi.hoisted(() => ({ confirmMock: vi.fn() }));
+vi.mock('../../../autocomplete/confirm.ts', () => ({ confirm: confirmMock }));
+
+const originalIsTTY = process.stdout.isTTY;
+
 beforeEach(async () => {
   setupTestCwd({ prefix: 'aipkg-publish-test-' });
+  // Default to non-interactive so the upload path runs without a prompt; the
+  // interactive tests flip this on explicitly.
+  process.stdout.isTTY = false;
   process.env.AIPKG_API = 'http://test.invalid';
   vi.spyOn(console, 'log').mockImplementation(() => {});
   vi.spyOn(CredentialsFile, 'resolve').mockResolvedValue({
@@ -20,6 +28,8 @@ beforeEach(async () => {
 afterEach(() => {
   teardownTestCwd();
   vi.restoreAllMocks();
+  confirmMock.mockReset();
+  process.stdout.isTTY = originalIsTTY;
   process.env.AIPKG_API = undefined;
 });
 
@@ -299,6 +309,71 @@ describe('publishAction', () => {
       expect(joined).toContain('aipkg.json');
       expect(joined).toContain('pr-create.md');
       expect(joined).toContain('README.md');
+    });
+  });
+
+  describe('interactive confirmation', () => {
+    async function writeCmd() {
+      const dir = ['cmds', 'pr-create'];
+      await writePkgManifest({ dir, type: 'cmd', ref: 'org443/pr-create', version: '1.0.0' });
+      await writeTestFile('# pr-create', ...dir, 'pr-create.md');
+      return dir;
+    }
+
+    it('prints the manifest + archive contents and uploads when confirmed', async () => {
+      process.stdout.isTTY = true;
+      confirmMock.mockResolvedValue(true);
+      const dir = await writeCmd();
+      const fetchSpy = mockUpload();
+
+      await publishAction({ path: testDir(...dir) });
+
+      expect(confirmMock).toHaveBeenCalledOnce();
+      expect(fetchSpy).toHaveBeenCalledOnce();
+
+      const logSpy = console.log as unknown as ReturnType<typeof vi.fn>;
+      const joined = logSpy.mock.calls.map((args: unknown[]) => args.join(' ')).join('\n');
+      expect(joined).toContain('Manifest');
+      expect(joined).toContain('Archive contents');
+      expect(joined).toContain('pr-create.md');
+    });
+
+    it('aborts the upload when the user declines', async () => {
+      process.stdout.isTTY = true;
+      confirmMock.mockResolvedValue(false);
+      const dir = await writeCmd();
+      const fetchSpy = mockUpload();
+
+      await publishAction({ path: testDir(...dir) });
+
+      expect(confirmMock).toHaveBeenCalledOnce();
+      expect(fetchSpy).not.toHaveBeenCalled();
+
+      const logSpy = console.log as unknown as ReturnType<typeof vi.fn>;
+      const joined = logSpy.mock.calls.map((args: unknown[]) => args.join(' ')).join('\n');
+      expect(joined).toContain('Cancelled');
+    });
+
+    it('skips the confirmation prompt with --yes even on a TTY', async () => {
+      process.stdout.isTTY = true;
+      const dir = await writeCmd();
+      const fetchSpy = mockUpload();
+
+      await publishAction({ path: testDir(...dir), yes: true });
+
+      expect(confirmMock).not.toHaveBeenCalled();
+      expect(fetchSpy).toHaveBeenCalledOnce();
+    });
+
+    it('does not prompt in a non-TTY (CI, pipes)', async () => {
+      process.stdout.isTTY = false;
+      const dir = await writeCmd();
+      const fetchSpy = mockUpload();
+
+      await publishAction({ path: testDir(...dir) });
+
+      expect(confirmMock).not.toHaveBeenCalled();
+      expect(fetchSpy).toHaveBeenCalledOnce();
     });
   });
 

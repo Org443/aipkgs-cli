@@ -1,0 +1,11 @@
+{
+  "type": "skill",
+  "ref": "gstack/design-consultation",
+  "version": "0.1.0",
+  "description": "Design consultation: understands your product, researches the landscape, proposes a complete design system (aesthetic, typography, color, layout, spacing, motion), and generates font+color preview... (gstack)",
+  "deps": {
+    "skills": {
+      "gstack": "aipkg://skill/gstack/gstack@latest"
+    }
+  }
+}

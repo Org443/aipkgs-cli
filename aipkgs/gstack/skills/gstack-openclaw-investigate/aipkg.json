@@ -1,0 +1,6 @@
+{
+  "type": "skill",
+  "ref": "gstack/gstack-openclaw-investigate",
+  "version": "0.1.0",
+  "description": "Use when asked to debug, fix a bug, investigate an error, or do root cause analysis, and when users report errors, stack traces, unexpected behavior, or say something stopped working."
+}

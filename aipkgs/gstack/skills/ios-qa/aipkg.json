@@ -1,0 +1,11 @@
+{
+  "type": "skill",
+  "ref": "gstack/ios-qa",
+  "version": "0.1.0",
+  "description": "Live-device iOS QA for SwiftUI apps. (gstack)",
+  "deps": {
+    "skills": {
+      "gstack": "aipkg://skill/gstack/gstack@latest"
+    }
+  }
+}

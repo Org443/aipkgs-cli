@@ -1,0 +1,8 @@
+{
+  "type": "box",
+  "ref": "hyperframes/Hyperframes",
+  "version": "0.1.0",
+  "description": "HeyGen's HyperFrames toolkit — write HTML, render video: compositions, GSAP/anime.js/Lottie/Three animations, captions, voiceovers, and website-to-video capture.",
+  "homepage": "https://github.com/heygen-com/hyperframes",
+  "repository": { "type": "git", "url": "https://github.com/heygen-com/hyperframes.git" }
+}

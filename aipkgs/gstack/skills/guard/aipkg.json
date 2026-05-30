@@ -1,0 +1,13 @@
+{
+  "type": "skill",
+  "ref": "gstack/guard",
+  "version": "0.1.0",
+  "description": "Full safety mode: destructive command warnings + directory-scoped edits. (gstack)",
+  "deps": {
+    "skills": {
+      "careful": "aipkg://skill/gstack/careful@latest",
+      "freeze": "aipkg://skill/gstack/freeze@latest",
+      "gstack": "aipkg://skill/gstack/gstack@latest"
+    }
+  }
+}

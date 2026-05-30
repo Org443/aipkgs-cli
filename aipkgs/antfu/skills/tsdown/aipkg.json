@@ -1,0 +1,6 @@
+{
+  "type": "skill",
+  "ref": "antfu/tsdown",
+  "version": "0.1.0",
+  "description": "Bundle TypeScript and JavaScript libraries with blazing-fast speed powered by Rolldown. Use when building libraries, generating type declarations, bundling for multiple formats, or migrating from tsup."
+}

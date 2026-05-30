@@ -1,0 +1,11 @@
+{
+  "type": "skill",
+  "ref": "gstack/document-generate",
+  "version": "0.1.0",
+  "description": "Generate missing documentation from scratch for a feature, module, or entire project. (gstack)",
+  "deps": {
+    "skills": {
+      "gstack": "aipkg://skill/gstack/gstack@latest"
+    }
+  }
+}

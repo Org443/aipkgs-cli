@@ -1,0 +1,8 @@
+{
+  "type": "skill",
+  "ref": "second-brain/create-second-brain-prd",
+  "version": "0.1.0",
+  "description": "Generate a personalized Second Brain PRD and build plan from a completed requirements template.",
+  "homepage": "https://github.com/coleam00/second-brain-starter",
+  "repository": { "type": "git", "url": "https://github.com/coleam00/second-brain-starter.git" }
+}

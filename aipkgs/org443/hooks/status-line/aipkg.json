@@ -1,7 +1,7 @@
 {
   "type": "hook",
   "ref": "org443/status-line",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Displays a status line in the terminal",
   "homepage": "https://aipkgs.com",
   "repository": {
@@ -10,6 +10,5 @@
   },
   "issues": {
     "url": "https://github.com/Org443/aipkgs-cli/issues"
-  },
-  "deps": {}
+  }
 }

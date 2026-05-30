@@ -1,0 +1,11 @@
+{
+  "type": "skill",
+  "ref": "gstack/plan-design-review",
+  "version": "0.1.0",
+  "description": "Designer's eye plan review — interactive, like CEO and Eng review. (gstack)",
+  "deps": {
+    "skills": {
+      "gstack": "aipkg://skill/gstack/gstack@latest"
+    }
+  }
+}

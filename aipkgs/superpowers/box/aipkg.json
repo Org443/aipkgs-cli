@@ -1,0 +1,32 @@
+{
+  "type": "box",
+  "ref": "superpowers/Superpowers",
+  "version": "0.2.0",
+  "description": "Superpowers: a core skills library — TDD, systematic debugging, code review, plan execution, and collaboration patterns. Composes the individually-published superpowers/* skills and the session-start bootstrap hook into one box.",
+  "homepage": "https://github.com/obra/superpowers",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/obra/superpowers.git"
+  },
+  "deps": {
+    "skills": {
+      "using-superpowers": "aipkg://skill/superpowers/using-superpowers@latest",
+      "brainstorming": "aipkg://skill/superpowers/brainstorming@latest",
+      "writing-plans": "aipkg://skill/superpowers/writing-plans@latest",
+      "subagent-driven-development": "aipkg://skill/superpowers/subagent-driven-development@latest",
+      "executing-plans": "aipkg://skill/superpowers/executing-plans@latest",
+      "finishing-a-development-branch": "aipkg://skill/superpowers/finishing-a-development-branch@latest",
+      "test-driven-development": "aipkg://skill/superpowers/test-driven-development@latest",
+      "systematic-debugging": "aipkg://skill/superpowers/systematic-debugging@latest",
+      "verification-before-completion": "aipkg://skill/superpowers/verification-before-completion@latest",
+      "requesting-code-review": "aipkg://skill/superpowers/requesting-code-review@latest",
+      "receiving-code-review": "aipkg://skill/superpowers/receiving-code-review@latest",
+      "dispatching-parallel-agents": "aipkg://skill/superpowers/dispatching-parallel-agents@latest",
+      "using-git-worktrees": "aipkg://skill/superpowers/using-git-worktrees@latest",
+      "writing-skills": "aipkg://skill/superpowers/writing-skills@latest"
+    },
+    "hooks": {
+      "session-start": "aipkg://hook/superpowers/session-start@latest"
+    }
+  }
+}

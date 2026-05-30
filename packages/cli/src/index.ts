@@ -3,7 +3,7 @@ import { Command } from 'commander';
 import pc from 'picocolors';
 import { initAction } from './actions/init.ts';
 import { installAllAction } from './actions/install/all.ts';
-import { installAction } from './actions/install/install.ts';
+import { interactiveInstallAction } from './actions/install/interactive.ts';
 import { loginAction } from './actions/login.ts';
 import { logoutAction } from './actions/logout.ts';
 import { mcpAddAction, mcpRemoveAction } from './actions/mcp.ts';
@@ -70,8 +70,9 @@ program
     `path to a manifest file, or a directory containing ${MANIFEST_FILENAME} (defaults to current working directory)`,
   )
   .option('--dry', 'collect and print the manifest + archive contents without uploading')
-  .action(async (path: string | undefined, opts: { dry?: boolean }) => {
-    await publishAction({ path, dry: opts.dry });
+  .option('-y, --yes', 'skip the interactive confirmation prompt and publish immediately')
+  .action(async (path: string | undefined, opts: { dry?: boolean; yes?: boolean }) => {
+    await publishAction({ path, dry: opts.dry, yes: opts.yes });
   });
 
 const mcpCmd = program.command('mcp').description('Manage MCP server entries in aipkg.json + .mcp.json');
@@ -143,15 +144,15 @@ function defineInstallCommand(input: { program: Command; type: Manifest['type'] 
   const { program, type } = input;
   const group = program
     .command(type)
-    .description(`Install a ${type} package`)
-    .argument('<ref>', '<org>/<slug> or <org>/<key>/<slug> — install into cwd')
+    .description(`Search and install a ${type} package`)
+    .argument('<ref>', 'full or partial <org>/<slug> — opens a live picker, then installs into cwd')
     .action(async (ref: string | undefined) => {
       if (!ref) {
         group.help();
         return;
       }
 
-      await installAction({ type, ref });
+      await interactiveInstallAction({ type, ref });
     });
 
   group

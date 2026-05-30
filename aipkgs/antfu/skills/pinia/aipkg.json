@@ -1,0 +1,6 @@
+{
+  "type": "skill",
+  "ref": "antfu/pinia",
+  "version": "0.1.0",
+  "description": "Pinia official Vue state management library, type-safe and extensible. Use when defining stores, working with state/getters/actions, or implementing store patterns in Vue apps."
+}

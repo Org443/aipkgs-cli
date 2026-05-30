@@ -1,0 +1,6 @@
+{
+  "type": "skill",
+  "ref": "antfu/vue-router-best-practices",
+  "version": "0.1.0",
+  "description": "Vue Router 4 patterns, navigation guards, route params, and route-component lifecycle interactions."
+}

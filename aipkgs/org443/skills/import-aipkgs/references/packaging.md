@@ -41,10 +41,13 @@ node --experimental-strip-types packages/cli/src/index.ts publish --dry "$(pwd)/
 
 `deps` buckets (each maps an alias → an `aipkg://…` ref string):
 `cmds`, `skills`, `subagents`, `rules`, `hooks`, `boxes`, plus `mcps`
-(alias → `{ "url" }` or `{ "command", "args"?, … }`). For a **vendored box
-import you do not populate `deps`** — the asset files ship inside the archive
-itself. The already-imported `caveman` and `superpowers` boxes omit `deps`
-entirely.
+(alias → `{ "url" }` or `{ "command", "args"?, … }`). In the **preferred
+split + box-of-deps shape** the box manifest (under `box/`) populates these
+buckets to reference its separately-published assets, e.g.
+`"skills": { "vue": "aipkg://skill/<org>/vue@latest" }`; assets can also depend
+on each other this way (see [Box layout](#box-layout)). A **legacy bundled box**
+omits `deps` and ships the asset files inside its own archive — that's how the
+already-imported `caveman` and `superpowers` boxes work.
 
 ### Minimal box manifest (the common case)
 
@@ -78,7 +81,15 @@ From `packages/archive/src/ref.ts`:
 
 ## Box layout
 
-One box = one org namespace. The box collector (`collectBoxDirs` in
+**Preferred (split + box-of-deps):** put the box manifest in `aipkgs/<org>/box/`
+so its collector only sees that dir's own sidecars — the assets live as
+standalone packages alongside it (`aipkgs/<org>/skills/<slug>/aipkg.json`, etc.)
+and the box references them via `deps`. A `--dry` of `box/` should list only
+`aipkg.json` + sidecars, never asset files. See `aipkgs/antfu/` and
+`aipkgs/gstack/` for the shape.
+
+**Tightly Coupled (bundled):** a box manifest at the org root bundles everything in its
+archive. One box = one org namespace; the box collector (`collectBoxDirs` in
 `packages/cli/src/io/archive.ts`) walks these subdirs:
 
 ```
@@ -86,7 +97,6 @@ aipkgs/<org>/
 ├── aipkg.json            # type: box  (required)
 ├── README.md             # recommended
 ├── LICENSE.txt           # required for third-party imports
-├── HERO_CARD.md          # optional
 ├── cmds/
 │   └── <name>.md         # FLAT files, one per command
 ├── rules/
@@ -157,22 +167,22 @@ aipkgs/<org>/hooks/<slug>/
 
 ## Sidecar files
 
-These three may sit at the root of _any_ package (box or standalone) and are
-collected automatically (`SIDECAR_FILES`): `README.md`, `HERO_CARD.md`,
-`LICENSE.txt`. For third-party imports, `LICENSE.txt` is effectively required —
-copy it verbatim from upstream; if the repo has no license, stop and ask.
+These may sit at the root of _any_ package (box or standalone) and are
+collected automatically (`SIDECAR_FILES`): `README.md` and `LICENSE.txt`. For
+third-party imports, `LICENSE.txt` is effectively required — copy it verbatim
+from upstream; if the repo has no license, stop and ask.
 
 **Box quirk — per-skill sidecars are dropped.** The skill collector treats a
-file literally named `README.md` / `HERO_CARD.md` / `LICENSE.txt` at a skill
+file literally named `README.md` / `LICENSE.txt` at a skill
 subdir's root as a sidecar and skips it (`walk.ts`), so only the **box-root**
 sidecars actually ship. A skill's own `README.md` inside a box's
-`skills/<slug>/` will *not* be in the archive. Files with any other name (e.g.
+`skills/<slug>/` will _not_ be in the archive. Files with any other name (e.g.
 `SECURITY.md`, `USAGE.md`) and the `assets/`/`scripts/`/`references/` dirs ship
 normally. If a skill's README content must travel, fold it into `SKILL.md` or
 rename the file.
 
-This quirk is **box-only**. In a *standalone* skill package the package root
-*is* the skill dir, so its `README.md` is the legitimate package-root sidecar
+This quirk is **box-only**. In a _standalone_ skill package the package root
+_is_ the skill dir, so its `README.md` is the legitimate package-root sidecar
 and ships fine — keep it.
 
 ## Troubleshooting

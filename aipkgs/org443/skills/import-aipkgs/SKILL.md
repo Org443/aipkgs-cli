@@ -16,190 +16,168 @@ description: >-
 # Import aipkgs
 
 Turn an external git repository full of Claude Code assets (skills, slash
-commands, subagents, rules, hooks) into one or more publishable AIpkgs
-packages laid out under `aipkgs/<org>/`, validated against the CLI's archive
-rules.
+commands, subagents, rules, hooks) into publishable AIpkgs packages under
+`aipkgs/<org>/`, validated against the CLI's archive rules.
 
 ## Why this exists
 
-The registry grows by vendoring good third-party repos into `aipkgs/<org>/`.
-Each imported repo gets its own **org namespace** and is normally packaged as a
-single **box** — the same shape as the already-imported `superpowers`,
-`caveman`, and `gsd` orgs. The end state is a directory that
-`aipkg publish` accepts without complaint, with upstream attribution and
-license preserved.
+The registry grows by vendoring good third-party repos into `aipkgs/<org>/`,
+each in its own **org namespace**, with upstream attribution and license
+preserved. The end state is a tree that `aipkg publish` accepts without complaint.
 
-The default packaging shape is **box-primary, standalone fallback**: bundle the
-whole repo as one box, unless the repo contains exactly one asset, in which case
-a standalone package is cleaner. See [references/packaging.md](references/packaging.md)
-for the exact layouts, the full manifest schema, and the per-type file rules —
-read it before writing any `aipkg.json`.
+**Default shape: split + box-of-deps.** Publish every asset as its own
+standalone package (own `aipkg.json` + `LICENSE.txt`) so each installs on its
+own, then add one **box** that bundles them by *referencing* them as `deps` —
+not by packaging their files. The box manifest lives in a `box/` subdir so its
+archive collector never sweeps the sibling assets. A repo with exactly one asset
+skips the box. (Older imports like `superpowers` and `caveman` bundled
+everything into a single box; prefer the split model for new imports — users can
+install one skill, and the box can express inter-asset dependencies.)
+
+See [references/packaging.md](references/packaging.md) for the manifest schema,
+layouts, and per-type file rules — read it before writing any `aipkg.json`.
 
 ## Workflow
 
-Work through these steps in order. Keep the user in the loop on the two
-decisions that are easy to get wrong: the **org slug** and **box vs standalone**.
+Keep the user in the loop on the decision that's easy to get wrong: the **org slug**.
 
 ### 1. Get the source
 
-If the user gave a git URL, clone it shallow to a scratch dir so you never edit
-their working tree:
-
-```sh
-git clone --depth 1 <url> /tmp/import-<name>
-```
-
-If they pointed at a local path, read it in place. Either way, take a quick
-inventory of the repo's top level before deciding anything — the layout tells
-you what kind of repo it is.
+If given a git URL, clone shallow to a scratch dir so you never edit their tree:
+`git clone --depth 1 <url> /tmp/import-<name>`. If a local path, read in place.
+Either way, inventory the repo's top level first — the layout tells you what
+kind of repo it is.
 
 ### 2. Choose the org slug
 
-Derive a lowercase org slug from the **project name** (not the GitHub owner):
-
-- `obra/superpowers` → `superpowers`
-- `JuliusBrussee/caveman` → `caveman`
-- `coreyhaines31/marketingskills` → `marketingskills`
-
-Org slugs must match `^[a-z0-9-_]+$` and be ≤ 30 chars. **Show the user the
-derived slug and let them override before you create any files.** If
-`aipkgs/<org>/` already exists, stop and ask — you may be re-importing or
-colliding.
+Derive a lowercase slug from the **project name** (not the GitHub owner):
+`obra/superpowers` → `superpowers`, `JuliusBrussee/caveman` → `caveman`. Must
+match `^[a-z0-9-_]+$`, ≤ 30 chars. **Show the user the slug and let them override
+before creating files.** If `aipkgs/<org>/` already exists, stop and ask — you
+may be re-importing or colliding.
 
 ### 3. Discover the assets
 
-Scan the repo for each asset type. Upstream layouts vary a lot (plugin repos,
-`.claude/` dirs, bare `skills/` folders); the discovery heuristics for each are
-in [references/source-layouts.md](references/source-layouts.md) — read it, because
-two things bite on real repos: **commands may be `.toml`, not `.md`** (convert
-them, don't drop them) and **the same asset may appear in two trees** (dedupe,
-don't double-count). At minimum look for:
+Scan for each asset type (heuristics in
+[references/source-layouts.md](references/source-layouts.md) — read it; two things
+bite: **commands may be `.toml`, not `.md`** (convert, don't drop) and **the same
+asset may appear in two trees** (dedupe)):
 
-- **Skills** — any directory containing a `SKILL.md`.
-- **Commands** — `*.md` under `commands/` or `.claude/commands/`.
-- **Subagents** — `*.md` under `agents/` or `.claude/agents/`.
-- **Rules** — `*.md` rule/instruction files (`rules/`, or split out of a CLAUDE.md).
-- **Hooks** — a `hooks.json` (or hook config) plus its scripts.
-- **MCP servers** — see step 8; these are config, not files.
+- **Skills** — any dir with a `SKILL.md`.  **Commands** — `*.md` under `commands/` or `.claude/commands/`.
+- **Subagents** — `*.md` under `agents/`.  **Rules** — `*.md` rule files (or split out of CLAUDE.md).
+- **Hooks** — a `hooks.json` plus scripts.  **MCP servers** — see step 7; config, not files.
 
-Report what you found as a short inventory before packaging, e.g. "Found 14
-skills, 3 commands, 1 hook, no rules." This is the moment to catch a repo whose
-real content lives somewhere you didn't expect.
+Report a short inventory before packaging (e.g. "14 skills, 3 commands, 1 hook").
 
-### 4. Decide box vs standalone
+Then **analyze the assets for dependencies within the org namespace**: read them
+for places where one asset invokes, requires, or chains to another (`/other-skill`,
+"run X then Y", reading another asset's file). On a large set, fan out parallel
+agents to map it. Record the **tightly-coupled** edges — the ones an asset needs
+to actually run — to encode as deps in step 5. This is the gstack analysis:
+`autoplan` drives the four `plan-*-review` skills, `guard` combines `careful` +
+`freeze`, `ios-fix` consumes `ios-qa`.
 
-Default to a **box** when the repo has more than one asset, or is clearly a
-cohesive collection (most plugin repos). Drop to a **standalone** package only
-when there's exactly one asset and no reason to bundle. When unsure, prefer the
-box — it matches precedent and is trivial to install as a unit. Confirm the
-choice with the user if it's a close call.
+### 4. Lay out the files
 
-### 5. Lay out the files
+Give every asset its own package dir, and put the box in its own subdir:
 
-Create the directory under `aipkgs/<org>/` following the layout in
-[references/packaging.md](references/packaging.md). The shapes that trip people up:
+```
+aipkgs/<org>/
+├── box/                  # type: box — manifest + README.md + LICENSE.txt only
+├── skills/<slug>/        # aipkg.json + SKILL.md + assets/scripts/references + LICENSE.txt
+├── cmds/<slug>/          # aipkg.json + <slug>.md  (strict: no other files)
+├── rules/<slug>/         # aipkg.json + <slug>.md
+├── subagents/<slug>/     # aipkg.json + <slug>.md
+└── hooks/<slug>/         # aipkg.json + hooks.json + scripts
+```
 
-- In a **box**, commands/rules/subagents are **flat `*.md` files** directly under
-  `cmds/`, `rules/`, `subagents/` — *not* in per-asset subdirs.
-- In a **box**, skills keep their subdir: `skills/<slug>/SKILL.md` plus whatever
-  assets/scripts/references the skill ships.
-- Hooks live at `hooks/hooks.json` (one per box) alongside their scripts.
+Each asset is a standalone package; the box under `box/` ships only its own
+sidecars. Copy skill resource dirs wholesale; don't rewrite asset markdown.
+Sanitize slugs to `^[a-z0-9-_]+$`, ≤ 30 chars. (Single-asset repo → just the one
+standalone dir, no box.)
 
-Sanitize every slug/filename to `^[a-z0-9-_]+$`, ≤ 30 chars. Copy skill resource
-dirs (`assets/`, `scripts/`, `references/`) wholesale. Don't rewrite the asset
-markdown — keep upstream frontmatter and content intact.
+### 5. Write the manifests
 
-### 6. Write the manifest
+One manifest per asset dir, plus one in `box/`. Start all at `version` `0.1.0`.
+Standalone asset:
 
-Write `aipkg.json` at the box root (or in the standalone package dir). Use the
-schema and field rules in [references/packaging.md](references/packaging.md). For a box
-import, a minimal manifest is correct — the bundled files travel in the archive,
-so you do **not** need to enumerate them under `deps`:
+```json
+{ "type": "skill", "ref": "<org>/<slug>", "version": "0.1.0", "description": "<from the asset>" }
+```
+
+The box references every asset as a dep — one bucket per type (`skills`, `cmds`,
+`subagents`, `rules`, `hooks`), alias → `aipkg://<type>/<org>/<slug>@latest`:
 
 ```json
 {
   "type": "box",
   "ref": "<org>/<BoxName>",
   "version": "0.1.0",
-  "description": "<one concise sentence about what the box bundles>",
-  "homepage": "<upstream repo URL>",
-  "repository": { "type": "git", "url": "<upstream .git URL>" }
+  "description": "<what the box does>",
+  "homepage": "<upstream URL>",
+  "repository": { "type": "git", "url": "<upstream .git URL>" },
+  "deps": { "skills": { "<slug>": "aipkg://skill/<org>/<slug>@latest" } }
 }
 ```
 
-`<BoxName>` is the Capitalized project name (`Superpowers`, `Caveman`, `GSD`).
-Start fresh imports at `version` `0.1.0` unless the user says otherwise. Write a
-description that says what the box *does*, not just what it contains.
+`<BoxName>` is the Capitalized project name (`Antfu`, `Gstack`). **Encode the
+tightly-coupled edges you mapped in step 3 in each asset's own manifest**: list a
+dependency under the dependent asset's own `deps`, same `aipkg://…` ref format —
+e.g. `skills/autoplan/aipkg.json` lists the four `plan-*-review` skills it drives,
+so installing it pulls them in. Encode only real "needs to run" edges, not
+topical or downstream-suggestion mentions.
 
-### 7. Preserve license, write README
+### 6. Preserve license, write README
 
-- **LICENSE** — copy the upstream `LICENSE`/`LICENSE.md`/`COPYING` to
-  `LICENSE.txt` verbatim. If the repo has no license, **stop and ask the user** —
-  do not invent one and do not publish unlicensed third-party code.
-- **README.md** — write a short README for the package: what it is, that it was
-  imported from `<upstream>`, attribution to the original author, and a one-line
-  install hint. Don't blindly copy the upstream README; summarize and attribute.
-- **HERO_CARD.md** — optional; only add if the user wants registry card copy.
+- **LICENSE** — copy upstream `LICENSE`/`COPYING` to `LICENSE.txt` verbatim, into
+  the box dir **and each standalone asset dir** (each ships on its own). No
+  license → stop and ask; don't publish unlicensed third-party code.
+- **README.md** — short, at the box root: what it is, imported from `<upstream>`,
+  attribution, one-line install hint. Don't copy the upstream README wholesale.
 
-### 8. Handle MCP servers (if any)
+### 7. Handle MCP servers (if any)
 
-MCP servers aren't file-based packages — they're `url`/`command` entries under
-`deps.mcps` in a consumer's `aipkg.json`. If the repo *is* an MCP server, don't
-package files; instead emit the command the user would run to wire it up, e.g.:
-
-```sh
-aipkg mcp add <slug> --url https://example.com/mcp
-# or, for a stdio server:
-aipkg mcp add <slug> --command npx --arg -y --arg some-mcp-server
-```
-
-Tell the user what you found and hand them the exact command rather than editing
-their manifest unprompted.
-
-### 9. Validate
-
-Validate the package the same way the registry will, without uploading. Point
-the command at the directory that **contains the `aipkg.json` you wrote**, using
-an **absolute** path:
-
-- **Box import:** `aipkgs/<org>` (the box root).
-- **Standalone import:** the package dir, e.g. `aipkgs/<org>/skills/<slug>` (or
-  `cmds/<slug>`, `rules/<slug>`, …) — one or two levels deeper than the org root.
-
-You're working inside the aipkgs-cli repo, so run the CLI from local source —
-this is the version of record and supports `--dry`:
+MCP servers aren't file-based — they're `deps.mcps` entries in a consumer's
+manifest. If the repo *is* an MCP server, don't package files; hand the user the
+wiring command instead of editing their manifest:
 
 ```sh
-node --experimental-strip-types packages/cli/src/index.ts publish --dry "$(pwd)/aipkgs/<org>"
+aipkg mcp add <slug> --url https://example.com/mcp   # or --command npx --arg -y --arg <server>
 ```
 
-(run from the repo root). Don't use `npm run dev` (it runs from `packages/cli`,
-so relative paths break, and npm swallows the `--dry` flag). Note that a
-released `npx @aipkgs/cli` may lag the local source and lack `--dry` — prefer the
-local-source command above while in this repo. Read the "Archive contents" list
-it prints and confirm every expected file is there and nothing stray is. Fix any
-`InvalidArchive` / `InvalidManifest` error before declaring success — common
-causes are listed in [references/packaging.md](references/packaging.md#troubleshooting).
-Never claim the import is publishable until a `--dry` run has succeeded.
+### 8. Validate
 
-### 10. Report
-
-Summarize: the org created, the package type, the asset inventory, the license
-found, and the exact publish command the user can run next. Use the same path
-you validated — the box root for a box, or the package dir for a standalone:
+Validate **each asset dir and the box**, absolute paths, from local source (the
+released `npx @aipkgs/cli` may lag and lack `--dry`; don't use `npm run dev` —
+relative paths break and npm swallows `--dry`):
 
 ```sh
-aipkg publish aipkgs/<org>                    # box
-aipkg publish aipkgs/<org>/skills/<slug>      # standalone (adjust type/slug)
+node --experimental-strip-types packages/cli/src/index.ts publish --dry "$(pwd)/aipkgs/<org>/skills/<slug>"
+node --experimental-strip-types packages/cli/src/index.ts publish --dry "$(pwd)/aipkgs/<org>/box"
 ```
 
-If you handled MCP servers, restate the `aipkg mcp add` command(s) too.
+The box's "Archive contents" should list only its own sidecars — that confirms
+it references rather than bundles the assets. Fix any
+`InvalidArchive`/`InvalidManifest` (causes in
+[references/packaging.md](references/packaging.md#troubleshooting)) before
+claiming success.
+
+### 9. Report
+
+Summarize org, asset inventory, and license. **Publish order matters: deps
+before dependents, box last** — its `@latest` deps must already resolve. Safe
+order: assets with no deps first, then the rest, then the box.
+
+```sh
+aipkg publish aipkgs/<org>/skills/<slug>   # each asset
+aipkg publish aipkgs/<org>/box             # box, last
+```
 
 ## Guardrails
 
-- Never edit the user's source repo or their root `aipkg.json`/`aipkg.lock`
-  during an import — you only create files under `aipkgs/<org>/`.
-- Don't run `aipkg publish` (the real upload) yourself; that's the user's call.
-  Stop at `--dry` validation and hand them the command.
-- Preserve upstream content and licensing faithfully. When attribution or
-  license is missing or ambiguous, ask rather than guess.
+- Never edit the user's source repo or their root `aipkg.json`/`aipkg.lock` —
+  only create files under `aipkgs/<org>/`.
+- Don't run `aipkg publish` (the real upload) yourself; stop at `--dry` and hand
+  the user the command.
+- Preserve upstream content and licensing faithfully. When license or
+  attribution is missing or ambiguous, ask rather than guess.
