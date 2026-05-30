@@ -1,0 +1,17 @@
+{
+  "type": "skill",
+  "ref": "superpowers/executing-plans",
+  "version": "0.1.0",
+  "description": "Use when you have a written implementation plan to execute in a separate session with review checkpoints",
+  "homepage": "https://github.com/obra/superpowers",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/obra/superpowers.git"
+  },
+  "deps": {
+    "skills": {
+      "finishing-a-development-branch": "aipkg://skill/superpowers/finishing-a-development-branch@latest",
+      "using-git-worktrees": "aipkg://skill/superpowers/using-git-worktrees@latest"
+    }
+  }
+}

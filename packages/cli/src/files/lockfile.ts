@@ -165,11 +165,15 @@ export class Lockfile implements LockfileStruct {
   /**
    * Collect the child deps of the root ref.
    */
-  collectSubtree(args: { rootRef: string }): {
+  collectSubtree(args: { rootRef?: string }): {
     entries: Array<{ type: Manifest['type']; slug: string }>;
     mcps: string[];
   } {
     const { rootRef } = args;
+
+    // If no root ref is not provided, return an empty subtree. (DX)
+    if (!rootRef) return { entries: [], mcps: [] };
+
     const deps = this.deps ?? {};
 
     const nodes: Array<{ type: Manifest['type']; slug: string; aipkgRef: string; parent?: string }> = [];

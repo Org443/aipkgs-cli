@@ -1,6 +1,6 @@
 {
   "statusLine": {
     "type": "command",
-    "command": "node ${AIPKG_REF}/status-line.js"
+    "command": "node ${PKG_ROOT}/status-line.js"
   }
 }

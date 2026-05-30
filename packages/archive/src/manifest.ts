@@ -66,17 +66,16 @@ export class Manifest {
     this.pkgRef = new PackageRef({ refStr: fullRef });
 
     // Now we need to parse the cmds, skills, subagents, & rules entries
-    for (const assetKey of DEPS_KEYS) {
-      const entries = data.deps?.[assetKey];
+    for (const depKey of DEPS_KEYS) {
+      const entries = data.deps?.[depKey];
 
       if (entries) {
-        const pkgType = Manifest.manifestKey(assetKey);
         const bucket: Record<string, PackageRef> = {};
         for (const [alias, entry] of Object.entries(entries)) {
           bucket[alias] = new PackageRef({ refStr: entry });
         }
 
-        this.deps[assetKey] = bucket;
+        this.deps[depKey] = bucket;
       }
     }
   }
@@ -104,22 +103,6 @@ export class Manifest {
         return 'hooks';
       case 'box':
         return 'boxes';
-    }
-  }
-  static manifestKey(key: DepsKey): Manifest['type'] {
-    switch (key) {
-      case 'cmds':
-        return 'cmd';
-      case 'skills':
-        return 'skill';
-      case 'subagents':
-        return 'subagent';
-      case 'rules':
-        return 'rule';
-      case 'hooks':
-        return 'hook';
-      case 'boxes':
-        return 'box';
     }
   }
 

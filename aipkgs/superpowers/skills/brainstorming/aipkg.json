@@ -1,0 +1,16 @@
+{
+  "type": "skill",
+  "ref": "superpowers/brainstorming",
+  "version": "0.1.0",
+  "description": "You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent, requirements and design before implementation.",
+  "homepage": "https://github.com/obra/superpowers",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/obra/superpowers.git"
+  },
+  "deps": {
+    "skills": {
+      "writing-plans": "aipkg://skill/superpowers/writing-plans@latest"
+    }
+  }
+}

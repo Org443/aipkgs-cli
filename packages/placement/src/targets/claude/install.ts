@@ -76,7 +76,12 @@ async function installHook(args: { slug: string; files: TarEntry[] }) {
   await settingsConfig.mergeHooks({ slug, hooks: resolved });
   written.push(settingsConfig.path());
 
-  return { written, statusLine };
+  const resolvedStatusLine =
+    statusLine && typeof statusLine.command === 'string'
+      ? { ...statusLine, command: statusLine.command.replace(REF_TOKEN, installDir) }
+      : statusLine;
+
+  return { written, statusLine: resolvedStatusLine };
 }
 
 const REF_TOKEN = /\$\{PKG_ROOT\}/g;

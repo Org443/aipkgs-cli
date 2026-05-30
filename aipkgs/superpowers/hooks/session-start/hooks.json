@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"${AIPKG_REF}/session-start\" session-start",
+            "command": "node \"${PKG_ROOT}/session-start.js\"",
             "async": false
           }
         ]

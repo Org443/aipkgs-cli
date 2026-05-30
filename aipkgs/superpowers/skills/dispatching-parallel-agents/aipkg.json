@@ -1,0 +1,11 @@
+{
+  "type": "skill",
+  "ref": "superpowers/dispatching-parallel-agents",
+  "version": "0.1.0",
+  "description": "Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies",
+  "homepage": "https://github.com/obra/superpowers",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/obra/superpowers.git"
+  }
+}

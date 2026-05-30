@@ -16,12 +16,7 @@ export async function removeAction(input: { type: Manifest['type']; ref: string 
 
   const rootLock = lockfile.getEntry({ pkgRef });
 
-  if (!rootLock) {
-    console.log(pc.yellow(`Nothing to remove — no ${type} "${ref}" tracked in aipkg.lock`));
-    return;
-  }
-
-  const { entries, mcps } = lockfile.collectSubtree({ rootRef: rootLock.aipkgRef });
+  const { entries, mcps } = lockfile.collectSubtree({ rootRef: rootLock?.aipkgRef });
 
   const removedPaths: string[] = [];
   let clearedStatusLine = false;
