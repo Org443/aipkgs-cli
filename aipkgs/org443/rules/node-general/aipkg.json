@@ -1,7 +1,7 @@
 {
   "type": "rule",
   "ref": "org443/node-general",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "General Node + TypeScript coding rules: function signatures, ctx threading, call style, concurrency, file layout, dates.",
   "homepage": "https://aipkgs.com",
   "repository": {

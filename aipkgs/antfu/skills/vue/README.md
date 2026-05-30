@@ -1,0 +1,9 @@
+# vue
+
+Vue 3 Composition API, script setup macros, reactivity system, and built-in components. Use when writing Vue SFCs, defineProps/defineEmits/defineModel, watchers, or using Transition/Teleport/Suspense/KeepAlive.
+
+## Install
+
+```sh
+npx @aipkgs/cli install antfu/vue
+```

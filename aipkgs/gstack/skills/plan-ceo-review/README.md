@@ -1,0 +1,9 @@
+# plan-ceo-review
+
+CEO/founder-mode plan review. (gstack)
+
+## Install
+
+```sh
+npx @aipkgs/cli install gstack/plan-ceo-review
+```
