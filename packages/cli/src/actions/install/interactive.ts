@@ -16,13 +16,11 @@ export async function interactiveInstallAction(args: { type: Manifest['type']; r
     return;
   }
 
-  // If the ref already pins down exactly one package there's nothing to
-  // disambiguate — skip the picker and install it straight away. limit:2 is
-  // enough to distinguish "exactly one" from "more than one".
+  const bareRef = ref.split('@')[0];
   const matches = await api.packages.search({ type, partial: ref, limit: 2 });
   const onlyMatch = matches.length === 1 ? matches[0] : undefined;
-  if (onlyMatch) {
-    await installAction({ type, ref: onlyMatch.ref });
+  if (onlyMatch && onlyMatch.ref === bareRef) {
+    await installAction({ type, ref });
     return;
   }
 

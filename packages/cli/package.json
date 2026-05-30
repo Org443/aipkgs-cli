@@ -1,6 +1,6 @@
 {
   "name": "@aipkgs/cli",
-  "version": "0.1.9",
+  "version": "0.1.7",
   "description": "aipkg CLI.",
   "repository": {
     "type": "git",
@@ -15,9 +15,7 @@
   "bin": {
     "aipkg": "dist/index.js"
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "engines": {
     "node": ">=22"
   },
