@@ -1,6 +1,6 @@
 ---
 name: search-aipkgs
-description: Search and discover packages in the AIpkgs registry. Use this whenever the user runs `/search-aipkgs`, asks what aipkgs exist, wants to find a command/skill/rule/subagent/box, or asks to explore the registry at app.aipkgs.com.
+description: Search and discover packages in the AIpkgs registry. Use this whenever the user runs `/search-aipkgs`, asks what aipkgs exist, wants to find a command/skill/rule/subagent/box, or asks to explore the registry at aipkgs.com.
 allowed-tools: Bash, Read
 allowed-commands:
   - curl *
@@ -10,18 +10,18 @@ allowed-commands:
 
 # Context
 
-[AIpkgs](https://app.aipkgs.com) is an AI agent registry — like NPM but for AI building blocks. Packages are versioned, namespaced under an org, and installable via the `aipkg` CLI.
+[AIpkgs](https://aipkgs.com) is an AI agent registry — like NPM but for AI building blocks. Packages are versioned, namespaced under an org, and installable via the `aipkg` CLI.
 
 **Package types (DB short form — use these as the `type=` filter value):**
 
-| Type     | What it is                                  | URL segment on app.aipkgs.com |
-|----------|---------------------------------------------|-------------------------------|
-| `cmd`    | Slash command (e.g. `/pr-create`)           | `/packages/commands/...`      |
-| `skill`  | Reusable prompt/skill loaded on demand      | `/packages/skills/...`        |
-| `rule`   | Always-on behavior rule injected in context | `/packages/rules/...`         |
-| `agent`  | Specialist subagent                         | `/packages/agents/...`        |
-| `box`    | MCP server / tool box                       | `/packages/boxes/...`         |
-| `memory` | Persistent memory entry                     | `/packages/memory/...`        |
+| Type     | What it is                                  | URL segment on aipkgs.com |
+| -------- | ------------------------------------------- | ------------------------- |
+| `cmd`    | Slash command (e.g. `/pr-create`)           | `/packages/commands/...`  |
+| `skill`  | Reusable prompt/skill loaded on demand      | `/packages/skills/...`    |
+| `rule`   | Always-on behavior rule injected in context | `/packages/rules/...`     |
+| `agent`  | Specialist subagent                         | `/packages/agents/...`    |
+| `box`    | MCP server / tool box                       | `/packages/boxes/...`     |
+| `memory` | Persistent memory entry                     | `/packages/memory/...`    |
 
 **Package ref shapes:** `<org>/<slug>` or `<org>/<key>/<slug>` (when packages are namespaced under a key).
 
@@ -63,7 +63,7 @@ Response shape (see `assets/example-list-response.json` for a full example):
         "created_at": 1715000000000,
         "updated_at": 1716400000000
       },
-      "app_url": "https://app.aipkgs.com/packages/commands/org443/pr-create"
+      "app_url": "https://aipkgs.com/packages/commands/org443/pr-create"
     }
   ],
   "next_cursor": "eyJsYXN0VmFsdWVzIjpbLi4uXX0="
@@ -102,7 +102,7 @@ If no `aipkg.json` exists, skip this step — there are no installed packages to
 If it exists, build an **installed-set**: parse each `aipkg://...` value into `{ type, org, slug, version }`. The manifest uses pluralized buckets; map them to the API `type=` value:
 
 | Manifest bucket | API type |
-|-----------------|----------|
+| --------------- | -------- |
 | `cmds`          | `cmd`    |
 | `skills`        | `skill`  |
 | `subagents`     | `agent`  |
@@ -182,7 +182,7 @@ Show the top 3-5 matches grouped by type. Lead with the strongest fit. Format ea
 · Upgrade:  aipkg update <type> <org>/<slug>           # only when installed and out-of-date
 ```
 
-After the list, write 1-2 sentences explaining **which one to pick and why** for the user's specific task. Be direct — don't hedge between equally-good options without a reason. If the best fit is already installed, say so: *"You already have `<x>` — use it via `<how>`."*
+After the list, write 1-2 sentences explaining **which one to pick and why** for the user's specific task. Be direct — don't hedge between equally-good options without a reason. If the best fit is already installed, say so: _"You already have `<x>` — use it via `<how>`."_
 
 If nothing fits well, say so plainly: "Nothing in the registry matches `<query>` closely. Closest neighbors are `<X>` and `<Y>`. Want me to broaden the search, or are you looking to publish your own?"
 
@@ -202,8 +202,8 @@ When the user names or zeroes in on a single package (e.g. "tell me more about `
 
 Ask exactly one of:
 
-- "Want me to install `<recommended>`? Run: `aipkg <type> <org>/<slug>`"   *(only if not installed)*
-- "Want me to upgrade `<recommended>` from v<installed> → v<latest>?"     *(only if installed and out-of-date)*
+- "Want me to install `<recommended>`? Run: `aipkg <type> <org>/<slug>`" _(only if not installed)_
+- "Want me to upgrade `<recommended>` from v<installed> → v<latest>?" _(only if installed and out-of-date)_
 - "Want to see more matches? I can broaden the query or page through results with the `next_cursor`."
 - "Want the full manifest for `<slug>`? I'll fetch it."
 

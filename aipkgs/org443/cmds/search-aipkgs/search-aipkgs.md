@@ -7,9 +7,10 @@ allowed-commands:
 
 # Context
 
-[AIpkgs](https://app.aipkgs.com) is an AI skills, commands, rules, subagents and MCP registry — like NPM but for AI agent building blocks.
+[AIpkgs](https://aipkgs.com) is an AI skills, commands, rules, subagents and MCP registry — like NPM but for AI agent building blocks.
 
 **Package types:**
+
 - `cmd` — slash commands Claude runs (e.g. `/pr-create`)
 - `skill` — reusable prompt libraries Claude loads as context
 - `rule` — always-on behavior rules injected into Claude's context
@@ -30,12 +31,14 @@ GET /v1/packages?search=<query>&type=<type>&limit=<n>&cursor=<cursor>
 ```
 
 Query params (all optional):
+
 - `search` — free-text filter on slug, key, description, and tags (ILIKE)
 - `type` — filter by type: `cmd`, `skill`, `rule`, `subagent`, `agent`
 - `limit` — page size, default 25, max 100
 - `cursor` — opaque cursor string for next page
 
 Response shape:
+
 ```json
 {
   "packages": [
@@ -54,7 +57,7 @@ Response shape:
         "created_at": 1700000000000,
         "updated_at": 1700000000000
       },
-      "app_url": "https://app.aipkgs.com/packages/commands/acme/pr-create"
+      "app_url": "https://aipkgs.com/packages/commands/acme/pr-create"
     }
   ],
   "next_cursor": "<opaque string, omitted on last page>"
@@ -79,6 +82,7 @@ Help them discover and evaluate the right package(s) for their needs. Follow the
 Parse the user's goal from `$ARGUMENTS`. If it's empty, ask: "What are you trying to do? Describe the task and I'll search the registry for the best match."
 
 Identify:
+
 - The **task** they want to automate
 - Any **type preference** (`cmd` / `skill` / `rule` / `subagent`), if stated
 - **Keywords** to search with
@@ -137,6 +141,7 @@ After the list, write a 1–2 sentence recommendation on which package best fits
 ### Step 5 — Offer next steps
 
 Ask the user:
+
 - Would you like to install one of these?
 - Would you like to refine the search?
 

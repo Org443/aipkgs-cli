@@ -1,12 +1,12 @@
 # @aipkgs/cli
 
-CLI for [AIpkg](https://app.aipkgs.com) — a registry for AI commands, skills, prompts, sub-agents, rules, and boxes.
+CLI for [AIpkg](https://aipkgs.com) — a registry for AI commands, skills, prompts, sub-agents, rules, and boxes.
 
 ## Docs
 
-- Website: https://app.aipkgs.com
-- CLI docs: https://app.aipkgs.com/docs/cli
-- Browse packages: https://app.aipkgs.com/packages
+- Website: https://aipkgs.com
+- CLI docs: https://aipkgs.com/docs/cli
+- Browse packages: https://aipkgs.com/packages
 
 ## Install
 

@@ -5,7 +5,7 @@ import { AGENT_TARGETS, type AgentTarget } from '@local/archive';
 import { isENOENT } from '../io/fs.ts';
 
 export const DEFAULT_API = 'https://api.aipkgs.com';
-export const DEFAULT_APP = 'https://app.aipkgs.com';
+export const DEFAULT_APP = 'https://aipkgs.com';
 
 export type Config = {
   api: string;

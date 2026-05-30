@@ -8,8 +8,14 @@
         "slug": "pr-create",
         "type": "cmd",
         "visibility": "public",
-        "tags": ["git", "github", "pr"],
-        "supports": ["claude"],
+        "tags": [
+          "git",
+          "github",
+          "pr"
+        ],
+        "supports": [
+          "claude"
+        ],
         "latest_version": "0.2.1",
         "latest_version_created_at": 1716400000000,
         "total_downloads": 142,
@@ -18,7 +24,7 @@
         "created_at": 1715000000000,
         "updated_at": 1716400000000
       },
-      "app_url": "https://app.aipkgs.com/packages/commands/org443/pr-create"
+      "app_url": "https://aipkgs.com/packages/commands/org443/pr-create"
     },
     {
       "package": {
@@ -28,8 +34,14 @@
         "slug": "code-review",
         "type": "skill",
         "visibility": "public",
-        "tags": ["review", "diff", "github"],
-        "supports": ["claude"],
+        "tags": [
+          "review",
+          "diff",
+          "github"
+        ],
+        "supports": [
+          "claude"
+        ],
         "latest_version": "1.4.0",
         "latest_version_created_at": 1716200000000,
         "total_downloads": 980,
@@ -38,7 +50,7 @@
         "created_at": 1713000000000,
         "updated_at": 1716200000000
       },
-      "app_url": "https://app.aipkgs.com/packages/skills/anthropic/code-review"
+      "app_url": "https://aipkgs.com/packages/skills/anthropic/code-review"
     },
     {
       "package": {
@@ -48,8 +60,13 @@
         "slug": "stack-pr",
         "type": "cmd",
         "visibility": "public",
-        "tags": ["git", "stacked-prs"],
-        "supports": ["claude"],
+        "tags": [
+          "git",
+          "stacked-prs"
+        ],
+        "supports": [
+          "claude"
+        ],
         "latest_version": "0.0.4",
         "latest_version_created_at": 1716100000000,
         "total_downloads": 31,
@@ -58,7 +75,7 @@
         "created_at": 1715800000000,
         "updated_at": 1716100000000
       },
-      "app_url": "https://app.aipkgs.com/packages/commands/org443/github/stack-pr"
+      "app_url": "https://aipkgs.com/packages/commands/org443/github/stack-pr"
     }
   ],
   "next_cursor": "eyJsYXN0VmFsdWVzIjpbMzEsNSwiYzllMGY3YTMtM2ExYi00YzVkLTllMmYtMDAxMTIyMzM0NDU1Il0sIm9yZGVyQnkiOltbInRvdGFsX2Rvd25sb2FkcyIsImRlc2MiXSxbInRvdGFsX2xpa2VzIiwiZGVzYyJdLFsiaWQiLCJhc2MiXV0sImxpbWl0IjoyNX0="
