@@ -62,11 +62,11 @@ for i in "${!PKGS[@]}"; do
   rel="${dir#$REPO_ROOT/}"
   echo "==> publishing $rel"
   if [ "$DRY_RUN" -eq 1 ]; then
-    echo "    (dry run) would run: aipkg publish"
+    echo "    (dry run) would run: aipkg publish --yes"
     SUCCESS+=("$rel")
     continue
   fi
-  if ( cd "$dir" && aipkg publish ); then
+  if ( cd "$dir" && aipkg publish --yes); then
     SUCCESS+=("$rel")
   else
     code=$?
