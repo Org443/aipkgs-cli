@@ -43,7 +43,9 @@ async function readAll(res: Response, ms: number): Promise<string> {
       break;
     }
   }
-  try { reader.cancel().catch(() => {}); } catch {}
+  try {
+    reader.cancel().catch(() => {});
+  } catch {}
   return out;
 }
 

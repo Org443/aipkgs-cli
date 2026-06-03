@@ -9,13 +9,13 @@
 // wrap useState/useEffect (blocker — but those will be caught by the other
 // rules independently). The warning prompts the agent to inspect the body.
 
-import React from "react";
-import { AbsoluteFill, useCurrentFrame, interpolate } from "remotion";
+import React from 'react';
+import { AbsoluteFill, useCurrentFrame, interpolate } from 'remotion';
 
 // Custom hook — pure derivation from frame, no state. Translates fine.
 function useFadeIn(durationInFrames: number) {
   const frame = useCurrentFrame();
-  return interpolate(frame, [0, durationInFrames], [0, 1], { extrapolateRight: "clamp" });
+  return interpolate(frame, [0, durationInFrames], [0, 1], { extrapolateRight: 'clamp' });
 }
 
 export const CustomHookDriven: React.FC = () => {

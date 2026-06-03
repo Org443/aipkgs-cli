@@ -70,7 +70,9 @@ export async function startDaemon(opts: DaemonOptions): Promise<RunningDaemon | 
 
   // 2. Tailnet probe (fail-closed).
   const probe = opts.tailnetEnabled
-    ? (opts.probeImpl ? await opts.probeImpl() : await probeTailscale(opts.tailnetSocketPath))
+    ? opts.probeImpl
+      ? await opts.probeImpl()
+      : await probeTailscale(opts.tailnetSocketPath)
     : null;
 
   if (opts.tailnetEnabled && (!probe || !probe.ok)) {
@@ -236,7 +238,10 @@ async function handleLoopback(ctx: HandlerCtx): Promise<void> {
     // /auth/revoke — revoke a token.
     if (method === 'POST' && path === '/auth/revoke') {
       const body = await readBody(req);
-      if ('error' in body) { sendJson(res, 413, body); return; }
+      if ('error' in body) {
+        sendJson(res, 413, body);
+        return;
+      }
       const parsed = JSON.parse(body.toString('utf-8') || '{}') as { token?: string; identity?: string };
       let count = 0;
       if (parsed.token) {
@@ -255,7 +260,10 @@ async function handleLoopback(ctx: HandlerCtx): Promise<void> {
       return;
     }
     const body = await readBody(req);
-    if ('error' in body) { sendJson(res, 413, body); return; }
+    if ('error' in body) {
+      sendJson(res, 413, body);
+      return;
+    }
     const sessionId = (req.headers['x-session-id'] as string | undefined) ?? null;
     const agentIdentity = (req.headers['x-agent-identity'] as string | undefined) ?? undefined;
     const upstream = await proxyToDevice({ inbound: req, body, tunnel, sessionId, agentIdentity });
@@ -310,7 +318,10 @@ async function handleTailnet(ctx: TailnetCtx): Promise<void> {
       }
 
       const body = await readBody(req);
-      if ('error' in body) { sendJson(res, 413, body); return; }
+      if ('error' in body) {
+        sendJson(res, 413, body);
+        return;
+      }
       const parsed = JSON.parse(body.toString('utf-8') || '{}') as { capability?: Capability; device_udid?: string };
 
       const result = await mintForCaller({
@@ -348,7 +359,10 @@ async function handleTailnet(ctx: TailnetCtx): Promise<void> {
 
     // Read body once + enforce limit.
     const body = await readBody(req);
-    if ('error' in body) { sendJson(res, 413, body); return; }
+    if ('error' in body) {
+      sendJson(res, 413, body);
+      return;
+    }
 
     // Tailnet-only own-session revoke.
     if (method === 'POST' && path === '/auth/revoke') {
@@ -424,7 +438,10 @@ if (import.meta.main) {
   };
 
   const shutdown = () => {
-    if (keepalive) { keepalive.stop(); keepalive = null; }
+    if (keepalive) {
+      keepalive.stop();
+      keepalive = null;
+    }
   };
   process.on('SIGINT', shutdown);
   process.on('SIGTERM', shutdown);
@@ -434,13 +451,15 @@ if (import.meta.main) {
     loopbackPort: port,
     tailnetEnabled: tailnet,
     tunnelProvider: realTunnelProvider,
-  }).then((d) => {
-    if ('error' in d) {
-      process.stderr.write(`daemon error: ${d.error}\n`);
-      process.exit(0); // exit 0 because READY was already printed
-    }
-  }).catch((err) => {
-    process.stderr.write(`daemon fatal: ${(err as Error).message}\n`);
-    process.exit(1);
-  });
+  })
+    .then((d) => {
+      if ('error' in d) {
+        process.stderr.write(`daemon error: ${d.error}\n`);
+        process.exit(0); // exit 0 because READY was already printed
+      }
+    })
+    .catch((err) => {
+      process.stderr.write(`daemon fatal: ${(err as Error).message}\n`);
+      process.exit(1);
+    });
 }

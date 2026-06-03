@@ -9,10 +9,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { parseStoriesFromHtml } from './script';
 
-const FIXTURE = fs.readFileSync(
-  path.join(__dirname, 'fixtures', 'hn-2026-04-26.html'),
-  'utf-8',
-);
+const FIXTURE = fs.readFileSync(path.join(__dirname, 'fixtures', 'hn-2026-04-26.html'), 'utf-8');
 
 describe('parseStoriesFromHtml against bundled HN fixture', () => {
   it('returns 5 stories (matching the fixture)', () => {
@@ -22,14 +19,12 @@ describe('parseStoriesFromHtml against bundled HN fixture', () => {
 
   it('assigns 1-based ranks in document order', () => {
     const stories = parseStoriesFromHtml(FIXTURE);
-    expect(stories.map(s => s.rank)).toEqual([1, 2, 3, 4, 5]);
+    expect(stories.map((s) => s.rank)).toEqual([1, 2, 3, 4, 5]);
   });
 
   it('extracts ids matching the tr.athing[id] attribute', () => {
     const stories = parseStoriesFromHtml(FIXTURE);
-    expect(stories.map(s => s.id)).toEqual([
-      '40000001', '40000002', '40000003', '40000004', '40000005',
-    ]);
+    expect(stories.map((s) => s.id)).toEqual(['40000001', '40000002', '40000003', '40000004', '40000005']);
   });
 
   it('extracts titles and decodes HTML entities', () => {

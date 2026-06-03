@@ -1,16 +1,16 @@
-import { Composition } from "remotion";
-import { z } from "zod";
-import { Stargazed, stargazedSchema } from "./Stargazed";
+import { Composition } from 'remotion';
+import { z } from 'zod';
+import { Stargazed, stargazedSchema } from './Stargazed';
 
 const defaultProps: z.infer<typeof stargazedSchema> = {
-  title: "STARGAZED",
-  subtitle: "by HeyGen",
+  title: 'STARGAZED',
+  subtitle: 'by HeyGen',
   stats: [
-    { label: "Stars", value: 1247, color: "#fbbf24" },
-    { label: "Forks", value: 312, color: "#60a5fa" },
-    { label: "Issues", value: 48, color: "#f87171" },
+    { label: 'Stars', value: 1247, color: '#fbbf24' },
+    { label: 'Forks', value: 312, color: '#60a5fa' },
+    { label: 'Issues', value: 48, color: '#f87171' },
   ],
-  outro: "thanks for watching",
+  outro: 'thanks for watching',
 };
 
 export const RemotionRoot = () => (

@@ -22,12 +22,7 @@ import {
   runContentFilters,
   resetSessionMarker,
 } from '../src/content-security';
-import {
-  generateCanary,
-  checkCanaryInStructure,
-  combineVerdict,
-  type LayerSignal,
-} from '../src/security';
+import { generateCanary, checkCanaryInStructure, combineVerdict, type LayerSignal } from '../src/security';
 
 describe('defense-in-depth — layer coexistence', () => {
   test('canary survives when content is wrapped by content-security envelope', () => {
@@ -68,7 +63,8 @@ describe('defense-in-depth — layer coexistence', () => {
   test('benign content survives all layers — zero false positives', () => {
     resetSessionMarker();
     const c = generateCanary();
-    const benign = 'The Pacific Ocean is the largest ocean on Earth. It contains many islands. Marine biodiversity is rich.';
+    const benign =
+      'The Pacific Ocean is the largest ocean on Earth. It contains many islands. Marine biodiversity is rich.';
 
     // Datamark doesn't add the canary
     const marked = datamarkContent(benign);
@@ -103,14 +99,10 @@ describe('defense-in-depth — layer coexistence', () => {
     expect(combineVerdict(baseSignals.slice(0, 2)).verdict).toBe('block');
 
     // Remove transcript → BLOCK via canary still
-    expect(
-      combineVerdict([baseSignals[0], baseSignals[2]]).verdict,
-    ).toBe('block');
+    expect(combineVerdict([baseSignals[0], baseSignals[2]]).verdict).toBe('block');
 
     // Remove content → BLOCK via canary still
-    expect(
-      combineVerdict([baseSignals[1], baseSignals[2]]).verdict,
-    ).toBe('block');
+    expect(combineVerdict([baseSignals[1], baseSignals[2]]).verdict).toBe('block');
 
     // Remove canary AND transcript → only content WARN (single_layer_high
     // — but content is 0.88 which is just above BLOCK threshold 0.85)
@@ -122,14 +114,10 @@ describe('defense-in-depth — layer coexistence', () => {
   test('content-security filter runs through the registered pipeline', () => {
     // Verify runContentFilters picks up the built-in url blocklist filter.
     // If a future refactor accidentally unregisters it, this test fails.
-    const result = runContentFilters(
-      'page content',
-      'https://requestbin.com/webhook',
-      'text',
-    );
+    const result = runContentFilters('page content', 'https://requestbin.com/webhook', 'text');
     // urlBlocklistFilter is auto-registered on module load (content-security.ts:347)
     expect(result.safe).toBe(false);
-    expect(result.warnings.some(w => w.includes('requestbin.com'))).toBe(true);
+    expect(result.warnings.some((w) => w.includes('requestbin.com'))).toBe(true);
   });
 
   test('canary in envelope-escaped content still detectable', () => {

@@ -46,9 +46,7 @@ function parseOverrideArgs(env: NodeJS.ProcessEnv): string[] {
   return [stripWrappingQuotes(raw.trim())];
 }
 
-export function resolveClaudeCommand(
-  env: NodeJS.ProcessEnv = process.env,
-): ClaudeCommand | null {
+export function resolveClaudeCommand(env: NodeJS.ProcessEnv = process.env): ClaudeCommand | null {
   const argsPrefix = parseOverrideArgs(env);
   const override = (env.GSTACK_CLAUDE_BIN ?? env.CLAUDE_BIN)?.trim();
   // Honor case-insensitive Path/PATH on Windows. Bun.which itself reads

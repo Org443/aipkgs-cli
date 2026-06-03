@@ -90,7 +90,11 @@ function parseConnectRequest(reqData: Buffer): { host: string; port: number } | 
 function writeReply(sock: net.Socket, code: number): void {
   // SOCKS5 reply: VER REP RSV ATYP BND.ADDR(0.0.0.0) BND.PORT(0)
   const reply = Buffer.from([SOCKS5_VERSION, code, 0x00, ATYP_IPV4, 0, 0, 0, 0, 0, 0]);
-  try { sock.write(reply); } catch { /* peer already gone */ }
+  try {
+    sock.write(reply);
+  } catch {
+    /* peer already gone */
+  }
 }
 
 /**
@@ -119,8 +123,8 @@ export async function startSocksBridge(opts: {
   function connectSize(buf: Buffer): number | null {
     if (buf.length < 5) return null;
     const atyp = buf[3];
-    if (atyp === ATYP_IPV4) return 10;        // VER CMD RSV ATYP + 4 + 2
-    if (atyp === ATYP_IPV6) return 22;        // VER CMD RSV ATYP + 16 + 2
+    if (atyp === ATYP_IPV4) return 10; // VER CMD RSV ATYP + 4 + 2
+    if (atyp === ATYP_IPV6) return 22; // VER CMD RSV ATYP + 16 + 2
     if (atyp === ATYP_DOMAINNAME) return 7 + buf[4]; // VER CMD RSV ATYP LEN + N + 2
     return null;
   }
@@ -138,9 +142,17 @@ export async function startSocksBridge(opts: {
     const killBoth = (reason?: string) => {
       void reason;
       state = 'closed';
-      try { clientSocket.destroy(); } catch { /* already gone */ }
+      try {
+        clientSocket.destroy();
+      } catch {
+        /* already gone */
+      }
       if (upstreamSocket) {
-        try { upstreamSocket.destroy(); } catch { /* already gone */ }
+        try {
+          upstreamSocket.destroy();
+        } catch {
+          /* already gone */
+        }
       }
     };
 
@@ -160,9 +172,16 @@ export async function startSocksBridge(opts: {
         if (sz == null || buf.length < sz) return;
         const greeting = buf.subarray(0, sz);
         buf = buf.subarray(sz);
-        if (greeting[0] !== SOCKS5_VERSION) { killBoth('bad version'); return; }
-        try { clientSocket.write(Buffer.from([SOCKS5_VERSION, NO_AUTH_METHOD])); }
-        catch { killBoth('write greeting reply failed'); return; }
+        if (greeting[0] !== SOCKS5_VERSION) {
+          killBoth('bad version');
+          return;
+        }
+        try {
+          clientSocket.write(Buffer.from([SOCKS5_VERSION, NO_AUTH_METHOD]));
+        } catch {
+          killBoth('write greeting reply failed');
+          return;
+        }
         state = 'connect';
         // Fall through — buf may already contain CONNECT bytes (coalesced).
       }
@@ -187,29 +206,46 @@ export async function startSocksBridge(opts: {
           command: 'connect',
           destination: { host: dest.host, port: dest.port },
           timeout: UPSTREAM_CONNECT_TIMEOUT_MS,
-        }).then((result) => {
-          if (state === 'closed') {
-            try { result.socket.destroy(); } catch { /* shutdown */ }
-            return;
-          }
-          upstreamSocket = result.socket;
-          writeReply(clientSocket, REPLY_SUCCESS);
-          // Replay any pre-buffered post-handshake bytes BEFORE we pipe.
-          if (remainder.length > 0) {
-            try { upstreamSocket.write(remainder); } catch { killBoth('replay write failed'); return; }
-          }
-          // Wire the rest of the connection through the pipe.
-          upstreamSocket.on('error', () => killBoth('upstream error'));
-          upstreamSocket.on('close', () => { try { clientSocket.destroy(); } catch { /* already gone */ } });
-          clientSocket.removeListener('data', onData);
-          clientSocket.pipe(upstreamSocket);
-          upstreamSocket.pipe(clientSocket);
-          clientSocket.resume();
-          state = 'piped';
-        }).catch(() => {
-          writeReply(clientSocket, REPLY_HOST_UNREACHABLE);
-          killBoth('upstream connect failed');
-        });
+        })
+          .then((result) => {
+            if (state === 'closed') {
+              try {
+                result.socket.destroy();
+              } catch {
+                /* shutdown */
+              }
+              return;
+            }
+            upstreamSocket = result.socket;
+            writeReply(clientSocket, REPLY_SUCCESS);
+            // Replay any pre-buffered post-handshake bytes BEFORE we pipe.
+            if (remainder.length > 0) {
+              try {
+                upstreamSocket.write(remainder);
+              } catch {
+                killBoth('replay write failed');
+                return;
+              }
+            }
+            // Wire the rest of the connection through the pipe.
+            upstreamSocket.on('error', () => killBoth('upstream error'));
+            upstreamSocket.on('close', () => {
+              try {
+                clientSocket.destroy();
+              } catch {
+                /* already gone */
+              }
+            });
+            clientSocket.removeListener('data', onData);
+            clientSocket.pipe(upstreamSocket);
+            upstreamSocket.pipe(clientSocket);
+            clientSocket.resume();
+            state = 'piped';
+          })
+          .catch(() => {
+            writeReply(clientSocket, REPLY_HOST_UNREACHABLE);
+            killBoth('upstream connect failed');
+          });
         return;
       }
     };
@@ -219,8 +255,14 @@ export async function startSocksBridge(opts: {
   });
 
   await new Promise<void>((resolve, reject) => {
-    const onErr = (e: unknown) => { server.off('listening', onListen); reject(e); };
-    const onListen = () => { server.off('error', onErr); resolve(); };
+    const onErr = (e: unknown) => {
+      server.off('listening', onListen);
+      reject(e);
+    };
+    const onListen = () => {
+      server.off('error', onErr);
+      resolve();
+    };
     server.once('error', onErr);
     server.once('listening', onListen);
     server.listen(requestedPort, '127.0.0.1');
@@ -236,7 +278,11 @@ export async function startSocksBridge(opts: {
     server,
     close: async () => {
       for (const sock of inFlight) {
-        try { sock.destroy(); } catch { /* already gone */ }
+        try {
+          sock.destroy();
+        } catch {
+          /* already gone */
+        }
       }
       inFlight.clear();
       await new Promise<void>((resolve) => server.close(() => resolve()));
@@ -294,7 +340,11 @@ export async function testUpstream(opts: UpstreamTestOpts): Promise<{ ok: true; 
         destination: { host: testHost, port: testPort },
         timeout: perAttempt,
       });
-      try { result.socket.destroy(); } catch { /* test connection done */ }
+      try {
+        result.socket.destroy();
+      } catch {
+        /* test connection done */
+      }
       return { ok: true, attempts: attempt, ms: Date.now() - start };
     } catch (err) {
       lastErr = err;
@@ -307,7 +357,9 @@ export async function testUpstream(opts: UpstreamTestOpts): Promise<{ ok: true; 
   }
 
   const reason = lastErr instanceof Error ? lastErr.message : String(lastErr);
-  const err = new Error(`SOCKS5 upstream rejected or unreachable after ${retries} attempts (${Date.now() - start}ms): ${reason}`);
+  const err = new Error(
+    `SOCKS5 upstream rejected or unreachable after ${retries} attempts (${Date.now() - start}ms): ${reason}`,
+  );
   (err as Error & { upstreamHost?: string; upstreamPort?: number }).upstreamHost = opts.upstream.host;
   (err as Error & { upstreamHost?: string; upstreamPort?: number }).upstreamPort = opts.upstream.port;
   throw err;

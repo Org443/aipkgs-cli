@@ -78,7 +78,8 @@ export function parseSwift(source: string): AccessorSpec[] {
   const specs: AccessorSpec[] = [];
   // Find `@Observable\n(public )?(final )?class <Name>` followed by a brace
   // block. We then scan inside that block for @Snapshotable fields.
-  const classPattern = /@Observable\s*(?:(?:public|internal|fileprivate|private)\s+)?(?:final\s+)?class\s+(\w+)[^{]*\{/g;
+  const classPattern =
+    /@Observable\s*(?:(?:public|internal|fileprivate|private)\s+)?(?:final\s+)?class\s+(\w+)[^{]*\{/g;
 
   let match: RegExpExecArray | null;
   while ((match = classPattern.exec(source)) !== null) {
@@ -131,7 +132,8 @@ function parseFields(body: string): AccessorField[] {
   // Multi-line types are handled by greedy non-newline match in the type, but
   // we collapse adjacent whitespace first to avoid false negatives.
   const normalized = body.replace(/[\t ]*\r?\n[\t ]*/g, ' ');
-  const fieldPattern = /@Snapshotable\s+(?:(?:public|internal|fileprivate|private)\s+)?(?:var|let)\s+(\w+)\s*:\s*([^={]+?)(?=\s*(?:=|\{|@Snapshotable|\bvar\b|\blet\b|\bfunc\b|\}|$))/g;
+  const fieldPattern =
+    /@Snapshotable\s+(?:(?:public|internal|fileprivate|private)\s+)?(?:var|let)\s+(\w+)\s*:\s*([^={]+?)(?=\s*(?:=|\{|@Snapshotable|\bvar\b|\blet\b|\bfunc\b|\}|$))/g;
   const fields: AccessorField[] = [];
   let m: RegExpExecArray | null;
   while ((m = fieldPattern.exec(normalized)) !== null) {
@@ -209,7 +211,9 @@ function detectToolGitRev(): string {
     return execSync('git rev-parse --short HEAD', {
       cwd: dirname(new URL(import.meta.url).pathname),
       stdio: ['ignore', 'pipe', 'ignore'],
-    }).toString().trim();
+    })
+      .toString()
+      .trim();
   } catch {
     return 'dev';
   }
@@ -284,7 +288,9 @@ export function pruneCache(cacheRoot: string = defaultCacheRoot(), maxAgeDays = 
         rmSync(full, { recursive: true, force: true });
         pruned.push(full);
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }
   return { pruned };
 }

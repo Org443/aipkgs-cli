@@ -13,7 +13,7 @@ let warningMessage = '';
 const legacySkillsDir = path.join(os.homedir(), '.config', 'superpowers', 'skills');
 if (fs.existsSync(legacySkillsDir)) {
   warningMessage =
-    '\n\n<important-reminder>IN YOUR FIRST REPLY AFTER SEEING THIS MESSAGE YOU MUST TELL THE USER:⚠️ **WARNING:** Superpowers now uses Claude Code\'s skills system. Custom skills in ~/.config/superpowers/skills will not be read. Move custom skills to ~/.claude/skills instead. To make this message go away, remove ~/.config/superpowers/skills</important-reminder>';
+    "\n\n<important-reminder>IN YOUR FIRST REPLY AFTER SEEING THIS MESSAGE YOU MUST TELL THE USER:⚠️ **WARNING:** Superpowers now uses Claude Code's skills system. Custom skills in ~/.config/superpowers/skills will not be read. Move custom skills to ~/.claude/skills instead. To make this message go away, remove ~/.config/superpowers/skills</important-reminder>";
 }
 
 // Locate using-superpowers/SKILL.md. As a standalone hook package the skill is

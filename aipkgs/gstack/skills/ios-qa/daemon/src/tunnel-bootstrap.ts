@@ -77,7 +77,7 @@ export async function bootstrapTunnel(opts: BootstrapOptions): Promise<Bootstrap
   }
   const target = opts.udid
     ? devices.find((d) => d.identifier === opts.udid)
-    : devices.find((d) => d.paired) ?? devices[0];
+    : (devices.find((d) => d.paired) ?? devices[0]);
   if (!target) {
     return { ok: false, error: 'device_not_found', detail: opts.udid };
   }
@@ -93,7 +93,11 @@ export async function bootstrapTunnel(opts: BootstrapOptions): Promise<Bootstrap
   if (!isAppRunning(target.identifier, opts.bundleId, spawn)) {
     const launched = launchApp(target.identifier, opts.bundleId, spawn);
     if (!launched.ok) {
-      return { ok: false, error: launched.error === 'device_locked' ? 'device_locked' : 'launch_failed', detail: launched.error };
+      return {
+        ok: false,
+        error: launched.error === 'device_locked' ? 'device_locked' : 'launch_failed',
+        detail: launched.error,
+      };
     }
   }
 
@@ -125,12 +129,21 @@ export async function bootstrapTunnel(opts: BootstrapOptions): Promise<Bootstrap
       const r = await fetchFn(`http://[${ipv6}]:${port}/healthz`, {
         signal: AbortSignal.timeout(2_000),
       });
-      if (r.ok) { healthOK = true; break; }
-    } catch { /* retry */ }
+      if (r.ok) {
+        healthOK = true;
+        break;
+      }
+    } catch {
+      /* retry */
+    }
     await new Promise((res) => setTimeout(res, 250));
   }
   if (!healthOK) {
-    return { ok: false, error: 'state_server_unreachable', detail: `no /healthz response from [${ipv6}]:${port} within ${startupTimeoutMs}ms` };
+    return {
+      ok: false,
+      error: 'state_server_unreachable',
+      detail: `no /healthz response from [${ipv6}]:${port} within ${startupTimeoutMs}ms`,
+    };
   }
 
   const bootToken = copyFileFromAppContainer({
@@ -149,7 +162,7 @@ export async function bootstrapTunnel(opts: BootstrapOptions): Promise<Bootstrap
     const r = await fetchFn(`http://[${ipv6}]:${port}/auth/rotate`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${bootToken}`,
+        Authorization: `Bearer ${bootToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ new_token: rotatedToken }),

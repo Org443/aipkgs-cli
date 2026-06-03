@@ -52,7 +52,7 @@ const workerPath = path.join(__dirname, 'gsd-check-update-worker.js');
 const child = spawn(process.execPath, [workerPath], {
   stdio: 'ignore',
   windowsHide: true,
-  detached: true,  // Required on Windows for proper process detachment
+  detached: true, // Required on Windows for proper process detachment
   env: {
     ...process.env,
     GSD_CACHE_FILE: cacheFile,

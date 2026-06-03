@@ -68,8 +68,12 @@ beforeAll(() => {
 });
 
 afterAll(() => {
-  try { agentProc?.kill?.(); } catch {}
-  try { fs.rmSync(stateDir, { recursive: true, force: true }); } catch {}
+  try {
+    agentProc?.kill?.();
+  } catch {}
+  try {
+    fs.rmSync(stateDir, { recursive: true, force: true });
+  } catch {}
 });
 
 async function grantToken(token: string): Promise<Response> {
@@ -77,7 +81,7 @@ async function grantToken(token: string): Promise<Response> {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${internalToken}`,
+      Authorization: `Bearer ${internalToken}`,
     },
     body: JSON.stringify({ token }),
   });
@@ -94,7 +98,7 @@ describe('terminal-agent: /internal/grant', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer wrong-token',
+        Authorization: 'Bearer wrong-token',
       },
       body: JSON.stringify({ token: 'whatever' }),
     });
@@ -111,7 +115,7 @@ describe('terminal-agent: /ws gates', () => {
 
   test('rejects upgrade attempts from a non-extension Origin', async () => {
     const resp = await fetch(`http://127.0.0.1:${agentPort}/ws`, {
-      headers: { 'Origin': 'https://evil.example.com' },
+      headers: { Origin: 'https://evil.example.com' },
     });
     expect(resp.status).toBe(403);
   });
@@ -119,8 +123,8 @@ describe('terminal-agent: /ws gates', () => {
   test('rejects extension-Origin upgrades without a granted cookie', async () => {
     const resp = await fetch(`http://127.0.0.1:${agentPort}/ws`, {
       headers: {
-        'Origin': 'chrome-extension://abc123',
-        'Cookie': 'gstack_pty=never-granted',
+        Origin: 'chrome-extension://abc123',
+        Cookie: 'gstack_pty=never-granted',
       },
     });
     expect(resp.status).toBe(401);
@@ -135,8 +139,8 @@ describe('terminal-agent: PTY round-trip via real WebSocket (Cookie auth)', () =
 
     const ws = new WebSocket(`ws://127.0.0.1:${agentPort}/ws`, {
       headers: {
-        'Origin': 'chrome-extension://test-extension-id',
-        'Cookie': `gstack_pty=${cookie}`,
+        Origin: 'chrome-extension://test-extension-id',
+        Cookie: `gstack_pty=${cookie}`,
       },
     } as any);
 
@@ -146,8 +150,15 @@ describe('terminal-agent: PTY round-trip via real WebSocket (Cookie auth)', () =
 
     await new Promise<void>((resolve, reject) => {
       const timer = setTimeout(() => reject(new Error('ws never opened')), 5000);
-      ws.addEventListener('open', () => { opened = true; clearTimeout(timer); resolve(); });
-      ws.addEventListener('error', (e: any) => { clearTimeout(timer); reject(new Error('ws error')); });
+      ws.addEventListener('open', () => {
+        opened = true;
+        clearTimeout(timer);
+        resolve();
+      });
+      ws.addEventListener('error', (e: any) => {
+        clearTimeout(timer);
+        reject(new Error('ws error'));
+      });
     });
 
     ws.addEventListener('message', (ev: any) => {
@@ -156,7 +167,9 @@ describe('terminal-agent: PTY round-trip via real WebSocket (Cookie auth)', () =
       collected.push(new TextDecoder().decode(buf));
     });
 
-    ws.addEventListener('close', () => { closed = true; });
+    ws.addEventListener('close', () => {
+      closed = true;
+    });
 
     // Lazy-spawn trigger: any binary frame causes the agent to spawn /bin/bash.
     ws.send(new TextEncoder().encode('echo hello-pty-world\nexit\n'));
@@ -177,7 +190,9 @@ describe('terminal-agent: PTY round-trip via real WebSocket (Cookie auth)', () =
     const allOutput = collected.join('');
     expect(allOutput).toContain('hello-pty-world');
 
-    try { ws.close(); } catch {}
+    try {
+      ws.close();
+    } catch {}
     // Give cleanup a moment.
     await Bun.sleep(200);
   });
@@ -210,12 +225,12 @@ describe('terminal-agent: PTY round-trip via real WebSocket (Cookie auth)', () =
     const handshakeKey = 'dGhlIHNhbXBsZSBub25jZQ==';
     const resp = await fetch(`http://127.0.0.1:${agentPort}/ws`, {
       headers: {
-        'Connection': 'Upgrade',
-        'Upgrade': 'websocket',
+        Connection: 'Upgrade',
+        Upgrade: 'websocket',
         'Sec-WebSocket-Version': '13',
         'Sec-WebSocket-Key': handshakeKey,
         'Sec-WebSocket-Protocol': `gstack-pty.${token}`,
-        'Origin': 'chrome-extension://test-extension-id',
+        Origin: 'chrome-extension://test-extension-id',
       },
     });
 
@@ -230,12 +245,12 @@ describe('terminal-agent: PTY round-trip via real WebSocket (Cookie auth)', () =
   test('Sec-WebSocket-Protocol auth: rejects unknown token even with valid Origin', async () => {
     const resp = await fetch(`http://127.0.0.1:${agentPort}/ws`, {
       headers: {
-        'Connection': 'Upgrade',
-        'Upgrade': 'websocket',
+        Connection: 'Upgrade',
+        Upgrade: 'websocket',
         'Sec-WebSocket-Version': '13',
         'Sec-WebSocket-Key': 'dGhlIHNhbXBsZSBub25jZQ==',
         'Sec-WebSocket-Protocol': 'gstack-pty.never-granted-token',
-        'Origin': 'chrome-extension://test-extension-id',
+        Origin: 'chrome-extension://test-extension-id',
       },
     });
     expect(resp.status).toBe(401);
@@ -247,15 +262,21 @@ describe('terminal-agent: PTY round-trip via real WebSocket (Cookie auth)', () =
 
     const ws = new WebSocket(`ws://127.0.0.1:${agentPort}/ws`, {
       headers: {
-        'Origin': 'chrome-extension://test-extension-id',
-        'Cookie': `gstack_pty=${cookie}`,
+        Origin: 'chrome-extension://test-extension-id',
+        Cookie: `gstack_pty=${cookie}`,
       },
     } as any);
 
     await new Promise<void>((resolve, reject) => {
       const timer = setTimeout(() => reject(new Error('ws never opened')), 5000);
-      ws.addEventListener('open', () => { clearTimeout(timer); resolve(); });
-      ws.addEventListener('error', () => { clearTimeout(timer); reject(new Error('ws error')); });
+      ws.addEventListener('open', () => {
+        clearTimeout(timer);
+        resolve();
+      });
+      ws.addEventListener('error', () => {
+        clearTimeout(timer);
+        reject(new Error('ws error'));
+      });
     });
 
     // Send a resize before anything else (lazy-spawn won't fire).
@@ -268,6 +289,8 @@ describe('terminal-agent: PTY round-trip via real WebSocket (Cookie auth)', () =
     // ws still readyState 1 (OPEN) or 3 (CLOSED after exit) — both fine.
     expect([WebSocket.OPEN, WebSocket.CLOSED]).toContain(ws.readyState);
 
-    try { ws.close(); } catch {}
+    try {
+      ws.close();
+    } catch {}
   });
 });

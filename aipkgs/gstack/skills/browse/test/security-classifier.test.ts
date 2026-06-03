@@ -8,10 +8,7 @@
  */
 
 import { describe, test, expect } from 'bun:test';
-import {
-  shouldRunTranscriptCheck,
-  getClassifierStatus,
-} from '../src/security-classifier';
+import { shouldRunTranscriptCheck, getClassifierStatus } from '../src/security-classifier';
 import { THRESHOLDS, type LayerSignal } from '../src/security';
 
 describe('shouldRunTranscriptCheck — Haiku gating optimization', () => {
@@ -27,17 +24,13 @@ describe('shouldRunTranscriptCheck — Haiku gating optimization', () => {
 
   test('returns true when testsavant_content fires at LOG_ONLY threshold', () => {
     // Exactly at 0.40 — should trigger Haiku follow-up.
-    const signals: LayerSignal[] = [
-      { layer: 'testsavant_content', confidence: THRESHOLDS.LOG_ONLY },
-    ];
+    const signals: LayerSignal[] = [{ layer: 'testsavant_content', confidence: THRESHOLDS.LOG_ONLY }];
     expect(shouldRunTranscriptCheck(signals)).toBe(true);
   });
 
   test('returns true when aria_regex alone fires above LOG_ONLY', () => {
     // Regex hit on its own is suspicious enough to warrant Haiku second opinion.
-    const signals: LayerSignal[] = [
-      { layer: 'aria_regex', confidence: 0.6 },
-    ];
+    const signals: LayerSignal[] = [{ layer: 'aria_regex', confidence: 0.6 }];
     expect(shouldRunTranscriptCheck(signals)).toBe(true);
   });
 
@@ -46,9 +39,7 @@ describe('shouldRunTranscriptCheck — Haiku gating optimization', () => {
     // the new tool call shouldn't re-trigger Haiku based on the previous
     // transcript signal alone — we need a fresh content signal. This
     // prevents feedback loops where one Haiku hit forever gates future calls.
-    const signals: LayerSignal[] = [
-      { layer: 'transcript_classifier', confidence: 0.9 },
-    ];
+    const signals: LayerSignal[] = [{ layer: 'transcript_classifier', confidence: 0.9 }];
     expect(shouldRunTranscriptCheck(signals)).toBe(false);
   });
 
@@ -57,9 +48,7 @@ describe('shouldRunTranscriptCheck — Haiku gating optimization', () => {
   });
 
   test('confidence just below LOG_ONLY → false', () => {
-    const signals: LayerSignal[] = [
-      { layer: 'testsavant_content', confidence: THRESHOLDS.LOG_ONLY - 0.01 },
-    ];
+    const signals: LayerSignal[] = [{ layer: 'testsavant_content', confidence: THRESHOLDS.LOG_ONLY - 0.01 }];
     expect(shouldRunTranscriptCheck(signals)).toBe(false);
   });
 

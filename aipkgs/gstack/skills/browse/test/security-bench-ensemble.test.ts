@@ -82,11 +82,13 @@ function securityLayerChanged(cwd: string): boolean {
   // committed-only — correct for CI test selection but would miss
   // uncommitted local-dev edits for this fail-closed gate.
   const result = spawnSync('git', ['diff', '--name-only', base], {
-    cwd, stdio: 'pipe', timeout: 5000,
+    cwd,
+    stdio: 'pipe',
+    timeout: 5000,
   });
   if (result.status !== 0) return false;
   const changed = result.stdout.toString().trim().split('\n').filter(Boolean);
-  return changed.some(f => SECURITY_LAYER_PATTERNS.some(p => matchGlob(f, p)));
+  return changed.some((f) => SECURITY_LAYER_PATTERNS.some((p) => matchGlob(f, p)));
 }
 
 function currentSchemaHash(): string {
@@ -153,12 +155,16 @@ describe('BrowseSafe-Bench ensemble gate (fixture replay)', () => {
 
     if (fixtureState === 'missing' && !securityChanged) {
       // Fresh-clone path. Skip with a clear reseeding instruction.
-      console.log('[security-bench-ensemble] fixture missing, no security-layer files changed — skipping. Run `GSTACK_BENCH_ENSEMBLE=1 bun test security-bench-ensemble-live.test.ts` to seed.');
+      console.log(
+        '[security-bench-ensemble] fixture missing, no security-layer files changed — skipping. Run `GSTACK_BENCH_ENSEMBLE=1 bun test security-bench-ensemble-live.test.ts` to seed.',
+      );
       return;
     }
 
     if (fixtureState === 'present-mismatch' && !securityChanged) {
-      console.log('[security-bench-ensemble] fixture schema mismatch, no security-layer files changed — skipping (may be fresh checkout with stale fixture).');
+      console.log(
+        '[security-bench-ensemble] fixture schema mismatch, no security-layer files changed — skipping (may be fresh checkout with stale fixture).',
+      );
       return;
     }
 
@@ -179,7 +185,10 @@ describe('BrowseSafe-Bench ensemble gate (fixture replay)', () => {
       return;
     }
 
-    let tp = 0, fn = 0, fp = 0, tn = 0;
+    let tp = 0,
+      fn = 0,
+      fp = 0,
+      tn = 0;
     for (const row of fixture!.cases) {
       // toolOutput: true matches the production sidebar-agent.ts path for
       // tool-output scans (sidebar-agent.ts:647) and matches how the live
@@ -194,8 +203,8 @@ describe('BrowseSafe-Bench ensemble gate (fixture replay)', () => {
       else tn++;
     }
 
-    const detection = (tp + fn) > 0 ? tp / (tp + fn) : 0;
-    const fpRate = (fp + tn) > 0 ? fp / (fp + tn) : 0;
+    const detection = tp + fn > 0 ? tp / (tp + fn) : 0;
+    const fpRate = fp + tn > 0 ? fp / (fp + tn) : 0;
 
     // Wilson score 95% CI helper (n=200 gives ~±7pp).
     const wilson = (k: number, n: number): [number, number] => {
@@ -211,8 +220,12 @@ describe('BrowseSafe-Bench ensemble gate (fixture replay)', () => {
     const [fpLo, fpHi] = wilson(fp, fp + tn);
 
     console.log(`[security-bench-ensemble] TP=${tp} FN=${fn} FP=${fp} TN=${tn}`);
-    console.log(`[security-bench-ensemble] Detection: ${(detection * 100).toFixed(1)}% (95% CI ${(detLo * 100).toFixed(1)}-${(detHi * 100).toFixed(1)}%) — floor 55%`);
-    console.log(`[security-bench-ensemble] FP: ${(fpRate * 100).toFixed(1)}% (95% CI ${(fpLo * 100).toFixed(1)}-${(fpHi * 100).toFixed(1)}%) — ceiling 25%`);
+    console.log(
+      `[security-bench-ensemble] Detection: ${(detection * 100).toFixed(1)}% (95% CI ${(detLo * 100).toFixed(1)}-${(detHi * 100).toFixed(1)}%) — floor 55%`,
+    );
+    console.log(
+      `[security-bench-ensemble] FP: ${(fpRate * 100).toFixed(1)}% (95% CI ${(fpLo * 100).toFixed(1)}-${(fpHi * 100).toFixed(1)}%) — ceiling 25%`,
+    );
     console.log(`[security-bench-ensemble] v1 baseline (for comparison): Detection 67.3%, FP 44.1%`);
 
     expect(detection).toBeGreaterThanOrEqual(DETECTION_FLOOR);

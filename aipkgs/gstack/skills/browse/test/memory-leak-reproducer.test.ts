@@ -84,9 +84,7 @@ describe('memory-leak reproducer: requestfinished does not materialize bodies', 
 
     // wirePageEvents is private — access via the same indexed pattern the
     // tab-guardrail test uses to drive private methods.
-    const wirePageEvents = (
-      bm as unknown as { wirePageEvents: (p: unknown) => void }
-    ).wirePageEvents.bind(bm);
+    const wirePageEvents = (bm as unknown as { wirePageEvents: (p: unknown) => void }).wirePageEvents.bind(bm);
     wirePageEvents(page);
 
     // Seed networkBuffer with 200 request entries via the existing
@@ -120,9 +118,7 @@ describe('memory-leak reproducer: requestfinished does not materialize bodies', 
     // The actual leak fix: res.body() is NEVER called.
     expect(counters.body).toBe(0);
     // And the size data still made it into networkBuffer.
-    const populated = Array.from({ length: networkBuffer.length }, (_, i) =>
-      networkBuffer.get(i),
-    )
+    const populated = Array.from({ length: networkBuffer.length }, (_, i) => networkBuffer.get(i))
       .filter((e) => e && e.url?.startsWith('https://example.invalid/asset/'))
       .filter((e) => typeof e?.size === 'number' && e.size > 0).length;
     expect(populated).toBeGreaterThanOrEqual(200);

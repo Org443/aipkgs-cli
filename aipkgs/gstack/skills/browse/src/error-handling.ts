@@ -22,7 +22,9 @@ export function safeUnlink(filePath: string): void {
 
 /** Remove a file, ignoring ALL errors. Use only in best-effort cleanup (shutdown, emergency). */
 export function safeUnlinkQuiet(filePath: string): void {
-  try { fs.unlinkSync(filePath); } catch {}
+  try {
+    fs.unlinkSync(filePath);
+  } catch {}
 }
 
 // ─── Process ───────────────────────────────────────────────────
@@ -40,10 +42,11 @@ export function safeKill(pid: number, signal: NodeJS.Signals | number): void {
 export function isProcessAlive(pid: number): boolean {
   if (IS_WINDOWS) {
     try {
-      const result = Bun.spawnSync(
-        ['tasklist', '/FI', `PID eq ${pid}`, '/NH', '/FO', 'CSV'],
-        { stdout: 'pipe', stderr: 'pipe', timeout: 3000 }
-      );
+      const result = Bun.spawnSync(['tasklist', '/FI', `PID eq ${pid}`, '/NH', '/FO', 'CSV'], {
+        stdout: 'pipe',
+        stderr: 'pipe',
+        timeout: 3000,
+      });
       return result.stdout.toString().includes(`"${pid}"`);
     } catch {
       return false;

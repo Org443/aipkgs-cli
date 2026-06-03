@@ -39,7 +39,7 @@ export function validateSkillName(name: string): void {
   if (!SKILL_NAME_PATTERN.test(name)) {
     throw new Error(
       `Invalid skill name "${name}". Must be lowercase letters/digits/dashes, ` +
-      `start with a letter, no leading/trailing/consecutive dashes.`,
+        `start with a letter, no leading/trailing/consecutive dashes.`,
     );
   }
 }
@@ -162,8 +162,8 @@ export function commitSkill(opts: CommitSkillOptions): string {
   if (destExists) {
     throw new Error(
       `commitSkill: a skill named "${opts.name}" already exists at ${dest}. ` +
-      `Pick a different name or remove the existing skill first ` +
-      `($B skill rm ${opts.name}${opts.tier === 'global' ? ' --global' : ''}).`,
+        `Pick a different name or remove the existing skill first ` +
+        `($B skill rm ${opts.name}${opts.tier === 'global' ? ' --global' : ''}).`,
     );
   }
 
@@ -211,6 +211,8 @@ export function discardStaged(stagedDir: string): void {
 function generateSpawnId(): string {
   // 8 random hex chars + millis suffix — collision risk negligible across
   // concurrent /skillify invocations on a single machine.
-  const rand = Math.floor(Math.random() * 0xffffffff).toString(16).padStart(8, '0');
+  const rand = Math.floor(Math.random() * 0xffffffff)
+    .toString(16)
+    .padStart(8, '0');
   return `${rand}-${Date.now().toString(36)}`;
 }

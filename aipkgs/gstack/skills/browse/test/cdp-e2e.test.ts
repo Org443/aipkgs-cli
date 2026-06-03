@@ -36,8 +36,12 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  try { await bm.cleanup?.(); } catch {}
-  try { testServer.server.stop(); } catch {}
+  try {
+    await bm.cleanup?.();
+  } catch {}
+  try {
+    testServer.server.stop();
+  } catch {}
   await fs.rm(TMP_HOME, { recursive: true, force: true });
 });
 
@@ -69,32 +73,35 @@ describe('$B cdp (E2E gate tier)', () => {
 
   test('Runtime.evaluate (DENIED) errors with structured guidance', async () => {
     const { handleCdpCommand } = await import('../src/cdp-commands');
-    await expect(handleCdpCommand(['Runtime.evaluate', '{"expression":"1+1"}'], bm))
-      .rejects.toThrow(/DENIED.*Runtime\.evaluate/);
+    await expect(handleCdpCommand(['Runtime.evaluate', '{"expression":"1+1"}'], bm)).rejects.toThrow(
+      /DENIED.*Runtime\.evaluate/,
+    );
   });
 
   test('Page.navigate (DENIED — must use $B goto for blocklist routing)', async () => {
     const { handleCdpCommand } = await import('../src/cdp-commands');
-    await expect(handleCdpCommand(['Page.navigate', '{"url":"http://example.com"}'], bm))
-      .rejects.toThrow(/DENIED.*Page\.navigate/);
+    await expect(handleCdpCommand(['Page.navigate', '{"url":"http://example.com"}'], bm)).rejects.toThrow(
+      /DENIED.*Page\.navigate/,
+    );
   });
 
   test('Network.getResponseBody (DENIED — exfil surface)', async () => {
     const { handleCdpCommand } = await import('../src/cdp-commands');
-    await expect(handleCdpCommand(['Network.getResponseBody', '{}'], bm))
-      .rejects.toThrow(/DENIED.*Network\.getResponseBody/);
+    await expect(handleCdpCommand(['Network.getResponseBody', '{}'], bm)).rejects.toThrow(
+      /DENIED.*Network\.getResponseBody/,
+    );
   });
 
   test('malformed JSON params surfaces a clear error', async () => {
     const { handleCdpCommand } = await import('../src/cdp-commands');
-    await expect(handleCdpCommand(['Accessibility.getFullAXTree', 'not-json'], bm))
-      .rejects.toThrow(/Cannot parse params as JSON/);
+    await expect(handleCdpCommand(['Accessibility.getFullAXTree', 'not-json'], bm)).rejects.toThrow(
+      /Cannot parse params as JSON/,
+    );
   });
 
   test('non Domain.method format surfaces a clear error', async () => {
     const { handleCdpCommand } = await import('../src/cdp-commands');
-    await expect(handleCdpCommand(['justOneWord'], bm))
-      .rejects.toThrow(/Domain\.method format/);
+    await expect(handleCdpCommand(['justOneWord'], bm)).rejects.toThrow(/Domain\.method format/);
   });
 
   test('--help returns the help text', async () => {

@@ -9,15 +9,15 @@
  *   gstack-global-discover --help
  */
 
-import { existsSync, readdirSync, statSync, readFileSync, openSync, readSync, closeSync } from "fs";
-import { join, basename } from "path";
-import { execSync } from "child_process";
-import { homedir } from "os";
+import { existsSync, readdirSync, statSync, readFileSync, openSync, readSync, closeSync } from 'fs';
+import { join, basename } from 'path';
+import { execSync } from 'child_process';
+import { homedir } from 'os';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
 interface Session {
-  tool: "claude_code" | "codex" | "gemini";
+  tool: 'claude_code' | 'codex' | 'gemini';
   cwd: string;
 }
 
@@ -55,20 +55,20 @@ Examples:
   gstack-global-discover --since 14d --format summary`);
 }
 
-function parseArgs(): { since: string; format: "json" | "summary" } {
+function parseArgs(): { since: string; format: 'json' | 'summary' } {
   const args = process.argv.slice(2);
-  let since = "";
-  let format: "json" | "summary" = "json";
+  let since = '';
+  let format: 'json' | 'summary' = 'json';
 
   for (let i = 0; i < args.length; i++) {
-    if (args[i] === "--help" || args[i] === "-h") {
+    if (args[i] === '--help' || args[i] === '-h') {
       printUsage();
       process.exit(0);
-    } else if (args[i] === "--since" && args[i + 1]) {
+    } else if (args[i] === '--since' && args[i + 1]) {
       since = args[++i];
-    } else if (args[i] === "--format" && args[i + 1]) {
+    } else if (args[i] === '--format' && args[i + 1]) {
       const f = args[++i];
-      if (f !== "json" && f !== "summary") {
+      if (f !== 'json' && f !== 'summary') {
         console.error(`Invalid format: ${f}. Use 'json' or 'summary'.`);
         printUsage();
         process.exit(1);
@@ -82,7 +82,7 @@ function parseArgs(): { since: string; format: "json" | "summary" } {
   }
 
   if (!since) {
-    console.error("Error: --since is required.");
+    console.error('Error: --since is required.');
     printUsage();
     process.exit(1);
   }
@@ -102,9 +102,9 @@ function windowToDate(window: string): Date {
   const num = parseInt(numStr, 10);
   const now = new Date();
 
-  if (unit === "h") {
+  if (unit === 'h') {
     return new Date(now.getTime() - num * 60 * 60 * 1000);
-  } else if (unit === "w") {
+  } else if (unit === 'w') {
     // weeks — midnight-aligned like days
     const d = new Date(now);
     d.setDate(d.getDate() - num * 7);
@@ -131,7 +131,7 @@ export function normalizeRemoteUrl(url: string): string {
   }
 
   // Strip .git suffix
-  if (normalized.endsWith(".git")) {
+  if (normalized.endsWith('.git')) {
     normalized = normalized.slice(0, -4);
   }
 
@@ -141,7 +141,7 @@ export function normalizeRemoteUrl(url: string): string {
     parsed.hostname = parsed.hostname.toLowerCase();
     normalized = parsed.toString();
     // Remove trailing slash
-    if (normalized.endsWith("/")) {
+    if (normalized.endsWith('/')) {
       normalized = normalized.slice(0, -1);
     }
   } catch {
@@ -154,23 +154,23 @@ export function normalizeRemoteUrl(url: string): string {
 // ── Git helpers ────────────────────────────────────────────────────────────
 
 function isGitRepo(dir: string): boolean {
-  return existsSync(join(dir, ".git"));
+  return existsSync(join(dir, '.git'));
 }
 
 function getGitRemote(cwd: string): string | null {
   if (!existsSync(cwd) || !isGitRepo(cwd)) return null;
   try {
-    const remote = execSync("git remote get-url origin", {
+    const remote = execSync('git remote get-url origin', {
       cwd,
-      encoding: "utf-8",
+      encoding: 'utf-8',
       timeout: 5000,
-      stdio: ["pipe", "pipe", "pipe"],
+      stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
     return remote || null;
   } catch (err: any) {
     // Expected: no remote configured, repo not found, git not installed
     if (err?.status !== undefined) return null; // non-zero exit from git
-    if (err?.code === 'ENOENT') return null;    // git binary not found
+    if (err?.code === 'ENOENT') return null; // git binary not found
     throw err;
   }
 }
@@ -178,7 +178,7 @@ function getGitRemote(cwd: string): string | null {
 // ── Scanners ───────────────────────────────────────────────────────────────
 
 function scanClaudeCode(since: Date): Session[] {
-  const projectsDir = join(homedir(), ".claude", "projects");
+  const projectsDir = join(homedir(), '.claude', 'projects');
   if (!existsSync(projectsDir)) return [];
 
   const sessions: Session[] = [];
@@ -203,7 +203,7 @@ function scanClaudeCode(since: Date): Session[] {
     // Find JSONL files
     let jsonlFiles: string[];
     try {
-      jsonlFiles = readdirSync(dirPath).filter((f) => f.endsWith(".jsonl"));
+      jsonlFiles = readdirSync(dirPath).filter((f) => f.endsWith('.jsonl'));
     } catch {
       continue;
     }
@@ -234,21 +234,17 @@ function scanClaudeCode(since: Date): Session[] {
       }
     });
     for (let i = 0; i < recentFiles.length; i++) {
-      sessions.push({ tool: "claude_code", cwd });
+      sessions.push({ tool: 'claude_code', cwd });
     }
   }
 
   return sessions;
 }
 
-function resolveClaudeCodeCwd(
-  dirPath: string,
-  dirName: string,
-  jsonlFiles: string[]
-): string | null {
+function resolveClaudeCodeCwd(dirPath: string, dirName: string, jsonlFiles: string[]): string | null {
   // Fast-path: decode directory name
   // e.g., -Users-garrytan-git-repo → /Users/garrytan/git/repo
-  const decoded = dirName.replace(/^-/, "/").replace(/-/g, "/");
+  const decoded = dirName.replace(/^-/, '/').replace(/-/g, '/');
   if (existsSync(decoded)) return decoded;
 
   // Fallback: read cwd from first JSONL file
@@ -281,13 +277,13 @@ export function extractCwdFromJsonl(filePath: string): string | null {
   const MAX_BYTES = 64 * 1024;
   const MAX_LINES = 30;
   try {
-    const fd = openSync(filePath, "r");
+    const fd = openSync(filePath, 'r');
     const buf = Buffer.alloc(MAX_BYTES);
     const bytesRead = readSync(fd, buf, 0, MAX_BYTES, 0);
     closeSync(fd);
-    const text = buf.toString("utf-8", 0, bytesRead);
+    const text = buf.toString('utf-8', 0, bytesRead);
     // Drop the final segment — it may be an incomplete line at the cap boundary.
-    const parts = text.split("\n");
+    const parts = text.split('\n');
     const completeLines = parts.length > 1 ? parts.slice(0, -1) : parts;
     for (const line of completeLines.slice(0, MAX_LINES)) {
       if (!line.trim()) continue;
@@ -305,7 +301,7 @@ export function extractCwdFromJsonl(filePath: string): string | null {
 }
 
 function scanCodex(since: Date): Session[] {
-  const sessionsDir = process.env.CODEX_SESSIONS_DIR || join(homedir(), ".codex", "sessions");
+  const sessionsDir = process.env.CODEX_SESSIONS_DIR || join(homedir(), '.codex', 'sessions');
   if (!existsSync(sessionsDir)) return [];
 
   const sessions: Session[] = [];
@@ -327,9 +323,7 @@ function scanCodex(since: Date): Session[] {
           const dayPath = join(monthPath, day);
           if (!statSync(dayPath).isDirectory()) continue;
 
-          const files = readdirSync(dayPath).filter((f) =>
-            f.startsWith("rollout-") && f.endsWith(".jsonl")
-          );
+          const files = readdirSync(dayPath).filter((f) => f.startsWith('rollout-') && f.endsWith('.jsonl'));
 
           for (const file of files) {
             const filePath = join(dayPath, file);
@@ -345,15 +339,15 @@ function scanCodex(since: Date): Session[] {
             // truncates the line and JSON.parse fails. 128KB covers current
             // sizes with room for growth.
             try {
-              const fd = openSync(filePath, "r");
+              const fd = openSync(filePath, 'r');
               const buf = Buffer.alloc(131072);
               const bytesRead = readSync(fd, buf, 0, 131072, 0);
               closeSync(fd);
-              const firstLine = buf.toString("utf-8", 0, bytesRead).split("\n")[0];
+              const firstLine = buf.toString('utf-8', 0, bytesRead).split('\n')[0];
               if (!firstLine) continue;
               const meta = JSON.parse(firstLine);
-              if (meta.type === "session_meta" && meta.payload?.cwd) {
-                sessions.push({ tool: "codex", cwd: meta.payload.cwd });
+              if (meta.type === 'session_meta' && meta.payload?.cwd) {
+                sessions.push({ tool: 'codex', cwd: meta.payload.cwd });
               }
             } catch {
               console.error(`Warning: could not parse Codex session ${filePath}`);
@@ -370,22 +364,22 @@ function scanCodex(since: Date): Session[] {
 }
 
 function scanGemini(since: Date): Session[] {
-  const tmpDir = join(homedir(), ".gemini", "tmp");
+  const tmpDir = join(homedir(), '.gemini', 'tmp');
   if (!existsSync(tmpDir)) return [];
 
   // Load projects.json for path mapping
-  const projectsPath = join(homedir(), ".gemini", "projects.json");
+  const projectsPath = join(homedir(), '.gemini', 'projects.json');
   let projectsMap: Record<string, string> = {}; // name → path
   if (existsSync(projectsPath)) {
     try {
-      const data = JSON.parse(readFileSync(projectsPath, { encoding: "utf-8" }));
+      const data = JSON.parse(readFileSync(projectsPath, { encoding: 'utf-8' }));
       // Format: { projects: { "/path": "name" } } — we want name → path
       const projects = data.projects || {};
       for (const [path, name] of Object.entries(projects)) {
         projectsMap[name as string] = path;
       }
     } catch {
-      console.error("Warning: could not parse ~/.gemini/projects.json");
+      console.error('Warning: could not parse ~/.gemini/projects.json');
     }
   }
 
@@ -401,7 +395,7 @@ function scanGemini(since: Date): Session[] {
   }
 
   for (const projectName of projectDirs) {
-    const chatsDir = join(tmpDir, projectName, "chats");
+    const chatsDir = join(tmpDir, projectName, 'chats');
     if (!existsSync(chatsDir)) continue;
 
     // Resolve cwd from projects.json
@@ -409,10 +403,10 @@ function scanGemini(since: Date): Session[] {
 
     // Fallback: check .project_root
     if (!cwd) {
-      const projectRootFile = join(tmpDir, projectName, ".project_root");
+      const projectRootFile = join(tmpDir, projectName, '.project_root');
       if (existsSync(projectRootFile)) {
         try {
-          cwd = readFileSync(projectRootFile, { encoding: "utf-8" }).trim();
+          cwd = readFileSync(projectRootFile, { encoding: 'utf-8' }).trim();
         } catch {}
       }
     }
@@ -424,9 +418,7 @@ function scanGemini(since: Date): Session[] {
 
     let files: string[];
     try {
-      files = readdirSync(chatsDir).filter((f) =>
-        f.startsWith("session-") && f.endsWith(".json")
-      );
+      files = readdirSync(chatsDir).filter((f) => f.startsWith('session-') && f.endsWith('.json'));
     } catch {
       continue;
     }
@@ -441,14 +433,14 @@ function scanGemini(since: Date): Session[] {
       }
 
       try {
-        const data = JSON.parse(readFileSync(filePath, { encoding: "utf-8" }));
-        const startTime = data.startTime || "";
+        const data = JSON.parse(readFileSync(filePath, { encoding: 'utf-8' }));
+        const startTime = data.startTime || '';
 
         // Deduplicate by startTime within project
         if (startTime && seen.has(startTime)) continue;
         if (startTime) seen.add(startTime);
 
-        sessions.push({ tool: "gemini", cwd });
+        sessions.push({ tool: 'gemini', cwd });
       } catch {
         console.error(`Warning: could not parse Gemini session ${filePath}`);
       }
@@ -503,8 +495,8 @@ async function resolveAndDeduplicate(sessions: Session[]): Promise<Repo[]> {
 
     // Derive name from remote URL
     let name: string;
-    if (remote.startsWith("local:")) {
-      name = basename(remote.replace("local:", ""));
+    if (remote.startsWith('local:')) {
+      name = basename(remote.replace('local:', ''));
     } else {
       try {
         const url = new URL(remote);
@@ -530,8 +522,10 @@ async function resolveAndDeduplicate(sessions: Session[]): Promise<Repo[]> {
   // Sort by total sessions descending
   repos.sort(
     (a, b) =>
-      b.sessions.claude_code + b.sessions.codex + b.sessions.gemini -
-      (a.sessions.claude_code + a.sessions.codex + a.sessions.gemini)
+      b.sessions.claude_code +
+      b.sessions.codex +
+      b.sessions.gemini -
+      (a.sessions.claude_code + a.sessions.codex + a.sessions.gemini),
   );
 
   return repos;
@@ -542,7 +536,7 @@ async function resolveAndDeduplicate(sessions: Session[]): Promise<Repo[]> {
 async function main() {
   const { since, format } = parseArgs();
   const sinceDate = windowToDate(since);
-  const startDate = sinceDate.toISOString().split("T")[0];
+  const startDate = sinceDate.toISOString().split('T')[0];
 
   // Run all scanners
   const ccSessions = scanClaudeCode(sinceDate);
@@ -553,7 +547,7 @@ async function main() {
 
   // Summary to stderr
   console.error(
-    `Discovered: ${ccSessions.length} CC sessions, ${codexSessions.length} Codex sessions, ${geminiSessions.length} Gemini sessions`
+    `Discovered: ${ccSessions.length} CC sessions, ${codexSessions.length} Codex sessions, ${geminiSessions.length} Gemini sessions`,
   );
 
   // Deduplicate
@@ -579,23 +573,25 @@ async function main() {
     total_repos: repos.length,
   };
 
-  if (format === "json") {
+  if (format === 'json') {
     console.log(JSON.stringify(result, null, 2));
   } else {
     // Summary format
     console.log(`Window: ${since} (since ${startDate})`);
-    console.log(`Sessions: ${allSessions.length} total (CC: ${ccSessions.length}, Codex: ${codexSessions.length}, Gemini: ${geminiSessions.length})`);
+    console.log(
+      `Sessions: ${allSessions.length} total (CC: ${ccSessions.length}, Codex: ${codexSessions.length}, Gemini: ${geminiSessions.length})`,
+    );
     console.log(`Repos: ${repos.length} unique`);
-    console.log("");
+    console.log('');
     for (const repo of repos) {
       const total = repo.sessions.claude_code + repo.sessions.codex + repo.sessions.gemini;
       const tools = [];
       if (repo.sessions.claude_code > 0) tools.push(`CC:${repo.sessions.claude_code}`);
       if (repo.sessions.codex > 0) tools.push(`Codex:${repo.sessions.codex}`);
       if (repo.sessions.gemini > 0) tools.push(`Gemini:${repo.sessions.gemini}`);
-      console.log(`  ${repo.name} (${total} sessions) — ${tools.join(", ")}`);
+      console.log(`  ${repo.name} (${total} sessions) — ${tools.join(', ')}`);
       console.log(`    Remote: ${repo.remote}`);
-      console.log(`    Paths: ${repo.paths.join(", ")}`);
+      console.log(`    Paths: ${repo.paths.join(', ')}`);
     }
   }
 }

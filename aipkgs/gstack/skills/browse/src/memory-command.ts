@@ -38,8 +38,8 @@ function formatSnapshotText(s: MemorySnapshot): string {
   const lines: string[] = [];
   lines.push(
     `Bun server:        RSS: ${formatBytes(s.bunServer.rss)}  ` +
-    `heap: ${formatBytes(s.bunServer.heapUsed)} / ${formatBytes(s.bunServer.heapTotal)}  ` +
-    `external: ${formatBytes(s.bunServer.external)}`,
+      `heap: ${formatBytes(s.bunServer.heapUsed)} / ${formatBytes(s.bunServer.heapTotal)}  ` +
+      `external: ${formatBytes(s.bunServer.external)}`,
   );
 
   if (s.processes && s.processes.length > 0) {
@@ -65,9 +65,9 @@ function formatSnapshotText(s: MemorySnapshot): string {
       const urlShort = t.url.length > 80 ? t.url.slice(0, 77) + '...' : t.url;
       lines.push(
         `  [${formatBytes(t.jsHeapUsed).padStart(8)} JS, ` +
-        `${String(t.nodes).padStart(6)} nodes, ` +
-        `${String(t.listeners).padStart(5)} listeners] ` +
-        `tab #${t.id} — ${urlShort}`,
+          `${String(t.nodes).padStart(6)} nodes, ` +
+          `${String(t.listeners).padStart(5)} listeners] ` +
+          `tab #${t.id} — ${urlShort}`,
       );
     }
     if (sorted.length > shown.length) {
@@ -82,7 +82,7 @@ function formatSnapshotText(s: MemorySnapshot): string {
   const m = s.structures.modificationHistory;
   lines.push(
     `  modificationHistory:    ${m.current} / ${m.cap} entries` +
-    (m.evicted > 0 ? `  (${m.evicted} evicted since reset)` : ''),
+      (m.evicted > 0 ? `  (${m.evicted} evicted since reset)` : ''),
   );
   lines.push(`  inspectorSubscribers:   ${s.structures.inspectorSubscribers}`);
   lines.push(`  activitySubscribers:    ${s.structures.activitySubscribers}`);

@@ -182,8 +182,8 @@ describe('listBrowserSkills', () => {
     makeSkill(tiers.global, 'apple', 'name: apple\nhost: x.com');
     makeSkill(tiers.project!, 'mango', 'name: mango\nhost: x.com');
     const skills = listBrowserSkills(tiers);
-    expect(skills.map(s => s.name)).toEqual(['apple', 'mango', 'zebra']);
-    expect(skills.map(s => s.tier)).toEqual(['global', 'project', 'bundled']);
+    expect(skills.map((s) => s.name)).toEqual(['apple', 'mango', 'zebra']);
+    expect(skills.map((s) => s.tier)).toEqual(['global', 'project', 'bundled']);
   });
 
   it('skips entries without SKILL.md', () => {
@@ -204,7 +204,7 @@ describe('listBrowserSkills', () => {
     fs.writeFileSync(path.join(tiers.bundled, 'broken', 'SKILL.md'), 'no frontmatter');
     makeSkill(tiers.bundled, 'good', 'name: good\nhost: x.com');
     const skills = listBrowserSkills(tiers);
-    expect(skills.map(s => s.name)).toEqual(['good']);
+    expect(skills.map((s) => s.name)).toEqual(['good']);
   });
 });
 

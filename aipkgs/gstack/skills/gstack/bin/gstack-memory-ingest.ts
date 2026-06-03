@@ -52,23 +52,18 @@ import {
   readSync,
   closeSync,
   rmSync,
-} from "fs";
-import { join, basename, dirname } from "path";
-import { execFileSync, spawnSync, spawn, type ChildProcess } from "child_process";
-import { homedir } from "os";
-import { createHash } from "crypto";
+} from 'fs';
+import { join, basename, dirname } from 'path';
+import { execFileSync, spawnSync, spawn, type ChildProcess } from 'child_process';
+import { homedir } from 'os';
+import { createHash } from 'crypto';
 
-import {
-  canonicalizeRemote,
-  secretScanFile,
-  detectEngineTier,
-  withErrorContext,
-} from "../lib/gstack-memory-helpers";
-import { execGbrainText, spawnGbrainAsync } from "../lib/gbrain-exec";
+import { canonicalizeRemote, secretScanFile, detectEngineTier, withErrorContext } from '../lib/gstack-memory-helpers';
+import { execGbrainText, spawnGbrainAsync } from '../lib/gbrain-exec';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
-type Mode = "probe" | "incremental" | "bulk";
+type Mode = 'probe' | 'incremental' | 'bulk';
 
 interface CliArgs {
   mode: Mode;
@@ -88,20 +83,20 @@ interface CliArgs {
 }
 
 type MemoryType =
-  | "transcript"
-  | "eureka"
-  | "learning"
-  | "timeline"
-  | "ceo-plan"
-  | "design-doc"
-  | "retro"
-  | "builder-profile-entry";
+  | 'transcript'
+  | 'eureka'
+  | 'learning'
+  | 'timeline'
+  | 'ceo-plan'
+  | 'design-doc'
+  | 'retro'
+  | 'builder-profile-entry';
 
 interface PageRecord {
   slug: string;
   title: string;
   type: MemoryType;
-  agent?: "claude-code" | "codex" | "cursor";
+  agent?: 'claude-code' | 'codex' | 'cursor';
   body: string;
   tags: string[];
   source_path: string;
@@ -162,19 +157,19 @@ interface BulkResult {
 // ── Constants ──────────────────────────────────────────────────────────────
 
 const HOME = homedir();
-const GSTACK_HOME = process.env.GSTACK_HOME || join(HOME, ".gstack");
-const STATE_PATH = join(GSTACK_HOME, ".transcript-ingest-state.json");
+const GSTACK_HOME = process.env.GSTACK_HOME || join(HOME, '.gstack');
+const STATE_PATH = join(GSTACK_HOME, '.transcript-ingest-state.json');
 const DEFAULT_INCREMENTAL_BUDGET_MS = 50;
 
 const ALL_TYPES: MemoryType[] = [
-  "transcript",
-  "eureka",
-  "learning",
-  "timeline",
-  "ceo-plan",
-  "design-doc",
-  "retro",
-  "builder-profile-entry",
+  'transcript',
+  'eureka',
+  'learning',
+  'timeline',
+  'ceo-plan',
+  'design-doc',
+  'retro',
+  'builder-profile-entry',
 ];
 
 // ── CLI ────────────────────────────────────────────────────────────────────
@@ -192,7 +187,7 @@ Options:
   --benchmark          Time the run; report bytes-per-second + total.
   --include-unattributed  Ingest sessions with no resolvable git remote.
   --all-history        Walk transcripts older than 90 days too.
-  --sources <list>     Comma-separated subset: ${ALL_TYPES.join(",")}
+  --sources <list>     Comma-separated subset: ${ALL_TYPES.join(',')}
   --limit <N>          Stop after N pages written (smoke testing).
   --no-write           Skip gbrain put calls (still updates state file).
                        Used by tests + dry runs without actual ingest.
@@ -205,46 +200,64 @@ Options:
 
 function parseArgs(): CliArgs {
   const args = process.argv.slice(2);
-  let mode: Mode = "incremental";
+  let mode: Mode = 'incremental';
   let quiet = false;
   let benchmark = false;
   let includeUnattributed = false;
   let allHistory = false;
   let limit: number | null = null;
   let sources: Set<MemoryType> = new Set(ALL_TYPES);
-  let noWrite = process.env.GSTACK_MEMORY_INGEST_NO_WRITE === "1";
-  let scanSecrets = process.env.GSTACK_MEMORY_INGEST_SCAN_SECRETS === "1";
+  let noWrite = process.env.GSTACK_MEMORY_INGEST_NO_WRITE === '1';
+  let scanSecrets = process.env.GSTACK_MEMORY_INGEST_SCAN_SECRETS === '1';
 
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
     switch (a) {
-      case "--probe": mode = "probe"; break;
-      case "--incremental": mode = "incremental"; break;
-      case "--bulk": mode = "bulk"; break;
-      case "--quiet": quiet = true; break;
-      case "--benchmark": benchmark = true; break;
-      case "--include-unattributed": includeUnattributed = true; break;
-      case "--all-history": allHistory = true; break;
-      case "--no-write": noWrite = true; break;
-      case "--scan-secrets": scanSecrets = true; break;
-      case "--limit":
-        limit = parseInt(args[++i] || "0", 10);
+      case '--probe':
+        mode = 'probe';
+        break;
+      case '--incremental':
+        mode = 'incremental';
+        break;
+      case '--bulk':
+        mode = 'bulk';
+        break;
+      case '--quiet':
+        quiet = true;
+        break;
+      case '--benchmark':
+        benchmark = true;
+        break;
+      case '--include-unattributed':
+        includeUnattributed = true;
+        break;
+      case '--all-history':
+        allHistory = true;
+        break;
+      case '--no-write':
+        noWrite = true;
+        break;
+      case '--scan-secrets':
+        scanSecrets = true;
+        break;
+      case '--limit':
+        limit = parseInt(args[++i] || '0', 10);
         if (!Number.isFinite(limit) || limit <= 0) {
-          console.error("--limit requires a positive integer");
+          console.error('--limit requires a positive integer');
           process.exit(1);
         }
         break;
-      case "--sources": {
-        const list = (args[++i] || "").split(",").map((s) => s.trim() as MemoryType);
+      case '--sources': {
+        const list = (args[++i] || '').split(',').map((s) => s.trim() as MemoryType);
         sources = new Set(list.filter((t) => ALL_TYPES.includes(t)));
         if (sources.size === 0) {
-          console.error(`--sources must include at least one of: ${ALL_TYPES.join(",")}`);
+          console.error(`--sources must include at least one of: ${ALL_TYPES.join(',')}`);
           process.exit(1);
         }
         break;
       }
-      case "--help":
-      case "-h":
+      case '--help':
+      case '-h':
         printUsage();
         process.exit(0);
       default:
@@ -263,32 +276,34 @@ function loadState(): IngestState {
   if (!existsSync(STATE_PATH)) {
     return {
       schema_version: 1,
-      last_writer: "gstack-memory-ingest",
+      last_writer: 'gstack-memory-ingest',
       sessions: {},
     };
   }
   try {
-    const raw = readFileSync(STATE_PATH, "utf-8");
+    const raw = readFileSync(STATE_PATH, 'utf-8');
     const parsed = JSON.parse(raw) as IngestState;
     if (parsed.schema_version !== 1) {
-      console.error(`State file at ${STATE_PATH} has unknown schema_version ${parsed.schema_version}; backing up + resetting.`);
+      console.error(
+        `State file at ${STATE_PATH} has unknown schema_version ${parsed.schema_version}; backing up + resetting.`,
+      );
       try {
-        writeFileSync(STATE_PATH + ".bak", raw, "utf-8");
+        writeFileSync(STATE_PATH + '.bak', raw, 'utf-8');
       } catch {
         // backup failure is non-fatal
       }
-      return { schema_version: 1, last_writer: "gstack-memory-ingest", sessions: {} };
+      return { schema_version: 1, last_writer: 'gstack-memory-ingest', sessions: {} };
     }
     return parsed;
   } catch (err) {
     console.error(`State file at ${STATE_PATH} corrupt; backing up + resetting.`);
     try {
-      const raw = readFileSync(STATE_PATH, "utf-8");
-      writeFileSync(STATE_PATH + ".bak", raw, "utf-8");
+      const raw = readFileSync(STATE_PATH, 'utf-8');
+      writeFileSync(STATE_PATH + '.bak', raw, 'utf-8');
     } catch {
       // best-effort
     }
-    return { schema_version: 1, last_writer: "gstack-memory-ingest", sessions: {} };
+    return { schema_version: 1, last_writer: 'gstack-memory-ingest', sessions: {} };
   }
 }
 
@@ -299,7 +314,7 @@ function saveState(state: IngestState): void {
   try {
     mkdirSync(dirname(STATE_PATH), { recursive: true });
     const tmp = `${STATE_PATH}.tmp.${process.pid}`;
-    writeFileSync(tmp, JSON.stringify(state, null, 2), "utf-8");
+    writeFileSync(tmp, JSON.stringify(state, null, 2), 'utf-8');
     renameSync(tmp, STATE_PATH);
   } catch (err) {
     console.error(`[state] write failed: ${(err as Error).message}`);
@@ -316,9 +331,9 @@ function fileSha256(path: string): string {
   // memory for hashing.
   try {
     const buf = readFileSync(path);
-    return createHash("sha256").update(buf).digest("hex");
+    return createHash('sha256').update(buf).digest('hex');
   } catch {
-    return "";
+    return '';
   }
 }
 
@@ -359,7 +374,7 @@ function makeWalkContext(args: CliArgs, state: IngestState): WalkContext {
 }
 
 function* walkClaudeCodeProjects(ctx: WalkContext): Generator<{ path: string; type: MemoryType }> {
-  const root = join(HOME, ".claude", "projects");
+  const root = join(HOME, '.claude', 'projects');
   if (!existsSync(root)) return;
   let projectDirs: string[];
   try {
@@ -376,7 +391,7 @@ function* walkClaudeCodeProjects(ctx: WalkContext): Generator<{ path: string; ty
       continue;
     }
     for (const entry of entries) {
-      if (!entry.endsWith(".jsonl")) continue;
+      if (!entry.endsWith('.jsonl')) continue;
       const fullPath = join(fullDir, entry);
       try {
         const st = statSync(fullPath);
@@ -384,13 +399,13 @@ function* walkClaudeCodeProjects(ctx: WalkContext): Generator<{ path: string; ty
       } catch {
         continue;
       }
-      yield { path: fullPath, type: "transcript" };
+      yield { path: fullPath, type: 'transcript' };
     }
   }
 }
 
 function* walkCodexSessions(ctx: WalkContext): Generator<{ path: string; type: MemoryType }> {
-  const root = join(HOME, ".codex", "sessions");
+  const root = join(HOME, '.codex', 'sessions');
   if (!existsSync(root)) return;
   // Date-bucketed: YYYY/MM/DD/rollout-*.jsonl. Walk up to 4 levels deep.
   function* recurse(dir: string, depth: number): Generator<string> {
@@ -411,29 +426,29 @@ function* walkCodexSessions(ctx: WalkContext): Generator<{ path: string; type: M
       }
       if (st.isDirectory()) {
         yield* recurse(full, depth + 1);
-      } else if (entry.endsWith(".jsonl")) {
+      } else if (entry.endsWith('.jsonl')) {
         if (st.mtimeMs >= ctx.windowStartMs) yield full;
       }
     }
   }
   for (const path of recurse(root, 0)) {
-    yield { path, type: "transcript" };
+    yield { path, type: 'transcript' };
   }
 }
 
 function* walkGstackArtifacts(ctx: WalkContext): Generator<{ path: string; type: MemoryType }> {
-  const projectsRoot = join(GSTACK_HOME, "projects");
+  const projectsRoot = join(GSTACK_HOME, 'projects');
 
   // Eureka log: ~/.gstack/analytics/eureka.jsonl
-  const eurekaLog = join(GSTACK_HOME, "analytics", "eureka.jsonl");
-  if (existsSync(eurekaLog) && ctx.args.sources.has("eureka")) {
-    yield { path: eurekaLog, type: "eureka" };
+  const eurekaLog = join(GSTACK_HOME, 'analytics', 'eureka.jsonl');
+  if (existsSync(eurekaLog) && ctx.args.sources.has('eureka')) {
+    yield { path: eurekaLog, type: 'eureka' };
   }
 
   // Builder profile: ~/.gstack/builder-profile.jsonl
-  const builderProfile = join(GSTACK_HOME, "builder-profile.jsonl");
-  if (existsSync(builderProfile) && ctx.args.sources.has("builder-profile-entry")) {
-    yield { path: builderProfile, type: "builder-profile-entry" };
+  const builderProfile = join(GSTACK_HOME, 'builder-profile.jsonl');
+  if (existsSync(builderProfile) && ctx.args.sources.has('builder-profile-entry')) {
+    yield { path: builderProfile, type: 'builder-profile-entry' };
   }
 
   if (!existsSync(projectsRoot)) return;
@@ -454,20 +469,20 @@ function* walkGstackArtifacts(ctx: WalkContext): Generator<{ path: string; type:
     if (!st.isDirectory()) continue;
 
     // learnings.jsonl
-    const learnings = join(projDir, "learnings.jsonl");
-    if (existsSync(learnings) && ctx.args.sources.has("learning")) {
-      yield { path: learnings, type: "learning" };
+    const learnings = join(projDir, 'learnings.jsonl');
+    if (existsSync(learnings) && ctx.args.sources.has('learning')) {
+      yield { path: learnings, type: 'learning' };
     }
 
     // timeline.jsonl
-    const timeline = join(projDir, "timeline.jsonl");
-    if (existsSync(timeline) && ctx.args.sources.has("timeline")) {
-      yield { path: timeline, type: "timeline" };
+    const timeline = join(projDir, 'timeline.jsonl');
+    if (existsSync(timeline) && ctx.args.sources.has('timeline')) {
+      yield { path: timeline, type: 'timeline' };
     }
 
     // ceo-plans/*.md
-    if (ctx.args.sources.has("ceo-plan")) {
-      const ceoPlans = join(projDir, "ceo-plans");
+    if (ctx.args.sources.has('ceo-plan')) {
+      const ceoPlans = join(projDir, 'ceo-plans');
       if (existsSync(ceoPlans)) {
         let pe: string[];
         try {
@@ -476,15 +491,15 @@ function* walkGstackArtifacts(ctx: WalkContext): Generator<{ path: string; type:
           pe = [];
         }
         for (const e of pe) {
-          if (e.endsWith(".md")) {
-            yield { path: join(ceoPlans, e), type: "ceo-plan" };
+          if (e.endsWith('.md')) {
+            yield { path: join(ceoPlans, e), type: 'ceo-plan' };
           }
         }
       }
     }
 
     // *-design-*.md (top-level in proj dir)
-    if (ctx.args.sources.has("design-doc")) {
+    if (ctx.args.sources.has('design-doc')) {
       let pe: string[];
       try {
         pe = readdirSync(projDir);
@@ -492,15 +507,15 @@ function* walkGstackArtifacts(ctx: WalkContext): Generator<{ path: string; type:
         pe = [];
       }
       for (const e of pe) {
-        if (e.endsWith(".md") && e.includes("design-")) {
-          yield { path: join(projDir, e), type: "design-doc" };
+        if (e.endsWith('.md') && e.includes('design-')) {
+          yield { path: join(projDir, e), type: 'design-doc' };
         }
       }
     }
 
     // retros — *.md under projDir/retros/ if exists, or retro-*.md at projDir
-    if (ctx.args.sources.has("retro")) {
-      const retroDir = join(projDir, "retros");
+    if (ctx.args.sources.has('retro')) {
+      const retroDir = join(projDir, 'retros');
       if (existsSync(retroDir)) {
         let pe: string[];
         try {
@@ -509,8 +524,8 @@ function* walkGstackArtifacts(ctx: WalkContext): Generator<{ path: string; type:
           pe = [];
         }
         for (const e of pe) {
-          if (e.endsWith(".md")) {
-            yield { path: join(retroDir, e), type: "retro" };
+          if (e.endsWith('.md')) {
+            yield { path: join(retroDir, e), type: 'retro' };
           }
         }
       }
@@ -519,7 +534,7 @@ function* walkGstackArtifacts(ctx: WalkContext): Generator<{ path: string; type:
 }
 
 function* walkAllSources(ctx: WalkContext): Generator<{ path: string; type: MemoryType }> {
-  if (ctx.args.sources.has("transcript")) {
+  if (ctx.args.sources.has('transcript')) {
     yield* walkClaudeCodeProjects(ctx);
     yield* walkCodexSessions(ctx);
   }
@@ -529,7 +544,7 @@ function* walkAllSources(ctx: WalkContext): Generator<{ path: string; type: Memo
 // ── Renderers ──────────────────────────────────────────────────────────────
 
 interface ParsedSession {
-  agent: "claude-code" | "codex";
+  agent: 'claude-code' | 'codex';
   session_id: string;
   cwd: string;
   start_time?: string;
@@ -544,11 +559,11 @@ function parseTranscriptJsonl(path: string): ParsedSession | null {
   // Best-effort tolerant parser. Handles truncated last lines (D10 partial-flag).
   let raw: string;
   try {
-    raw = readFileSync(path, "utf-8");
+    raw = readFileSync(path, 'utf-8');
   } catch {
     return null;
   }
-  const lines = raw.split("\n").filter((l) => l.trim().length > 0);
+  const lines = raw.split('\n').filter((l) => l.trim().length > 0);
   if (lines.length === 0) return null;
 
   // Detect partial: if the last line doesn't end with `}` or doesn't parse, mark partial.
@@ -567,17 +582,17 @@ function parseTranscriptJsonl(path: string): ParsedSession | null {
 
   // Detect format: Codex `session_meta` or Claude Code `type: user|assistant|tool`
   const first = parsedLines[0];
-  const isCodex = first?.type === "session_meta" || first?.payload?.id != null;
-  const agent: "claude-code" | "codex" = isCodex ? "codex" : "claude-code";
+  const isCodex = first?.type === 'session_meta' || first?.payload?.id != null;
+  const agent: 'claude-code' | 'codex' = isCodex ? 'codex' : 'claude-code';
 
-  let session_id = "";
-  let cwd = "";
+  let session_id = '';
+  let cwd = '';
   let start_time: string | undefined;
   let end_time: string | undefined;
 
   if (isCodex) {
-    session_id = first.payload?.id || first.id || basename(path, ".jsonl");
-    cwd = first.payload?.cwd || first.cwd || "";
+    session_id = first.payload?.id || first.id || basename(path, '.jsonl');
+    cwd = first.payload?.cwd || first.cwd || '';
     start_time = first.timestamp || first.payload?.timestamp;
   } else {
     // Claude Code: look for cwd in first non-queue record
@@ -587,7 +602,7 @@ function parseTranscriptJsonl(path: string): ParsedSession | null {
         break;
       }
     }
-    session_id = basename(path, ".jsonl");
+    session_id = basename(path, '.jsonl');
     start_time = parsedLines.find((r) => r?.timestamp)?.timestamp;
     const last = parsedLines[parsedLines.length - 1];
     end_time = last?.timestamp;
@@ -598,27 +613,27 @@ function parseTranscriptJsonl(path: string): ParsedSession | null {
   let toolCalls = 0;
   const bodyParts: string[] = [];
   for (const rec of parsedLines) {
-    if (rec?.type === "user" || rec?.message?.role === "user") {
+    if (rec?.type === 'user' || rec?.message?.role === 'user') {
       const content = extractContentText(rec);
       if (content) {
         bodyParts.push(`## User\n\n${content}`);
         messageCount++;
       }
-    } else if (rec?.type === "assistant" || rec?.message?.role === "assistant") {
+    } else if (rec?.type === 'assistant' || rec?.message?.role === 'assistant') {
       const content = extractContentText(rec);
       if (content) {
         bodyParts.push(`## Assistant\n\n${content}`);
         messageCount++;
       }
-    } else if (rec?.type === "tool" || rec?.tool_use_id || rec?.tool_call) {
+    } else if (rec?.type === 'tool' || rec?.tool_use_id || rec?.tool_call) {
       toolCalls++;
       // Collapse to one-line summary
-      const tool = rec?.name || rec?.tool || rec?.tool_call?.name || "tool";
+      const tool = rec?.name || rec?.tool || rec?.tool_call?.name || 'tool';
       bodyParts.push(`### Tool call: ${tool}`);
     } else if (isCodex && rec?.payload?.message) {
       // Codex shape: each record has payload.message
       const msg = rec.payload.message;
-      const role = msg.role || "user";
+      const role = msg.role || 'user';
       const content = extractContentText(msg);
       if (content) {
         bodyParts.push(`## ${role.charAt(0).toUpperCase() + role.slice(1)}\n\n${content}`);
@@ -627,7 +642,7 @@ function parseTranscriptJsonl(path: string): ParsedSession | null {
     }
   }
 
-  const body = bodyParts.join("\n\n").slice(0, 200000); // hard cap 200KB
+  const body = bodyParts.join('\n\n').slice(0, 200000); // hard cap 200KB
 
   return {
     agent,
@@ -643,27 +658,27 @@ function parseTranscriptJsonl(path: string): ParsedSession | null {
 }
 
 function extractContentText(rec: any): string {
-  if (!rec) return "";
-  if (typeof rec.content === "string") return rec.content;
-  if (typeof rec.text === "string") return rec.text;
-  if (typeof rec.message?.content === "string") return rec.message.content;
+  if (!rec) return '';
+  if (typeof rec.content === 'string') return rec.content;
+  if (typeof rec.text === 'string') return rec.text;
+  if (typeof rec.message?.content === 'string') return rec.message.content;
   if (Array.isArray(rec.message?.content)) {
     return rec.message.content
-      .map((c: any) => (typeof c === "string" ? c : c?.text || ""))
+      .map((c: any) => (typeof c === 'string' ? c : c?.text || ''))
       .filter(Boolean)
-      .join("\n");
+      .join('\n');
   }
   if (Array.isArray(rec.content)) {
     return rec.content
-      .map((c: any) => (typeof c === "string" ? c : c?.text || ""))
+      .map((c: any) => (typeof c === 'string' ? c : c?.text || ''))
       .filter(Boolean)
-      .join("\n");
+      .join('\n');
   }
-  return "";
+  return '';
 }
 
 function resolveGitRemote(cwd: string): string {
-  if (!cwd) return "";
+  if (!cwd) return '';
   try {
     // execFileSync (no shell) so `cwd` cannot trigger command substitution.
     // Transcript JSONL records are an untrusted surface (a poisoned `.cwd`
@@ -671,23 +686,23 @@ function resolveGitRemote(cwd: string): string {
     // into a `/bin/sh -c` context, since JSON quoting does not escape `$`
     // or backticks). Mirrors the execFileSync pattern this module already
     // uses for `gbrainAvailable()` (line 762) and `gbrainPutPage()` (line 816).
-    const out = execFileSync("git", ["-C", cwd, "remote", "get-url", "origin"], {
-      encoding: "utf-8",
+    const out = execFileSync('git', ['-C', cwd, 'remote', 'get-url', 'origin'], {
+      encoding: 'utf-8',
       timeout: 2000,
-      stdio: ["ignore", "pipe", "ignore"],
+      stdio: ['ignore', 'pipe', 'ignore'],
     });
     return canonicalizeRemote(out.trim());
   } catch {
-    return "";
+    return '';
   }
 }
 
 function repoSlug(remote: string): string {
-  if (!remote) return "_unattributed";
+  if (!remote) return '_unattributed';
   // github.com/foo/bar → foo-bar
-  const parts = remote.split("/");
+  const parts = remote.split('/');
   if (parts.length >= 3) return `${parts[parts.length - 2]}-${parts[parts.length - 1]}`;
-  return remote.replace(/\//g, "-");
+  return remote.replace(/\//g, '-');
 }
 
 function dateOnly(ts: string | undefined): string {
@@ -706,37 +721,34 @@ function buildTranscriptPage(path: string, session: ParsedSession): PageRecord {
   const sessionPrefix = session.session_id.slice(0, 12);
   const slug = `transcripts/${session.agent}/${slug_repo}/${date}-${sessionPrefix}`;
   const title = `${session.agent} session — ${slug_repo} — ${date}`;
-  const tags = [
-    "transcript",
-    `agent:${session.agent}`,
-    `repo:${slug_repo}`,
-    `date:${date}`,
-  ];
-  if (session.partial) tags.push("partial:true");
+  const tags = ['transcript', `agent:${session.agent}`, `repo:${slug_repo}`, `date:${date}`];
+  if (session.partial) tags.push('partial:true');
 
   const stats = statSync(path);
   const sha = fileSha256(path);
 
   const frontmatter = [
-    "---",
+    '---',
     `agent: ${session.agent}`,
     `session_id: ${session.session_id}`,
-    `cwd: ${session.cwd || ""}`,
-    `git_remote: ${remote || "_unattributed"}`,
-    `start_time: ${session.start_time || ""}`,
-    `end_time: ${session.end_time || ""}`,
+    `cwd: ${session.cwd || ''}`,
+    `git_remote: ${remote || '_unattributed'}`,
+    `start_time: ${session.start_time || ''}`,
+    `end_time: ${session.end_time || ''}`,
     `message_count: ${session.message_count}`,
     `tool_calls: ${session.tool_calls}`,
     `source_path: ${path}`,
-    session.partial ? "partial: true" : "",
-    "---",
-    "",
-  ].filter((l) => l !== "").join("\n");
+    session.partial ? 'partial: true' : '',
+    '---',
+    '',
+  ]
+    .filter((l) => l !== '')
+    .join('\n');
 
   return {
     slug,
     title,
-    type: "transcript",
+    type: 'transcript',
     agent: session.agent,
     body: frontmatter + session.body,
     tags,
@@ -755,15 +767,15 @@ function buildTranscriptPage(path: string, session: ParsedSession): PageRecord {
 function buildArtifactPage(path: string, type: MemoryType): PageRecord {
   const stats = statSync(path);
   const sha = fileSha256(path);
-  const raw = readFileSync(path, "utf-8");
+  const raw = readFileSync(path, 'utf-8');
 
   // Extract repo slug from path: ~/.gstack/projects/<slug>/...
-  let slug_repo = "_unattributed";
+  let slug_repo = '_unattributed';
   const m = path.match(/\/\.gstack\/projects\/([^/]+)\//);
   if (m) slug_repo = m[1];
 
   const date = new Date(stats.mtimeMs).toISOString().slice(0, 10);
-  const baseName = basename(path, path.endsWith(".jsonl") ? ".jsonl" : ".md");
+  const baseName = basename(path, path.endsWith('.jsonl') ? '.jsonl' : '.md');
 
   const slug = `${type}s/${slug_repo}/${date}-${baseName}`;
   const title = `${type} — ${slug_repo} — ${date} — ${baseName}`;
@@ -817,7 +829,7 @@ function gbrainAvailable(): boolean {
     // `gbrain --help` probes only CLI availability, not DB connectivity, so
     // it doesn't strictly need DATABASE_URL. But routing through the helper
     // keeps the invariant test from chasing exceptions per call site.
-    const help = execGbrainText(["--help"], { timeout: 5000 });
+    const help = execGbrainText(['--help'], { timeout: 5000 });
     _gbrainAvailability = /^\s+import\s/m.test(help);
   } catch {
     _gbrainAvailability = false;
@@ -843,27 +855,27 @@ function gbrainAvailable(): boolean {
  */
 function renderPageBody(page: PageRecord): string {
   let body = page.body;
-  if (body.startsWith("---\n")) {
-    const end = body.indexOf("\n---", 4);
+  if (body.startsWith('---\n')) {
+    const end = body.indexOf('\n---', 4);
     if (end > 0) {
       const inject = [
         `title: ${JSON.stringify(page.title)}`,
         `type: ${page.type}`,
         `tags:`,
         ...page.tags.map((t) => `  - ${t}`),
-      ].join("\n");
-      body = body.slice(0, end) + "\n" + inject + body.slice(end);
+      ].join('\n');
+      body = body.slice(0, end) + '\n' + inject + body.slice(end);
     }
   } else {
     body = [
-      "---",
+      '---',
       `title: ${JSON.stringify(page.title)}`,
       `type: ${page.type}`,
-      `tags: [${page.tags.map((t) => JSON.stringify(t)).join(", ")}]`,
-      "---",
-      "",
+      `tags: [${page.tags.map((t) => JSON.stringify(t)).join(', ')}]`,
+      '---',
+      '',
       body,
-    ].join("\n");
+    ].join('\n');
   }
   // Strip NUL bytes — Postgres rejects 0x00 in UTF-8 text columns. Some Claude
   // Code transcripts contain NUL inside user-pasted content or tool output, and
@@ -871,7 +883,7 @@ function renderPageBody(page: PageRecord): string {
   // is unhelpful when we can sanitize at write time. Originally landed in v1.32.0.0
   // (PR #1411) on the per-file `gbrain put` path; moved here so all staged
   // pages still get the same sanitization.
-  body = body.replace(/\x00/g, "");
+  body = body.replace(/\x00/g, '');
   return body;
 }
 
@@ -917,7 +929,7 @@ function writeStaged(prepared: PreparedPage[], stagingDir: string): StagingResul
     const absPath = join(stagingDir, relPath);
     try {
       mkdirSync(dirname(absPath), { recursive: true });
-      writeFileSync(absPath, p.rendered_body, "utf-8");
+      writeFileSync(absPath, p.rendered_body, 'utf-8');
       stagedPathToSource.set(relPath, p.source_path);
       written++;
     } catch (err) {
@@ -947,13 +959,16 @@ interface ImportJsonResult {
  * which silently masked gbrain crashes as "0 imported, 0 failed = OK".
  */
 function parseImportJson(stdout: string): ImportJsonResult | null {
-  const lines = stdout.split("\n").map((s) => s.trim()).filter(Boolean);
+  const lines = stdout
+    .split('\n')
+    .map((s) => s.trim())
+    .filter(Boolean);
   for (let i = lines.length - 1; i >= 0; i--) {
     const line = lines[i];
-    if (line.startsWith("{") && line.endsWith("}")) {
+    if (line.startsWith('{') && line.endsWith('}')) {
       try {
         const parsed = JSON.parse(line);
-        if (typeof parsed === "object" && parsed && "imported" in parsed) {
+        if (typeof parsed === 'object' && parsed && 'imported' in parsed) {
           return parsed as ImportJsonResult;
         }
       } catch {
@@ -990,12 +1005,12 @@ function readNewFailures(
     if (stat.size <= preImportOffset) return failed;
     // Read appended bytes only. readSync with a positional offset works
     // synchronously without slurping the whole file.
-    const fd = openSync(syncFailuresPath, "r");
+    const fd = openSync(syncFailuresPath, 'r');
     try {
       const buf = Buffer.alloc(stat.size - preImportOffset);
       readSync(fd, buf, 0, buf.length, preImportOffset);
-      const text = buf.toString("utf-8");
-      for (const line of text.split("\n")) {
+      const text = buf.toString('utf-8');
+      for (const line of text.split('\n')) {
         const trimmed = line.trim();
         if (!trimmed) continue;
         try {
@@ -1030,10 +1045,10 @@ async function probeMode(args: CliArgs): Promise<ProbeReport> {
     eureka: { count: 0, bytes: 0 },
     learning: { count: 0, bytes: 0 },
     timeline: { count: 0, bytes: 0 },
-    "ceo-plan": { count: 0, bytes: 0 },
-    "design-doc": { count: 0, bytes: 0 },
+    'ceo-plan': { count: 0, bytes: 0 },
+    'design-doc': { count: 0, bytes: 0 },
     retro: { count: 0, bytes: 0 },
-    "builder-profile-entry": { count: 0, bytes: 0 },
+    'builder-profile-entry': { count: 0, bytes: 0 },
   };
 
   let totalFiles = 0;
@@ -1062,7 +1077,7 @@ async function probeMode(args: CliArgs): Promise<ProbeReport> {
 
   // Per ED2: ~25-35 min for ~11.7K transcripts = ~150ms/page synchronous
   // (gitleaks + render + put + embedding). Scale linearly.
-  const estimateMinutes = Math.max(1, Math.round((newCount + updatedCount) * 0.15 / 60));
+  const estimateMinutes = Math.max(1, Math.round(((newCount + updatedCount) * 0.15) / 60));
 
   return {
     total_files: totalFiles,
@@ -1119,7 +1134,7 @@ function preparePages(
   for (const { path, type } of walkAllSources(ctx)) {
     if (args.limit !== null && prepared.length >= args.limit) break;
 
-    if (args.mode === "incremental" && !fileChangedSinceState(path, state)) {
+    if (args.mode === 'incremental' && !fileChangedSinceState(path, state)) {
       skippedDedup++;
       continue;
     }
@@ -1130,12 +1145,12 @@ function preparePages(
     // and per-file gitleaks costs ~256ms/file (4-8 min on a real corpus).
     if (args.scanSecrets) {
       const scan = secretScanFile(path);
-      if (scan.scanner === "gitleaks" && scan.findings.length > 0) {
+      if (scan.scanner === 'gitleaks' && scan.findings.length > 0) {
         skippedSecret++;
         if (!args.quiet) {
           console.error(
             `[secret-scan match] ${path} (${scan.findings.length} finding${
-              scan.findings.length === 1 ? "" : "s"
+              scan.findings.length === 1 ? '' : 's'
             }); skipped`,
           );
         }
@@ -1145,7 +1160,7 @@ function preparePages(
 
     let page: PageRecord;
     try {
-      if (type === "transcript") {
+      if (type === 'transcript') {
         const session = parseTranscriptJsonl(path);
         if (!session) {
           parseFailed++;
@@ -1156,7 +1171,7 @@ function preparePages(
           continue;
         }
         page = buildTranscriptPage(path, session);
-        if (!args.includeUnattributed && page.git_remote === "_unattributed") {
+        if (!args.includeUnattributed && page.git_remote === '_unattributed') {
           skippedUnattributed++;
           continue;
         }
@@ -1214,11 +1229,7 @@ function makeStagingDir(): string {
  * stay separate; brain-sync push doesn't care about subdir naming).
  */
 function makePersistentTranscriptDir(): string {
-  const dir = join(
-    GSTACK_HOME,
-    "transcripts",
-    `run-${process.pid}-${Date.now()}`,
-  );
+  const dir = join(GSTACK_HOME, 'transcripts', `run-${process.pid}-${Date.now()}`);
   mkdirSync(dir, { recursive: true });
   return dir;
 }
@@ -1233,18 +1244,18 @@ function makePersistentTranscriptDir(): string {
  */
 function isRemoteHttpMcpMode(): boolean {
   const home = process.env.HOME || homedir();
-  const claudeJsonPath = join(home, ".claude.json");
+  const claudeJsonPath = join(home, '.claude.json');
   if (!existsSync(claudeJsonPath)) return false;
   try {
-    const parsed = JSON.parse(readFileSync(claudeJsonPath, "utf-8")) as {
+    const parsed = JSON.parse(readFileSync(claudeJsonPath, 'utf-8')) as {
       mcpServers?: {
         gbrain?: { type?: string; transport?: string; url?: string };
       };
     };
     const entry = parsed.mcpServers?.gbrain;
     if (!entry) return false;
-    const mtype = entry.type || entry.transport || "";
-    if (mtype === "url" || mtype === "http" || mtype === "sse") return true;
+    const mtype = entry.type || entry.transport || '';
+    if (mtype === 'url' || mtype === 'http' || mtype === 'sse') return true;
     if (entry.url) return true;
     return false;
   } catch {
@@ -1295,9 +1306,9 @@ function stagingDirIsCheckpointed(stagingDir: string): boolean {
   try {
     // Read HOME from env so tests can redirect; homedir() caches.
     const home = process.env.HOME || homedir();
-    const cpPath = join(home, ".gbrain", "import-checkpoint.json");
+    const cpPath = join(home, '.gbrain', 'import-checkpoint.json');
     if (!existsSync(cpPath)) return false;
-    const raw = readFileSync(cpPath, "utf-8");
+    const raw = readFileSync(cpPath, 'utf-8');
     const cp = JSON.parse(raw) as { dir?: string };
     return cp.dir === stagingDir;
   } catch {
@@ -1338,10 +1349,10 @@ function installSignalForwarder(): void {
     }
     // Re-raise to default action so the parent actually exits. Without this,
     // a SIGTERM handler that doesn't exit holds the process alive.
-    process.exit(signal === "SIGINT" ? 130 : 143);
+    process.exit(signal === 'SIGINT' ? 130 : 143);
   };
-  process.on("SIGTERM", forward("SIGTERM"));
-  process.on("SIGINT", forward("SIGINT"));
+  process.on('SIGTERM', forward('SIGTERM'));
+  process.on('SIGINT', forward('SIGINT'));
 }
 
 /**
@@ -1359,26 +1370,26 @@ function runGbrainImport(
     // inside Next.js / Prisma / Rails projects with their own
     // .env.local (codex review #7 — defense in depth on top of the
     // parent gstack-gbrain-sync seeding the bun grandchild's env).
-    const child = spawnGbrainAsync(["import", stagingDir, "--no-embed", "--json"]);
+    const child = spawnGbrainAsync(['import', stagingDir, '--no-embed', '--json']);
     _activeImportChild = child;
-    let stdout = "";
-    let stderr = "";
+    let stdout = '';
+    let stderr = '';
     let timedOut = false;
     const timer = setTimeout(() => {
       timedOut = true;
       try {
-        if (child.pid) process.kill(child.pid, "SIGTERM");
+        if (child.pid) process.kill(child.pid, 'SIGTERM');
       } catch {
         // already gone
       }
     }, timeoutMs);
-    child.stdout?.on("data", (chunk) => {
-      stdout += chunk.toString("utf-8");
+    child.stdout?.on('data', (chunk) => {
+      stdout += chunk.toString('utf-8');
     });
-    child.stderr?.on("data", (chunk) => {
-      stderr += chunk.toString("utf-8");
+    child.stderr?.on('data', (chunk) => {
+      stderr += chunk.toString('utf-8');
     });
-    child.on("close", (status) => {
+    child.on('close', (status) => {
       clearTimeout(timer);
       _activeImportChild = null;
       resolve({
@@ -1387,7 +1398,7 @@ function runGbrainImport(
         stderr,
       });
     });
-    child.on("error", (err) => {
+    child.on('error', (err) => {
       clearTimeout(timer);
       _activeImportChild = null;
       resolve({
@@ -1431,7 +1442,7 @@ async function ingestPass(args: CliArgs): Promise<BulkResult> {
       }
     }
     state.last_full_walk = new Date().toISOString();
-    state.last_writer = "gstack-memory-ingest";
+    state.last_writer = 'gstack-memory-ingest';
     saveState(state);
     return {
       written,
@@ -1447,7 +1458,7 @@ async function ingestPass(args: CliArgs): Promise<BulkResult> {
   if (prep.prepared.length === 0) {
     // Nothing to import — still touch state.last_full_walk and exit.
     state.last_full_walk = new Date().toISOString();
-    state.last_writer = "gstack-memory-ingest";
+    state.last_writer = 'gstack-memory-ingest';
     saveState(state);
     return {
       written: 0,
@@ -1461,8 +1472,7 @@ async function ingestPass(args: CliArgs): Promise<BulkResult> {
   }
 
   if (!gbrainAvailable()) {
-    const msg =
-      "gbrain CLI not in PATH or missing `import` subcommand. Run /setup-gbrain.";
+    const msg = 'gbrain CLI not in PATH or missing `import` subcommand. Run /setup-gbrain.';
     console.error(`[memory-ingest] ERR: ${msg}`);
     return {
       written: 0,
@@ -1491,15 +1501,8 @@ async function ingestPass(args: CliArgs): Promise<BulkResult> {
   // tells it where to resume.
   const remoteHttpMode = isRemoteHttpMcpMode();
   const resumeDir = process.env.GSTACK_INGEST_RESUME_DIR;
-  const resuming = !remoteHttpMode
-    && typeof resumeDir === "string"
-    && resumeDir.length > 0
-    && existsSync(resumeDir);
-  const stagingDir = resuming
-    ? resumeDir!
-    : remoteHttpMode
-      ? makePersistentTranscriptDir()
-      : makeStagingDir();
+  const resuming = !remoteHttpMode && typeof resumeDir === 'string' && resumeDir.length > 0 && existsSync(resumeDir);
+  const stagingDir = resuming ? resumeDir! : remoteHttpMode ? makePersistentTranscriptDir() : makeStagingDir();
   // Register staging dir with the signal forwarder so SIGTERM/SIGINT can
   // either preserve (when gbrain checkpointed it) or synchronously clean up.
   // The async finally block below does NOT run after a signal-handler exit.
@@ -1515,9 +1518,7 @@ async function ingestPass(args: CliArgs): Promise<BulkResult> {
       // gbrain's import will skip already-completed entries via its own
       // checkpoint (processedIndex+1).
       if (!args.quiet) {
-        console.error(
-          `[memory-ingest] resuming previous staging dir ${stagingDir} (skipping prepare phase)`,
-        );
+        console.error(`[memory-ingest] resuming previous staging dir ${stagingDir} (skipping prepare phase)`);
       }
       staging = { staging_dir: stagingDir, written: prep.prepared.length, errors: [], stagedPathToSource: new Map() };
     } else {
@@ -1532,7 +1533,7 @@ async function ingestPass(args: CliArgs): Promise<BulkResult> {
 
     // D7: snapshot sync-failures.jsonl byte-offset before import so we
     // can read only newly-appended failure entries afterwards.
-    const syncFailuresPath = join(homedir(), ".gbrain", "sync-failures.jsonl");
+    const syncFailuresPath = join(homedir(), '.gbrain', 'sync-failures.jsonl');
     let preImportOffset = 0;
     try {
       if (existsSync(syncFailuresPath)) {
@@ -1544,11 +1545,9 @@ async function ingestPass(args: CliArgs): Promise<BulkResult> {
 
     if (!args.quiet) {
       const action = remoteHttpMode
-        ? "persisting to artifacts pipeline (skipping local gbrain import — remote-http mode)"
-        : "running gbrain import";
-      console.error(
-        `[memory-ingest] staged ${staging.written} pages → ${stagingDir}; ${action}...`,
-      );
+        ? 'persisting to artifacts pipeline (skipping local gbrain import — remote-http mode)'
+        : 'running gbrain import';
+      console.error(`[memory-ingest] staged ${staging.written} pages → ${stagingDir}; ${action}...`);
     }
 
     // Remote-http branch (split-engine D11): no local gbrain import. The
@@ -1573,13 +1572,11 @@ async function ingestPass(args: CliArgs): Promise<BulkResult> {
           };
           written++;
         } catch (err) {
-          console.error(
-            `[state-record] ${p.source_path}: ${(err as Error).message}`,
-          );
+          console.error(`[state-record] ${p.source_path}: ${(err as Error).message}`);
         }
       }
       state.last_full_walk = nowIso;
-      state.last_writer = "gstack-memory-ingest (remote-http mode)";
+      state.last_writer = 'gstack-memory-ingest (remote-http mode)';
       saveState(state);
       if (!args.quiet) {
         console.error(
@@ -1610,12 +1607,12 @@ async function ingestPass(args: CliArgs): Promise<BulkResult> {
     // after the orchestrator timed out).
     const importResult = await runGbrainImport(stagingDir, 30 * 60 * 1000);
 
-    const stdout = importResult.stdout || "";
-    const stderr = importResult.stderr || "";
+    const stdout = importResult.stdout || '';
+    const stderr = importResult.stderr || '';
     const importJson = parseImportJson(stdout);
 
     if (importResult.status !== 0) {
-      const tail = (stderr.trim().split("\n").pop() || "").slice(0, 300);
+      const tail = (stderr.trim().split('\n').pop() || '').slice(0, 300);
       const msg = `gbrain import exited ${importResult.status}: ${tail}`;
       console.error(`[memory-ingest] ERR: ${msg}`);
       // We conservatively state-record nothing on a non-zero exit — per-run
@@ -1645,9 +1642,7 @@ async function ingestPass(args: CliArgs): Promise<BulkResult> {
       // gbrain exited 0 but didn't emit a parseable --json line. Treat as
       // ERR rather than silently passing zeros through — silent zeros let
       // a future gbrain-output regression mask data loss.
-      const msg =
-        "gbrain import exited 0 but emitted no parseable --json payload. " +
-        "Refusing to advance state.";
+      const msg = 'gbrain import exited 0 but emitted no parseable --json payload. ' + 'Refusing to advance state.';
       console.error(`[memory-ingest] ERR: ${msg}`);
       failed += prep.prepared.length;
       return {
@@ -1664,11 +1659,7 @@ async function ingestPass(args: CliArgs): Promise<BulkResult> {
 
     // D7: identify which staged files failed to import and exclude them
     // from state recording. Source paths get a retry on the next run.
-    const failedSources = readNewFailures(
-      syncFailuresPath,
-      preImportOffset,
-      staging.stagedPathToSource,
-    );
+    const failedSources = readNewFailures(syncFailuresPath, preImportOffset, staging.stagedPathToSource);
     failed += failedSources.size;
 
     // Phase 3: state recording. Only files that landed in gbrain get
@@ -1688,15 +1679,13 @@ async function ingestPass(args: CliArgs): Promise<BulkResult> {
         };
         written++;
         if (!args.quiet) {
-          const tag = p.partial ? " [partial]" : "";
+          const tag = p.partial ? ' [partial]' : '';
           console.log(`[${written}] ${p.page_slug}${tag}`);
         }
       } catch (err) {
         // statSync can fail if the source file was removed mid-run; skip
         // recording but don't fail the whole pass.
-        console.error(
-          `[state-record] ${p.source_path}: ${(err as Error).message}`,
-        );
+        console.error(`[state-record] ${p.source_path}: ${(err as Error).message}`);
       }
     }
 
@@ -1704,9 +1693,7 @@ async function ingestPass(args: CliArgs): Promise<BulkResult> {
       console.error(
         `[memory-ingest] gbrain import: ${importJson.imported ?? 0} imported, ` +
           `${importJson.skipped ?? 0} unchanged, ${importJson.errors ?? 0} failed` +
-          (failedSources.size > 0
-            ? ` (see ~/.gbrain/sync-failures.jsonl for details)`
-            : ""),
+          (failedSources.size > 0 ? ` (see ~/.gbrain/sync-failures.jsonl for details)` : ''),
       );
     }
   } finally {
@@ -1715,7 +1702,7 @@ async function ingestPass(args: CliArgs): Promise<BulkResult> {
   }
 
   state.last_full_walk = new Date().toISOString();
-  state.last_writer = "gstack-memory-ingest";
+  state.last_writer = 'gstack-memory-ingest';
   saveState(state);
 
   return {
@@ -1743,14 +1730,14 @@ function printProbeReport(r: ProbeReport, json: boolean): void {
     console.log(JSON.stringify(r, null, 2));
     return;
   }
-  console.log("Memory ingest probe");
-  console.log("───────────────────");
+  console.log('Memory ingest probe');
+  console.log('───────────────────');
   console.log(`Total files in window: ${r.total_files}`);
   console.log(`Total bytes:           ${formatBytes(r.total_bytes)}`);
   console.log(`New (never ingested):  ${r.new_count}`);
   console.log(`Updated (mtime/hash):  ${r.updated_count}`);
   console.log(`Unchanged:             ${r.unchanged_count}`);
-  console.log("By type:");
+  console.log('By type:');
   for (const [t, v] of Object.entries(r.by_type)) {
     if (v.count > 0) {
       console.log(`  ${t.padEnd(24)} ${String(v.count).padStart(6)} files  ${formatBytes(v.bytes).padStart(8)}`);
@@ -1782,16 +1769,18 @@ async function main(): Promise<void> {
   // Engine tier detection — informational; routing happens in gbrain server-side.
   const engine = detectEngineTier();
   if (!args.quiet) {
-    console.error(`[engine] ${engine.engine}${engine.engine === "supabase" ? ` (${engine.supabase_url || "configured"})` : ""}`);
+    console.error(
+      `[engine] ${engine.engine}${engine.engine === 'supabase' ? ` (${engine.supabase_url || 'configured'})` : ''}`,
+    );
   }
 
-  if (args.mode === "probe") {
+  if (args.mode === 'probe') {
     const report = await probeMode(args);
     printProbeReport(report, false);
     return;
   }
 
-  if (args.mode === "incremental" && args.quiet) {
+  if (args.mode === 'incremental' && args.quiet) {
     // Steady-state fast path: log nothing unless changes happen.
     const t0 = Date.now();
     const result = await ingestPass(args);

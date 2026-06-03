@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect } from 'react';
 import {
   useCurrentFrame,
   useVideoConfig,
@@ -9,7 +9,7 @@ import {
   staticFile,
   Audio,
   Img,
-} from "remotion";
+} from 'remotion';
 
 // Mount-only useEffect with empty deps + a later expression containing a
 // non-empty array — regression coverage for the over-match Miguel reported:
@@ -23,15 +23,15 @@ const TitleCard: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   useEffect(() => {
-    console.log("mounted");
+    console.log('mounted');
   }, []);
-  const _picked = pick("x", [frame]);
-  const opacity = interpolate(frame, [0, 15], [0, 1], { extrapolateRight: "clamp" });
+  const _picked = pick('x', [frame]);
+  const opacity = interpolate(frame, [0, 15], [0, 1], { extrapolateRight: 'clamp' });
   const scale = spring({ frame, fps, config: { damping: 12 } });
   return (
-    <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
+    <AbsoluteFill style={{ justifyContent: 'center', alignItems: 'center' }}>
       <div style={{ fontSize: 72, opacity, transform: `scale(${scale})` }}>Hello</div>
-      <Img src={staticFile("logo.png")} />
+      <Img src={staticFile('logo.png')} />
     </AbsoluteFill>
   );
 };
@@ -41,6 +41,6 @@ export const MyComposition: React.FC = () => (
     <Sequence from={0} durationInFrames={90}>
       <TitleCard />
     </Sequence>
-    <Audio src={staticFile("music.mp3")} volume={0.5} />
+    <Audio src={staticFile('music.mp3')} volume={0.5} />
   </AbsoluteFill>
 );

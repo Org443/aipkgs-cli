@@ -147,10 +147,7 @@ describe('sidebar JS (sidepanel.js)', () => {
   });
 
   test('agent_done hides stop button', () => {
-    const doneHandler = js.slice(
-      js.indexOf("entry.type === 'agent_done'"),
-      js.indexOf("entry.type === 'agent_error'"),
-    );
+    const doneHandler = js.slice(js.indexOf("entry.type === 'agent_done'"), js.indexOf("entry.type === 'agent_error'"));
     expect(doneHandler).toContain('updateStopButton(false)');
   });
 
@@ -173,7 +170,10 @@ describe('sidebar JS (sidepanel.js)', () => {
 
   test('sendMessage renders user bubble + thinking dots optimistically', () => {
     // sendMessage should create user bubble and agent-thinking BEFORE the server responds
-    const sendFn = js.slice(js.indexOf('async function sendMessage()'), js.indexOf('async function sendMessage()') + 2000);
+    const sendFn = js.slice(
+      js.indexOf('async function sendMessage()'),
+      js.indexOf('async function sendMessage()') + 2000,
+    );
     expect(sendFn).toContain('chat-bubble user');
     expect(sendFn).toContain('agent-thinking');
     expect(sendFn).toContain('lastOptimisticMsg');
@@ -191,10 +191,7 @@ describe('sidebar JS (sidepanel.js)', () => {
   });
 
   test('agent_done calls stopFastPoll', () => {
-    const doneHandler = js.slice(
-      js.indexOf("entry.type === 'agent_done'"),
-      js.indexOf("entry.type === 'agent_error'"),
-    );
+    const doneHandler = js.slice(js.indexOf("entry.type === 'agent_done'"), js.indexOf("entry.type === 'agent_error'"));
     expect(doneHandler).toContain('stopFastPoll');
   });
 
@@ -296,10 +293,7 @@ describe('TTFO latency chain', () => {
   });
 
   test('stopAgent also calls stopFastPoll', () => {
-    const stopFn = js.slice(
-      js.indexOf('async function stopAgent()'),
-      js.indexOf('async function stopAgent()') + 1000,
-    );
+    const stopFn = js.slice(js.indexOf('async function stopAgent()'), js.indexOf('async function stopAgent()') + 1000);
     expect(stopFn).toContain('stopFastPoll');
   });
 });
@@ -340,10 +334,7 @@ describe('browser tab bar (sidepanel.js)', () => {
   });
 
   test('tab bar hidden when only 1 tab', () => {
-    const renderFn = js.slice(
-      js.indexOf('function renderTabBar('),
-      js.indexOf('function renderTabBar(') + 600,
-    );
+    const renderFn = js.slice(js.indexOf('function renderTabBar('), js.indexOf('function renderTabBar(') + 600);
     expect(renderFn).toContain('tabs.length <= 1');
     expect(renderFn).toContain("display = 'none'");
   });
@@ -405,10 +396,7 @@ describe('browser→sidebar tab sync', () => {
   });
 
   test('syncActiveTabByUrl updates activeTabId when URL matches a different tab', () => {
-    const fn = bmSrc.slice(
-      bmSrc.indexOf('syncActiveTabByUrl('),
-      bmSrc.indexOf('syncActiveTabByUrl(') + 1200,
-    );
+    const fn = bmSrc.slice(bmSrc.indexOf('syncActiveTabByUrl('), bmSrc.indexOf('syncActiveTabByUrl(') + 1200);
     expect(fn).toContain('this.activeTabId = id');
     // Exact match
     expect(fn).toContain('pageUrl === activeUrl');
@@ -431,18 +419,12 @@ describe('browser→sidebar tab sync', () => {
   });
 
   test('syncActiveTabByUrl skips when only 1 tab (no ambiguity)', () => {
-    const fn = bmSrc.slice(
-      bmSrc.indexOf('syncActiveTabByUrl('),
-      bmSrc.indexOf('syncActiveTabByUrl(') + 600,
-    );
+    const fn = bmSrc.slice(bmSrc.indexOf('syncActiveTabByUrl('), bmSrc.indexOf('syncActiveTabByUrl(') + 600);
     expect(fn).toContain('this.pages.size <= 1');
   });
 
   test('/sidebar-tabs reads activeUrl param and calls syncActiveTabByUrl', () => {
-    const handler = serverSrc.slice(
-      serverSrc.indexOf("/sidebar-tabs'"),
-      serverSrc.indexOf("/sidebar-tabs'") + 700,
-    );
+    const handler = serverSrc.slice(serverSrc.indexOf("/sidebar-tabs'"), serverSrc.indexOf("/sidebar-tabs'") + 700);
     expect(handler).toContain("get('activeUrl')");
     expect(handler).toContain('syncActiveTabByUrl');
   });
@@ -471,10 +453,7 @@ describe('browser→sidebar tab sync', () => {
   });
 
   test('pollTabs sends Chrome active tab URL to server', () => {
-    const pollFn = js.slice(
-      js.indexOf('async function pollTabs()'),
-      js.indexOf('async function pollTabs()') + 800,
-    );
+    const pollFn = js.slice(js.indexOf('async function pollTabs()'), js.indexOf('async function pollTabs()') + 800);
     expect(pollFn).toContain('chrome.tabs.query');
     expect(pollFn).toContain('activeUrl=');
   });
@@ -490,10 +469,7 @@ describe('browser tab bar (sidepanel.css)', () => {
   });
 
   test('tab bar is horizontally scrollable', () => {
-    const barStyle = css.slice(
-      css.indexOf('.browser-tabs {'),
-      css.indexOf('}', css.indexOf('.browser-tabs {')) + 1,
-    );
+    const barStyle = css.slice(css.indexOf('.browser-tabs {'), css.indexOf('}', css.indexOf('.browser-tabs {')) + 1);
     expect(barStyle).toContain('overflow-x: auto');
   });
 
@@ -564,10 +540,7 @@ describe('per-tab chat context (server.ts)', () => {
   const serverSrc = fs.readFileSync(path.join(ROOT, 'src', 'server.ts'), 'utf-8');
 
   test('/sidebar-chat accepts tabId query param', () => {
-    const handler = serverSrc.slice(
-      serverSrc.indexOf("/sidebar-chat'"),
-      serverSrc.indexOf("/sidebar-chat'") + 600,
-    );
+    const handler = serverSrc.slice(serverSrc.indexOf("/sidebar-chat'"), serverSrc.indexOf("/sidebar-chat'") + 600);
     expect(handler).toContain('tabId');
   });
 
@@ -608,10 +581,7 @@ describe('per-tab chat context (sidepanel.js)', () => {
   });
 
   test('pollChat sends tabId to server', () => {
-    const pollFn = js.slice(
-      js.indexOf('async function pollChat()'),
-      js.indexOf('async function pollChat()') + 600,
-    );
+    const pollFn = js.slice(js.indexOf('async function pollChat()'), js.indexOf('async function pollChat()') + 600);
     expect(pollFn).toContain('tabId');
   });
 
@@ -621,10 +591,7 @@ describe('per-tab chat context (sidepanel.js)', () => {
   });
 
   test('switchChatTab saves current tab DOM and restores new tab', () => {
-    const fn = js.slice(
-      js.indexOf('function switchChatTab('),
-      js.indexOf('function switchChatTab(') + 800,
-    );
+    const fn = js.slice(js.indexOf('function switchChatTab('), js.indexOf('function switchChatTab(') + 800);
     expect(fn).toContain('chatDomByTab');
     expect(fn).toContain('createDocumentFragment');
   });
@@ -649,10 +616,7 @@ describe('sidebar CSS (sidepanel.css)', () => {
   });
 
   test('stop button uses error color', () => {
-    const stopBtnSection = css.slice(
-      css.indexOf('.stop-btn {'),
-      css.indexOf('}', css.indexOf('.stop-btn {')) + 1,
-    );
+    const stopBtnSection = css.slice(css.indexOf('.stop-btn {'), css.indexOf('}', css.indexOf('.stop-btn {')) + 1);
     expect(stopBtnSection).toContain('--error');
   });
 
@@ -667,10 +631,7 @@ describe('sidebar CSS (sidepanel.css)', () => {
   });
 
   test('tool description uses system font not mono', () => {
-    const toolSection = css.slice(
-      css.indexOf('.agent-tool {'),
-      css.indexOf('}', css.indexOf('.agent-tool {')) + 1,
-    );
+    const toolSection = css.slice(css.indexOf('.agent-tool {'), css.indexOf('}', css.indexOf('.agent-tool {')) + 1);
     expect(toolSection).toContain('font-system');
     expect(toolSection).not.toContain('font-mono');
   });
@@ -774,10 +735,7 @@ describe('cleanup and screenshot buttons', () => {
 
   test('cleanup button sends smart prompt to sidebar agent (not just deterministic selectors)', () => {
     // Should use /sidebar-command endpoint (agent-based) not just /command (deterministic)
-    const cleanupFn = js.slice(
-      js.indexOf('async function runCleanup('),
-      js.indexOf('async function runScreenshot('),
-    );
+    const cleanupFn = js.slice(js.indexOf('async function runCleanup('), js.indexOf('async function runScreenshot('));
     expect(cleanupFn).toContain('sidebar-command');
     expect(cleanupFn).toContain('cleanupPrompt');
     // Should include both deterministic first pass AND agent snapshot analysis
@@ -883,7 +841,7 @@ describe('cleanup heuristics (write-commands.ts)', () => {
   });
 
   test('sticky cleanup skips gstack control indicator', () => {
-    expect(wcSrc).toContain("gstack-ctrl");
+    expect(wcSrc).toContain('gstack-ctrl');
   });
 
   test('CLEANUP_SELECTORS has clutter category', () => {
@@ -1029,10 +987,7 @@ describe('LLM-based cleanup (smart agent cleanup)', () => {
   const wcSrc = fs.readFileSync(path.join(ROOT, 'src', 'write-commands.ts'), 'utf-8');
 
   test('cleanup button uses /sidebar-command not /command', () => {
-    const cleanupFn = js.slice(
-      js.indexOf('async function runCleanup('),
-      js.indexOf('async function runScreenshot('),
-    );
+    const cleanupFn = js.slice(js.indexOf('async function runCleanup('), js.indexOf('async function runScreenshot('));
     // Should POST to sidebar-command (agent) not /command (deterministic)
     expect(cleanupFn).toContain('/sidebar-command');
     // Should NOT directly call the cleanup command endpoint
@@ -1040,19 +995,13 @@ describe('LLM-based cleanup (smart agent cleanup)', () => {
   });
 
   test('cleanup prompt includes deterministic first pass', () => {
-    const cleanupFn = js.slice(
-      js.indexOf('async function runCleanup('),
-      js.indexOf('async function runScreenshot('),
-    );
+    const cleanupFn = js.slice(js.indexOf('async function runCleanup('), js.indexOf('async function runScreenshot('));
     // First run the deterministic sweep
     expect(cleanupFn).toContain('cleanup --all');
   });
 
   test('cleanup prompt instructs agent to snapshot and analyze', () => {
-    const cleanupFn = js.slice(
-      js.indexOf('async function runCleanup('),
-      js.indexOf('async function runScreenshot('),
-    );
+    const cleanupFn = js.slice(js.indexOf('async function runCleanup('), js.indexOf('async function runScreenshot('));
     // Agent should take a snapshot to see what deterministic pass missed
     expect(cleanupFn).toContain('snapshot -i');
     // Agent should analyze what remains
@@ -1060,10 +1009,7 @@ describe('LLM-based cleanup (smart agent cleanup)', () => {
   });
 
   test('cleanup prompt lists specific clutter categories for agent', () => {
-    const cleanupFn = js.slice(
-      js.indexOf('async function runCleanup('),
-      js.indexOf('async function runScreenshot('),
-    );
+    const cleanupFn = js.slice(js.indexOf('async function runCleanup('), js.indexOf('async function runScreenshot('));
     // Should guide the agent on what to look for
     expect(cleanupFn).toContain('Ad placeholder');
     expect(cleanupFn).toContain('ADVERTISEMENT');
@@ -1075,10 +1021,7 @@ describe('LLM-based cleanup (smart agent cleanup)', () => {
   });
 
   test('cleanup prompt instructs agent to preserve site identity', () => {
-    const cleanupFn = js.slice(
-      js.indexOf('async function runCleanup('),
-      js.indexOf('async function runScreenshot('),
-    );
+    const cleanupFn = js.slice(js.indexOf('async function runCleanup('), js.indexOf('async function runScreenshot('));
     // Must keep the site looking like itself
     expect(cleanupFn).toContain('KEEP');
     expect(cleanupFn).toContain('header/masthead/logo');
@@ -1088,37 +1031,25 @@ describe('LLM-based cleanup (smart agent cleanup)', () => {
   });
 
   test('cleanup prompt instructs agent to unlock scrolling', () => {
-    const cleanupFn = js.slice(
-      js.indexOf('async function runCleanup('),
-      js.indexOf('async function runScreenshot('),
-    );
+    const cleanupFn = js.slice(js.indexOf('async function runCleanup('), js.indexOf('async function runScreenshot('));
     expect(cleanupFn).toContain('unlock scrolling');
     expect(cleanupFn).toContain('overflow');
   });
 
   test('cleanup prompt instructs agent to use $B eval for removal', () => {
-    const cleanupFn = js.slice(
-      js.indexOf('async function runCleanup('),
-      js.indexOf('async function runScreenshot('),
-    );
+    const cleanupFn = js.slice(js.indexOf('async function runCleanup('), js.indexOf('async function runScreenshot('));
     // Agent should use $B eval to hide elements via JavaScript
     expect(cleanupFn).toContain('$B eval');
-    expect(cleanupFn).toContain("display=");
+    expect(cleanupFn).toContain('display=');
   });
 
   test('cleanup shows notification while agent works', () => {
-    const cleanupFn = js.slice(
-      js.indexOf('async function runCleanup('),
-      js.indexOf('async function runScreenshot('),
-    );
+    const cleanupFn = js.slice(js.indexOf('async function runCleanup('), js.indexOf('async function runScreenshot('));
     expect(cleanupFn).toContain('agent is analyzing');
   });
 
   test('cleanup removes loading state after short delay (agent is async)', () => {
-    const cleanupFn = js.slice(
-      js.indexOf('async function runCleanup('),
-      js.indexOf('async function runScreenshot('),
-    );
+    const cleanupFn = js.slice(js.indexOf('async function runCleanup('), js.indexOf('async function runScreenshot('));
     // Should use setTimeout since agent runs asynchronously
     expect(cleanupFn).toContain('setTimeout');
     expect(cleanupFn).toContain("classList.remove('loading')");
@@ -1355,10 +1286,7 @@ describe('sidebar arrow hint hide flow (4-step signal chain)', () => {
   test('step 2: background.js allows sidebarOpened message type', () => {
     expect(bgSrc).toContain("'sidebarOpened'");
     // Must be in ALLOWED_TYPES
-    const allowedBlock = bgSrc.slice(
-      bgSrc.indexOf('ALLOWED_TYPES'),
-      bgSrc.indexOf('ALLOWED_TYPES') + 300,
-    );
+    const allowedBlock = bgSrc.slice(bgSrc.indexOf('ALLOWED_TYPES'), bgSrc.indexOf('ALLOWED_TYPES') + 300);
     expect(allowedBlock).toContain('sidebarOpened');
   });
 
@@ -1536,7 +1464,7 @@ describe('sidebar skips empty tool_use descriptions', () => {
       js.indexOf("entry.type === 'tool_use'"),
       js.indexOf("entry.type === 'tool_use'") + 400,
     );
-    expect(toolUseHandler).toContain("if (!toolInput) return");
+    expect(toolUseHandler).toContain('if (!toolInput) return');
   });
 });
 

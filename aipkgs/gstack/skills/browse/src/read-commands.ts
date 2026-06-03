@@ -19,8 +19,10 @@ import { stripLoneSurrogates } from './sanitize';
 export { validateReadPath } from './path-security';
 
 // Redaction patterns for sensitive cookie/storage values — exported for test coverage
-export const SENSITIVE_COOKIE_NAME = /(^|[_.-])(token|secret|key|password|credential|auth|jwt|session|csrf|sid)($|[_.-])|api.?key/i;
-export const SENSITIVE_COOKIE_VALUE = /^(eyJ|sk-|sk_live_|sk_test_|pk_live_|pk_test_|rk_live_|sk-ant-|ghp_|gho_|github_pat_|xox[bpsa]-|AKIA[A-Z0-9]{16}|AIza|SG\.|Bearer\s|sbp_)/;
+export const SENSITIVE_COOKIE_NAME =
+  /(^|[_.-])(token|secret|key|password|credential|auth|jwt|session|csrf|sid)($|[_.-])|api.?key/i;
+export const SENSITIVE_COOKIE_VALUE =
+  /^(eyJ|sk-|sk_live_|sk_test_|pk_live_|pk_test_|rk_live_|sk-ant-|ghp_|gho_|github_pat_|xox[bpsa]-|AKIA[A-Z0-9]{16}|AIza|SG\.|Bearer\s|sbp_)/;
 
 /** Detect await keyword, ignoring comments. Accepted risk: await in string literals triggers wrapping (harmless). */
 function hasAwait(code: string): boolean {
@@ -41,9 +43,7 @@ function needsBlockWrapper(code: string): boolean {
 function wrapForEvaluate(code: string): string {
   if (!hasAwait(code)) return code;
   const trimmed = code.trim();
-  return needsBlockWrapper(trimmed)
-    ? `(async()=>{\n${code}\n})()`
-    : `(async()=>(${trimmed}))()`;
+  return needsBlockWrapper(trimmed) ? `(async()=>{\n${code}\n})()` : `(async()=>(${trimmed}))()`;
 }
 
 /**
@@ -55,11 +55,11 @@ export async function getCleanText(page: Page | Frame): Promise<string> {
     const body = document.body;
     if (!body) return '';
     const clone = body.cloneNode(true) as HTMLElement;
-    clone.querySelectorAll('script, style, noscript, svg').forEach(el => el.remove());
+    clone.querySelectorAll('script, style, noscript, svg').forEach((el) => el.remove());
     return clone.innerText
       .split('\n')
-      .map(line => line.trim())
-      .filter(line => line.length > 0)
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0)
       .join('\n');
   });
   return stripLoneSurrogates(raw);
@@ -82,7 +82,7 @@ function assertJsOriginAllowed(bm: BrowserManager, pageUrl: string): void {
   }
 
   const importedDomains = bm.getCookieImportedDomains();
-  const allowed = [...importedDomains].some(domain => {
+  const allowed = [...importedDomains].some((domain) => {
     // Exact match or subdomain match (e.g., ".github.com" matches "api.github.com")
     const normalized = domain.startsWith('.') ? domain : '.' + domain;
     return hostname === domain.replace(/^\./, '') || hostname.endsWith(normalized);
@@ -91,8 +91,8 @@ function assertJsOriginAllowed(bm: BrowserManager, pageUrl: string): void {
   if (!allowed) {
     throw new Error(
       `JS execution blocked: current page (${hostname}) does not match any cookie-imported domain. ` +
-      `Imported cookies for: ${[...importedDomains].join(', ')}. ` +
-      `This prevents cross-origin cookie exfiltration. Navigate to an imported domain or run without imported cookies.`
+        `Imported cookies for: ${[...importedDomains].join(', ')}. ` +
+        `This prevents cross-origin cookie exfiltration. Navigate to an imported domain or run without imported cookies.`,
     );
   }
 }
@@ -132,18 +132,20 @@ export async function handleReadCommand(
 
     case 'links': {
       const links = await target.evaluate(() =>
-        [...document.querySelectorAll('a[href]')].map(a => ({
-          text: a.textContent?.trim().slice(0, 120) || '',
-          href: (a as HTMLAnchorElement).href,
-        })).filter(l => l.text && l.href)
+        [...document.querySelectorAll('a[href]')]
+          .map((a) => ({
+            text: a.textContent?.trim().slice(0, 120) || '',
+            href: (a as HTMLAnchorElement).href,
+          }))
+          .filter((l) => l.text && l.href),
       );
-      return links.map(l => `${l.text} → ${l.href}`).join('\n');
+      return links.map((l) => `${l.text} → ${l.href}`).join('\n');
     }
 
     case 'forms': {
       const forms = await target.evaluate(() => {
         return [...document.querySelectorAll('form')].map((form, i) => {
-          const fields = [...form.querySelectorAll('input, select, textarea')].map(el => {
+          const fields = [...form.querySelectorAll('input, select, textarea')].map((el) => {
             const input = el as HTMLInputElement;
             return {
               tag: el.tagName.toLowerCase(),
@@ -152,13 +154,22 @@ export async function handleReadCommand(
               id: input.id || undefined,
               placeholder: input.placeholder || undefined,
               required: input.required || undefined,
-              value: input.type === 'password'
-                || (input.name && /(^|[_.-])(token|secret|key|password|credential|auth|jwt|session|csrf|sid)($|[_.-])|api.?key/i.test(input.name))
-                || (input.id && /(^|[_.-])(token|secret|key|password|credential|auth|jwt|session|csrf|sid)($|[_.-])|api.?key/i.test(input.id))
-                ? '[redacted]' : (input.value || undefined),
-              options: el.tagName === 'SELECT'
-                ? [...(el as HTMLSelectElement).options].map(o => ({ value: o.value, text: o.text }))
-                : undefined,
+              value:
+                input.type === 'password' ||
+                (input.name &&
+                  /(^|[_.-])(token|secret|key|password|credential|auth|jwt|session|csrf|sid)($|[_.-])|api.?key/i.test(
+                    input.name,
+                  )) ||
+                (input.id &&
+                  /(^|[_.-])(token|secret|key|password|credential|auth|jwt|session|csrf|sid)($|[_.-])|api.?key/i.test(
+                    input.id,
+                  ))
+                  ? '[redacted]'
+                  : input.value || undefined,
+              options:
+                el.tagName === 'SELECT'
+                  ? [...(el as HTMLSelectElement).options].map((o) => ({ value: o.value, text: o.text }))
+                  : undefined,
             };
           });
           return {
@@ -174,7 +185,7 @@ export async function handleReadCommand(
     }
 
     case 'accessibility': {
-      const snapshot = await target.locator("body").ariaSnapshot();
+      const snapshot = await target.locator('body').ariaSnapshot();
       return stripLoneSurrogates(snapshot);
     }
 
@@ -206,7 +217,7 @@ export async function handleReadCommand(
       if ('locator' in resolved) {
         const value = await resolved.locator.evaluate(
           (el, prop) => getComputedStyle(el).getPropertyValue(prop),
-          property
+          property,
         );
         return value;
       }
@@ -216,7 +227,7 @@ export async function handleReadCommand(
           if (!el) return `Element not found: ${sel}`;
           return getComputedStyle(el).getPropertyValue(prop);
         },
-        [resolved.selector, property]
+        [resolved.selector, property],
       );
       return value;
     }
@@ -252,13 +263,12 @@ export async function handleReadCommand(
         consoleBuffer.clear();
         return 'Console buffer cleared.';
       }
-      const entries = args[0] === '--errors'
-        ? consoleBuffer.toArray().filter(e => e.level === 'error' || e.level === 'warning')
-        : consoleBuffer.toArray();
+      const entries =
+        args[0] === '--errors'
+          ? consoleBuffer.toArray().filter((e) => e.level === 'error' || e.level === 'warning')
+          : consoleBuffer.toArray();
       if (entries.length === 0) return args[0] === '--errors' ? '(no console errors)' : '(no console messages)';
-      return entries.map(e =>
-        `[${new Date(e.timestamp).toISOString()}] [${e.level}] ${e.text}`
-      ).join('\n');
+      return entries.map((e) => `[${new Date(e.timestamp).toISOString()}] [${e.level}] ${e.text}`).join('\n');
     }
 
     case 'network': {
@@ -269,9 +279,7 @@ export async function handleReadCommand(
 
       // Network capture extensions
       if (args[0] === '--capture') {
-        const {
-          startCapture, stopCapture, getCaptureListener, isCaptureActive,
-        } = await import('./network-capture');
+        const { startCapture, stopCapture, getCaptureListener, isCaptureActive } = await import('./network-capture');
 
         if (args[1] === 'stop') {
           // Detach listener from current page
@@ -311,9 +319,10 @@ export async function handleReadCommand(
 
       // Default: show request metadata
       if (networkBuffer.length === 0) return '(no network requests)';
-      return networkBuffer.toArray().map(e =>
-        `${e.method} ${e.url} → ${e.status || 'pending'} (${e.duration || '?'}ms, ${e.size || '?'}B)`
-      ).join('\n');
+      return networkBuffer
+        .toArray()
+        .map((e) => `${e.method} ${e.url} → ${e.status || 'pending'} (${e.duration || '?'}ms, ${e.size || '?'}B)`)
+        .join('\n');
     }
 
     case 'dialog': {
@@ -322,15 +331,22 @@ export async function handleReadCommand(
         return 'Dialog buffer cleared.';
       }
       if (dialogBuffer.length === 0) return '(no dialogs captured)';
-      return dialogBuffer.toArray().map(e =>
-        `[${new Date(e.timestamp).toISOString()}] [${e.type}] "${e.message}" → ${e.action}${e.response ? ` "${e.response}"` : ''}`
-      ).join('\n');
+      return dialogBuffer
+        .toArray()
+        .map(
+          (e) =>
+            `[${new Date(e.timestamp).toISOString()}] [${e.type}] "${e.message}" → ${e.action}${e.response ? ` "${e.response}"` : ''}`,
+        )
+        .join('\n');
     }
 
     case 'is': {
       const property = args[0];
       const selector = args[1];
-      if (!property || !selector) throw new Error('Usage: browse is <property> <selector>\nProperties: visible, hidden, enabled, disabled, checked, editable, focused');
+      if (!property || !selector)
+        throw new Error(
+          'Usage: browse is <property> <selector>\nProperties: visible, hidden, enabled, disabled, checked, editable, focused',
+        );
 
       const resolved = await session.resolveRef(selector);
       let locator;
@@ -341,27 +357,33 @@ export async function handleReadCommand(
       }
 
       switch (property) {
-        case 'visible':  return String(await locator.isVisible());
-        case 'hidden':   return String(await locator.isHidden());
-        case 'enabled':  return String(await locator.isEnabled());
-        case 'disabled': return String(await locator.isDisabled());
-        case 'checked':  return String(await locator.isChecked());
-        case 'editable': return String(await locator.isEditable());
+        case 'visible':
+          return String(await locator.isVisible());
+        case 'hidden':
+          return String(await locator.isHidden());
+        case 'enabled':
+          return String(await locator.isEnabled());
+        case 'disabled':
+          return String(await locator.isDisabled());
+        case 'checked':
+          return String(await locator.isChecked());
+        case 'editable':
+          return String(await locator.isEditable());
         case 'focused': {
-          const isFocused = await locator.evaluate(
-            (el) => el === document.activeElement
-          );
+          const isFocused = await locator.evaluate((el) => el === document.activeElement);
           return String(isFocused);
         }
         default:
-          throw new Error(`Unknown property: ${property}. Use: visible, hidden, enabled, disabled, checked, editable, focused`);
+          throw new Error(
+            `Unknown property: ${property}. Use: visible, hidden, enabled, disabled, checked, editable, focused`,
+          );
       }
     }
 
     case 'cookies': {
       const cookies = await page.context().cookies();
       // Redact cookie values that look like secrets (consistent with storage redaction)
-      const redacted = cookies.map(c => {
+      const redacted = cookies.map((c) => {
         if (SENSITIVE_COOKIE_NAME.test(c.name) || SENSITIVE_COOKIE_VALUE.test(c.value)) {
           return { ...c, value: `[REDACTED — ${c.value.length} chars]` };
         }
@@ -383,7 +405,8 @@ export async function handleReadCommand(
       }));
       // Redact values that look like secrets (tokens, keys, passwords, JWTs)
       const SENSITIVE_KEY = /(^|[_.-])(token|secret|key|password|credential|auth|jwt|session|csrf)($|[_.-])|api.?key/i;
-      const SENSITIVE_VALUE = /^(eyJ|sk-|sk_live_|sk_test_|pk_live_|pk_test_|rk_live_|sk-ant-|ghp_|gho_|github_pat_|xox[bpsa]-|AKIA[A-Z0-9]{16}|AIza|SG\.|Bearer\s|sbp_)/;
+      const SENSITIVE_VALUE =
+        /^(eyJ|sk-|sk_live_|sk_test_|pk_live_|pk_test_|rk_live_|sk-ant-|ghp_|gho_|github_pat_|xox[bpsa]-|AKIA[A-Z0-9]{16}|AIza|SG\.|Bearer\s|sbp_)/;
       const redacted = JSON.parse(JSON.stringify(storage));
       for (const storeType of ['localStorage', 'sessionStorage'] as const) {
         const store = redacted[storeType];
@@ -440,9 +463,12 @@ export async function handleReadCommand(
       if (showHistory) {
         const history = getModificationHistory();
         if (history.length === 0) return '(no style modifications)';
-        return history.map((m, i) =>
-          `[${i}] ${m.selector} { ${m.property}: ${m.oldValue} → ${m.newValue} } (${m.source}, ${m.method})`
-        ).join('\n');
+        return history
+          .map(
+            (m, i) =>
+              `[${i}] ${m.selector} { ${m.property}: ${m.oldValue} → ${m.newValue} } (${m.source}, ${m.method})`,
+          )
+          .join('\n');
       }
 
       // If no selector given, check for stored inspector data
@@ -452,12 +478,14 @@ export async function handleReadCommand(
         const stored = (bm as any)._inspectorData;
         const storedTs = (bm as any)._inspectorTimestamp;
         if (stored) {
-          const stale = storedTs && (Date.now() - storedTs > 60000);
+          const stale = storedTs && Date.now() - storedTs > 60000;
           let output = formatInspectorResult(stored, { includeUA });
           if (stale) output = '⚠ Data may be stale (>60s old)\n\n' + output;
           return output;
         }
-        throw new Error('Usage: browse inspect [selector] [--all] [--history]\nOr pick an element in the Chrome sidebar first.');
+        throw new Error(
+          'Usage: browse inspect [selector] [--all] [--history]\nOr pick an element in the Chrome sidebar first.',
+        );
       }
 
       // Direct inspection by selector
@@ -471,11 +499,14 @@ export async function handleReadCommand(
     case 'media': {
       const { extractMedia } = await import('./media-extract');
       const target = bm.getActiveFrameOrPage();
-      const filter = args.includes('--images') ? 'images' as const
-        : args.includes('--videos') ? 'videos' as const
-        : args.includes('--audio') ? 'audio' as const
-        : undefined;
-      const selectorArg = args.find(a => !a.startsWith('--'));
+      const filter = args.includes('--images')
+        ? ('images' as const)
+        : args.includes('--videos')
+          ? ('videos' as const)
+          : args.includes('--audio')
+            ? ('audio' as const)
+            : undefined;
+      const selectorArg = args.find((a) => !a.startsWith('--'));
       const result = await extractMedia(target, { selector: selectorArg, filter });
       return JSON.stringify(result, null, 2);
     }
@@ -487,53 +518,58 @@ export async function handleReadCommand(
       const wantTwitter = args.includes('--twitter') || args.length === 0;
       const wantMeta = args.includes('--meta') || args.length === 0;
 
-      const result = await target.evaluate(({ wantJsonLd, wantOg, wantTwitter, wantMeta }) => {
-        const data: Record<string, any> = {};
+      const result = await target.evaluate(
+        ({ wantJsonLd, wantOg, wantTwitter, wantMeta }) => {
+          const data: Record<string, any> = {};
 
-        if (wantJsonLd) {
-          const scripts = document.querySelectorAll('script[type="application/ld+json"]');
-          const jsonLd: any[] = [];
-          scripts.forEach(s => {
-            try { jsonLd.push(JSON.parse(s.textContent || '')); } catch {}
-          });
-          data.jsonLd = jsonLd;
-        }
+          if (wantJsonLd) {
+            const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+            const jsonLd: any[] = [];
+            scripts.forEach((s) => {
+              try {
+                jsonLd.push(JSON.parse(s.textContent || ''));
+              } catch {}
+            });
+            data.jsonLd = jsonLd;
+          }
 
-        if (wantOg) {
-          const og: Record<string, string> = {};
-          document.querySelectorAll('meta[property^="og:"]').forEach(m => {
-            const prop = m.getAttribute('property')?.replace('og:', '') || '';
-            og[prop] = m.getAttribute('content') || '';
-          });
-          data.openGraph = og;
-        }
+          if (wantOg) {
+            const og: Record<string, string> = {};
+            document.querySelectorAll('meta[property^="og:"]').forEach((m) => {
+              const prop = m.getAttribute('property')?.replace('og:', '') || '';
+              og[prop] = m.getAttribute('content') || '';
+            });
+            data.openGraph = og;
+          }
 
-        if (wantTwitter) {
-          const tw: Record<string, string> = {};
-          document.querySelectorAll('meta[name^="twitter:"]').forEach(m => {
-            const name = m.getAttribute('name')?.replace('twitter:', '') || '';
-            tw[name] = m.getAttribute('content') || '';
-          });
-          data.twitterCards = tw;
-        }
+          if (wantTwitter) {
+            const tw: Record<string, string> = {};
+            document.querySelectorAll('meta[name^="twitter:"]').forEach((m) => {
+              const name = m.getAttribute('name')?.replace('twitter:', '') || '';
+              tw[name] = m.getAttribute('content') || '';
+            });
+            data.twitterCards = tw;
+          }
 
-        if (wantMeta) {
-          const meta: Record<string, string> = {};
-          const canonical = document.querySelector('link[rel="canonical"]');
-          if (canonical) meta.canonical = canonical.getAttribute('href') || '';
-          const desc = document.querySelector('meta[name="description"]');
-          if (desc) meta.description = desc.getAttribute('content') || '';
-          const keywords = document.querySelector('meta[name="keywords"]');
-          if (keywords) meta.keywords = keywords.getAttribute('content') || '';
-          const author = document.querySelector('meta[name="author"]');
-          if (author) meta.author = author.getAttribute('content') || '';
-          const title = document.querySelector('title');
-          if (title) meta.title = title.textContent || '';
-          data.meta = meta;
-        }
+          if (wantMeta) {
+            const meta: Record<string, string> = {};
+            const canonical = document.querySelector('link[rel="canonical"]');
+            if (canonical) meta.canonical = canonical.getAttribute('href') || '';
+            const desc = document.querySelector('meta[name="description"]');
+            if (desc) meta.description = desc.getAttribute('content') || '';
+            const keywords = document.querySelector('meta[name="keywords"]');
+            if (keywords) meta.keywords = keywords.getAttribute('content') || '';
+            const author = document.querySelector('meta[name="author"]');
+            if (author) meta.author = author.getAttribute('content') || '';
+            const title = document.querySelector('title');
+            if (title) meta.title = title.textContent || '';
+            data.meta = meta;
+          }
 
-        return data;
-      }, { wantJsonLd, wantOg, wantTwitter, wantMeta });
+          return data;
+        },
+        { wantJsonLd, wantOg, wantTwitter, wantMeta },
+      );
 
       return JSON.stringify(result, null, 2);
     }

@@ -17,19 +17,19 @@
  * future refactor reverts to Bun.spawn().unref() on the macOS/Linux branch
  * the regression returns and these tests fail.
  */
-import { describe, expect, test } from "bun:test";
-import * as fs from "node:fs";
-import * as path from "node:path";
+import { describe, expect, test } from 'bun:test';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
-const ROOT = path.resolve(import.meta.dir, "..", "..");
-const CLI = path.join(ROOT, "browse", "src", "cli.ts");
+const ROOT = path.resolve(import.meta.dir, '..', '..');
+const CLI = path.join(ROOT, 'browse', 'src', 'cli.ts');
 
 function read(): string {
-  return fs.readFileSync(CLI, "utf-8");
+  return fs.readFileSync(CLI, 'utf-8');
 }
 
-describe("#1612 macOS/Linux daemonize via Node setsid path", () => {
-  test("cli.ts imports nodeSpawn from child_process (Node spawn alias)", () => {
+describe('#1612 macOS/Linux daemonize via Node setsid path', () => {
+  test('cli.ts imports nodeSpawn from child_process (Node spawn alias)', () => {
     const body = read();
     // The fix relies on Node's child_process.spawn (which calls setsid on
     // detached:true), aliased to avoid name collision with Bun.spawn. Match
@@ -39,7 +39,7 @@ describe("#1612 macOS/Linux daemonize via Node setsid path", () => {
     expect(body).toMatch(/from\s+['"]child_process['"]/);
   });
 
-  test("non-Windows branch uses nodeSpawn(...).unref() with detached:true", () => {
+  test('non-Windows branch uses nodeSpawn(...).unref() with detached:true', () => {
     const body = read();
     // Find the non-Windows branch and assert it uses the Node spawn alias
     // with detached:true. Match the pattern `nodeSpawn(...) ... detached:true`.
@@ -47,7 +47,7 @@ describe("#1612 macOS/Linux daemonize via Node setsid path", () => {
     expect(body).toMatch(/nodeSpawn\([\s\S]{0,500}\.unref\(\)/);
   });
 
-  test("non-Windows branch comment documents setsid/SIGHUP root cause", () => {
+  test('non-Windows branch comment documents setsid/SIGHUP root cause', () => {
     const body = read();
     // The comment block must mention setsid() so a future refactor sees the
     // why before changing the spawn call.
@@ -55,14 +55,14 @@ describe("#1612 macOS/Linux daemonize via Node setsid path", () => {
     expect(body).toMatch(/SIGHUP/);
   });
 
-  test("the spawn call on macOS/Linux is nodeSpawn, not Bun.spawn", () => {
+  test('the spawn call on macOS/Linux is nodeSpawn, not Bun.spawn', () => {
     const body = read();
     // Strip line comments before regex matching, so the "Bun.spawn().unref()"
     // mentions inside the explanatory comment don't trigger false positives.
     const codeOnly = body
-      .split("\n")
-      .filter((line) => !line.trim().startsWith("//"))
-      .join("\n");
+      .split('\n')
+      .filter((line) => !line.trim().startsWith('//'))
+      .join('\n');
     // Find the non-Windows branch. The `} else {` block following the
     // Windows branch. We then require its first ~400 chars contain a
     // nodeSpawn() call and NOT a Bun.spawn() call (excluding the comment).

@@ -17,7 +17,7 @@ function parseQualified(name: string): { domain: string; method: string } {
     throw new Error(
       `Usage: $B cdp <Domain.method> [json-params]\n` +
         `Cause: '${name}' is not in Domain.method format.\n` +
-        'Action: e.g. $B cdp Accessibility.getFullAXTree {}'
+        'Action: e.g. $B cdp Accessibility.getFullAXTree {}',
     );
   }
   return { domain: name.slice(0, idx), method: name.slice(idx + 1) };
@@ -49,7 +49,7 @@ export async function handleCdpCommand(args: string[], bm: BrowserManager): Prom
       throw new Error(
         `Cannot parse params as JSON: ${e.message}\n` +
           `Cause: argument '${args[1]}' is not valid JSON.\n` +
-          'Action: pass a JSON object literal, e.g. \'{"backendNodeId":42}\'.'
+          'Action: pass a JSON object literal, e.g. \'{"backendNodeId":42}\'.',
       );
     }
   }

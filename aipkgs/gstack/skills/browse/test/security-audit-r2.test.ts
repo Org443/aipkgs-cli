@@ -19,8 +19,11 @@ const SERVER_SRC = fs.readFileSync(path.join(import.meta.dir, '../src/server.ts'
 // AGENT_SRC kept as empty string so the legacy describe block below skips
 // without crashing module load on a missing file.
 const AGENT_SRC = (() => {
-  try { return fs.readFileSync(path.join(import.meta.dir, '../src/sidebar-agent.ts'), 'utf-8'); }
-  catch { return ''; }
+  try {
+    return fs.readFileSync(path.join(import.meta.dir, '../src/sidebar-agent.ts'), 'utf-8');
+  } catch {
+    return '';
+  }
 })();
 const SNAPSHOT_SRC = fs.readFileSync(path.join(import.meta.dir, '../src/snapshot.ts'), 'utf-8');
 const PATH_SECURITY_SRC = fs.readFileSync(path.join(import.meta.dir, '../src/path-security.ts'), 'utf-8');
@@ -50,8 +53,12 @@ function extractFunction(src: string, name: string): string {
   let inBody = false;
   const start = match.index;
   for (let i = start; i < src.length; i++) {
-    if (src[i] === '{') { depth++; inBody = true; }
-    else if (src[i] === '}') { depth--; }
+    if (src[i] === '{') {
+      depth++;
+      inBody = true;
+    } else if (src[i] === '}') {
+      depth--;
+    }
     if (inBody && depth === 0) return src.slice(start, i + 1);
   }
   return src.slice(start);
@@ -66,17 +73,14 @@ function extractFunction(src: string, name: string): string {
 
 // ─── Shared source reads for CSS validator tests ────────────────────────────
 const CDP_SRC = fs.readFileSync(path.join(import.meta.dir, '../src/cdp-inspector.ts'), 'utf-8');
-const EXTENSION_SRC = fs.readFileSync(
-  path.join(import.meta.dir, '../../extension/inspector.js'),
-  'utf-8'
-);
+const EXTENSION_SRC = fs.readFileSync(path.join(import.meta.dir, '../../extension/inspector.js'), 'utf-8');
 
 // ─── Task 2: Shared CSS value validator ─────────────────────────────────────
 
 describe('Task 2: CSS value validator blocks dangerous patterns', () => {
   describe('source-level checks', () => {
     it('write-commands.ts style handler contains DANGEROUS_CSS url check', () => {
-      const styleBlock = sliceBetween(WRITE_SRC, "case 'style':", 'case \'cleanup\'');
+      const styleBlock = sliceBetween(WRITE_SRC, "case 'style':", "case 'cleanup'");
       expect(styleBlock).toMatch(/url\\s\*\\\(/);
     });
 
@@ -189,11 +193,15 @@ describe('Task 1: validateOutputPath uses realpathSync', () => {
       // macOS: /etc -> /private/etc
       expect(resolvedLink).toBe(fs.realpathSync('/etc'));
       const TEMP_DIR_VAL = process.platform === 'win32' ? os.tmpdir() : '/tmp';
-      const safeDirs = [TEMP_DIR_VAL, process.cwd()].map(d => {
-        try { return fs.realpathSync(d); } catch { return d; }
+      const safeDirs = [TEMP_DIR_VAL, process.cwd()].map((d) => {
+        try {
+          return fs.realpathSync(d);
+        } catch {
+          return d;
+        }
       });
       const passwdReal = path.join(resolvedLink, 'passwd');
-      const isSafe = safeDirs.some(d => passwdReal === d || passwdReal.startsWith(d + path.sep));
+      const isSafe = safeDirs.some((d) => passwdReal === d || passwdReal.startsWith(d + path.sep));
       expect(isSafe).toBe(false);
     });
 
@@ -222,10 +230,7 @@ describe('Task 1: validateOutputPath uses realpathSync', () => {
 // ─── Round-2 review findings: applyStyle CSS check ──────────────────────────
 
 describe('Round-2 finding 1: extension applyStyle blocks dangerous CSS values', () => {
-  const INSPECTOR_SRC = fs.readFileSync(
-    path.join(import.meta.dir, '../../extension/inspector.js'),
-    'utf-8'
-  );
+  const INSPECTOR_SRC = fs.readFileSync(path.join(import.meta.dir, '../../extension/inspector.js'), 'utf-8');
 
   it('applyStyle function exists in inspector.js', () => {
     const fn = extractFunction(INSPECTOR_SRC, 'applyStyle');

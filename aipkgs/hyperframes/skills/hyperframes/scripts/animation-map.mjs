@@ -9,30 +9,24 @@
 //   node skills/hyperframes/scripts/animation-map.mjs <composition-dir> \
 //     [--frames N] [--out <dir>] [--min-duration S] [--width W] [--height H] [--fps N]
 
-import { mkdir, writeFile } from "node:fs/promises";
-import { resolve, join } from "node:path";
-import { hyperframesPackageSpec, importPackagesOrBootstrap } from "./package-loader.mjs";
+import { mkdir, writeFile } from 'node:fs/promises';
+import { resolve, join } from 'node:path';
+import { hyperframesPackageSpec, importPackagesOrBootstrap } from './package-loader.mjs';
 
-const {
-  createFileServer,
-  createCaptureSession,
-  initializeSession,
-  closeCaptureSession,
-  getCompositionDuration,
-} = (
-  await importPackagesOrBootstrap(["@hyperframes/producer"], {
-    npmPackages: [hyperframesPackageSpec("@hyperframes/producer")],
+const { createFileServer, createCaptureSession, initializeSession, closeCaptureSession, getCompositionDuration } = (
+  await importPackagesOrBootstrap(['@hyperframes/producer'], {
+    npmPackages: [hyperframesPackageSpec('@hyperframes/producer')],
   })
-)["@hyperframes/producer"];
+)['@hyperframes/producer'];
 
 // ─── CLI ─────────────────────────────────────────────────────────────────────
 
 const args = parseArgs(process.argv.slice(2));
-if (!args.composition) die("missing <composition-dir>");
+if (!args.composition) die('missing <composition-dir>');
 
 const FRAMES = Number(args.frames ?? 6);
-const OUT_DIR = resolve(args.out ?? ".hyperframes/anim-map");
-const MIN_DUR = Number(args["min-duration"] ?? 0.15);
+const OUT_DIR = resolve(args.out ?? '.hyperframes/anim-map');
+const MIN_DUR = Number(args['min-duration'] ?? 0.15);
 const WIDTH = Number(args.width ?? 1920);
 const HEIGHT = Number(args.height ?? 1080);
 const FPS = Number(args.fps ?? 30);
@@ -46,7 +40,7 @@ const server = await createFileServer({ projectDir: COMP_DIR, port: 0 });
 const session = await createCaptureSession(
   server.url,
   OUT_DIR,
-  { width: WIDTH, height: HEIGHT, fps: FPS, format: "png" },
+  { width: WIDTH, height: HEIGHT, fps: FPS, format: 'png' },
   null,
 );
 await initializeSession(session);
@@ -80,7 +74,7 @@ try {
     }
 
     const animProps = tw.props.filter(
-      (p) => !["parent", "overwrite", "immediateRender", "startAt", "runBackwards"].includes(p),
+      (p) => !['parent', 'overwrite', 'immediateRender', 'startAt', 'runBackwards'].includes(p),
     );
     const flags = computeFlags(tw, bboxes, { width: WIDTH, height: HEIGHT });
     const summary = describeTween(tw, animProps, bboxes, flags);
@@ -103,8 +97,8 @@ try {
   markCollisions(report.tweens);
 
   for (const tw of report.tweens) {
-    if (tw.flags.includes("collision") && !tw.summary.includes("collision")) {
-      tw.summary += " Overlaps another animated element.";
+    if (tw.flags.includes('collision') && !tw.summary.includes('collision')) {
+      tw.summary += ' Overlaps another animated element.';
     }
   }
 
@@ -116,7 +110,7 @@ try {
   report.deadZones = findDeadZones(report.density, duration);
   report.snapshots = await captureSnapshots(session, report.tweens, duration);
 
-  await writeFile(join(OUT_DIR, "animation-map.json"), JSON.stringify(report, null, 2));
+  await writeFile(join(OUT_DIR, 'animation-map.json'), JSON.stringify(report, null, 2));
 
   printSummary(report);
 } finally {
@@ -128,14 +122,14 @@ try {
 
 async function seekTo(session, t) {
   await session.page.evaluate((time) => {
-    if (window.__hf && typeof window.__hf.seek === "function") {
+    if (window.__hf && typeof window.__hf.seek === 'function') {
       window.__hf.seek(time);
       return;
     }
     const tls = window.__timelines;
     if (tls) {
       for (const tl of Object.values(tls)) {
-        if (typeof tl.seek === "function") tl.seek(time);
+        if (typeof tl.seek === 'function') tl.seek(time);
       }
     }
   }, t);
@@ -152,13 +146,13 @@ async function enumerateTweens(session) {
     const selectorOf = (el) => {
       if (!el || !(el instanceof Element)) return null;
       if (el.id) return `#${el.id}`;
-      const cls = [...el.classList].slice(0, 2).join(".");
+      const cls = [...el.classList].slice(0, 2).join('.');
       return cls ? `${el.tagName.toLowerCase()}.${cls}` : el.tagName.toLowerCase();
     };
 
     const walk = (node, parentOffset = 0) => {
       if (!node) return;
-      if (typeof node.getChildren === "function") {
+      if (typeof node.getChildren === 'function') {
         const offset = parentOffset + (node.startTime?.() ?? 0);
         for (const child of node.getChildren(true, true, true)) {
           walk(child, offset);
@@ -170,27 +164,17 @@ async function enumerateTweens(session) {
       const vars = node.vars ?? {};
       const props = Object.keys(vars).filter(
         (k) =>
-          ![
-            "duration",
-            "ease",
-            "delay",
-            "repeat",
-            "yoyo",
-            "onStart",
-            "onUpdate",
-            "onComplete",
-            "stagger",
-          ].includes(k),
+          !['duration', 'ease', 'delay', 'repeat', 'yoyo', 'onStart', 'onUpdate', 'onComplete', 'stagger'].includes(k),
       );
       const start = parentOffset + (node.startTime?.() ?? 0);
       const end = start + (node.duration?.() ?? 0);
       results.push({
-        selectorHint: selectorOf(targets[0]) ?? "(unknown)",
+        selectorHint: selectorOf(targets[0]) ?? '(unknown)',
         targetCount: targets.length,
         props,
         start,
         end,
-        ease: typeof vars.ease === "string" ? vars.ease : (vars.ease?.toString?.() ?? "none"),
+        ease: typeof vars.ease === 'string' ? vars.ease : (vars.ease?.toString?.() ?? 'none'),
       });
     };
 
@@ -212,7 +196,7 @@ async function measureTarget(session, selector) {
       w: Math.round(r.width),
       h: Math.round(r.height),
       opacity: parseFloat(cs.opacity),
-      visible: cs.visibility !== "hidden" && cs.display !== "none",
+      visible: cs.visibility !== 'hidden' && cs.display !== 'none',
     };
   }, selector);
 }
@@ -223,7 +207,7 @@ function describeTween(tw, props, bboxes, flags) {
   const dur = (tw.end - tw.start).toFixed(2);
   const parts = [];
 
-  parts.push(`${tw.selectorHint} animates ${props.join("+")} over ${dur}s (${tw.ease})`);
+  parts.push(`${tw.selectorHint} animates ${props.join('+')} over ${dur}s (${tw.ease})`);
 
   // Movement
   const first = bboxes[0];
@@ -234,9 +218,8 @@ function describeTween(tw, props, bboxes, flags) {
     if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
       const dirs = [];
       if (Math.abs(dy) > 3) dirs.push(dy < 0 ? `${Math.abs(dy)}px up` : `${Math.abs(dy)}px down`);
-      if (Math.abs(dx) > 3)
-        dirs.push(dx < 0 ? `${Math.abs(dx)}px left` : `${Math.abs(dx)}px right`);
-      parts.push(`moves ${dirs.join(" and ")}`);
+      if (Math.abs(dx) > 3) dirs.push(dx < 0 ? `${Math.abs(dx)}px left` : `${Math.abs(dx)}px right`);
+      parts.push(`moves ${dirs.join(' and ')}`);
     }
   }
 
@@ -245,15 +228,15 @@ function describeTween(tw, props, bboxes, flags) {
     const o1 = first.opacity;
     const o2 = last.opacity;
     if (Math.abs(o2 - o1) > 0.1) {
-      if (o1 < 0.1 && o2 > 0.5) parts.push("fades in");
-      else if (o1 > 0.5 && o2 < 0.1) parts.push("fades out");
+      if (o1 < 0.1 && o2 > 0.5) parts.push('fades in');
+      else if (o1 > 0.5 && o2 < 0.1) parts.push('fades out');
       else parts.push(`opacity ${o1.toFixed(1)}→${o2.toFixed(1)}`);
     }
   }
 
   // Scale (from props)
-  if (props.includes("scale") || props.includes("scaleX") || props.includes("scaleY")) {
-    parts.push("scales");
+  if (props.includes('scale') || props.includes('scaleX') || props.includes('scaleY')) {
+    parts.push('scales');
   }
 
   // Size changes
@@ -266,7 +249,7 @@ function describeTween(tw, props, bboxes, flags) {
 
   // Visibility
   if (first && last && first.visible !== last.visible) {
-    parts.push(last.visible ? "becomes visible" : "becomes hidden");
+    parts.push(last.visible ? 'becomes visible' : 'becomes hidden');
   }
 
   // Final position
@@ -276,10 +259,10 @@ function describeTween(tw, props, bboxes, flags) {
 
   // Flags
   if (flags.length > 0) {
-    parts.push(`FLAGS: ${flags.join(", ")}`);
+    parts.push(`FLAGS: ${flags.join(', ')}`);
   }
 
-  return parts.join(". ") + ".";
+  return parts.join('. ') + '.';
 }
 
 // ─── Flag computation ───────────────────────────────────────────────────────
@@ -288,7 +271,7 @@ function computeFlags(tw, bboxes, { width, height }) {
   const flags = [];
   const dur = tw.end - tw.start;
 
-  if (bboxes.every((b) => b.w === 0 || b.h === 0)) flags.push("degenerate");
+  if (bboxes.every((b) => b.w === 0 || b.h === 0)) flags.push('degenerate');
 
   const anyOffscreen = bboxes.some(
     (b) =>
@@ -301,16 +284,16 @@ function computeFlags(tw, bboxes, { width, height }) {
       b.x + b.w > width + b.w * 0.5 ||
       b.y + b.h > height + b.h * 0.5,
   );
-  if (anyOffscreen) flags.push("offscreen");
+  if (anyOffscreen) flags.push('offscreen');
 
   if (bboxes.every((b) => b.opacity !== undefined && b.opacity < 0.01 && b.visible)) {
-    flags.push("invisible");
+    flags.push('invisible');
   }
 
-  if (dur < 0.2 && tw.props.some((p) => ["y", "x", "opacity", "scale"].includes(p))) {
-    flags.push("paced-fast");
+  if (dur < 0.2 && tw.props.some((p) => ['y', 'x', 'opacity', 'scale'].includes(p))) {
+    flags.push('paced-fast');
   }
-  if (dur > 2.0) flags.push("paced-slow");
+  if (dur > 2.0) flags.push('paced-slow');
 
   return flags;
 }
@@ -327,8 +310,8 @@ function markCollisions(tweens) {
         const overlap = rectOverlapArea(ba, bb);
         const aArea = ba.w * ba.h;
         if (aArea > 0 && overlap / aArea > 0.3) {
-          if (!a.flags.includes("collision")) a.flags.push("collision");
-          if (!b.flags.includes("collision")) b.flags.push("collision");
+          if (!a.flags.includes('collision')) a.flags.push('collision');
+          if (!b.flags.includes('collision')) b.flags.push('collision');
           break;
         }
       }
@@ -351,22 +334,20 @@ function buildTimeline(tweens, duration) {
   const lines = [];
   const secPerCol = duration / cols;
 
-  lines.push("Timeline (" + duration.toFixed(1) + "s, each char ≈ " + secPerCol.toFixed(2) + "s):");
-  lines.push("  " + "0s" + " ".repeat(cols - 8) + duration.toFixed(0) + "s");
-  lines.push("  " + "┼" + "─".repeat(cols - 1) + "┤");
+  lines.push('Timeline (' + duration.toFixed(1) + 's, each char ≈ ' + secPerCol.toFixed(2) + 's):');
+  lines.push('  ' + '0s' + ' '.repeat(cols - 8) + duration.toFixed(0) + 's');
+  lines.push('  ' + '┼' + '─'.repeat(cols - 1) + '┤');
 
   for (const tw of tweens) {
     const startCol = Math.floor(tw.start / secPerCol);
     const endCol = Math.min(cols, Math.ceil(tw.end / secPerCol));
     const bar =
-      " ".repeat(startCol) +
-      "█".repeat(Math.max(1, endCol - startCol)) +
-      " ".repeat(Math.max(0, cols - endCol));
-    const label = tw.selector + " " + tw.props.join("+");
-    lines.push("  " + bar + "  " + label);
+      ' '.repeat(startCol) + '█'.repeat(Math.max(1, endCol - startCol)) + ' '.repeat(Math.max(0, cols - endCol));
+    const label = tw.selector + ' ' + tw.props.join('+');
+    lines.push('  ' + bar + '  ' + label);
   }
 
-  return lines.join("\n");
+  return lines.join('\n');
 }
 
 function computeDensity(tweens, duration) {
@@ -392,10 +373,7 @@ function findDeadZones(density, duration) {
             start: zoneStart,
             end: zoneEnd,
             duration: +(zoneEnd - zoneStart).toFixed(1),
-            note:
-              "No animation for " +
-              (zoneEnd - zoneStart).toFixed(1) +
-              "s. Intentional hold or missing entrance?",
+            note: 'No animation for ' + (zoneEnd - zoneStart).toFixed(1) + 's. Intentional hold or missing entrance?',
           });
         }
         zoneStart = null;
@@ -407,10 +385,7 @@ function findDeadZones(density, duration) {
       start: zoneStart,
       end: +duration.toFixed(1),
       duration: +(duration - zoneStart).toFixed(1),
-      note:
-        "No animation for " +
-        (duration - zoneStart).toFixed(1) +
-        "s at end. Final hold or missing outro?",
+      note: 'No animation for ' + (duration - zoneStart).toFixed(1) + 's at end. Final hold or missing outro?',
     });
   }
   return zones;
@@ -429,7 +404,7 @@ function detectStaggers(tweens) {
     for (let j = i + 1; j < tweens.length; j++) {
       if (used.has(j)) continue;
       const other = tweens[j];
-      const sameProps = tw.props.join(",") === other.props.join(",");
+      const sameProps = tw.props.join(',') === other.props.join(',');
       const sameDuration = Math.abs(tw.duration - other.duration) < 0.05;
       const closeInTime = other.start - tw.start < tw.duration * 4;
       if (sameProps && sameDuration && closeInTime) {
@@ -455,14 +430,11 @@ function detectStaggers(tweens) {
         avgInterval: +avgInterval.toFixed(3),
         consistent,
         note: consistent
-          ? group.length +
-            " elements stagger at " +
-            (avgInterval * 1000).toFixed(0) +
-            "ms intervals"
+          ? group.length + ' elements stagger at ' + (avgInterval * 1000).toFixed(0) + 'ms intervals'
           : group.length +
-            " elements stagger with uneven intervals (" +
-            intervals.map((iv) => (iv * 1000).toFixed(0) + "ms").join(", ") +
-            ")",
+            ' elements stagger with uneven intervals (' +
+            intervals.map((iv) => (iv * 1000).toFixed(0) + 'ms').join(', ') +
+            ')',
       });
     }
   }
@@ -492,9 +464,7 @@ function buildElementLifecycles(tweens) {
       tweenCount: data.tweenCount,
       props: [...data.props],
       endsVisible: lastBbox ? lastBbox.opacity > 0.1 && lastBbox.visible : null,
-      finalPosition: lastBbox
-        ? { x: lastBbox.x, y: lastBbox.y, w: lastBbox.w, h: lastBbox.h }
-        : null,
+      finalPosition: lastBbox ? { x: lastBbox.x, y: lastBbox.y, w: lastBbox.w, h: lastBbox.h } : null,
     };
   }
   return result;
@@ -517,10 +487,10 @@ async function captureSnapshots(session, tweens, duration) {
     await seekTo(session, t);
     const visible = await session.page.evaluate(() => {
       const out = [];
-      const els = document.querySelectorAll("[id]");
+      const els = document.querySelectorAll('[id]');
       for (const el of els) {
         const cs = getComputedStyle(el);
-        if (cs.display === "none") continue;
+        if (cs.display === 'none') continue;
         const opacity = parseFloat(cs.opacity);
         if (opacity < 0.01) continue;
         const rect = el.getBoundingClientRect();
@@ -537,9 +507,7 @@ async function captureSnapshots(session, tweens, duration) {
       return out;
     });
 
-    const activeTweens = tweens
-      .filter((tw) => tw.start <= t && tw.end >= t)
-      .map((tw) => tw.selector);
+    const activeTweens = tweens.filter((tw) => tw.start <= t && tw.end >= t).map((tw) => tw.selector);
 
     snapshots.push({
       t: +t.toFixed(2),
@@ -567,12 +535,10 @@ function printSummary(report) {
     for (const [f, n] of Object.entries(flagCounts)) console.log(`  ${f}: ${n}`);
   }
   if (report.staggers?.length > 0) {
-    console.log(`  staggers: ${report.staggers.map((s) => s.note).join("; ")}`);
+    console.log(`  staggers: ${report.staggers.map((s) => s.note).join('; ')}`);
   }
   if (report.deadZones?.length > 0) {
-    console.log(
-      `  dead zones: ${report.deadZones.map((z) => z.start + "-" + z.end + "s").join(", ")}`,
-    );
+    console.log(`  dead zones: ${report.deadZones.map((z) => z.start + '-' + z.end + 's').join(', ')}`);
   }
 
   console.log(report.choreography);
@@ -583,9 +549,9 @@ function parseArgs(argv) {
   let positional = 0;
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
-    if (a.startsWith("--")) {
+    if (a.startsWith('--')) {
       const k = a.slice(2);
-      const v = argv[i + 1]?.startsWith("--") ? true : argv[++i];
+      const v = argv[i + 1]?.startsWith('--') ? true : argv[++i];
       out[k] = v;
     } else if (positional === 0) {
       out.composition = a;

@@ -48,7 +48,8 @@ export function shouldSpawnXvfb(env: NodeJS.ProcessEnv, platform: NodeJS.Platfor
   if (env.BROWSE_HEADED !== '1') return { spawn: false, reason: 'not headed mode' };
   if (platform !== 'linux') return { spawn: false, reason: `platform ${platform} uses native windowing` };
   if (env.DISPLAY) return { spawn: false, reason: `DISPLAY=${env.DISPLAY} already set` };
-  if (env.WAYLAND_DISPLAY) return { spawn: false, reason: `WAYLAND_DISPLAY=${env.WAYLAND_DISPLAY} set; Chromium uses Wayland natively` };
+  if (env.WAYLAND_DISPLAY)
+    return { spawn: false, reason: `WAYLAND_DISPLAY=${env.WAYLAND_DISPLAY} set; Chromium uses Wayland natively` };
   return { spawn: true, reason: 'linux headed without DISPLAY/WAYLAND_DISPLAY' };
 }
 
@@ -60,7 +61,9 @@ export function isDisplayFree(displayNum: number): boolean {
   // xdpyinfo exits 0 if a display is reachable. Exit non-zero means no
   // server, which is what we want.
   const result = Bun.spawnSync(['xdpyinfo', '-display', `:${displayNum}`], {
-    stdout: 'ignore', stderr: 'ignore', timeout: 2000,
+    stdout: 'ignore',
+    stderr: 'ignore',
+    timeout: 2000,
   });
   return result.exitCode !== 0;
 }
@@ -88,7 +91,9 @@ export function pickFreeDisplay(
 export function readPidStartTime(pid: number): string {
   if (!isProcessAlive(pid)) return '';
   const result = Bun.spawnSync(['ps', '-p', String(pid), '-o', 'lstart='], {
-    stdout: 'pipe', stderr: 'pipe', timeout: 2000,
+    stdout: 'pipe',
+    stderr: 'pipe',
+    timeout: 2000,
   });
   if (result.exitCode !== 0) return '';
   return result.stdout.toString().trim();
@@ -144,14 +149,23 @@ export async function spawnXvfb(displayNum: number): Promise<XvfbHandle> {
   let ready = false;
   while (Date.now() < deadline) {
     await Bun.sleep(100);
-    if (!isDisplayFree(displayNum)) { ready = true; break; }
+    if (!isDisplayFree(displayNum)) {
+      ready = true;
+      break;
+    }
     // If Xvfb crashed during startup, fail fast.
     if (proc.exitCode != null) {
-      throw new Error(`Xvfb on ${display} exited during startup (code ${proc.exitCode}). Hint: install xvfb (apt-get install xvfb / yum install xorg-x11-server-Xvfb).`);
+      throw new Error(
+        `Xvfb on ${display} exited during startup (code ${proc.exitCode}). Hint: install xvfb (apt-get install xvfb / yum install xorg-x11-server-Xvfb).`,
+      );
     }
   }
   if (!ready) {
-    try { proc.kill('SIGKILL'); } catch { /* ignore */ }
+    try {
+      proc.kill('SIGKILL');
+    } catch {
+      /* ignore */
+    }
     throw new Error(`Xvfb on ${display} never became reachable within 3s timeout`);
   }
 
@@ -173,14 +187,22 @@ export async function spawnXvfb(displayNum: number): Promise<XvfbHandle> {
 export function cleanupXvfb(state: { pid: number; startTime: string; display: string }): void {
   if (!state.pid) return;
   if (!isOurXvfb(state.pid, state.startTime)) return;
-  try { safeKill(state.pid, 'SIGTERM'); } catch { /* swallow */ }
+  try {
+    safeKill(state.pid, 'SIGTERM');
+  } catch {
+    /* swallow */
+  }
   // Wait briefly for Xvfb to exit, then SIGKILL if still alive.
   const deadline = Date.now() + 1000;
   while (Date.now() < deadline) {
     if (!isProcessAlive(state.pid)) break;
   }
   if (isProcessAlive(state.pid)) {
-    try { safeKill(state.pid, 'SIGKILL'); } catch { /* swallow */ }
+    try {
+      safeKill(state.pid, 'SIGKILL');
+    } catch {
+      /* swallow */
+    }
   }
 }
 

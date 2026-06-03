@@ -19,9 +19,14 @@ import { describe, test, expect, beforeEach } from 'bun:test';
 import * as fs from 'fs';
 import * as path from 'path';
 import {
-  mintPtySessionToken, validatePtySessionToken, revokePtySessionToken,
-  extractPtyCookie, buildPtySetCookie, buildPtyClearCookie,
-  PTY_COOKIE_NAME, __resetPtySessions,
+  mintPtySessionToken,
+  validatePtySessionToken,
+  revokePtySessionToken,
+  extractPtyCookie,
+  buildPtySetCookie,
+  buildPtyClearCookie,
+  PTY_COOKIE_NAME,
+  __resetPtySessions,
 } from '../src/pty-session-cookie';
 
 const SERVER_SRC = fs.readFileSync(path.join(import.meta.dir, '../src/server.ts'), 'utf-8');
@@ -68,14 +73,14 @@ describe('pty-session-cookie: mint/validate/revoke', () => {
   test('extractPtyCookie reads gstack_pty from a Cookie header', () => {
     const { token } = mintPtySessionToken();
     const req = new Request('http://127.0.0.1/ws', {
-      headers: { 'cookie': `othercookie=foo; gstack_pty=${token}; baz=qux` },
+      headers: { cookie: `othercookie=foo; gstack_pty=${token}; baz=qux` },
     });
     expect(extractPtyCookie(req)).toBe(token);
   });
 
   test('extractPtyCookie returns null when the cookie is missing', () => {
     const req = new Request('http://127.0.0.1/ws', {
-      headers: { 'cookie': 'unrelated=value' },
+      headers: { cookie: 'unrelated=value' },
     });
     expect(extractPtyCookie(req)).toBe(null);
   });
@@ -148,7 +153,7 @@ describe('Source-level guard: terminal-agent', () => {
     // message frame.
     const upgradeBlock = AGENT_SRC.slice(
       AGENT_SRC.indexOf("if (url.pathname === '/ws')"),
-      AGENT_SRC.indexOf("websocket: {"),
+      AGENT_SRC.indexOf('websocket: {'),
     );
     expect(upgradeBlock).not.toContain('spawnClaude(');
     // Spawn must be invoked from the message handler (lazy on first byte).

@@ -62,8 +62,7 @@ export function logTunnelDenial(req: Request, url: URL, reason: string): void {
   }
   writeTimestamps.push(now);
 
-  const sourceIp =
-    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const sourceIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
 
   const entry: Record<string, unknown> = {
     ts: new Date(now).toISOString(),

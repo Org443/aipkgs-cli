@@ -24,9 +24,9 @@
  * process share one sidecar.
  */
 
-import { ChildProcessByStdio, spawn } from "child_process";
-import { Readable, Writable } from "stream";
-import { findSecuritySidecar } from "./find-security-sidecar";
+import { ChildProcessByStdio, spawn } from 'child_process';
+import { Readable, Writable } from 'stream';
+import { findSecuritySidecar } from './find-security-sidecar';
 
 const REQUEST_CAP_BYTES = 64 * 1024;
 const DEFAULT_TIMEOUT_MS = 5000;
@@ -57,7 +57,7 @@ function getState(): SidecarState {
     state = {
       child: null,
       pending: new Map(),
-      buffer: "",
+      buffer: '',
       failures: [],
       available: true,
       brokenCircuit: false,
@@ -80,11 +80,11 @@ function recordFailure(): void {
 
 function processBuffer(): void {
   const s = getState();
-  let idx = s.buffer.indexOf("\n");
+  let idx = s.buffer.indexOf('\n');
   while (idx !== -1) {
     const line = s.buffer.slice(0, idx).trim();
     s.buffer = s.buffer.slice(idx + 1);
-    idx = s.buffer.indexOf("\n");
+    idx = s.buffer.indexOf('\n');
     if (!line) continue;
     let parsed: { id?: string; ok?: boolean; verdict?: unknown; status?: unknown; error?: string };
     try {
@@ -95,7 +95,7 @@ function processBuffer(): void {
       recordFailure();
       continue;
     }
-    const id = typeof parsed.id === "string" ? parsed.id : null;
+    const id = typeof parsed.id === 'string' ? parsed.id : null;
     if (!id) continue;
     const pending = s.pending.get(id);
     if (!pending) continue;
@@ -105,7 +105,7 @@ function processBuffer(): void {
       pending.resolve(parsed);
     } else {
       recordFailure();
-      pending.reject(new Error(parsed.error ?? "sidecar-error"));
+      pending.reject(new Error(parsed.error ?? 'sidecar-error'));
     }
   }
 }
@@ -114,14 +114,14 @@ function shutdownChild(): void {
   const s = getState();
   if (!s.child) return;
   try {
-    s.child.kill("SIGTERM");
+    s.child.kill('SIGTERM');
   } catch {
     // Already dead.
   }
   s.child = null;
   for (const [, p] of s.pending) {
     clearTimeout(p.timer);
-    p.reject(new Error("sidecar-died"));
+    p.reject(new Error('sidecar-died'));
   }
   s.pending.clear();
 }
@@ -136,17 +136,17 @@ function spawnSidecar(): boolean {
   }
   try {
     const child = spawn(location.node, [location.entry], {
-      stdio: ["pipe", "pipe", "pipe"],
+      stdio: ['pipe', 'pipe', 'pipe'],
       detached: false,
     });
-    child.stdout.on("data", (chunk: Buffer) => {
-      s.buffer += chunk.toString("utf-8");
+    child.stdout.on('data', (chunk: Buffer) => {
+      s.buffer += chunk.toString('utf-8');
       processBuffer();
     });
-    child.on("exit", () => {
+    child.on('exit', () => {
       shutdownChild();
     });
-    child.on("error", () => {
+    child.on('error', () => {
       recordFailure();
       shutdownChild();
     });
@@ -161,7 +161,7 @@ function spawnSidecar(): boolean {
 
 // Best-effort parent-exit cleanup. Node's "exit" event blocks async work, so
 // we send SIGTERM synchronously and let the OS reap the child.
-process.on("exit", () => shutdownChild());
+process.on('exit', () => shutdownChild());
 
 export interface SidecarAvailability {
   available: boolean;
@@ -170,27 +170,27 @@ export interface SidecarAvailability {
 
 export function isSidecarAvailable(): SidecarAvailability {
   const s = getState();
-  if (s.brokenCircuit) return { available: false, reason: "circuit-broken" };
+  if (s.brokenCircuit) return { available: false, reason: 'circuit-broken' };
   if (s.child) return { available: true };
   // Probe via findSecuritySidecar without spawning. If the resolver returns
   // null (no node on PATH, no entry on disk), we're permanently unavailable
   // until a setup re-run.
   const location = findSecuritySidecar();
-  if (!location) return { available: false, reason: "no-node-or-entry" };
+  if (!location) return { available: false, reason: 'no-node-or-entry' };
   return { available: true };
 }
 
 export async function scanWithSidecar(text: string, opts?: { timeoutMs?: number }): Promise<{ verdict: unknown }> {
   const s = getState();
   if (s.brokenCircuit) {
-    throw new Error("sidecar-circuit-broken");
+    throw new Error('sidecar-circuit-broken');
   }
-  if (Buffer.byteLength(text, "utf-8") > REQUEST_CAP_BYTES) {
-    throw new Error("payload-too-large");
+  if (Buffer.byteLength(text, 'utf-8') > REQUEST_CAP_BYTES) {
+    throw new Error('payload-too-large');
   }
   if (!s.child) {
     if (!spawnSidecar()) {
-      throw new Error("sidecar-spawn-failed");
+      throw new Error('sidecar-spawn-failed');
     }
   }
   const id = String(s.nextId++);
@@ -200,7 +200,7 @@ export async function scanWithSidecar(text: string, opts?: { timeoutMs?: number 
     const timer = setTimeout(() => {
       s.pending.delete(id);
       recordFailure();
-      reject(new Error("sidecar-timeout"));
+      reject(new Error('sidecar-timeout'));
     }, timeoutMs);
 
     s.pending.set(id, {
@@ -212,7 +212,7 @@ export async function scanWithSidecar(text: string, opts?: { timeoutMs?: number 
       timer,
     });
 
-    const payload = JSON.stringify({ id, op: "scan-page-content", text }) + "\n";
+    const payload = JSON.stringify({ id, op: 'scan-page-content', text }) + '\n';
     try {
       s.child!.stdin.write(payload);
     } catch (err) {

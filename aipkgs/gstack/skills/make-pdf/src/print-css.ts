@@ -36,7 +36,7 @@ export interface PrintCssOptions {
   runningHeader?: string;
 
   // Page size (in CSS `@page size:` terms)
-  pageSize?: "letter" | "a4" | "legal" | "tabloid";
+  pageSize?: 'letter' | 'a4' | 'legal' | 'tabloid';
 
   // Margins (default 1in)
   margins?: string;
@@ -51,9 +51,9 @@ export interface PrintCssOptions {
  * Produce a CSS block (no <style> wrapper) for inline injection.
  */
 export function printCss(opts: PrintCssOptions = {}): string {
-  const size = opts.pageSize ?? "letter";
-  const margin = opts.margins ?? "1in";
-  const hasWatermark = typeof opts.watermark === "string" && opts.watermark.length > 0;
+  const size = opts.pageSize ?? 'letter';
+  const margin = opts.margins ?? '1in';
+  const hasWatermark = typeof opts.watermark === 'string' && opts.watermark.length > 0;
 
   return [
     pageRules(size, margin, opts),
@@ -69,13 +69,15 @@ export function printCss(opts: PrintCssOptions = {}): string {
     tableRules(),
     listRules(),
     footnoteRules(),
-    hasWatermark ? watermarkRules() : "",
+    hasWatermark ? watermarkRules() : '',
     breakAvoidRules(),
-  ].filter(Boolean).join("\n\n");
+  ]
+    .filter(Boolean)
+    .join('\n\n');
 }
 
 function pageRules(size: string, margin: string, opts: PrintCssOptions): string {
-  const runningHeader = escapeCssString(opts.runningHeader ?? "");
+  const runningHeader = escapeCssString(opts.runningHeader ?? '');
   const showConfidential = opts.confidential !== false;
   const showPageNumbers = opts.pageNumbers !== false;
 
@@ -100,7 +102,9 @@ function pageRules(size: string, margin: string, opts: PrintCssOptions): string 
     `  @bottom-center { content: none; }`,
     `  @bottom-right { content: none; }`,
     `}`,
-  ].filter(line => line !== "").join("\n");
+  ]
+    .filter((line) => line !== '')
+    .join('\n');
 }
 
 function rootTypography(): string {
@@ -119,11 +123,11 @@ function rootTypography(): string {
     `  margin: 0;`,
     `  padding: 0;`,
     `}`,
-  ].join("\n");
+  ].join('\n');
 }
 
 function coverRules(enabled: boolean): string {
-  if (!enabled) return "";
+  if (!enabled) return '';
   return [
     `.cover {`,
     `  page: first;`,
@@ -165,11 +169,11 @@ function coverRules(enabled: boolean): string {
     `}`,
     `.cover .cover-meta { font-size: 10pt; line-height: 1.6; color: #333; text-align: left; }`,
     `.cover .cover-meta strong { font-weight: 700; }`,
-  ].join("\n");
+  ].join('\n');
 }
 
 function tocRules(enabled: boolean): string {
-  if (!enabled) return "";
+  if (!enabled) return '';
   return [
     `.toc { page-break-after: always; break-after: page; }`,
     `.toc h2 {`,
@@ -198,7 +202,7 @@ function tocRules(enabled: boolean): string {
     `.toc li .toc-page { flex: 0 0 auto; color: #666; font-variant-numeric: tabular-nums; }`,
     `.toc li.level-2 { padding-left: 0.35in; font-size: 10pt; }`,
     `.toc li a { color: inherit; text-decoration: none; }`,
-  ].join("\n");
+  ].join('\n');
 }
 
 function chapterRules(noChapterBreaks: boolean): string {
@@ -207,7 +211,7 @@ function chapterRules(noChapterBreaks: boolean): string {
     : [
         `.chapter { break-before: page; page-break-before: always; }`,
         `.chapter:first-of-type { break-before: auto; page-break-before: auto; }`,
-      ].join("\n");
+      ].join('\n');
   return [
     breakRule,
     `h1 {`,
@@ -222,7 +226,7 @@ function chapterRules(noChapterBreaks: boolean): string {
     `h2 { font-size: 15pt; line-height: 1.3; font-weight: 700; margin: 24pt 0 6pt; break-after: avoid; page-break-after: avoid; }`,
     `h3 { font-size: 12pt; line-height: 1.4; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #333; margin: 18pt 0 4pt; break-after: avoid; page-break-after: avoid; }`,
     `h4 { font-size: 11pt; font-weight: 700; margin: 12pt 0 4pt; break-after: avoid; page-break-after: avoid; }`,
-  ].join("\n");
+  ].join('\n');
 }
 
 function blockRules(): string {
@@ -237,7 +241,7 @@ function blockRules(): string {
     `}`,
     `p:first-child { margin-top: 0; }`,
     `p.lead { font-size: 13pt; line-height: 1.45; color: #222; margin: 0 0 18pt; }`,
-  ].join("\n");
+  ].join('\n');
 }
 
 function inlineRules(): string {
@@ -250,7 +254,7 @@ function inlineRules(): string {
     `}`,
     `strong { font-weight: 700; }`,
     `em { font-style: italic; }`,
-  ].join("\n");
+  ].join('\n');
 }
 
 function codeRules(): string {
@@ -282,7 +286,7 @@ function codeRules(): string {
     `.hljs-comment { color: #888; font-style: italic; }`,
     `.hljs-function, .hljs-title { color: #0044aa; }`,
     `.hljs-number { color: #a64d00; }`,
-  ].join("\n");
+  ].join('\n');
 }
 
 function quoteRules(): string {
@@ -298,7 +302,7 @@ function quoteRules(): string {
     `blockquote p { margin-bottom: 6pt; text-align: left; }`,
     `blockquote cite { display: block; margin-top: 6pt; font-style: normal; font-size: 9.5pt; color: #666; letter-spacing: 0.02em; }`,
     `blockquote cite::before { content: "— "; }`,
-  ].join("\n");
+  ].join('\n');
 }
 
 function figureRules(): string {
@@ -306,7 +310,7 @@ function figureRules(): string {
     `figure { margin: 12pt 0; }`,
     `figure img { display: block; max-width: 100%; height: auto; }`,
     `figcaption { font-size: 9pt; color: #666; margin-top: 6pt; font-style: italic; }`,
-  ].join("\n");
+  ].join('\n');
 }
 
 function tableRules(): string {
@@ -314,7 +318,7 @@ function tableRules(): string {
     `table { width: 100%; border-collapse: collapse; margin: 12pt 0; font-size: 10pt; }`,
     `th, td { border-bottom: 0.5pt solid #ccc; padding: 5pt 8pt; text-align: left; vertical-align: top; }`,
     `th { font-weight: 700; border-bottom: 1pt solid #111; background: transparent; }`,
-  ].join("\n");
+  ].join('\n');
 }
 
 function listRules(): string {
@@ -322,7 +326,7 @@ function listRules(): string {
     `ul, ol { margin: 0 0 12pt 0; padding-left: 20pt; }`,
     `li { margin-bottom: 3pt; line-height: 1.45; }`,
     `li > ul, li > ol { margin-top: 3pt; margin-bottom: 0; }`,
-  ].join("\n");
+  ].join('\n');
 }
 
 function footnoteRules(): string {
@@ -330,7 +334,7 @@ function footnoteRules(): string {
     `.footnote-ref { font-size: 0.75em; vertical-align: super; line-height: 0; text-decoration: none; color: #0055cc; }`,
     `.footnotes { margin-top: 24pt; padding-top: 12pt; border-top: 0.5pt solid #ccc; font-size: 9.5pt; line-height: 1.4; }`,
     `.footnotes ol { padding-left: 18pt; }`,
-  ].join("\n");
+  ].join('\n');
 }
 
 function watermarkRules(): string {
@@ -349,7 +353,7 @@ function watermarkRules(): string {
     `  user-select: none;`,
     `  white-space: nowrap;`,
     `}`,
-  ].join("\n");
+  ].join('\n');
 }
 
 function breakAvoidRules(): string {
@@ -357,5 +361,5 @@ function breakAvoidRules(): string {
 }
 
 function escapeCssString(s: string): string {
-  return s.replace(/\\/g, "\\\\").replace(/"/g, "\\\"");
+  return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 }

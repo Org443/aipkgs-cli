@@ -64,19 +64,62 @@ export interface StyleModification {
 
 /** ~55 key CSS properties for computed style output */
 const KEY_CSS_PROPERTIES = [
-  'display', 'position', 'top', 'right', 'bottom', 'left',
-  'float', 'clear', 'z-index', 'overflow', 'overflow-x', 'overflow-y',
-  'width', 'height', 'min-width', 'max-width', 'min-height', 'max-height',
-  'margin-top', 'margin-right', 'margin-bottom', 'margin-left',
-  'padding-top', 'padding-right', 'padding-bottom', 'padding-left',
-  'border-top-width', 'border-right-width', 'border-bottom-width', 'border-left-width',
-  'border-style', 'border-color',
-  'font-family', 'font-size', 'font-weight', 'line-height',
-  'color', 'background-color', 'background-image', 'opacity',
-  'box-shadow', 'border-radius', 'transform', 'transition',
-  'flex-direction', 'flex-wrap', 'justify-content', 'align-items', 'gap',
-  'grid-template-columns', 'grid-template-rows',
-  'text-align', 'text-decoration', 'visibility', 'cursor', 'pointer-events',
+  'display',
+  'position',
+  'top',
+  'right',
+  'bottom',
+  'left',
+  'float',
+  'clear',
+  'z-index',
+  'overflow',
+  'overflow-x',
+  'overflow-y',
+  'width',
+  'height',
+  'min-width',
+  'max-width',
+  'min-height',
+  'max-height',
+  'margin-top',
+  'margin-right',
+  'margin-bottom',
+  'margin-left',
+  'padding-top',
+  'padding-right',
+  'padding-bottom',
+  'padding-left',
+  'border-top-width',
+  'border-right-width',
+  'border-bottom-width',
+  'border-left-width',
+  'border-style',
+  'border-color',
+  'font-family',
+  'font-size',
+  'font-weight',
+  'line-height',
+  'color',
+  'background-color',
+  'background-image',
+  'opacity',
+  'box-shadow',
+  'border-radius',
+  'transform',
+  'transition',
+  'flex-direction',
+  'flex-wrap',
+  'justify-content',
+  'align-items',
+  'gap',
+  'grid-template-columns',
+  'grid-template-rows',
+  'text-align',
+  'text-decoration',
+  'visibility',
+  'cursor',
+  'pointer-events',
 ];
 
 const KEY_CSS_SET = new Set(KEY_CSS_PROPERTIES);
@@ -101,7 +144,8 @@ async function getOrCreateSession(page: Page): Promise<any> {
       return session;
     } catch (err: any) {
       // Session is stale — recreate (CDP disconnects throw on closed/Target errors)
-      if (!err?.message?.includes('closed') && !err?.message?.includes('Target') && !err?.message?.includes('detached')) throw err;
+      if (!err?.message?.includes('closed') && !err?.message?.includes('Target') && !err?.message?.includes('detached'))
+        throw err;
       cdpSessions.delete(page);
       initializedPages.delete(page);
     }
@@ -128,7 +172,8 @@ async function getOrCreateSession(page: Page): Promise<any> {
     try {
       session.detach().catch(() => {});
     } catch (err: any) {
-      if (!err?.message?.includes('closed') && !err?.message?.includes('Target') && !err?.message?.includes('detached')) throw err;
+      if (!err?.message?.includes('closed') && !err?.message?.includes('Target') && !err?.message?.includes('detached'))
+        throw err;
     }
     cdpSessions.delete(page);
     initializedPages.delete(page);
@@ -182,7 +227,9 @@ export const __testInternals = {
  * a = ID selectors, b = class/attr/pseudo-class, c = type/pseudo-element
  */
 function computeSpecificity(selector: string): { a: number; b: number; c: number } {
-  let a = 0, b = 0, c = 0;
+  let a = 0,
+    b = 0,
+    c = 0;
 
   // Remove :not() wrapper but count its contents
   let cleaned = selector;
@@ -212,10 +259,7 @@ function computeSpecificity(selector: string): { a: number; b: number; c: number
 /**
  * Compare specificities: returns negative if s1 < s2, positive if s1 > s2, 0 if equal.
  */
-function compareSpecificity(
-  s1: { a: number; b: number; c: number },
-  s2: { a: number; b: number; c: number }
-): number {
+function compareSpecificity(s1: { a: number; b: number; c: number }, s2: { a: number; b: number; c: number }): number {
   if (s1.a !== s2.a) return s1.a - s2.a;
   if (s1.b !== s2.b) return s1.b - s2.b;
   return s1.c - s2.c;
@@ -229,7 +273,7 @@ function compareSpecificity(
 export async function inspectElement(
   page: Page,
   selector: string,
-  options?: { includeUA?: boolean }
+  options?: { includeUA?: boolean },
 ): Promise<InspectorResult> {
   const session = await getOrCreateSession(page);
 
@@ -363,7 +407,7 @@ export async function inspectElement(
       if (rule.styleSheetId) {
         styleSheetId = rule.styleSheetId;
         // Resolve stylesheet source name
-        source = rule.origin === 'regular' ? (rule.styleSheetId || 'stylesheet') : rule.origin;
+        source = rule.origin === 'regular' ? rule.styleSheetId || 'stylesheet' : rule.origin;
       }
 
       if (rule.style?.range) {
@@ -380,7 +424,10 @@ export async function inspectElement(
       if (match.rule?.media) {
         const mediaList = match.rule.media;
         if (Array.isArray(mediaList) && mediaList.length > 0) {
-          media = mediaList.map((m: any) => m.text).filter(Boolean).join(', ');
+          media = mediaList
+            .map((m: any) => m.text)
+            .filter(Boolean)
+            .join(', ');
         }
       }
 
@@ -432,7 +479,7 @@ export async function inspectElement(
         // Unless this one is !important and the earlier one isn't
         const earlierIdx = seenProperties.get(key)!;
         const earlierRule = matchedRules[earlierIdx];
-        const earlierProp = earlierRule.properties.find(p => p.name === key);
+        const earlierProp = earlierRule.properties.find((p) => p.name === key);
         if (prop.important && earlierProp && !earlierProp.important) {
           // This !important overrides the earlier non-important
           if (earlierProp) earlierProp.overridden = true;
@@ -496,7 +543,7 @@ export async function modifyStyle(
   page: Page,
   selector: string,
   property: string,
-  value: string
+  value: string,
 ): Promise<StyleModification> {
   // Validate CSS property name
   if (!/^[a-zA-Z-]+$/.test(property)) {
@@ -524,7 +571,7 @@ export async function modifyStyle(
     let targetRule: InspectorResult['matchedRules'][0] | null = null;
     for (const rule of result.matchedRules) {
       if (rule.userAgent) continue;
-      const hasProp = rule.properties.some(p => p.name === property);
+      const hasProp = rule.properties.some((p) => p.name === property);
       if (hasProp && rule.styleSheetId && rule.range) {
         targetRule = rule;
         break;
@@ -543,7 +590,7 @@ export async function modifyStyle(
       // Build new style text by replacing the property value
       const currentProps = targetRule.properties;
       const newPropsText = currentProps
-        .map(p => {
+        .map((p) => {
           if (p.name === property) {
             return `${p.name}: ${value}`;
           }
@@ -553,18 +600,26 @@ export async function modifyStyle(
 
       try {
         await session.send('CSS.setStyleTexts', {
-          edits: [{
-            styleSheetId: targetRule.styleSheetId,
-            range,
-            text: newPropsText,
-          }],
+          edits: [
+            {
+              styleSheetId: targetRule.styleSheetId,
+              range,
+              text: newPropsText,
+            },
+          ],
         });
         method = 'setStyleTexts';
         source = `${targetRule.source}:${targetRule.sourceLine}`;
         sourceLine = targetRule.sourceLine;
       } catch (err: any) {
         // Fall back to inline — setStyleTexts fails on immutable stylesheets or stale ranges
-        if (!err?.message?.includes('style') && !err?.message?.includes('range') && !err?.message?.includes('closed') && !err?.message?.includes('Target')) throw err;
+        if (
+          !err?.message?.includes('style') &&
+          !err?.message?.includes('range') &&
+          !err?.message?.includes('closed') &&
+          !err?.message?.includes('Target')
+        )
+          throw err;
       }
     }
 
@@ -576,7 +631,7 @@ export async function modifyStyle(
           if (!el) throw new Error(`Element not found: ${sel}`);
           (el as HTMLElement).style.setProperty(prop, val);
         },
-        [selector, property, value]
+        [selector, property, value],
       );
     }
   } catch (err: any) {
@@ -587,7 +642,7 @@ export async function modifyStyle(
         if (!el) throw new Error(`Element not found: ${sel}`);
         (el as HTMLElement).style.setProperty(prop, val);
       },
-      [selector, property, value]
+      [selector, property, value],
     );
   }
 
@@ -612,9 +667,10 @@ export async function modifyStyle(
 export async function undoModification(page: Page, index?: number): Promise<void> {
   const idx = index ?? modificationHistory.length - 1;
   if (idx < 0 || idx >= modificationHistory.length) {
-    const evictedNote = modHistoryTotalPushed > MOD_HISTORY_CAP
-      ? ` (most recent ${MOD_HISTORY_CAP} only — ${modHistoryTotalPushed - MOD_HISTORY_CAP} earlier entries evicted at the cap)`
-      : '';
+    const evictedNote =
+      modHistoryTotalPushed > MOD_HISTORY_CAP
+        ? ` (most recent ${MOD_HISTORY_CAP} only — ${modHistoryTotalPushed - MOD_HISTORY_CAP} earlier entries evicted at the cap)`
+        : '';
     throw new Error(
       `No modification at index ${idx}. History has ${modificationHistory.length} entries${evictedNote}.`,
     );
@@ -630,7 +686,14 @@ export async function undoModification(page: Page, index?: number): Promise<void
       modificationHistory.pop();
     } catch (err: any) {
       // Fall back to inline restore — CDP may have disconnected or stylesheet changed
-      if (!err?.message?.includes('closed') && !err?.message?.includes('Target') && !err?.message?.includes('style') && !err?.message?.includes('not found') && !err?.message?.includes('Element')) throw err;
+      if (
+        !err?.message?.includes('closed') &&
+        !err?.message?.includes('Target') &&
+        !err?.message?.includes('style') &&
+        !err?.message?.includes('not found') &&
+        !err?.message?.includes('Element')
+      )
+        throw err;
       await page.evaluate(
         ([sel, prop, val]) => {
           const el = document.querySelector(sel);
@@ -641,7 +704,7 @@ export async function undoModification(page: Page, index?: number): Promise<void
             (el as HTMLElement).style.removeProperty(prop);
           }
         },
-        [mod.selector, mod.property, mod.oldValue]
+        [mod.selector, mod.property, mod.oldValue],
       );
     }
   } else {
@@ -656,7 +719,7 @@ export async function undoModification(page: Page, index?: number): Promise<void
           (el as HTMLElement).style.removeProperty(prop);
         }
       },
-      [mod.selector, mod.property, mod.oldValue]
+      [mod.selector, mod.property, mod.oldValue],
     );
   }
 
@@ -705,11 +768,16 @@ export async function resetModifications(page: Page): Promise<void> {
             (el as HTMLElement).style.removeProperty(prop);
           }
         },
-        [mod.selector, mod.property, mod.oldValue]
+        [mod.selector, mod.property, mod.oldValue],
       );
     } catch (err: any) {
       // Best effort — page may have navigated or element may be gone
-      if (!err?.message?.includes('closed') && !err?.message?.includes('Target') && !err?.message?.includes('Execution context')) throw err;
+      if (
+        !err?.message?.includes('closed') &&
+        !err?.message?.includes('Target') &&
+        !err?.message?.includes('Execution context')
+      )
+        throw err;
     }
   }
   modificationHistory.length = 0;
@@ -719,10 +787,7 @@ export async function resetModifications(page: Page): Promise<void> {
 /**
  * Format an InspectorResult for CLI text output.
  */
-export function formatInspectorResult(
-  result: InspectorResult,
-  options?: { includeUA?: boolean }
-): string {
+export function formatInspectorResult(result: InspectorResult, options?: { includeUA?: boolean }): string {
   const lines: string[] = [];
 
   // Element header
@@ -739,16 +804,20 @@ export function formatInspectorResult(
   // Box model
   lines.push('Box Model:');
   const bm = result.boxModel;
-  lines.push(`  margin:  ${Math.round(bm.margin.top)}px  ${Math.round(bm.margin.right)}px  ${Math.round(bm.margin.bottom)}px  ${Math.round(bm.margin.left)}px`);
-  lines.push(`  padding: ${Math.round(bm.padding.top)}px  ${Math.round(bm.padding.right)}px  ${Math.round(bm.padding.bottom)}px  ${Math.round(bm.padding.left)}px`);
-  lines.push(`  border:  ${Math.round(bm.border.top)}px  ${Math.round(bm.border.right)}px  ${Math.round(bm.border.bottom)}px  ${Math.round(bm.border.left)}px`);
+  lines.push(
+    `  margin:  ${Math.round(bm.margin.top)}px  ${Math.round(bm.margin.right)}px  ${Math.round(bm.margin.bottom)}px  ${Math.round(bm.margin.left)}px`,
+  );
+  lines.push(
+    `  padding: ${Math.round(bm.padding.top)}px  ${Math.round(bm.padding.right)}px  ${Math.round(bm.padding.bottom)}px  ${Math.round(bm.padding.left)}px`,
+  );
+  lines.push(
+    `  border:  ${Math.round(bm.border.top)}px  ${Math.round(bm.border.right)}px  ${Math.round(bm.border.bottom)}px  ${Math.round(bm.border.left)}px`,
+  );
   lines.push(`  content: ${Math.round(bm.content.width)} x ${Math.round(bm.content.height)}`);
   lines.push('');
 
   // Matched rules
-  const displayRules = options?.includeUA
-    ? result.matchedRules
-    : result.matchedRules.filter(r => !r.userAgent);
+  const displayRules = options?.includeUA ? result.matchedRules : result.matchedRules.filter((r) => !r.userAgent);
 
   lines.push(`Matched Rules (${displayRules.length}):`);
   if (displayRules.length === 0) {
@@ -756,8 +825,8 @@ export function formatInspectorResult(
   } else {
     for (const rule of displayRules) {
       const propsStr = rule.properties
-        .filter(p => !p.overridden)
-        .map(p => `${p.name}: ${p.value}${p.important ? ' !important' : ''}`)
+        .filter((p) => !p.overridden)
+        .map((p) => `${p.name}: ${p.value}${p.important ? ' !important' : ''}`)
         .join('; ');
       if (!propsStr) continue;
       const spec = `[${rule.specificity.a},${rule.specificity.b},${rule.specificity.c}]`;
@@ -814,7 +883,16 @@ export function detachSession(page?: Page): void {
   if (page) {
     const session = cdpSessions.get(page);
     if (session) {
-      try { session.detach().catch(() => {}); } catch (err: any) { if (!err?.message?.includes('closed') && !err?.message?.includes('Target') && !err?.message?.includes('detached')) throw err; }
+      try {
+        session.detach().catch(() => {});
+      } catch (err: any) {
+        if (
+          !err?.message?.includes('closed') &&
+          !err?.message?.includes('Target') &&
+          !err?.message?.includes('detached')
+        )
+          throw err;
+      }
       cdpSessions.delete(page);
       initializedPages.delete(page);
     }

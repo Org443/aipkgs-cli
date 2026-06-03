@@ -52,7 +52,7 @@ async function waitForReady(baseUrl: string, timeoutMs = 20_000): Promise<void> 
     } catch {
       // not ready yet
     }
-    await new Promise(r => setTimeout(r, 200));
+    await new Promise((r) => setTimeout(r, 200));
   }
   throw new Error(`Daemon did not become ready within ${timeoutMs}ms at ${baseUrl}`);
 }
@@ -66,7 +66,7 @@ async function waitForTunnelPort(stateFile: string, timeoutMs = 20_000): Promise
     } catch {
       // state file not written yet
     }
-    await new Promise(r => setTimeout(r, 200));
+    await new Promise((r) => setTimeout(r, 200));
   }
   throw new Error(`Tunnel local port did not appear in ${stateFile} within ${timeoutMs}ms`);
 }
@@ -111,7 +111,7 @@ async function spawnDaemonWithTunnel(): Promise<DaemonHandle> {
     body: JSON.stringify({ clientId: 'tunnel-eval' }),
   });
   if (!pairResp.ok) throw new Error(`/pair failed: ${pairResp.status}`);
-  const { setup_key } = await pairResp.json() as any;
+  const { setup_key } = (await pairResp.json()) as any;
 
   const connectResp = await fetch(`${localUrl}/connect`, {
     method: 'POST',
@@ -119,14 +119,29 @@ async function spawnDaemonWithTunnel(): Promise<DaemonHandle> {
     body: JSON.stringify({ setup_key }),
   });
   if (!connectResp.ok) throw new Error(`/connect failed: ${connectResp.status}`);
-  const { token: scopedToken } = await connectResp.json() as any;
+  const { token: scopedToken } = (await connectResp.json()) as any;
 
-  return { proc, localPort, tunnelPort, rootToken, scopedToken, stateFile, tempDir, localUrl, tunnelUrl, attemptsLogPath };
+  return {
+    proc,
+    localPort,
+    tunnelPort,
+    rootToken,
+    scopedToken,
+    stateFile,
+    tempDir,
+    localUrl,
+    tunnelUrl,
+    attemptsLogPath,
+  };
 }
 
 function killDaemon(handle: DaemonHandle): void {
-  try { handle.proc.kill('SIGKILL'); } catch {}
-  try { fs.rmSync(handle.tempDir, { recursive: true, force: true }); } catch {}
+  try {
+    handle.proc.kill('SIGKILL');
+  } catch {}
+  try {
+    fs.rmSync(handle.tempDir, { recursive: true, force: true });
+  } catch {}
 }
 
 async function postCommand(baseUrl: string, token: string, body: any): Promise<{ status: number; bodyText: string }> {
@@ -163,7 +178,9 @@ describe('pair-agent over tunnel surface — gate fires on the right surface onl
   test('pair on tunnel surface 403s with disallowed_command and writes a denial-log entry', async () => {
     // Snapshot attempts.jsonl size before the call so we can detect the new entry.
     let beforeBytes = 0;
-    try { beforeBytes = fs.statSync(daemon.attemptsLogPath).size; } catch {}
+    try {
+      beforeBytes = fs.statSync(daemon.attemptsLogPath).size;
+    } catch {}
 
     const { status, bodyText } = await postCommand(daemon.tunnelUrl, daemon.scopedToken, { command: 'pair' });
     expect(status).toBe(403);
@@ -171,7 +188,7 @@ describe('pair-agent over tunnel surface — gate fires on the right surface onl
 
     // Wait briefly for the denial-log writer (it's synchronous fs.appendFile in
     // tunnel-denial-log.ts but the OS may need a tick to flush).
-    await new Promise(r => setTimeout(r, 250));
+    await new Promise((r) => setTimeout(r, 250));
     expect(fs.existsSync(daemon.attemptsLogPath)).toBe(true);
     const after = fs.readFileSync(daemon.attemptsLogPath, 'utf-8');
     const newSection = after.slice(beforeBytes);
@@ -208,7 +225,10 @@ describe('pair-agent over tunnel surface — gate fires on the right surface onl
     // `disallowed_command:goto`. We are NOT asserting that the goto
     // succeeds — only that the allowlist + ownership exemption don't reject
     // it as a class.
-    const gotoResp = await postCommand(daemon.tunnelUrl, daemon.scopedToken, { command: 'goto', args: ['http://127.0.0.1:1/'] });
+    const gotoResp = await postCommand(daemon.tunnelUrl, daemon.scopedToken, {
+      command: 'goto',
+      args: ['http://127.0.0.1:1/'],
+    });
     expect(gotoResp.bodyText).not.toContain('disallowed_command:goto');
     expect(gotoResp.bodyText).not.toContain('is not allowed over the tunnel surface');
   });

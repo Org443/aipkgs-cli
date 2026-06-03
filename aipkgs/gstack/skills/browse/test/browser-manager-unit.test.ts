@@ -40,9 +40,12 @@ describe('shouldEnableChromiumSandbox', () => {
 
   afterEach(() => {
     Object.defineProperty(process, 'platform', { value: origPlatform });
-    if (origCI === undefined) delete process.env.CI; else process.env.CI = origCI;
-    if (origContainer === undefined) delete process.env.CONTAINER; else process.env.CONTAINER = origContainer;
-    if (origNoSandbox === undefined) delete process.env.GSTACK_CHROMIUM_NO_SANDBOX; else process.env.GSTACK_CHROMIUM_NO_SANDBOX = origNoSandbox;
+    if (origCI === undefined) delete process.env.CI;
+    else process.env.CI = origCI;
+    if (origContainer === undefined) delete process.env.CONTAINER;
+    else process.env.CONTAINER = origContainer;
+    if (origNoSandbox === undefined) delete process.env.GSTACK_CHROMIUM_NO_SANDBOX;
+    else process.env.GSTACK_CHROMIUM_NO_SANDBOX = origNoSandbox;
     process.getuid = origGetuid;
   });
 
@@ -207,7 +210,9 @@ describe('BrowserManager.onDisconnect exit-code propagation', () => {
     const { BrowserManager } = await import('../src/browser-manager');
     const bm = new BrowserManager();
     const calls: Array<number | undefined> = [];
-    bm.onDisconnect = (code?: number) => { calls.push(code); };
+    bm.onDisconnect = (code?: number) => {
+      calls.push(code);
+    };
     bm.onDisconnect(0);
     bm.onDisconnect(2);
     bm.onDisconnect(undefined);
@@ -219,7 +224,9 @@ describe('BrowserManager.onDisconnect exit-code propagation', () => {
     // that drops the forward (e.g. reverting to `() => activeShutdown?.(2)`)
     // fails CI before the user-visible bug returns.
     const shutdownCalls: number[] = [];
-    const activeShutdown = (code: number) => { shutdownCalls.push(code); };
+    const activeShutdown = (code: number) => {
+      shutdownCalls.push(code);
+    };
     const onDisconnect = (code?: number) => activeShutdown(code ?? 2);
     onDisconnect(0);
     onDisconnect(2);

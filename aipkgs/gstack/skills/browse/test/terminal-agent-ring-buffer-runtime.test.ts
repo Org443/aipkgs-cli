@@ -1,9 +1,5 @@
 import { describe, test, expect, beforeEach } from 'bun:test';
-import {
-  appendToRingBuffer,
-  buildReplayPayload,
-  type PtySession,
-} from '../src/terminal-agent';
+import { appendToRingBuffer, buildReplayPayload, type PtySession } from '../src/terminal-agent';
 
 // Runtime exercises for the v1.44 Commit 3 ring buffer + replay prelude.
 // Companion to browse/test/terminal-agent-detach-reattach.test.ts which

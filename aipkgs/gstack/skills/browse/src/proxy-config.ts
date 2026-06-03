@@ -25,7 +25,10 @@ export interface ParsedProxyConfig {
 }
 
 export class ProxyConfigError extends Error {
-  constructor(public readonly hint: string, message: string) {
+  constructor(
+    public readonly hint: string,
+    message: string,
+  ) {
     super(message);
     this.name = 'ProxyConfigError';
   }
@@ -46,35 +49,21 @@ export function parseProxyConfig(opts: {
   try {
     url = new URL(opts.proxyUrl);
   } catch {
-    throw new ProxyConfigError(
-      'expected scheme://[user:pass@]host:port',
-      `invalid proxy URL — could not parse`,
-    );
+    throw new ProxyConfigError('expected scheme://[user:pass@]host:port', `invalid proxy URL — could not parse`);
   }
 
   const scheme = url.protocol.replace(':', '');
   if (scheme !== 'socks5' && scheme !== 'http' && scheme !== 'https') {
-    throw new ProxyConfigError(
-      'use socks5://, http://, or https://',
-      `unsupported proxy scheme '${scheme}'`,
-    );
+    throw new ProxyConfigError('use socks5://, http://, or https://', `unsupported proxy scheme '${scheme}'`);
   }
 
   if (!url.hostname) {
-    throw new ProxyConfigError(
-      'expected scheme://[user:pass@]host:port',
-      `invalid proxy URL — missing host`,
-    );
+    throw new ProxyConfigError('expected scheme://[user:pass@]host:port', `invalid proxy URL — missing host`);
   }
 
-  const port = url.port
-    ? parseInt(url.port, 10)
-    : (scheme === 'http' ? 80 : scheme === 'https' ? 443 : 1080);
+  const port = url.port ? parseInt(url.port, 10) : scheme === 'http' ? 80 : scheme === 'https' ? 443 : 1080;
   if (!Number.isInteger(port) || port <= 0 || port > 65535) {
-    throw new ProxyConfigError(
-      'expected scheme://[user:pass@]host:port',
-      `invalid proxy URL — bad port`,
-    );
+    throw new ProxyConfigError('expected scheme://[user:pass@]host:port', `invalid proxy URL — bad port`);
   }
 
   const urlHasUser = !!url.username;

@@ -30,11 +30,14 @@ describe('tryClaim', () => {
 
   test('second claim against same live PID returns existing', async () => {
     // Fake a live pidfile pointing to OUR pid (since we definitely exist).
-    writeFileSync(pidPath, JSON.stringify({
-      pid: process.pid,
-      port: 9099,
-      startedAt: Date.now(),
-    }));
+    writeFileSync(
+      pidPath,
+      JSON.stringify({
+        pid: process.pid,
+        port: 9099,
+        startedAt: Date.now(),
+      }),
+    );
     const r = await tryClaim({ port: 9100, path: pidPath });
     expect(r.claimed).toBe(false);
     if (!r.claimed) {
@@ -46,11 +49,14 @@ describe('tryClaim', () => {
   test('claim reclaims stale pidfile (dead PID)', async () => {
     // PID 1 is init/launchd; pick a PID that doesn't exist. PID 999999 is
     // not assigned in any realistic system.
-    writeFileSync(pidPath, JSON.stringify({
-      pid: 999999,
-      port: 9099,
-      startedAt: Date.now() - 60_000,
-    }));
+    writeFileSync(
+      pidPath,
+      JSON.stringify({
+        pid: 999999,
+        port: 9099,
+        startedAt: Date.now() - 60_000,
+      }),
+    );
     const r = await tryClaim({ port: 9100, path: pidPath });
     expect(r.claimed).toBe(true);
     if (r.claimed) {
@@ -80,8 +86,8 @@ describe('tryClaim', () => {
       promises.push(tryClaim({ port: 9099 + i, path: pidPath }));
     }
     const results = await Promise.all(promises);
-    const wins = results.filter(r => r.claimed);
-    const losses = results.filter(r => !r.claimed);
+    const wins = results.filter((r) => r.claimed);
+    const losses = results.filter((r) => !r.claimed);
     expect(wins.length).toBe(1);
     expect(losses.length).toBe(N - 1);
     // Cleanup the winner.

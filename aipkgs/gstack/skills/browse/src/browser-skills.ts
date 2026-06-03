@@ -129,7 +129,10 @@ function detectBundledRoot(): string {
  * Parse a SKILL.md into { frontmatter, bodyMd }. Throws if the file is
  * missing required fields (host, triggers, args).
  */
-export function parseSkillFile(content: string, opts: { skillName?: string } = {}): { frontmatter: SkillFrontmatter; bodyMd: string } {
+export function parseSkillFile(
+  content: string,
+  opts: { skillName?: string } = {},
+): { frontmatter: SkillFrontmatter; bodyMd: string } {
   if (!content.startsWith('---\n')) {
     throw new Error('SKILL.md missing frontmatter block (expected starting "---\\n")');
   }
@@ -194,7 +197,10 @@ function parseFrontmatterFields(fm: string): RawFrontmatter {
     const line = lines[i];
 
     // Skip blank lines and comments
-    if (!line.trim() || line.trim().startsWith('#')) { i++; continue; }
+    if (!line.trim() || line.trim().startsWith('#')) {
+      i++;
+      continue;
+    }
 
     // Top-level scalar: `key: value`
     const scalar = line.match(/^([a-zA-Z_][a-zA-Z0-9_-]*):\s*(.*)$/);
@@ -254,7 +260,10 @@ function collectStringList(lines: string[], from: number): { items: string[]; co
   let i = from;
   while (i < lines.length) {
     const line = lines[i];
-    if (!line.trim()) { i++; continue; }
+    if (!line.trim()) {
+      i++;
+      continue;
+    }
     const m = line.match(/^\s+-\s+(.*)$/);
     if (!m) break;
     items.push(stripQuotes(m[1]));
@@ -268,7 +277,10 @@ function collectArgsList(lines: string[], from: number): { items: SkillArg[]; co
   let i = from;
   while (i < lines.length) {
     const line = lines[i];
-    if (!line.trim()) { i++; continue; }
+    if (!line.trim()) {
+      i++;
+      continue;
+    }
     // Item start: `  - name: foo` (with whatever indent)
     const itemStart = line.match(/^(\s+)-\s+(.+?):\s*(.*)$/);
     if (!itemStart) break;
@@ -305,8 +317,7 @@ function parseScalar(raw: string): string | boolean | number {
 
 function stripQuotes(v: string): string {
   const trimmed = v.trim();
-  if ((trimmed.startsWith('"') && trimmed.endsWith('"')) ||
-      (trimmed.startsWith("'") && trimmed.endsWith("'"))) {
+  if ((trimmed.startsWith('"') && trimmed.endsWith('"')) || (trimmed.startsWith("'") && trimmed.endsWith("'"))) {
     return trimmed.slice(1, -1);
   }
   return trimmed;
@@ -333,13 +344,21 @@ export function listBrowserSkills(tiers?: TierPaths): BrowserSkill[] {
   for (const { tier, root } of order) {
     if (!root || !fs.existsSync(root)) continue;
     let entries: string[];
-    try { entries = fs.readdirSync(root); } catch { continue; }
+    try {
+      entries = fs.readdirSync(root);
+    } catch {
+      continue;
+    }
     for (const entry of entries) {
       if (entry.startsWith('.') || entry === '.tombstones') continue;
       if (seen.has(entry)) continue; // higher-priority tier already claimed this name
       const dir = path.join(root, entry);
       let stat: fs.Stats;
-      try { stat = fs.statSync(dir); } catch { continue; }
+      try {
+        stat = fs.statSync(dir);
+      } catch {
+        continue;
+      }
       if (!stat.isDirectory()) continue;
 
       const skillFile = path.join(dir, 'SKILL.md');

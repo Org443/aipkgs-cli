@@ -40,7 +40,7 @@ export async function proxyToDevice(opts: {
   }
 
   const headers: Record<string, string> = {
-    'authorization': `Bearer ${tunnel.bootTokenRotated}`,
+    authorization: `Bearer ${tunnel.bootTokenRotated}`,
     'content-type': inbound.headers['content-type'] || 'application/json',
     'content-length': String(body.length),
   };
@@ -55,25 +55,29 @@ export async function proxyToDevice(opts: {
   const hostPart = isIPv6 ? `[${tunnel.ipv6Addr}]` : tunnel.ipv6Addr;
   const url = `http://${hostPart}:${tunnel.port}${inbound.url ?? '/'}`;
   return new Promise((resolve, reject) => {
-    const req = httpRequest(url, {
-      method: inbound.method,
-      headers,
-      timeout: 30_000,
-    }, (res) => {
-      const chunks: Buffer[] = [];
-      res.on('data', (c) => chunks.push(c));
-      res.on('end', () => {
-        const respHeaders: Record<string, string> = {};
-        for (const [k, v] of Object.entries(res.headers)) {
-          if (typeof v === 'string') respHeaders[k] = v;
-        }
-        resolve({
-          status: res.statusCode ?? 502,
-          headers: respHeaders,
-          body: Buffer.concat(chunks),
+    const req = httpRequest(
+      url,
+      {
+        method: inbound.method,
+        headers,
+        timeout: 30_000,
+      },
+      (res) => {
+        const chunks: Buffer[] = [];
+        res.on('data', (c) => chunks.push(c));
+        res.on('end', () => {
+          const respHeaders: Record<string, string> = {};
+          for (const [k, v] of Object.entries(res.headers)) {
+            if (typeof v === 'string') respHeaders[k] = v;
+          }
+          resolve({
+            status: res.statusCode ?? 502,
+            headers: respHeaders,
+            body: Buffer.concat(chunks),
+          });
         });
-      });
-    });
+      },
+    );
     req.on('error', (err) => {
       const e = err as { code?: string };
       if (e.code === 'ECONNREFUSED' || e.code === 'EHOSTUNREACH') {
@@ -102,7 +106,10 @@ function makeError(status: number, error: string): { status: number; headers: Re
  * Determine whether the endpoint is allowed on the tailnet listener AND what
  * capability tier it requires.
  */
-export function classifyRoute(method: string, path: string): {
+export function classifyRoute(
+  method: string,
+  path: string,
+): {
   allowed: boolean;
   requiredCapability: ReturnType<typeof tierForRoute>;
 } {

@@ -140,7 +140,11 @@ describe('findPort / isPortAvailable', () => {
     // to actually close — this is the root cause of the race condition.
     // On macOS/Linux the OS reclaims the port fast enough that the race
     // rarely manifests, but on Windows TIME_WAIT makes it 100% repro.
-    const result = Bun.spawnSync(['node', '-e', `
+    const result = Bun.spawnSync(
+      [
+        'node',
+        '-e',
+        `
       require('${polyfillPath}');
       const net = require('net');
 
@@ -160,7 +164,10 @@ describe('findPort / isPortAvailable', () => {
       }
 
       test();
-    `], { stdout: 'pipe', stderr: 'pipe' });
+    `,
+      ],
+      { stdout: 'pipe', stderr: 'pipe' },
+    );
 
     const output = result.stdout.toString().trim();
     // Confirms the polyfill's stop() is fire-and-forget — callers
@@ -171,7 +178,11 @@ describe('findPort / isPortAvailable', () => {
   test('net.createServer approach does not have the race condition', async () => {
     // Prove the fix: net.createServer with proper async bind/close
     // releases the port cleanly
-    const result = Bun.spawnSync(['node', '-e', `
+    const result = Bun.spawnSync(
+      [
+        'node',
+        '-e',
+        `
       const net = require('net');
 
       async function testFix() {
@@ -205,7 +216,10 @@ describe('findPort / isPortAvailable', () => {
       }
 
       testFix();
-    `], { stdout: 'pipe', stderr: 'pipe' });
+    `,
+      ],
+      { stdout: 'pipe', stderr: 'pipe' },
+    );
 
     const output = result.stdout.toString().trim();
     expect(output).toBe('FIX_WORKS');

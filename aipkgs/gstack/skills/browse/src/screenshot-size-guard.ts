@@ -18,7 +18,7 @@
  * Closes #1214.
  */
 
-import { writeFileSync, readFileSync } from "fs";
+import { writeFileSync, readFileSync } from 'fs';
 
 const MAX_DIMENSION_PX = 2000;
 
@@ -42,7 +42,7 @@ export interface SizeGuardResult {
  * (sharp's native binding is non-trivial to initialize).
  */
 export async function guardScreenshotBuffer(input: Buffer): Promise<{ buffer: Buffer; result: SizeGuardResult }> {
-  const sharpModule = await import("sharp");
+  const sharpModule = await import('sharp');
   const sharp = sharpModule.default ?? sharpModule;
   const image = sharp(input);
   const metadata = await image.metadata();
@@ -67,10 +67,7 @@ export async function guardScreenshotBuffer(input: Buffer): Promise<{ buffer: Bu
   const newWidth = Math.round(width * scale);
   const newHeight = Math.round(height * scale);
 
-  const resized = await image
-    .resize(newWidth, newHeight, { fit: "inside" })
-    .png()
-    .toBuffer();
+  const resized = await image.resize(newWidth, newHeight, { fit: 'inside' }).png().toBuffer();
 
   process.stderr.write(
     `[screenshot-size-guard] image ${width}x${height} exceeded ${MAX_DIMENSION_PX}px max-dim; ` +

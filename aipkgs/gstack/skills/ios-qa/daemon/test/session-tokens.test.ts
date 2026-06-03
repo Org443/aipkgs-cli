@@ -109,8 +109,8 @@ describe('SessionTokenStore', () => {
     for (let i = 0; i < 11; i++) {
       results.push(store.mint({ identity: 'spammer', capability: 'observe', origin: 'self_service' }));
     }
-    const ok = results.filter(r => !('error' in r));
-    const errs = results.filter(r => 'error' in r);
+    const ok = results.filter((r) => !('error' in r));
+    const errs = results.filter((r) => 'error' in r);
     expect(ok.length).toBe(10);
     expect(errs.length).toBe(1);
     expect(errs[0]).toEqual({ error: 'rate_limited' });

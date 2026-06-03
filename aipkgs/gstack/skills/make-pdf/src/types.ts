@@ -4,50 +4,50 @@
  * No runtime code. Imports are safe from any module.
  */
 
-export type PageSize = "letter" | "a4" | "legal" | "tabloid";
-export type FontMode = "sans"; // v1: Helvetica only. Future: "serif" | "custom".
+export type PageSize = 'letter' | 'a4' | 'legal' | 'tabloid';
+export type FontMode = 'sans'; // v1: Helvetica only. Future: "serif" | "custom".
 
 /**
  * Options for `$P generate` — the public CLI contract.
  * Matches the flag set documented in the CEO plan.
  */
 export interface GenerateOptions {
-  input: string;                  // markdown input path
-  output?: string;                // PDF output path (default: /tmp/<slug>.pdf)
+  input: string; // markdown input path
+  output?: string; // PDF output path (default: /tmp/<slug>.pdf)
 
   // Page layout
-  margins?: string;               // "1in" | "72pt" | "25mm" | "2.54cm"
+  margins?: string; // "1in" | "72pt" | "25mm" | "2.54cm"
   marginTop?: string;
   marginRight?: string;
   marginBottom?: string;
   marginLeft?: string;
-  pageSize?: PageSize;            // default "letter"
+  pageSize?: PageSize; // default "letter"
 
   // Document structure
   cover?: boolean;
   toc?: boolean;
-  noChapterBreaks?: boolean;      // default: chapter breaks ON
+  noChapterBreaks?: boolean; // default: chapter breaks ON
 
   // Branding
-  watermark?: string;             // e.g. "DRAFT"
-  headerTemplate?: string;        // raw HTML
-  footerTemplate?: string;        // raw HTML, mutex with pageNumbers
-  confidential?: boolean;         // default: true
+  watermark?: string; // e.g. "DRAFT"
+  headerTemplate?: string; // raw HTML
+  footerTemplate?: string; // raw HTML, mutex with pageNumbers
+  confidential?: boolean; // default: true
 
   // Output control
-  pageNumbers?: boolean;          // default: true
-  tagged?: boolean;               // default: true (accessible PDF)
-  outline?: boolean;              // default: true (PDF bookmarks)
-  quiet?: boolean;                // suppress progress on stderr
-  verbose?: boolean;              // per-stage timings on stderr
+  pageNumbers?: boolean; // default: true
+  tagged?: boolean; // default: true (accessible PDF)
+  outline?: boolean; // default: true (PDF bookmarks)
+  quiet?: boolean; // suppress progress on stderr
+  verbose?: boolean; // per-stage timings on stderr
 
   // Network
-  allowNetwork?: boolean;         // default: false
+  allowNetwork?: boolean; // default: false
 
   // Metadata
   title?: string;
   author?: string;
-  date?: string;                  // ISO-ish; default: today
+  date?: string; // ISO-ish; default: today
 }
 
 /**
@@ -93,7 +93,7 @@ export interface BrowsePdfOptions {
   outline?: boolean;
   printBackground?: boolean;
   preferCSSPageSize?: boolean;
-  toc?: boolean;                  // signals browse to wait for Paged.js
+  toc?: boolean; // signals browse to wait for Paged.js
 }
 
 /**
@@ -107,7 +107,7 @@ export const ExitCode = {
   PagedJsTimeout: 3,
   BrowseUnavailable: 4,
 } as const;
-export type ExitCode = typeof ExitCode[keyof typeof ExitCode];
+export type ExitCode = (typeof ExitCode)[keyof typeof ExitCode];
 
 /**
  * Structured error for browse CLI shell-out failures.
@@ -119,6 +119,6 @@ export class BrowseClientError extends Error {
     public readonly stderr: string,
   ) {
     super(`browse ${command} exited ${exitCode}: ${stderr.trim()}`);
-    this.name = "BrowseClientError";
+    this.name = 'BrowseClientError';
   }
 }

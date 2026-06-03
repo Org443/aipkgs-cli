@@ -37,40 +37,76 @@ import { READ_COMMANDS, WRITE_COMMANDS, META_COMMANDS } from './commands';
 
 /** Commands safe for read-only agents */
 export const SCOPE_READ = new Set([
-  'snapshot', 'text', 'html', 'links', 'forms', 'accessibility',
-  'console', 'network', 'perf', 'dialog', 'is', 'inspect',
-  'url', 'tabs', 'status', 'screenshot', 'pdf', 'css', 'attrs',
-  'media', 'data',
+  'snapshot',
+  'text',
+  'html',
+  'links',
+  'forms',
+  'accessibility',
+  'console',
+  'network',
+  'perf',
+  'dialog',
+  'is',
+  'inspect',
+  'url',
+  'tabs',
+  'status',
+  'screenshot',
+  'pdf',
+  'css',
+  'attrs',
+  'media',
+  'data',
 ]);
 
 /** Commands that modify page state or navigate */
 export const SCOPE_WRITE = new Set([
-  'goto', 'back', 'forward', 'reload',
+  'goto',
+  'back',
+  'forward',
+  'reload',
   'load-html',
-  'click', 'fill', 'select', 'hover', 'type', 'press', 'scroll', 'wait',
-  'upload', 'viewport', 'newtab', 'closetab',
-  'dialog-accept', 'dialog-dismiss',
-  'download', 'scrape', 'archive',
+  'click',
+  'fill',
+  'select',
+  'hover',
+  'type',
+  'press',
+  'scroll',
+  'wait',
+  'upload',
+  'viewport',
+  'newtab',
+  'closetab',
+  'dialog-accept',
+  'dialog-dismiss',
+  'download',
+  'scrape',
+  'archive',
 ]);
 
 /** Page-level power tools — JS execution, credential access, page mutations */
 export const SCOPE_ADMIN = new Set([
-  'eval', 'js', 'cookies', 'storage',
-  'cookie', 'cookie-import', 'cookie-import-browser',
-  'header', 'useragent',
-  'style', 'cleanup', 'prettyscreenshot',
+  'eval',
+  'js',
+  'cookies',
+  'storage',
+  'cookie',
+  'cookie-import',
+  'cookie-import-browser',
+  'header',
+  'useragent',
+  'style',
+  'cleanup',
+  'prettyscreenshot',
 ]);
 
 /** Browser-wide destructive commands — can kill the server, disconnect headed mode */
-export const SCOPE_CONTROL = new Set([
-  'state', 'handoff', 'resume', 'stop', 'restart', 'connect', 'disconnect',
-]);
+export const SCOPE_CONTROL = new Set(['state', 'handoff', 'resume', 'stop', 'restart', 'connect', 'disconnect']);
 
 /** Meta commands — generally safe but some need scope checking */
-export const SCOPE_META = new Set([
-  'tab', 'diff', 'frame', 'responsive', 'snapshot',
-  'watch', 'inbox', 'focus',
-]);
+export const SCOPE_META = new Set(['tab', 'diff', 'frame', 'responsive', 'snapshot', 'watch', 'inbox', 'focus']);
 
 export type ScopeCategory = 'read' | 'write' | 'admin' | 'meta' | 'control';
 
@@ -89,14 +125,14 @@ export interface TokenInfo {
   clientId: string;
   type: 'session' | 'setup';
   scopes: ScopeCategory[];
-  domains?: string[];          // glob patterns, e.g. ['*.myapp.com']
+  domains?: string[]; // glob patterns, e.g. ['*.myapp.com']
   tabPolicy: 'own-only' | 'shared';
-  rateLimit: number;           // requests per second (0 = unlimited)
-  expiresAt: string | null;    // ISO8601, null = never
+  rateLimit: number; // requests per second (0 = unlimited)
+  expiresAt: string | null; // ISO8601, null = never
   createdAt: string;
-  usesRemaining?: number;      // for setup keys only
+  usesRemaining?: number; // for setup keys only
   issuedSessionToken?: string; // for setup keys: the session token that was issued
-  commandCount: number;        // how many commands have been executed
+  commandCount: number; // how many commands have been executed
 }
 
 export interface CreateTokenOptions {
@@ -154,7 +190,7 @@ export function initRegistry(root: string): void {
   if (rootToken !== '' && rootToken !== root) {
     throw new Error(
       'token-registry already initialized with a different token; ' +
-      'embedders must call buildFetchHandler before any registry-mutating code path'
+        'embedders must call buildFetchHandler before any registry-mutating code path',
     );
   }
   rootToken = root;
@@ -213,9 +249,7 @@ export function createToken(opts: CreateTokenOptions): TokenInfo {
 
   const token = generateToken('gsk_sess_');
   const now = new Date();
-  const expiresAt = expiresSeconds === null
-    ? null
-    : new Date(now.getTime() + expiresSeconds * 1000).toISOString();
+  const expiresAt = expiresSeconds === null ? null : new Date(now.getTime() + expiresSeconds * 1000).toISOString();
 
   const info: TokenInfo = {
     token,
@@ -512,7 +546,7 @@ const CONNECT_WINDOW_MS = 60000;
 
 export function checkConnectRateLimit(): boolean {
   const now = Date.now();
-  connectAttempts = connectAttempts.filter(a => now - a.ts < CONNECT_WINDOW_MS);
+  connectAttempts = connectAttempts.filter((a) => now - a.ts < CONNECT_WINDOW_MS);
   if (connectAttempts.length >= CONNECT_RATE_LIMIT) return false;
   connectAttempts.push({ ts: now });
   return true;

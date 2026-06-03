@@ -110,7 +110,9 @@ export function readAgentRecord(stateDir: string): AgentRecord | null {
 
 /** Atomic write. Caller must ensure stateDir exists; agent does this at boot. */
 export function writeAgentRecord(stateDir: string, record: AgentRecord): void {
-  try { mkdirSecure(stateDir); } catch {}
+  try {
+    mkdirSecure(stateDir);
+  } catch {}
   const target = agentRecordPath(stateDir);
   const tmp = `${target}.tmp-${process.pid}`;
   writeSecureFile(tmp, JSON.stringify(record));
@@ -133,10 +135,7 @@ export function clearAgentRecord(stateDir: string): void {
  * Linux/macOS don't expose process-start-time cheaply, and the gap
  * between record-write and watchdog-tick is small (60s max).
  */
-export function killAgentByRecord(
-  record: AgentRecord,
-  signal: NodeJS.Signals = 'SIGTERM',
-): boolean {
+export function killAgentByRecord(record: AgentRecord, signal: NodeJS.Signals = 'SIGTERM'): boolean {
   if (!isProcessAlive(record.pid)) return false;
   safeKill(record.pid, signal);
   return true;

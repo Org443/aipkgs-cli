@@ -96,8 +96,8 @@ export function resolveBrowseAuth(opts: BrowseClientOptions = {}): ResolvedAuth 
 
   throw new Error(
     'browse-client: cannot find daemon port + token. Either spawn via `$B skill run` ' +
-    '(sets GSTACK_PORT + GSTACK_SKILL_TOKEN) or run from a project with a live daemon ' +
-    '(.gstack/browse.json must exist).'
+      '(sets GSTACK_PORT + GSTACK_SKILL_TOKEN) or run from a project with a live daemon ' +
+      '(.gstack/browse.json must exist).',
   );
 }
 
@@ -159,7 +159,7 @@ export class BrowseClient {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.token}`,
+          Authorization: `Bearer ${this.token}`,
         },
         body,
         signal: AbortSignal.timeout(this.timeoutMs),
@@ -190,8 +190,12 @@ export class BrowseClient {
 
   // ─── Navigation ─────────────────────────────────────────────────
 
-  async goto(url: string): Promise<string> { return this.command('goto', [url]); }
-  async wait(arg: string): Promise<string> { return this.command('wait', [arg]); }
+  async goto(url: string): Promise<string> {
+    return this.command('goto', [url]);
+  }
+  async wait(arg: string): Promise<string> {
+    return this.command('wait', [arg]);
+  }
 
   // ─── Reading ────────────────────────────────────────────────────
 
@@ -201,21 +205,45 @@ export class BrowseClient {
   async html(selector?: string): Promise<string> {
     return this.command('html', selector ? [selector] : []);
   }
-  async links(): Promise<string> { return this.command('links'); }
-  async forms(): Promise<string> { return this.command('forms'); }
-  async accessibility(): Promise<string> { return this.command('accessibility'); }
-  async attrs(selector: string): Promise<string> { return this.command('attrs', [selector]); }
-  async media(...flags: string[]): Promise<string> { return this.command('media', flags); }
-  async data(...flags: string[]): Promise<string> { return this.command('data', flags); }
+  async links(): Promise<string> {
+    return this.command('links');
+  }
+  async forms(): Promise<string> {
+    return this.command('forms');
+  }
+  async accessibility(): Promise<string> {
+    return this.command('accessibility');
+  }
+  async attrs(selector: string): Promise<string> {
+    return this.command('attrs', [selector]);
+  }
+  async media(...flags: string[]): Promise<string> {
+    return this.command('media', flags);
+  }
+  async data(...flags: string[]): Promise<string> {
+    return this.command('data', flags);
+  }
 
   // ─── Interaction ────────────────────────────────────────────────
 
-  async click(selector: string): Promise<string> { return this.command('click', [selector]); }
-  async fill(selector: string, value: string): Promise<string> { return this.command('fill', [selector, value]); }
-  async select(selector: string, value: string): Promise<string> { return this.command('select', [selector, value]); }
-  async hover(selector: string): Promise<string> { return this.command('hover', [selector]); }
-  async type(text: string): Promise<string> { return this.command('type', [text]); }
-  async press(key: string): Promise<string> { return this.command('press', [key]); }
+  async click(selector: string): Promise<string> {
+    return this.command('click', [selector]);
+  }
+  async fill(selector: string, value: string): Promise<string> {
+    return this.command('fill', [selector, value]);
+  }
+  async select(selector: string, value: string): Promise<string> {
+    return this.command('select', [selector, value]);
+  }
+  async hover(selector: string): Promise<string> {
+    return this.command('hover', [selector]);
+  }
+  async type(text: string): Promise<string> {
+    return this.command('type', [text]);
+  }
+  async press(key: string): Promise<string> {
+    return this.command('press', [key]);
+  }
   async scroll(selector?: string): Promise<string> {
     return this.command('scroll', selector ? [selector] : []);
   }
@@ -223,8 +251,12 @@ export class BrowseClient {
   // ─── Snapshot + screenshot ──────────────────────────────────────
 
   /** Snapshot returns the ARIA tree. Pass flags like '-i' (interactive only), '-c' (compact). */
-  async snapshot(...flags: string[]): Promise<string> { return this.command('snapshot', flags); }
-  async screenshot(...args: string[]): Promise<string> { return this.command('screenshot', args); }
+  async snapshot(...flags: string[]): Promise<string> {
+    return this.command('snapshot', flags);
+  }
+  async screenshot(...args: string[]): Promise<string> {
+    return this.command('screenshot', args);
+  }
 }
 
 /**
@@ -239,26 +271,66 @@ class LazyBrowseClient {
     return this.inner;
   }
   // Mirror the BrowseClient surface; each method delegates to a freshly resolved instance.
-  command(cmd: string, args: string[] = []) { return this.get().command(cmd, args); }
-  goto(url: string) { return this.get().goto(url); }
-  wait(arg: string) { return this.get().wait(arg); }
-  text(selector?: string) { return this.get().text(selector); }
-  html(selector?: string) { return this.get().html(selector); }
-  links() { return this.get().links(); }
-  forms() { return this.get().forms(); }
-  accessibility() { return this.get().accessibility(); }
-  attrs(selector: string) { return this.get().attrs(selector); }
-  media(...flags: string[]) { return this.get().media(...flags); }
-  data(...flags: string[]) { return this.get().data(...flags); }
-  click(selector: string) { return this.get().click(selector); }
-  fill(selector: string, value: string) { return this.get().fill(selector, value); }
-  select(selector: string, value: string) { return this.get().select(selector, value); }
-  hover(selector: string) { return this.get().hover(selector); }
-  type(text: string) { return this.get().type(text); }
-  press(key: string) { return this.get().press(key); }
-  scroll(selector?: string) { return this.get().scroll(selector); }
-  snapshot(...flags: string[]) { return this.get().snapshot(...flags); }
-  screenshot(...args: string[]) { return this.get().screenshot(...args); }
+  command(cmd: string, args: string[] = []) {
+    return this.get().command(cmd, args);
+  }
+  goto(url: string) {
+    return this.get().goto(url);
+  }
+  wait(arg: string) {
+    return this.get().wait(arg);
+  }
+  text(selector?: string) {
+    return this.get().text(selector);
+  }
+  html(selector?: string) {
+    return this.get().html(selector);
+  }
+  links() {
+    return this.get().links();
+  }
+  forms() {
+    return this.get().forms();
+  }
+  accessibility() {
+    return this.get().accessibility();
+  }
+  attrs(selector: string) {
+    return this.get().attrs(selector);
+  }
+  media(...flags: string[]) {
+    return this.get().media(...flags);
+  }
+  data(...flags: string[]) {
+    return this.get().data(...flags);
+  }
+  click(selector: string) {
+    return this.get().click(selector);
+  }
+  fill(selector: string, value: string) {
+    return this.get().fill(selector, value);
+  }
+  select(selector: string, value: string) {
+    return this.get().select(selector, value);
+  }
+  hover(selector: string) {
+    return this.get().hover(selector);
+  }
+  type(text: string) {
+    return this.get().type(text);
+  }
+  press(key: string) {
+    return this.get().press(key);
+  }
+  scroll(selector?: string) {
+    return this.get().scroll(selector);
+  }
+  snapshot(...flags: string[]) {
+    return this.get().snapshot(...flags);
+  }
+  screenshot(...args: string[]) {
+    return this.get().screenshot(...args);
+  }
 }
 
 export const browse = new LazyBrowseClient();

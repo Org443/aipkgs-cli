@@ -90,15 +90,13 @@ export class TabSession {
       const ref = selector.slice(1); // "e3" or "c1"
       const entry = this.refMap.get(ref);
       if (!entry) {
-        throw new Error(
-          `Ref ${selector} not found. Run 'snapshot' to get fresh refs.`
-        );
+        throw new Error(`Ref ${selector} not found. Run 'snapshot' to get fresh refs.`);
       }
       const count = await entry.locator.count();
       if (count === 0) {
         throw new Error(
           `Ref ${selector} (${entry.role} "${entry.name}") is stale — element no longer exists. ` +
-          `Run 'snapshot' for fresh refs.`
+            `Run 'snapshot' for fresh refs.`,
         );
       }
       return { locator: entry.locator };
@@ -122,7 +120,9 @@ export class TabSession {
   /** Get all ref entries for the /refs endpoint. */
   getRefEntries(): Array<{ ref: string; role: string; name: string }> {
     return Array.from(this.refMap.entries()).map(([ref, entry]) => ({
-      ref, role: entry.role, name: entry.name,
+      ref,
+      role: entry.role,
+      name: entry.name,
     }));
   }
 

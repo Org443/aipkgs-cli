@@ -91,7 +91,9 @@ describe('validateReadPath', () => {
       symlinkSync('/etc/passwd', linkPath);
       expect(() => validateReadPath(linkPath)).toThrow(/Path must be within/);
     } finally {
-      try { unlinkSync(linkPath); } catch {}
+      try {
+        unlinkSync(linkPath);
+      } catch {}
     }
   });
 
@@ -106,7 +108,9 @@ describe('validateReadPath', () => {
       const invalidPath = join(filePath, 'subpath');
       expect(() => validateReadPath(invalidPath)).toThrow(/Cannot resolve real path|Path must be within/);
     } finally {
-      try { unlinkSync(filePath); } catch {}
+      try {
+        unlinkSync(filePath);
+      } catch {}
     }
   });
 });
@@ -118,7 +122,9 @@ describe('validateOutputPath — symlink resolution', () => {
       symlinkSync('/etc/crontab', linkPath);
       expect(() => validateOutputPath(linkPath)).toThrow(/Path must be within/);
     } finally {
-      try { unlinkSync(linkPath); } catch {}
+      try {
+        unlinkSync(linkPath);
+      } catch {}
     }
   });
 
@@ -132,8 +138,12 @@ describe('validateOutputPath — symlink resolution', () => {
       symlinkSync(targetPath, linkPath);
       expect(() => validateOutputPath(linkPath)).not.toThrow();
     } finally {
-      try { unlinkSync(linkPath); } catch {}
-      try { unlinkSync(targetPath); } catch {}
+      try {
+        unlinkSync(linkPath);
+      } catch {}
+      try {
+        unlinkSync(targetPath);
+      } catch {}
     }
   });
 
@@ -143,7 +153,9 @@ describe('validateOutputPath — symlink resolution', () => {
       symlinkSync('/etc', linkDir);
       expect(() => validateOutputPath(join(linkDir, 'evil.png'))).toThrow(/Path must be within/);
     } finally {
-      try { unlinkSync(linkDir); } catch {}
+      try {
+        unlinkSync(linkDir);
+      } catch {}
     }
   });
 });

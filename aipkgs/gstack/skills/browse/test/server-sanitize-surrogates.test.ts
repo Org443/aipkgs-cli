@@ -8,16 +8,12 @@ import * as path from 'path';
 const SERVER_PATH = path.resolve(import.meta.dir, '..', 'src', 'server.ts');
 const SERVER_SRC = fs.readFileSync(SERVER_PATH, 'utf-8');
 
-const fnMatch = SERVER_SRC.match(
-  /function sanitizeLoneSurrogates\(str: string\): string \{[\s\S]*?\n\}/
-);
+const fnMatch = SERVER_SRC.match(/function sanitizeLoneSurrogates\(str: string\): string \{[\s\S]*?\n\}/);
 if (!fnMatch) throw new Error('Could not locate sanitizeLoneSurrogates in server.ts');
 
 // Strip TS annotations so eval works under plain JS.
 const jsSrc = fnMatch[0].replace('(str: string): string', '(str)');
-const sanitizeLoneSurrogates = new Function(`${jsSrc}\nreturn sanitizeLoneSurrogates;`)() as (
-  s: string,
-) => string;
+const sanitizeLoneSurrogates = new Function(`${jsSrc}\nreturn sanitizeLoneSurrogates;`)() as (s: string) => string;
 
 describe('sanitizeLoneSurrogates — unit cases', () => {
   test('passthrough ASCII', () => {
@@ -119,17 +115,13 @@ describe('sanitizeLoneSurrogates — wiring invariants', () => {
     // which applies sanitizeReplacer to every JSON.stringify. The grep
     // pins both halves of the contract: the endpoint uses the helper,
     // and the helper does the sanitization.
-    const activityBlock = SERVER_SRC.match(
-      /if \(url\.pathname === '\/activity\/stream'\)[\s\S]*?createSseEndpoint\(/,
-    );
+    const activityBlock = SERVER_SRC.match(/if \(url\.pathname === '\/activity\/stream'\)[\s\S]*?createSseEndpoint\(/);
     expect(activityBlock).not.toBeNull();
   });
 
   test('SSE inspector stream routes outbound frames through createSseEndpoint', () => {
     // Same v1.51 refactor invariant for /inspector/events.
-    const inspectorBlock = SERVER_SRC.match(
-      /if \(url\.pathname === '\/inspector\/events'[\s\S]*?createSseEndpoint\(/,
-    );
+    const inspectorBlock = SERVER_SRC.match(/if \(url\.pathname === '\/inspector\/events'[\s\S]*?createSseEndpoint\(/);
     expect(inspectorBlock).not.toBeNull();
   });
 

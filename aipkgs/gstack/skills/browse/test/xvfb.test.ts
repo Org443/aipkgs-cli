@@ -104,14 +104,16 @@ describe('cleanupXvfb', () => {
     expect(() => cleanupXvfb({ pid: 0, startTime: '', display: ':99' })).not.toThrow();
   });
 
-  test('no-op when not our Xvfb (won\'t kill unrelated process)', () => {
+  test("no-op when not our Xvfb (won't kill unrelated process)", () => {
     // Pass the current bun process's PID + a stale start-time. cleanupXvfb
     // should refuse to send signals because cmdline doesn't match Xvfb.
-    expect(() => cleanupXvfb({
-      pid: process.pid,
-      startTime: 'Mon Jan  1 00:00:00 1970',
-      display: ':99',
-    })).not.toThrow();
+    expect(() =>
+      cleanupXvfb({
+        pid: process.pid,
+        startTime: 'Mon Jan  1 00:00:00 1970',
+        display: ':99',
+      }),
+    ).not.toThrow();
     // The current process is still alive after the no-op cleanup attempt.
     expect(process.kill(process.pid, 0)).toBe(true);
   });

@@ -71,7 +71,7 @@ describe('getActivityAfter', () => {
     const e1 = emitActivity({ type: 'command_start', command: 'test1' });
     const e2 = emitActivity({ type: 'command_start', command: 'test2' });
     const result = getActivityAfter(e1.id);
-    expect(result.entries.some(e => e.id === e2.id)).toBe(true);
+    expect(result.entries.some((e) => e.id === e2.id)).toBe(true);
     expect(result.gap).toBe(false);
   });
 
@@ -100,7 +100,7 @@ describe('subscribe', () => {
     emitActivity({ type: 'command_start', command: 'sub-test' });
 
     // queueMicrotask is async — wait a tick
-    await new Promise(resolve => setTimeout(resolve, 10));
+    await new Promise((resolve) => setTimeout(resolve, 10));
 
     expect(received.length).toBeGreaterThanOrEqual(1);
     expect(received[received.length - 1].command).toBe('sub-test');
@@ -113,8 +113,8 @@ describe('subscribe', () => {
     unsub();
 
     emitActivity({ type: 'command_start', command: 'should-not-see' });
-    await new Promise(resolve => setTimeout(resolve, 10));
+    await new Promise((resolve) => setTimeout(resolve, 10));
 
-    expect(received.filter(e => e.command === 'should-not-see').length).toBe(0);
+    expect(received.filter((e) => e.command === 'should-not-see').length).toBe(0);
   });
 });

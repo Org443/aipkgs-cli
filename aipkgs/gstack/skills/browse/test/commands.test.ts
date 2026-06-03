@@ -12,7 +12,15 @@ import { resolveServerScript } from '../src/cli';
 import { handleReadCommand as _handleReadCommand } from '../src/read-commands';
 import { handleWriteCommand as _handleWriteCommand } from '../src/write-commands';
 import { handleMetaCommand } from '../src/meta-commands';
-import { consoleBuffer, networkBuffer, dialogBuffer, addConsoleEntry, addNetworkEntry, addDialogEntry, CircularBuffer } from '../src/buffers';
+import {
+  consoleBuffer,
+  networkBuffer,
+  dialogBuffer,
+  addConsoleEntry,
+  addNetworkEntry,
+  addDialogEntry,
+  CircularBuffer,
+} from '../src/buffers';
 import * as fs from 'fs';
 import { spawn } from 'child_process';
 import * as path from 'path';
@@ -37,7 +45,9 @@ beforeAll(async () => {
 
 afterAll(() => {
   // Force kill browser instead of graceful close (avoids hang)
-  try { testServer.server.stop(); } catch {}
+  try {
+    testServer.server.stop();
+  } catch {}
   // bm.close() can hang — just let process exit handle it
   setTimeout(() => process.exit(0), 500);
 });
@@ -630,7 +640,7 @@ describe('Diff', () => {
       'diff',
       [baseUrl + '/basic.html', baseUrl + '/forms.html'],
       bm,
-      async () => {}
+      async () => {},
     );
     expect(result).toContain('---');
     expect(result).toContain('+++');
@@ -663,9 +673,7 @@ describe('Chain', () => {
   });
 
   test('chain reports real error when write command fails', async () => {
-    const commands = JSON.stringify([
-      ['goto', 'http://localhost:1/unreachable'],
-    ]);
+    const commands = JSON.stringify([['goto', 'http://localhost:1/unreachable']]);
     const result = await handleMetaCommand('chain', [commands], bm, async () => {});
     expect(result).toContain('[goto] ERROR:');
     expect(result).not.toContain('Unknown meta command');
@@ -695,11 +703,7 @@ describe('CLI server script resolution', () => {
     fs.mkdirSync(path.dirname(serverPath), { recursive: true });
     fs.writeFileSync(serverPath, '// test server\n');
 
-    const resolved = resolveServerScript(
-      { HOME: path.join(root, 'empty-home') },
-      '$bunfs/root',
-      execPath
-    );
+    const resolved = resolveServerScript({ HOME: path.join(root, 'empty-home') }, '$bunfs/root', execPath);
 
     expect(resolved).toBe(serverPath);
 
@@ -712,11 +716,14 @@ describe('CLI server script resolution', () => {
 describe('CLI lifecycle', () => {
   test('dead state file triggers a clean restart', async () => {
     const stateFile = `/tmp/browse-test-state-${Date.now()}.json`;
-    fs.writeFileSync(stateFile, JSON.stringify({
-      port: 1,
-      token: 'fake',
-      pid: 999999,
-    }));
+    fs.writeFileSync(
+      stateFile,
+      JSON.stringify({
+        port: 1,
+        token: 'fake',
+        pid: 999999,
+      }),
+    );
 
     const cliPath = path.resolve(__dirname, '../src/cli.ts');
     const cliEnv: Record<string, string> = {};
@@ -731,8 +738,8 @@ describe('CLI lifecycle', () => {
       });
       let stdout = '';
       let stderr = '';
-      proc.stdout.on('data', (d) => stdout += d.toString());
-      proc.stderr.on('data', (d) => stderr += d.toString());
+      proc.stdout.on('data', (d) => (stdout += d.toString()));
+      proc.stderr.on('data', (d) => (stderr += d.toString()));
       proc.on('close', (code) => resolve({ code: code ?? 1, stdout, stderr }));
     });
 
@@ -742,7 +749,9 @@ describe('CLI lifecycle', () => {
       fs.unlinkSync(stateFile);
     }
     if (restartedPid) {
-      try { process.kill(restartedPid, 'SIGTERM'); } catch {}
+      try {
+        process.kill(restartedPid, 'SIGTERM');
+      } catch {}
     }
 
     expect(result.code).toBe(0);
@@ -797,21 +806,30 @@ describe('Buffer bounds', () => {
 describe('CircularBuffer', () => {
   test('push and toArray return items in insertion order', () => {
     const buf = new CircularBuffer<number>(5);
-    buf.push(1); buf.push(2); buf.push(3);
+    buf.push(1);
+    buf.push(2);
+    buf.push(3);
     expect(buf.toArray()).toEqual([1, 2, 3]);
     expect(buf.length).toBe(3);
   });
 
   test('overwrites oldest when full', () => {
     const buf = new CircularBuffer<number>(3);
-    buf.push(1); buf.push(2); buf.push(3); buf.push(4);
+    buf.push(1);
+    buf.push(2);
+    buf.push(3);
+    buf.push(4);
     expect(buf.toArray()).toEqual([2, 3, 4]);
     expect(buf.length).toBe(3);
   });
 
   test('totalAdded increments past capacity', () => {
     const buf = new CircularBuffer<number>(2);
-    buf.push(1); buf.push(2); buf.push(3); buf.push(4); buf.push(5);
+    buf.push(1);
+    buf.push(2);
+    buf.push(3);
+    buf.push(4);
+    buf.push(5);
     expect(buf.totalAdded).toBe(5);
     expect(buf.length).toBe(2);
     expect(buf.toArray()).toEqual([4, 5]);
@@ -827,7 +845,9 @@ describe('CircularBuffer', () => {
 
   test('get and set work by index', () => {
     const buf = new CircularBuffer<string>(3);
-    buf.push('a'); buf.push('b'); buf.push('c');
+    buf.push('a');
+    buf.push('b');
+    buf.push('c');
     expect(buf.get(0)).toBe('a');
     expect(buf.get(2)).toBe('c');
     buf.set(1, 'B');
@@ -838,7 +858,9 @@ describe('CircularBuffer', () => {
 
   test('clear resets size but not totalAdded', () => {
     const buf = new CircularBuffer<number>(5);
-    buf.push(1); buf.push(2); buf.push(3);
+    buf.push(1);
+    buf.push(2);
+    buf.push(3);
     buf.clear();
     expect(buf.length).toBe(0);
     expect(buf.totalAdded).toBe(3);
@@ -872,7 +894,7 @@ describe('Dialog handling', () => {
     await handleWriteCommand('goto', [baseUrl + '/dialog.html'], bm);
     await handleWriteCommand('click', ['#confirm-btn'], bm);
     // Wait for DOM update
-    await new Promise(r => setTimeout(r, 100));
+    await new Promise((r) => setTimeout(r, 100));
     const result = await handleReadCommand('js', ['document.querySelector("#confirm-result").textContent'], bm);
     expect(result).toBe('confirmed');
   });
@@ -883,7 +905,7 @@ describe('Dialog handling', () => {
 
     await handleWriteCommand('goto', [baseUrl + '/dialog.html'], bm);
     await handleWriteCommand('click', ['#confirm-btn'], bm);
-    await new Promise(r => setTimeout(r, 100));
+    await new Promise((r) => setTimeout(r, 100));
     const result = await handleReadCommand('js', ['document.querySelector("#confirm-result").textContent'], bm);
     expect(result).toBe('cancelled');
 
@@ -897,7 +919,7 @@ describe('Dialog handling', () => {
 
     await handleWriteCommand('goto', [baseUrl + '/dialog.html'], bm);
     await handleWriteCommand('click', ['#prompt-btn'], bm);
-    await new Promise(r => setTimeout(r, 100));
+    await new Promise((r) => setTimeout(r, 100));
     const result = await handleReadCommand('js', ['document.querySelector("#prompt-result").textContent'], bm);
     expect(result).toBe('TestUser');
 
@@ -975,7 +997,7 @@ describe('Element state checks', () => {
     await handleMetaCommand('snapshot', ['-i'], bm, async () => {});
     // Find a ref for the enabled input
     const snap = await handleMetaCommand('snapshot', ['-i'], bm, async () => {});
-    const textboxLine = snap.split('\n').find(l => l.includes('[textbox]'));
+    const textboxLine = snap.split('\n').find((l) => l.includes('[textbox]'));
     if (textboxLine) {
       const refMatch = textboxLine.match(/@(e\d+)/);
       if (refMatch) {
@@ -1018,7 +1040,7 @@ describe('File upload', () => {
     expect(result).toContain('browse-test-upload.txt');
 
     // Verify upload handler fired
-    await new Promise(r => setTimeout(r, 100));
+    await new Promise((r) => setTimeout(r, 100));
     const text = await handleReadCommand('js', ['document.querySelector("#upload-result").textContent'], bm);
     expect(text).toContain('browse-test-upload.txt');
     fs.unlinkSync(tempFile);
@@ -1399,7 +1421,7 @@ describe('Workflows', () => {
     await handleWriteCommand('goto', [baseUrl + '/snapshot.html'], bm);
     const snap = await handleMetaCommand('snapshot', ['-i'], bm, async () => {});
     // Find a link ref
-    const linkLine = snap.split('\n').find(l => l.includes('[link]'));
+    const linkLine = snap.split('\n').find((l) => l.includes('[link]'));
     expect(linkLine).toBeDefined();
     const refMatch = linkLine!.match(/@(e\d+)/);
     expect(refMatch).toBeDefined();
@@ -1414,8 +1436,8 @@ describe('Workflows', () => {
     await handleWriteCommand('goto', [baseUrl + '/snapshot.html'], bm);
     const snap = await handleMetaCommand('snapshot', ['-i'], bm, async () => {});
     // Find textbox and button
-    const textboxLine = snap.split('\n').find(l => l.includes('[textbox]'));
-    const buttonLine = snap.split('\n').find(l => l.includes('[button]') && l.includes('"Submit"'));
+    const textboxLine = snap.split('\n').find((l) => l.includes('[textbox]'));
+    const buttonLine = snap.split('\n').find((l) => l.includes('[button]') && l.includes('"Submit"'));
     if (textboxLine && buttonLine) {
       const textRef = textboxLine.match(/@(e\d+)/)![1];
       const btnRef = buttonLine.match(/@(e\d+)/)![1];
@@ -1435,7 +1457,7 @@ describe('Workflows', () => {
 
     // Switch back to previous tab
     const tabs = await bm.getTabListWithTitles();
-    const prevTab = tabs.find(t => t.url.includes('/basic.html'));
+    const prevTab = tabs.find((t) => t.url.includes('/basic.html'));
     if (prevTab) {
       bm.switchTab(prevTab.id);
       const url2 = await handleMetaCommand('url', [], bm, async () => {});
@@ -1444,7 +1466,7 @@ describe('Workflows', () => {
 
     // Clean up extra tab
     const allTabs = await bm.getTabListWithTitles();
-    const formTab = allTabs.find(t => t.url.includes('/forms.html'));
+    const formTab = allTabs.find((t) => t.url.includes('/forms.html'));
     if (formTab) await bm.closeTab(formTab.id);
   });
 
@@ -1744,7 +1766,9 @@ describe('Path traversal prevention', () => {
     await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm);
     const result = await handleMetaCommand('screenshot', ['/tmp/test-safe.png'], bm, () => {});
     expect(result).toContain('Screenshot saved');
-    try { fs.unlinkSync('/tmp/test-safe.png'); } catch {}
+    try {
+      fs.unlinkSync('/tmp/test-safe.png');
+    } catch {}
   });
 
   test('pdf rejects path outside safe dirs', async () => {
@@ -1792,7 +1816,9 @@ describe('Path traversal prevention', () => {
       const result = await handleReadCommand('eval', [tmpFile], bm);
       expect(typeof result).toBe('string');
     } finally {
-      try { fs.unlinkSync(tmpFile); } catch {}
+      try {
+        fs.unlinkSync(tmpFile);
+      } catch {}
     }
   });
 
@@ -1844,18 +1870,19 @@ describe('Chain with cookie-import', () => {
   test('cookie-import works inside chain', async () => {
     await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm);
     const tmpCookies = '/tmp/test-chain-cookies.json';
-    fs.writeFileSync(tmpCookies, JSON.stringify([
-      { name: 'chain_test', value: 'chain_value', domain: '127.0.0.1', path: '/' }
-    ]));
+    fs.writeFileSync(
+      tmpCookies,
+      JSON.stringify([{ name: 'chain_test', value: 'chain_value', domain: '127.0.0.1', path: '/' }]),
+    );
     try {
-      const commands = JSON.stringify([
-        ['cookie-import', tmpCookies],
-      ]);
+      const commands = JSON.stringify([['cookie-import', tmpCookies]]);
       const result = await handleMetaCommand('chain', [commands], bm, async () => {});
       expect(result).toContain('[cookie-import]');
       expect(result).toContain('Loaded 1 cookie');
     } finally {
-      try { fs.unlinkSync(tmpCookies); } catch {}
+      try {
+        fs.unlinkSync(tmpCookies);
+      } catch {}
     }
   });
 });
@@ -1900,7 +1927,7 @@ describe('Chain pipe format', () => {
       'chain',
       [`goto ${baseUrl}/basic.html | js document.title`],
       bm,
-      async () => {}
+      async () => {},
     );
     expect(result).toContain('[goto]');
     expect(result).toContain('[js]');
@@ -1912,7 +1939,7 @@ describe('Chain pipe format', () => {
       'chain',
       [`goto ${baseUrl}/forms.html | fill #email "pipe@test.com"`],
       bm,
-      async () => {}
+      async () => {},
     );
     expect(result).toContain('[fill]');
     expect(result).toContain('Filled');
@@ -1932,12 +1959,7 @@ describe('Chain pipe format', () => {
   });
 
   test('pipe format with unknown command includes error', async () => {
-    const result = await handleMetaCommand(
-      'chain',
-      ['bogus command'],
-      bm,
-      async () => {}
-    );
+    const result = await handleMetaCommand('chain', ['bogus command'], bm, async () => {});
     expect(result).toContain('ERROR');
     expect(result).toContain('Unknown command: bogus');
   });
@@ -2102,8 +2124,12 @@ describe('load-html', () => {
   });
 
   afterAll(() => {
-    try { fs.unlinkSync(fixturePath); } catch {}
-    try { fs.unlinkSync(fragmentPath); } catch {}
+    try {
+      fs.unlinkSync(fixturePath);
+    } catch {}
+    try {
+      fs.unlinkSync(fragmentPath);
+    } catch {}
   });
 
   test('load-html loads HTML file into page', async () => {
@@ -2139,7 +2165,9 @@ describe('load-html', () => {
     } catch (err: any) {
       expect(err.message).toMatch(/does not appear to be HTML/);
     } finally {
-      try { fs.unlinkSync(txtPath); } catch {}
+      try {
+        fs.unlinkSync(txtPath);
+      } catch {}
     }
   });
 
@@ -2174,26 +2202,30 @@ describe('load-html', () => {
   test('load-html rejects binary content disguised as .html', async () => {
     const binPath = path.join(tmpDir, `load-html-binary-${Date.now()}.html`);
     // PNG magic bytes: 0x89 0x50 0x4E 0x47
-    fs.writeFileSync(binPath, Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]));
+    fs.writeFileSync(binPath, Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
     try {
       await handleWriteCommand('load-html', [binPath], bm);
       expect(true).toBe(false);
     } catch (err: any) {
       expect(err.message).toMatch(/does not look like HTML/);
     } finally {
-      try { fs.unlinkSync(binPath); } catch {}
+      try {
+        fs.unlinkSync(binPath);
+      } catch {}
     }
   });
 
   test('load-html strips UTF-8 BOM before magic-byte check', async () => {
     const bomPath = path.join(tmpDir, `load-html-bom-${Date.now()}.html`);
-    const bomBytes = Buffer.from([0xEF, 0xBB, 0xBF]);
+    const bomBytes = Buffer.from([0xef, 0xbb, 0xbf]);
     fs.writeFileSync(bomPath, Buffer.concat([bomBytes, Buffer.from('<html><body>bom ok</body></html>')]));
     try {
       const result = await handleWriteCommand('load-html', [bomPath], bm);
       expect(result).toContain('Loaded HTML:');
     } finally {
-      try { fs.unlinkSync(bomPath); } catch {}
+      try {
+        fs.unlinkSync(bomPath);
+      } catch {}
     }
   });
 
@@ -2292,7 +2324,9 @@ describe('viewport --scale', () => {
       // Reset scale for other tests
       await handleWriteCommand('viewport', ['1280x720', '--scale', '1'], bm);
     } finally {
-      try { fs.unlinkSync(tmpFix); } catch {}
+      try {
+        fs.unlinkSync(tmpFix);
+      } catch {}
     }
   });
 
@@ -2363,7 +2397,9 @@ describe('setContent replay (load-html survives viewport --scale)', () => {
       expect(text).toContain('replay-test-marker');
       await handleWriteCommand('viewport', ['1280x720', '--scale', '1'], bm);
     } finally {
-      try { fs.unlinkSync(fix); } catch {}
+      try {
+        fs.unlinkSync(fix);
+      } catch {}
     }
   });
 
@@ -2378,7 +2414,9 @@ describe('setContent replay (load-html survives viewport --scale)', () => {
       expect(text).toContain('double-cycle-marker');
       await handleWriteCommand('viewport', ['1280x720', '--scale', '1'], bm);
     } finally {
-      try { fs.unlinkSync(fix); } catch {}
+      try {
+        fs.unlinkSync(fix);
+      } catch {}
     }
   });
 
@@ -2394,7 +2432,9 @@ describe('setContent replay (load-html survives viewport --scale)', () => {
       expect(text).not.toContain('stale-content');
       await handleWriteCommand('viewport', ['1280x720', '--scale', '1'], bm);
     } finally {
-      try { fs.unlinkSync(fix); } catch {}
+      try {
+        fs.unlinkSync(fix);
+      } catch {}
     }
   });
 });
@@ -2409,7 +2449,9 @@ describe('Command aliases', () => {
     fs.writeFileSync(aliasFix, '<p id="alias">alias routing ok</p>');
   });
   afterAll(() => {
-    try { fs.unlinkSync(aliasFix); } catch {}
+    try {
+      fs.unlinkSync(aliasFix);
+    } catch {}
   });
 
   test('setcontent alias routes to load-html via chain', async () => {

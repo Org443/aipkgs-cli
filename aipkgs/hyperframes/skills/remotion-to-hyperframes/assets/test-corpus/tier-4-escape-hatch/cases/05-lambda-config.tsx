@@ -11,9 +11,9 @@
 // the Lambda calls in step 3 (Generate) and writes a TRANSLATION_NOTES.md
 // entry so the user knows to set up HF rendering separately.
 
-import React from "react";
-import { renderMediaOnLambda } from "@remotion/lambda";
-import { AbsoluteFill, useCurrentFrame, interpolate } from "remotion";
+import React from 'react';
+import { renderMediaOnLambda } from '@remotion/lambda';
+import { AbsoluteFill, useCurrentFrame, interpolate } from 'remotion';
 
 export const LambdaConfigured: React.FC = () => {
   const frame = useCurrentFrame();
@@ -28,11 +28,11 @@ export const LambdaConfigured: React.FC = () => {
 // Rendered at scale via Lambda — no HF equivalent.
 export async function renderViaLambda() {
   return renderMediaOnLambda({
-    region: "us-east-1",
-    functionName: "remotion-render",
-    composition: "LambdaConfigured",
-    serveUrl: "https://example.com/bundle",
+    region: 'us-east-1',
+    functionName: 'remotion-render',
+    composition: 'LambdaConfigured',
+    serveUrl: 'https://example.com/bundle',
     inputProps: {},
-    codec: "h264",
+    codec: 'h264',
   });
 }

@@ -38,9 +38,15 @@ const defaultResolve: ResolveImpl = async (hostname) => {
   const dns = await import('dns');
   return new Promise((resolve, reject) => {
     dns.lookup(hostname, { family: 6, all: true }, (err, addrs) => {
-      if (err) { reject(err); return; }
+      if (err) {
+        reject(err);
+        return;
+      }
       const ipv6 = (addrs ?? []).filter((a) => a.family === 6).map((a) => a.address);
-      if (ipv6.length === 0) { reject(new Error(`no IPv6 records for ${hostname}`)); return; }
+      if (ipv6.length === 0) {
+        reject(new Error(`no IPv6 records for ${hostname}`));
+        return;
+      }
       resolve(ipv6);
     });
   });
@@ -90,7 +96,11 @@ export function listDevices(spawn: SpawnImpl = defaultSpawn): DeviceEntry[] {
   } catch {
     return [];
   } finally {
-    try { rmSync(tmp, { force: true }); } catch { /* ignore */ }
+    try {
+      rmSync(tmp, { force: true });
+    } catch {
+      /* ignore */
+    }
   }
 }
 
@@ -107,10 +117,7 @@ export function listDevices(spawn: SpawnImpl = defaultSpawn): DeviceEntry[] {
  * Returns null when the device isn't found, isn't tunneled, or devicectl
  * fails — callers should fall through to mDNS resolution.
  */
-export function getDeviceTunnelIPv6FromDevicectl(
-  udid: string,
-  spawn: SpawnImpl = defaultSpawn,
-): string | null {
+export function getDeviceTunnelIPv6FromDevicectl(udid: string, spawn: SpawnImpl = defaultSpawn): string | null {
   const tmp = join(tmpdir(), `devicectl-details-${process.pid}-${Date.now()}.json`);
   try {
     const r = spawn('xcrun', ['devicectl', 'device', 'info', 'details', '--device', udid, '--json-output', tmp]);
@@ -128,7 +135,11 @@ export function getDeviceTunnelIPv6FromDevicectl(
   } catch {
     return null;
   } finally {
-    try { rmSync(tmp, { force: true }); } catch { /* ignore */ }
+    try {
+      rmSync(tmp, { force: true });
+    } catch {
+      /* ignore */
+    }
   }
 }
 
@@ -162,8 +173,14 @@ export function startTunnelKeepalive(
     try {
       const tmp = join(tmpdir(), `devicectl-keepalive-${process.pid}-${Date.now()}.json`);
       spawn('xcrun', ['devicectl', 'device', 'info', 'details', '--device', udid, '--json-output', tmp]);
-      try { rmSync(tmp, { force: true }); } catch { /* ignore */ }
-    } catch { /* ignore — next tick will retry */ }
+      try {
+        rmSync(tmp, { force: true });
+      } catch {
+        /* ignore */
+      }
+    } catch {
+      /* ignore — next tick will retry */
+    }
   };
   const handle = setInterval(tick, intervalMs);
   // Don't keep the event loop alive just for this — daemon owns the lifecycle.
@@ -190,11 +207,12 @@ export async function getDeviceTunnelIPv6(
   // CoreDevice mDNS host: lowercase, spaces and apostrophes → hyphens, plus
   // ".coredevice.local" suffix. Apple normalizes "Garry's Durendal" to
   // "Garrys-Durendal.coredevice.local".
-  const slug = deviceName
-    .replace(/['']/g, '')           // strip apostrophes
-    .replace(/[\s_]+/g, '-')        // spaces/underscores → hyphens
-    .replace(/[^a-zA-Z0-9-]/g, '')  // anything else not URL-safe → drop
-    + '.coredevice.local';
+  const slug =
+    deviceName
+      .replace(/['']/g, '') // strip apostrophes
+      .replace(/[\s_]+/g, '-') // spaces/underscores → hyphens
+      .replace(/[^a-zA-Z0-9-]/g, '') + // anything else not URL-safe → drop
+    '.coredevice.local';
   try {
     const addrs = await resolve(slug);
     return addrs[0] ?? null;
@@ -243,11 +261,7 @@ export async function resolveTunnelIPv6(opts: {
 /**
  * Check whether a specific bundle ID has a running process on the device.
  */
-export function isAppRunning(
-  udid: string,
-  bundleId: string,
-  spawn: SpawnImpl = defaultSpawn,
-): boolean {
+export function isAppRunning(udid: string, bundleId: string, spawn: SpawnImpl = defaultSpawn): boolean {
   const tmp = join(tmpdir(), `devicectl-procs-${process.pid}-${Date.now()}.json`);
   try {
     const r = spawn('xcrun', ['devicectl', 'device', 'info', 'processes', '-d', udid, '--json-output', tmp]);
@@ -257,7 +271,11 @@ export function isAppRunning(
   } catch {
     return false;
   } finally {
-    try { rmSync(tmp, { force: true }); } catch { /* ignore */ }
+    try {
+      rmSync(tmp, { force: true });
+    } catch {
+      /* ignore */
+    }
   }
 }
 
@@ -298,19 +316,31 @@ export function copyFileFromAppContainer(opts: {
   const dest = join(dir, 'fetched');
   try {
     const r = spawn('xcrun', [
-      'devicectl', 'device', 'copy', 'from',
-      '--device', opts.udid,
-      '--domain-type', 'appDataContainer',
-      '--domain-identifier', opts.bundleId,
-      '--source', opts.sourceRelativePath,
-      '--destination', dest,
+      'devicectl',
+      'device',
+      'copy',
+      'from',
+      '--device',
+      opts.udid,
+      '--domain-type',
+      'appDataContainer',
+      '--domain-identifier',
+      opts.bundleId,
+      '--source',
+      opts.sourceRelativePath,
+      '--destination',
+      dest,
     ]);
     if (r.status !== 0) return null;
     return readFileSync(dest, 'utf-8').replace(/[\r\n]+$/, '');
   } catch {
     return null;
   } finally {
-    try { rmSync(dir, { recursive: true, force: true }); } catch { /* ignore */ }
+    try {
+      rmSync(dir, { recursive: true, force: true });
+    } catch {
+      /* ignore */
+    }
   }
 }
 

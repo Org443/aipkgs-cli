@@ -12,8 +12,7 @@ import type { Allowlist, AllowlistEntry, Capability } from './types';
 import { capabilityCovers } from './types';
 
 export function defaultAllowlistPath(): string {
-  return process.env.GSTACK_IOS_ALLOWLIST_PATH
-    ?? join(homedir(), '.gstack', 'ios-qa-allowlist.json');
+  return process.env.GSTACK_IOS_ALLOWLIST_PATH ?? join(homedir(), '.gstack', 'ios-qa-allowlist.json');
 }
 
 export async function loadAllowlist(path: string = defaultAllowlistPath()): Promise<Allowlist> {
@@ -69,7 +68,7 @@ export function findEntry(allowlist: Allowlist, identity: string): AllowlistEntr
 export function hasCapability(allowlist: Allowlist, identity: string, need: Capability): boolean {
   const entry = findEntry(allowlist, identity);
   if (!entry) return false;
-  return entry.capabilities.some(c => capabilityCovers(c, need));
+  return entry.capabilities.some((c) => capabilityCovers(c, need));
 }
 
 /**
@@ -84,10 +83,9 @@ export async function grantIdentity(opts: {
 }): Promise<Allowlist> {
   const path = opts.path ?? defaultAllowlistPath();
   const allowlist = await loadAllowlist(path);
-  const existingIdx = allowlist.entries.findIndex(e => e.identity === opts.identity);
-  const expiresAt = opts.ttlSeconds && opts.ttlSeconds > 0
-    ? new Date(Date.now() + opts.ttlSeconds * 1000).toISOString()
-    : null;
+  const existingIdx = allowlist.entries.findIndex((e) => e.identity === opts.identity);
+  const expiresAt =
+    opts.ttlSeconds && opts.ttlSeconds > 0 ? new Date(Date.now() + opts.ttlSeconds * 1000).toISOString() : null;
   const newEntry: AllowlistEntry = {
     identity: opts.identity,
     capabilities: [opts.capability],
@@ -108,7 +106,7 @@ export async function grantIdentity(opts: {
  */
 export async function revokeIdentity(identity: string, path: string = defaultAllowlistPath()): Promise<Allowlist> {
   const allowlist = await loadAllowlist(path);
-  allowlist.entries = allowlist.entries.filter(e => e.identity !== identity);
+  allowlist.entries = allowlist.entries.filter((e) => e.identity !== identity);
   await saveAllowlist(allowlist, path);
   return allowlist;
 }

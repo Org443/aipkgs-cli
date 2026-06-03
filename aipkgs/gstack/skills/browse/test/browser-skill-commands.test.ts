@@ -11,15 +11,8 @@ import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import {
-  initRegistry, validateToken, listTokens, __resetRegistry,
-} from '../src/token-registry';
-import {
-  handleSkillCommand,
-  spawnSkill,
-  buildSpawnEnv,
-  parseSkillRunArgs,
-} from '../src/browser-skill-commands';
+import { initRegistry, validateToken, listTokens, __resetRegistry } from '../src/token-registry';
+import { handleSkillCommand, spawnSkill, buildSpawnEnv, parseSkillRunArgs } from '../src/browser-skill-commands';
 import { readBrowserSkill, type TierPaths } from '../src/browser-skills';
 
 let tmpRoot: string;
@@ -157,8 +150,7 @@ describe('handleSkillCommand: help / unknown', () => {
   });
 
   it('throws on unknown subcommand', async () => {
-    await expect(handleSkillCommand(['frobnicate'], { port: 9999, tiers }))
-      .rejects.toThrow(/Unknown skill subcommand/);
+    await expect(handleSkillCommand(['frobnicate'], { port: 9999, tiers })).rejects.toThrow(/Unknown skill subcommand/);
   });
 });
 
@@ -253,7 +245,9 @@ const SKIP_SPAWN = process.env.BUN_TEST_NO_SPAWN === '1';
 
 describe.skipIf(SKIP_SPAWN)('spawnSkill: lifecycle', () => {
   it('happy path: returns stdout, exit 0, token revoked', async () => {
-    const dir = makeSkillDir(tiers.bundled, 'echo-skill',
+    const dir = makeSkillDir(
+      tiers.bundled,
+      'echo-skill',
       'name: echo-skill\nhost: x.com\ntrusted: true',
       `console.log(JSON.stringify({ ok: true, args: process.argv.slice(2) }));`,
     );
@@ -273,12 +267,14 @@ describe.skipIf(SKIP_SPAWN)('spawnSkill: lifecycle', () => {
     // Only --timeout filtering happens; -- is preserved by Bun.
     expect(parsed.args).toContain('hello');
     // Token revoked: nothing left in the registry for this client.
-    expect(listTokens().filter(t => t.clientId.startsWith('skill:echo-skill:'))).toEqual([]);
+    expect(listTokens().filter((t) => t.clientId.startsWith('skill:echo-skill:'))).toEqual([]);
   });
 
   it('untrusted spawn: GSTACK_SKILL_TOKEN visible, root env scrubbed', async () => {
-    const dir = makeSkillDir(tiers.bundled, 'env-probe',
-      'name: env-probe\nhost: x.com',  // trusted defaults to false
+    const dir = makeSkillDir(
+      tiers.bundled,
+      'env-probe',
+      'name: env-probe\nhost: x.com', // trusted defaults to false
       `console.log(JSON.stringify({
         port: process.env.GSTACK_PORT,
         token: process.env.GSTACK_SKILL_TOKEN,
@@ -293,7 +289,11 @@ describe.skipIf(SKIP_SPAWN)('spawnSkill: lifecycle', () => {
     try {
       const skill = readBrowserSkill('env-probe', tiers)!;
       const result = await spawnSkill({
-        skill, skillArgs: [], trusted: false, timeoutSeconds: 30, port: 4242,
+        skill,
+        skillArgs: [],
+        trusted: false,
+        timeoutSeconds: 30,
+        port: 4242,
       });
       expect(result.exitCode).toBe(0);
       const parsed = JSON.parse(result.stdout);
@@ -316,7 +316,9 @@ describe.skipIf(SKIP_SPAWN)('spawnSkill: lifecycle', () => {
   });
 
   it('trusted spawn: HOME passes through', async () => {
-    const dir = makeSkillDir(tiers.bundled, 'env-trusted',
+    const dir = makeSkillDir(
+      tiers.bundled,
+      'env-trusted',
       'name: env-trusted\nhost: x.com\ntrusted: true',
       `console.log(JSON.stringify({ home: process.env.HOME ?? null }));`,
     );
@@ -325,7 +327,11 @@ describe.skipIf(SKIP_SPAWN)('spawnSkill: lifecycle', () => {
     try {
       const skill = readBrowserSkill('env-trusted', tiers)!;
       const result = await spawnSkill({
-        skill, skillArgs: [], trusted: true, timeoutSeconds: 30, port: 9999,
+        skill,
+        skillArgs: [],
+        trusted: true,
+        timeoutSeconds: 30,
+        port: 9999,
       });
       const parsed = JSON.parse(result.stdout);
       expect(parsed.home).toBe('/Users/test-user');
@@ -340,35 +346,44 @@ describe.skipIf(SKIP_SPAWN)('spawnSkill: lifecycle', () => {
   });
 
   it('timeout fires, exit code 124, token revoked', async () => {
-    const dir = makeSkillDir(tiers.bundled, 'sleeper',
+    const dir = makeSkillDir(
+      tiers.bundled,
+      'sleeper',
       'name: sleeper\nhost: x.com\ntrusted: true',
       // Sleep longer than the test timeout; the spawn should kill us.
       `await new Promise(r => setTimeout(r, 30000)); console.log("done");`,
     );
     const skill = readBrowserSkill('sleeper', tiers)!;
     const result = await spawnSkill({
-      skill, skillArgs: [], trusted: true, timeoutSeconds: 1, port: 9999,
+      skill,
+      skillArgs: [],
+      trusted: true,
+      timeoutSeconds: 1,
+      port: 9999,
     });
     expect(result.timedOut).toBe(true);
     expect(result.exitCode).toBe(124);
-    expect(listTokens().filter(t => t.clientId.startsWith('skill:sleeper:'))).toEqual([]);
+    expect(listTokens().filter((t) => t.clientId.startsWith('skill:sleeper:'))).toEqual([]);
   }, 10_000);
 
   it('script crash propagates nonzero exit', async () => {
-    const dir = makeSkillDir(tiers.bundled, 'crasher',
-      'name: crasher\nhost: x.com\ntrusted: true',
-      `process.exit(7);`,
-    );
+    const dir = makeSkillDir(tiers.bundled, 'crasher', 'name: crasher\nhost: x.com\ntrusted: true', `process.exit(7);`);
     const skill = readBrowserSkill('crasher', tiers)!;
     const result = await spawnSkill({
-      skill, skillArgs: [], trusted: true, timeoutSeconds: 5, port: 9999,
+      skill,
+      skillArgs: [],
+      trusted: true,
+      timeoutSeconds: 5,
+      port: 9999,
     });
     expect(result.exitCode).toBe(7);
     expect(result.timedOut).toBe(false);
   });
 
   it('stdout > 1MB truncates and reports truncated', async () => {
-    const dir = makeSkillDir(tiers.bundled, 'flood',
+    const dir = makeSkillDir(
+      tiers.bundled,
+      'flood',
       'name: flood\nhost: x.com\ntrusted: true',
       // Emit ~2MB of "x" so the cap fires deterministically.
       `const chunk = 'x'.repeat(64 * 1024);
@@ -376,7 +391,11 @@ describe.skipIf(SKIP_SPAWN)('spawnSkill: lifecycle', () => {
     );
     const skill = readBrowserSkill('flood', tiers)!;
     const result = await spawnSkill({
-      skill, skillArgs: [], trusted: true, timeoutSeconds: 10, port: 9999,
+      skill,
+      skillArgs: [],
+      trusted: true,
+      timeoutSeconds: 10,
+      port: 9999,
     });
     expect(result.truncated).toBe(true);
     expect(result.stdout.length).toBeLessThanOrEqual(1024 * 1024);

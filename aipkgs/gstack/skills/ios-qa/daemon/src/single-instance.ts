@@ -18,8 +18,7 @@ export interface PidfileContents {
 }
 
 export function defaultPidfilePath(): string {
-  return process.env.GSTACK_IOS_DAEMON_PIDFILE
-    ?? join(homedir(), '.gstack', 'ios-qa-daemon.pid');
+  return process.env.GSTACK_IOS_DAEMON_PIDFILE ?? join(homedir(), '.gstack', 'ios-qa-daemon.pid');
 }
 
 /**
@@ -33,10 +32,7 @@ export function defaultPidfilePath(): string {
 export async function tryClaim(opts: {
   port: number;
   path?: string;
-}): Promise<
-  | { claimed: true; release: () => Promise<void> }
-  | { claimed: false; existing: PidfileContents }
-> {
+}): Promise<{ claimed: true; release: () => Promise<void> } | { claimed: false; existing: PidfileContents }> {
   const path = opts.path ?? defaultPidfilePath();
   await mkdir(dirname(path), { recursive: true, mode: 0o700 });
 
@@ -103,10 +99,18 @@ export async function tryClaim(opts: {
   };
 
   process.on('exit', () => {
-    try { unlinkSync(path); } catch { /* ignore */ }
+    try {
+      unlinkSync(path);
+    } catch {
+      /* ignore */
+    }
   });
-  process.on('SIGINT', () => { cleanup().finally(() => process.exit(0)); });
-  process.on('SIGTERM', () => { cleanup().finally(() => process.exit(0)); });
+  process.on('SIGINT', () => {
+    cleanup().finally(() => process.exit(0));
+  });
+  process.on('SIGTERM', () => {
+    cleanup().finally(() => process.exit(0));
+  });
 
   return { claimed: true, release: cleanup };
 }

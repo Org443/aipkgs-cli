@@ -37,11 +37,17 @@ let parentProc: Subprocess | null = null;
 
 afterEach(async () => {
   // Kill any survivors so subsequent tests get a clean slate.
-  try { parentProc?.kill('SIGKILL'); } catch {}
-  try { serverProc?.kill('SIGKILL'); } catch {}
+  try {
+    parentProc?.kill('SIGKILL');
+  } catch {}
+  try {
+    serverProc?.kill('SIGKILL');
+  } catch {}
   // Give processes a moment to exit before tmpDir cleanup.
   await Bun.sleep(100);
-  try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch {}
+  try {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  } catch {}
   parentProc = null;
   serverProc = null;
 });
@@ -70,11 +76,7 @@ function isProcessAlive(pid: number): boolean {
 
 // Read stdout until we see the expected marker or timeout. Returns the captured
 // text. Used to verify the watchdog code path ran as expected at startup.
-async function readStdoutUntil(
-  proc: Subprocess,
-  marker: string,
-  timeoutMs: number,
-): Promise<string> {
+async function readStdoutUntil(proc: Subprocess, marker: string, timeoutMs: number): Promise<string> {
   const deadline = Date.now() + timeoutMs;
   const decoder = new TextDecoder();
   let captured = '';
@@ -89,7 +91,9 @@ async function readStdoutUntil(
       if (captured.includes(marker)) return captured;
     }
   } finally {
-    try { reader.releaseLock(); } catch {}
+    try {
+      reader.releaseLock();
+    } catch {}
   }
   return captured;
 }
@@ -99,11 +103,7 @@ describe('parent-process watchdog (v0.18.1.0)', () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'watchdog-pid0-'));
     serverProc = spawnServer({ BROWSE_PARENT_PID: '0' }, 34901);
 
-    const out = await readStdoutUntil(
-      serverProc,
-      'Parent-process watchdog disabled (BROWSE_PARENT_PID=0)',
-      5000,
-    );
+    const out = await readStdoutUntil(serverProc, 'Parent-process watchdog disabled (BROWSE_PARENT_PID=0)', 5000);
     expect(out).toContain('Parent-process watchdog disabled (BROWSE_PARENT_PID=0)');
     // Control: the "parent exited, shutting down" line must NOT appear —
     // that would mean the watchdog ran after we said to skip it.
@@ -115,16 +115,9 @@ describe('parent-process watchdog (v0.18.1.0)', () => {
     // Pass a bogus parent PID to prove BROWSE_HEADED takes precedence.
     // If the server-side guard regresses, the watchdog would try to poll
     // this PID and eventually fire on the "dead parent."
-    serverProc = spawnServer(
-      { BROWSE_HEADED: '1', BROWSE_PARENT_PID: '999999' },
-      34902,
-    );
+    serverProc = spawnServer({ BROWSE_HEADED: '1', BROWSE_PARENT_PID: '999999' }, 34902);
 
-    const out = await readStdoutUntil(
-      serverProc,
-      'Parent-process watchdog disabled (headed mode)',
-      5000,
-    );
+    const out = await readStdoutUntil(serverProc, 'Parent-process watchdog disabled (headed mode)', 5000);
     expect(out).toContain('Parent-process watchdog disabled (headed mode)');
     expect(out).not.toContain('Parent process 999999 exited');
   }, 15_000);

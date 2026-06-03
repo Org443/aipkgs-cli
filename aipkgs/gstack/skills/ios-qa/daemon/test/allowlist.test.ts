@@ -28,10 +28,13 @@ describe('Allowlist', () => {
   });
 
   test('saveAllowlist writes mode 0600 JSON', async () => {
-    await saveAllowlist({
-      version: 1,
-      entries: [{ identity: 'user@example.com', capabilities: ['observe'], expires_at: null }],
-    }, listPath);
+    await saveAllowlist(
+      {
+        version: 1,
+        entries: [{ identity: 'user@example.com', capabilities: ['observe'], expires_at: null }],
+      },
+      listPath,
+    );
     expect(existsSync(listPath)).toBe(true);
     const raw = readFileSync(listPath, 'utf-8');
     expect(JSON.parse(raw).entries[0].identity).toBe('user@example.com');
@@ -51,7 +54,11 @@ describe('Allowlist', () => {
     const list = {
       version: 1 as const,
       entries: [
-        { identity: 'expired', capabilities: ['observe' as const], expires_at: new Date(Date.now() - 60_000).toISOString() },
+        {
+          identity: 'expired',
+          capabilities: ['observe' as const],
+          expires_at: new Date(Date.now() - 60_000).toISOString(),
+        },
       ],
     };
     expect(findEntry(list, 'expired')).toBeNull();
@@ -61,7 +68,11 @@ describe('Allowlist', () => {
     const list = {
       version: 1 as const,
       entries: [
-        { identity: 'future', capabilities: ['observe' as const], expires_at: new Date(Date.now() + 60_000).toISOString() },
+        {
+          identity: 'future',
+          capabilities: ['observe' as const],
+          expires_at: new Date(Date.now() + 60_000).toISOString(),
+        },
       ],
     };
     expect(findEntry(list, 'future')?.identity).toBe('future');
@@ -129,7 +140,11 @@ describe('Allowlist', () => {
         { identity: 'alice@example.com', capabilities: ['observe' as const], expires_at: null },
         { identity: 'tag:ci', capabilities: ['mutate' as const], expires_at: null },
         { identity: 'node:abcdef0123', capabilities: ['observe' as const], expires_at: null },
-        { identity: 'bob@example.com', capabilities: ['observe' as const], expires_at: new Date(Date.now() - 1000).toISOString() },
+        {
+          identity: 'bob@example.com',
+          capabilities: ['observe' as const],
+          expires_at: new Date(Date.now() - 1000).toISOString(),
+        },
       ],
     };
     expect(hasCapability(list, 'alice@example.com', 'observe')).toBe(true);

@@ -57,9 +57,9 @@ export async function mintForCaller(opts: {
   }
 
   // Find the entry to determine the highest tier they can hold.
-  const entry = allowlist.entries.find(e => e.identity === opts.callerIdentity);
+  const entry = allowlist.entries.find((e) => e.identity === opts.callerIdentity);
   // Mint at the requested tier, capped at the highest granted tier.
-  const grantedTier = entry?.capabilities.find(c => capabilityCovers(c, wantedCap)) ?? wantedCap;
+  const grantedTier = entry?.capabilities.find((c) => capabilityCovers(c, wantedCap)) ?? wantedCap;
 
   const result = opts.tokenStore.mint({
     identity: opts.callerIdentity,

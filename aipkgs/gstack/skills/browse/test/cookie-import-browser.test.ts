@@ -38,10 +38,7 @@ const LINUX_FIXTURE_DB = path.join(FIXTURE_DIR, 'test-cookies-linux.db');
 
 // ─── Encryption Helper ──────────────────────────────────────────
 
-function encryptCookieValue(
-  value: string,
-  options?: { key?: Buffer; prefix?: 'v10' | 'v11' },
-): Buffer {
+function encryptCookieValue(value: string, options?: { key?: Buffer; prefix?: 'v10' | 'v11' }): Buffer {
   const key = options?.key ?? TEST_KEY;
   const prefix = options?.prefix ?? 'v10';
   // 32-byte HMAC tag (random for test) + actual value
@@ -114,7 +111,18 @@ function createMacFixtureDb() {
   insert.run('.session.com', 'sess', '', encryptCookieValue('session-value'), '/', 0, 1, 1, 0, 1);
 
   // Domain 6: .corrupt.com — cookie with garbage encrypted_value
-  insert.run('.corrupt.com', 'bad', '', Buffer.from('v10' + 'not-valid-ciphertext-at-all'), '/', futureExpiry, 0, 0, 1, 1);
+  insert.run(
+    '.corrupt.com',
+    'bad',
+    '',
+    Buffer.from('v10' + 'not-valid-ciphertext-at-all'),
+    '/',
+    futureExpiry,
+    0,
+    0,
+    1,
+    1,
+  );
 
   // Domain 7: .mixed.com — one good, one corrupt
   insert.run('.mixed.com', 'good', '', encryptCookieValue('mixed-good'), '/', futureExpiry, 0, 0, 1, 1);
@@ -131,8 +139,30 @@ function createLinuxFixtureDb() {
 
   const futureExpiry = Number(chromiumEpoch(Math.floor(Date.now() / 1000) + 86400 * 365));
 
-  insert.run('.linux-v10.com', 'sid', '', encryptCookieValue('linux-v10-value', { key: LINUX_V10_KEY, prefix: 'v10' }), '/', futureExpiry, 1, 1, 1, 1);
-  insert.run('.linux-v11.com', 'auth', '', encryptCookieValue('linux-v11-value', { key: LINUX_V11_KEY, prefix: 'v11' }), '/', futureExpiry, 1, 1, 1, 1);
+  insert.run(
+    '.linux-v10.com',
+    'sid',
+    '',
+    encryptCookieValue('linux-v10-value', { key: LINUX_V10_KEY, prefix: 'v10' }),
+    '/',
+    futureExpiry,
+    1,
+    1,
+    1,
+    1,
+  );
+  insert.run(
+    '.linux-v11.com',
+    'auth',
+    '',
+    encryptCookieValue('linux-v11-value', { key: LINUX_V11_KEY, prefix: 'v11' }),
+    '/',
+    futureExpiry,
+    1,
+    1,
+    1,
+    1,
+  );
   insert.run('.linux-plain.com', 'plain', 'plain-linux', Buffer.alloc(0), '/', futureExpiry, 0, 0, 1, 1);
 
   db.close();
@@ -157,7 +187,7 @@ beforeAll(async () => {
   // Mock Bun.spawn to return test password for keychain access
   originalSpawn = Bun.spawn;
   // @ts-ignore - monkey-patching for test
-  Bun.spawn = function(cmd: any, opts: any) {
+  Bun.spawn = function (cmd: any, opts: any) {
     // Intercept security find-generic-password calls
     if (Array.isArray(cmd) && cmd[0] === 'security' && cmd[1] === 'find-generic-password') {
       // Return test password for any known test service
@@ -166,10 +196,12 @@ beforeAll(async () => {
           start(controller) {
             controller.enqueue(new TextEncoder().encode(TEST_PASSWORD + '\n'));
             controller.close();
-          }
+          },
         }),
         stderr: new ReadableStream({
-          start(controller) { controller.close(); }
+          start(controller) {
+            controller.close();
+          },
         }),
         exited: Promise.resolve(0),
         kill: () => {},
@@ -181,10 +213,12 @@ beforeAll(async () => {
           start(controller) {
             controller.enqueue(new TextEncoder().encode(LINUX_V11_PASSWORD + '\n'));
             controller.close();
-          }
+          },
         }),
         stderr: new ReadableStream({
-          start(controller) { controller.close(); }
+          start(controller) {
+            controller.close();
+          },
         }),
         exited: Promise.resolve(0),
         kill: () => {},
@@ -207,9 +241,15 @@ afterAll(() => {
   // @ts-ignore - monkey-patching for test
   Bun.spawn = originalSpawn;
   // Clean up fixture DB
-  try { fs.unlinkSync(FIXTURE_DB); } catch {}
-  try { fs.unlinkSync(LINUX_FIXTURE_DB); } catch {}
-  try { fs.rmdirSync(FIXTURE_DIR); } catch {}
+  try {
+    fs.unlinkSync(FIXTURE_DB);
+  } catch {}
+  try {
+    fs.unlinkSync(LINUX_FIXTURE_DB);
+  } catch {}
+  try {
+    fs.rmdirSync(FIXTURE_DIR);
+  } catch {}
 });
 
 // ─── Helper: Override DB path for tests ─────────────────────────
@@ -247,8 +287,12 @@ async function withInstalledProfile<T>(
       fs.copyFileSync(backupPath, cookiesPath);
       fs.unlinkSync(backupPath);
     } else {
-      try { fs.unlinkSync(cookiesPath); } catch {}
-      try { fs.rmdirSync(profileDir); } catch {}
+      try {
+        fs.unlinkSync(cookiesPath);
+      } catch {}
+      try {
+        fs.rmdirSync(profileDir);
+      } catch {}
     }
   }
 }
@@ -256,7 +300,6 @@ async function withInstalledProfile<T>(
 // ─── Tests ──────────────────────────────────────────────────────
 
 describe('Cookie Import Browser', () => {
-
   describe('Decryption Pipeline', () => {
     test('encrypts and decrypts round-trip correctly', () => {
       // Verify our test helper produces valid ciphertext
@@ -295,9 +338,9 @@ describe('Cookie Import Browser', () => {
   describe('Fixture DB Structure', () => {
     test('fixture DB has correct domain counts', () => {
       const db = new Database(FIXTURE_DB, { readonly: true });
-      const rows = db.query(
-        `SELECT host_key, COUNT(*) as count FROM cookies GROUP BY host_key ORDER BY count DESC`
-      ).all() as any[];
+      const rows = db
+        .query(`SELECT host_key, COUNT(*) as count FROM cookies GROUP BY host_key ORDER BY count DESC`)
+        .all() as any[];
       db.close();
 
       const counts = Object.fromEntries(rows.map((r: any) => [r.host_key, r.count]));
@@ -312,9 +355,7 @@ describe('Cookie Import Browser', () => {
 
     test('encrypted cookies in fixture have v10 prefix', () => {
       const db = new Database(FIXTURE_DB, { readonly: true });
-      const rows = db.query(
-        `SELECT name, encrypted_value FROM cookies WHERE host_key = '.github.com'`
-      ).all() as any[];
+      const rows = db.query(`SELECT name, encrypted_value FROM cookies WHERE host_key = '.github.com'`).all() as any[];
       db.close();
 
       for (const row of rows) {
@@ -325,15 +366,15 @@ describe('Cookie Import Browser', () => {
 
     test('decrypts all github.com cookies from fixture DB', () => {
       const db = new Database(FIXTURE_DB, { readonly: true });
-      const rows = db.query(
-        `SELECT name, value, encrypted_value FROM cookies WHERE host_key = '.github.com'`
-      ).all() as any[];
+      const rows = db
+        .query(`SELECT name, value, encrypted_value FROM cookies WHERE host_key = '.github.com'`)
+        .all() as any[];
       db.close();
 
       const expected: Record<string, string> = {
-        'session_id': 'abc123',
-        'user_token': 'token-xyz',
-        'theme': 'dark',
+        session_id: 'abc123',
+        user_token: 'token-xyz',
+        theme: 'dark',
       };
 
       for (const row of rows) {
@@ -349,9 +390,7 @@ describe('Cookie Import Browser', () => {
 
     test('unencrypted cookie uses value field directly', () => {
       const db = new Database(FIXTURE_DB, { readonly: true });
-      const row = db.query(
-        `SELECT value, encrypted_value FROM cookies WHERE host_key = '.example.com'`
-      ).get() as any;
+      const row = db.query(`SELECT value, encrypted_value FROM cookies WHERE host_key = '.example.com'`).get() as any;
       db.close();
 
       expect(row.value).toBe('hello-world');
@@ -391,9 +430,7 @@ describe('Cookie Import Browser', () => {
 
     test('session cookies (has_expires=0) get expires=-1', () => {
       const db = new Database(FIXTURE_DB, { readonly: true });
-      const row = db.query(
-        `SELECT has_expires, expires_utc FROM cookies WHERE host_key = '.session.com'`
-      ).get() as any;
+      const row = db.query(`SELECT has_expires, expires_utc FROM cookies WHERE host_key = '.session.com'`).get() as any;
       db.close();
       expect(row.has_expires).toBe(0);
       // When has_expires=0, the module should return expires=-1
@@ -441,37 +478,52 @@ describe('Cookie Import Browser', () => {
 
   describe('Real Profile Imports', () => {
     test('imports Linux v10 cookies from ~/.config/chromium', async () => {
-      await withInstalledProfile('.config/chromium', LINUX_FIXTURE_DB, async () => {
-        const result = await importCookies('chromium', ['.linux-v10.com'], 'GstackLinuxV10');
+      await withInstalledProfile(
+        '.config/chromium',
+        LINUX_FIXTURE_DB,
+        async () => {
+          const result = await importCookies('chromium', ['.linux-v10.com'], 'GstackLinuxV10');
 
-        expect(result.count).toBe(1);
-        expect(result.failed).toBe(0);
-        expect(result.cookies[0].name).toBe('sid');
-        expect(result.cookies[0].value).toBe('linux-v10-value');
-      }, 'GstackLinuxV10');
+          expect(result.count).toBe(1);
+          expect(result.failed).toBe(0);
+          expect(result.cookies[0].name).toBe('sid');
+          expect(result.cookies[0].value).toBe('linux-v10-value');
+        },
+        'GstackLinuxV10',
+      );
     });
 
     test('imports Linux v11 cookies when secret-tool returns a key', async () => {
-      await withInstalledProfile('.config/chromium', LINUX_FIXTURE_DB, async () => {
-        const result = await importCookies('chromium', ['.linux-v11.com'], 'GstackLinuxV11');
+      await withInstalledProfile(
+        '.config/chromium',
+        LINUX_FIXTURE_DB,
+        async () => {
+          const result = await importCookies('chromium', ['.linux-v11.com'], 'GstackLinuxV11');
 
-        expect(result.count).toBe(1);
-        expect(result.failed).toBe(0);
-        expect(result.cookies[0].name).toBe('auth');
-        expect(result.cookies[0].value).toBe('linux-v11-value');
-      }, 'GstackLinuxV11');
+          expect(result.count).toBe(1);
+          expect(result.failed).toBe(0);
+          expect(result.cookies[0].name).toBe('auth');
+          expect(result.cookies[0].value).toBe('linux-v11-value');
+        },
+        'GstackLinuxV11',
+      );
     });
 
     test('lists domains from Linux Chromium profiles', async () => {
-      await withInstalledProfile('.config/chromium', LINUX_FIXTURE_DB, async () => {
-        const result = listDomains('chromium', 'GstackLinuxDomains');
-        const domains = result.domains.map((entry: any) => entry.domain);
+      await withInstalledProfile(
+        '.config/chromium',
+        LINUX_FIXTURE_DB,
+        async () => {
+          const result = listDomains('chromium', 'GstackLinuxDomains');
+          const domains = result.domains.map((entry: any) => entry.domain);
 
-        expect(result.browser).toBe('Chromium');
-        expect(domains).toContain('.linux-v10.com');
-        expect(domains).toContain('.linux-v11.com');
-        expect(domains).toContain('.linux-plain.com');
-      }, 'GstackLinuxDomains');
+          expect(result.browser).toBe('Chromium');
+          expect(domains).toContain('.linux-v10.com');
+          expect(domains).toContain('.linux-v11.com');
+          expect(domains).toContain('.linux-plain.com');
+        },
+        'GstackLinuxDomains',
+      );
     });
   });
 

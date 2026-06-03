@@ -11,13 +11,7 @@
  */
 
 import { describe, test, expect } from 'bun:test';
-import {
-  checkCanaryInStructure,
-  combineVerdict,
-  generateCanary,
-  THRESHOLDS,
-  type LayerSignal,
-} from '../src/security';
+import { checkCanaryInStructure, combineVerdict, generateCanary, THRESHOLDS, type LayerSignal } from '../src/security';
 
 // ─── Canary channel coverage ─────────────────────────────────
 
@@ -176,7 +170,7 @@ describe('combineVerdict — realistic attack/defense scenarios', () => {
     // Both vote block → BLOCK.
     const r = combineVerdict([
       { layer: 'testsavant_content', confidence: 0.92 },
-      { layer: 'transcript_classifier', confidence: 0.80, meta: { verdict: 'block' } },
+      { layer: 'transcript_classifier', confidence: 0.8, meta: { verdict: 'block' } },
     ]);
     expect(r.verdict).toBe('block');
     expect(r.reason).toBe('ensemble_agreement');
@@ -275,8 +269,8 @@ describe('combineVerdict — label-first voting for transcript_classifier', () =
     // not hijack-level" regardless of its confidence. It should NOT single-
     // handedly upgrade the ensemble to BLOCK even when pointed at 0.80.
     const r = combineVerdict([
-      { layer: 'testsavant_content', confidence: 0.80 },
-      { layer: 'transcript_classifier', confidence: 0.80, meta: { verdict: 'warn' } },
+      { layer: 'testsavant_content', confidence: 0.8 },
+      { layer: 'transcript_classifier', confidence: 0.8, meta: { verdict: 'warn' } },
     ]);
     // testsavant is a block-vote (1), transcript is a warn-vote only.
     // Total block-votes = 1, below the 2-of-N rule → WARN, not BLOCK.
@@ -288,8 +282,8 @@ describe('combineVerdict — label-first voting for transcript_classifier', () =
 
   test('Haiku verdict=block at moderate confidence still block-votes (ensemble save on real hijack)', () => {
     const r = combineVerdict([
-      { layer: 'testsavant_content', confidence: 0.80 },
-      { layer: 'transcript_classifier', confidence: 0.80, meta: { verdict: 'block' } },
+      { layer: 'testsavant_content', confidence: 0.8 },
+      { layer: 'transcript_classifier', confidence: 0.8, meta: { verdict: 'block' } },
     ]);
     expect(r.verdict).toBe('block');
     expect(r.reason).toBe('ensemble_agreement');
@@ -299,9 +293,9 @@ describe('combineVerdict — label-first voting for transcript_classifier', () =
     // Even when Haiku says warn (not block), two other classifiers agreeing
     // still reaches the 2-of-N threshold.
     const r = combineVerdict([
-      { layer: 'testsavant_content', confidence: 0.80 },
-      { layer: 'deberta_content', confidence: 0.80 },
-      { layer: 'transcript_classifier', confidence: 0.80, meta: { verdict: 'warn' } },
+      { layer: 'testsavant_content', confidence: 0.8 },
+      { layer: 'deberta_content', confidence: 0.8 },
+      { layer: 'transcript_classifier', confidence: 0.8, meta: { verdict: 'warn' } },
     ]);
     expect(r.verdict).toBe('block');
     expect(r.reason).toBe('ensemble_agreement');
@@ -312,8 +306,8 @@ describe('combineVerdict — label-first voting for transcript_classifier', () =
     // it to warn-vote. testsavant alone remains a single block-vote → WARN,
     // not BLOCK.
     const r = combineVerdict([
-      { layer: 'testsavant_content', confidence: 0.80 },
-      { layer: 'transcript_classifier', confidence: 0.30, meta: { verdict: 'block' } },
+      { layer: 'testsavant_content', confidence: 0.8 },
+      { layer: 'transcript_classifier', confidence: 0.3, meta: { verdict: 'block' } },
     ]);
     expect(r.verdict).toBe('warn');
   });
@@ -321,8 +315,8 @@ describe('combineVerdict — label-first voting for transcript_classifier', () =
   test('above hallucination floor: verdict=block at confidence 0.50 counts as block-vote', () => {
     // Once confidence >= LOG_ONLY (0.40), the label is trusted. BLOCK.
     const r = combineVerdict([
-      { layer: 'testsavant_content', confidence: 0.80 },
-      { layer: 'transcript_classifier', confidence: 0.50, meta: { verdict: 'block' } },
+      { layer: 'testsavant_content', confidence: 0.8 },
+      { layer: 'transcript_classifier', confidence: 0.5, meta: { verdict: 'block' } },
     ]);
     expect(r.verdict).toBe('block');
     expect(r.reason).toBe('ensemble_agreement');
@@ -334,7 +328,7 @@ describe('combineVerdict — label-first voting for transcript_classifier', () =
     // when confidence >= WARN, never a block-vote. Even at 0.95 (high
     // confidence), transcript alone doesn't upgrade the ensemble.
     const r = combineVerdict([
-      { layer: 'testsavant_content', confidence: 0.80 },
+      { layer: 'testsavant_content', confidence: 0.8 },
       { layer: 'transcript_classifier', confidence: 0.95 }, // no meta
     ]);
     expect(r.verdict).toBe('warn');

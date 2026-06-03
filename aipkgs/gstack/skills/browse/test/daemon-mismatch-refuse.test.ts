@@ -41,16 +41,21 @@ async function startFakeHealthServer(token: string): Promise<{ port: number; clo
   };
 }
 
-async function runCli(args: string[], env: Record<string, string>, timeoutMs = 10000): Promise<{ code: number; stdout: string; stderr: string }> {
+async function runCli(
+  args: string[],
+  env: Record<string, string>,
+  timeoutMs = 10000,
+): Promise<{ code: number; stdout: string; stderr: string }> {
   const cliPath = path.resolve(__dirname, '../src/cli.ts');
   return new Promise((resolve) => {
     const proc = spawn('bun', ['run', cliPath, ...args], {
       timeout: timeoutMs,
       env,
     });
-    let stdout = ''; let stderr = '';
-    proc.stdout.on('data', (d) => stdout += d.toString());
-    proc.stderr.on('data', (d) => stderr += d.toString());
+    let stdout = '';
+    let stderr = '';
+    proc.stdout.on('data', (d) => (stdout += d.toString()));
+    proc.stderr.on('data', (d) => (stderr += d.toString()));
     proc.on('close', (code) => resolve({ code: code ?? 1, stdout, stderr }));
   });
 }
@@ -62,15 +67,22 @@ describe('D2 daemon-mismatch refuse (CLI integration)', () => {
     const stateFile = path.join(tmpDir, 'browse.json');
     const fakeServer = await startFakeHealthServer('fake-token');
 
-    fs.writeFileSync(stateFile, JSON.stringify({
-      pid: process.pid, // alive (current bun process); health check is what really gates this
-      port: fakeServer.port,
-      token: 'fake-token',
-      startedAt: new Date().toISOString(),
-      serverPath: '',
-      mode: 'launched',
-      configHash: 'aaaaaaaaaaaaaaaa', // 16-char hex; won't match new --proxy hash
-    }, null, 2));
+    fs.writeFileSync(
+      stateFile,
+      JSON.stringify(
+        {
+          pid: process.pid, // alive (current bun process); health check is what really gates this
+          port: fakeServer.port,
+          token: 'fake-token',
+          startedAt: new Date().toISOString(),
+          serverPath: '',
+          mode: 'launched',
+          configHash: 'aaaaaaaaaaaaaaaa', // 16-char hex; won't match new --proxy hash
+        },
+        null,
+        2,
+      ),
+    );
 
     const cliEnv: Record<string, string> = {};
     for (const [k, v] of Object.entries(process.env)) {
@@ -79,15 +91,16 @@ describe('D2 daemon-mismatch refuse (CLI integration)', () => {
     cliEnv.BROWSE_STATE_FILE = stateFile;
 
     try {
-      const result = await runCli(
-        ['--proxy', 'socks5://example.com:1080', 'status'],
-        cliEnv,
-      );
+      const result = await runCli(['--proxy', 'socks5://example.com:1080', 'status'], cliEnv);
       expect(result.code).toBe(1);
       expect(result.stderr.toLowerCase()).toMatch(/different config|mismatch|browse disconnect/);
     } finally {
       await fakeServer.close();
-      try { fs.unlinkSync(stateFile); } catch { /* ignore */ }
+      try {
+        fs.unlinkSync(stateFile);
+      } catch {
+        /* ignore */
+      }
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }
   }, 15000);
@@ -98,14 +111,21 @@ describe('D2 daemon-mismatch refuse (CLI integration)', () => {
     const fakeServer = await startFakeHealthServer('fake-token');
 
     // Plain daemon (no configHash) — represents the existing-default case.
-    fs.writeFileSync(stateFile, JSON.stringify({
-      pid: process.pid,
-      port: fakeServer.port,
-      token: 'fake-token',
-      startedAt: new Date().toISOString(),
-      serverPath: '',
-      mode: 'launched',
-    }, null, 2));
+    fs.writeFileSync(
+      stateFile,
+      JSON.stringify(
+        {
+          pid: process.pid,
+          port: fakeServer.port,
+          token: 'fake-token',
+          startedAt: new Date().toISOString(),
+          serverPath: '',
+          mode: 'launched',
+        },
+        null,
+        2,
+      ),
+    );
 
     const cliEnv: Record<string, string> = {};
     for (const [k, v] of Object.entries(process.env)) {
@@ -114,15 +134,16 @@ describe('D2 daemon-mismatch refuse (CLI integration)', () => {
     cliEnv.BROWSE_STATE_FILE = stateFile;
 
     try {
-      const result = await runCli(
-        ['--headed', 'status'],
-        cliEnv,
-      );
+      const result = await runCli(['--headed', 'status'], cliEnv);
       expect(result.code).toBe(1);
       expect(result.stderr.toLowerCase()).toMatch(/without --proxy|browse disconnect/);
     } finally {
       await fakeServer.close();
-      try { fs.unlinkSync(stateFile); } catch { /* ignore */ }
+      try {
+        fs.unlinkSync(stateFile);
+      } catch {
+        /* ignore */
+      }
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }
   }, 15000);
@@ -140,15 +161,22 @@ describe('D2 daemon-mismatch refuse (CLI integration)', () => {
       headed: false,
     });
 
-    fs.writeFileSync(stateFile, JSON.stringify({
-      pid: process.pid,
-      port: fakeServer.port,
-      token: 'fake-token',
-      startedAt: new Date().toISOString(),
-      serverPath: '',
-      mode: 'launched',
-      configHash: matchingHash,
-    }, null, 2));
+    fs.writeFileSync(
+      stateFile,
+      JSON.stringify(
+        {
+          pid: process.pid,
+          port: fakeServer.port,
+          token: 'fake-token',
+          startedAt: new Date().toISOString(),
+          serverPath: '',
+          mode: 'launched',
+          configHash: matchingHash,
+        },
+        null,
+        2,
+      ),
+    );
 
     const cliEnv: Record<string, string> = {};
     for (const [k, v] of Object.entries(process.env)) {
@@ -157,10 +185,7 @@ describe('D2 daemon-mismatch refuse (CLI integration)', () => {
     cliEnv.BROWSE_STATE_FILE = stateFile;
 
     try {
-      const result = await runCli(
-        ['--proxy', 'socks5://reuse.example:1080', 'status'],
-        cliEnv,
-      );
+      const result = await runCli(['--proxy', 'socks5://reuse.example:1080', 'status'], cliEnv);
       // Status command would fail to actually return useful data because our
       // fake server doesn't implement /command, but the CLI must NOT exit
       // with the mismatch error code path (which is exit 1 + 'different
@@ -171,7 +196,11 @@ describe('D2 daemon-mismatch refuse (CLI integration)', () => {
       expect(result.stderr).not.toMatch(/different config|run 'browse disconnect' first/i);
     } finally {
       await fakeServer.close();
-      try { fs.unlinkSync(stateFile); } catch { /* ignore */ }
+      try {
+        fs.unlinkSync(stateFile);
+      } catch {
+        /* ignore */
+      }
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }
   }, 15000);

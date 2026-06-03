@@ -78,14 +78,19 @@ describe('mintForCaller', () => {
   test('expired allowlist entries reject the mint', async () => {
     // Write an expired entry directly.
     const { saveAllowlist } = await import('../src/allowlist');
-    await saveAllowlist({
-      version: 1,
-      entries: [{
-        identity: 'expired@e.com',
-        capabilities: ['restore'],
-        expires_at: new Date(Date.now() - 60_000).toISOString(),
-      }],
-    }, listPath);
+    await saveAllowlist(
+      {
+        version: 1,
+        entries: [
+          {
+            identity: 'expired@e.com',
+            capabilities: ['restore'],
+            expires_at: new Date(Date.now() - 60_000).toISOString(),
+          },
+        ],
+      },
+      listPath,
+    );
     const store = new SessionTokenStore();
     const r = await mintForCaller({
       callerIdentity: 'expired@e.com',

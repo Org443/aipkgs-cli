@@ -10,15 +10,8 @@
  */
 
 import { describe, it, expect, beforeEach } from 'bun:test';
-import {
-  initRegistry, __resetRegistry, validateToken, checkScope,
-} from '../src/token-registry';
-import {
-  generateSpawnId,
-  skillClientId,
-  mintSkillToken,
-  revokeSkillToken,
-} from '../src/skill-token';
+import { initRegistry, __resetRegistry, validateToken, checkScope } from '../src/token-registry';
+import { generateSpawnId, skillClientId, mintSkillToken, revokeSkillToken } from '../src/skill-token';
 
 describe('skill-token', () => {
   beforeEach(() => {
@@ -74,7 +67,9 @@ describe('skill-token', () => {
     it('TTL is spawnTimeout + 30s slack', () => {
       const before = Date.now();
       const info = mintSkillToken({
-        skillName: 'x', spawnId: 'y', spawnTimeoutSeconds: 60,
+        skillName: 'x',
+        spawnId: 'y',
+        spawnTimeoutSeconds: 60,
       });
       const after = Date.now();
       const expiresMs = new Date(info.expiresAt!).getTime();
@@ -85,7 +80,9 @@ describe('skill-token', () => {
 
     it('minted token validates and grants browser-driving scope', () => {
       const info = mintSkillToken({
-        skillName: 'hn', spawnId: 's1', spawnTimeoutSeconds: 60,
+        skillName: 'hn',
+        spawnId: 's1',
+        spawnTimeoutSeconds: 60,
       });
       const validated = validateToken(info.token);
       expect(validated).not.toBeNull();
@@ -97,7 +94,9 @@ describe('skill-token', () => {
 
     it('minted token denies admin commands (eval, js, cookies, storage)', () => {
       const info = mintSkillToken({
-        skillName: 'hn', spawnId: 's1', spawnTimeoutSeconds: 60,
+        skillName: 'hn',
+        spawnId: 's1',
+        spawnTimeoutSeconds: 60,
       });
       const validated = validateToken(info.token);
       expect(validated).not.toBeNull();
@@ -109,7 +108,9 @@ describe('skill-token', () => {
 
     it('minted token denies control commands (state, stop, restart)', () => {
       const info = mintSkillToken({
-        skillName: 'hn', spawnId: 's1', spawnTimeoutSeconds: 60,
+        skillName: 'hn',
+        spawnId: 's1',
+        spawnTimeoutSeconds: 60,
       });
       const validated = validateToken(info.token);
       expect(checkScope(validated!, 'stop')).toBe(false);
@@ -119,7 +120,9 @@ describe('skill-token', () => {
 
     it('rateLimit is unlimited (skill scripts run as fast as daemon allows)', () => {
       const info = mintSkillToken({
-        skillName: 'hn', spawnId: 's1', spawnTimeoutSeconds: 60,
+        skillName: 'hn',
+        spawnId: 's1',
+        spawnTimeoutSeconds: 60,
       });
       expect(info.rateLimit).toBe(0);
     });

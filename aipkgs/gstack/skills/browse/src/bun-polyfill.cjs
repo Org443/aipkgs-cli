@@ -58,7 +58,9 @@ globalThis.Bun = {
     server.listen(port, hostname);
 
     return {
-      stop() { server.close(); },
+      stop() {
+        server.close();
+      },
       port,
       hostname,
     };
@@ -98,8 +100,12 @@ globalThis.Bun = {
       stdout: proc.stdout,
       stderr: proc.stderr,
       stdin: proc.stdin,
-      unref() { proc.unref(); },
-      kill(signal) { proc.kill(signal); },
+      unref() {
+        proc.unref();
+      },
+      kill(signal) {
+        proc.kill(signal);
+      },
     };
   },
 

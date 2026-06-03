@@ -26,22 +26,22 @@
  * Only the CI gate and unit tests invoke pdftotext.
  */
 
-import { execFileSync } from "node:child_process";
-import * as fs from "node:fs";
-import * as os from "node:os";
-import * as path from "node:path";
+import { execFileSync } from 'node:child_process';
+import * as fs from 'node:fs';
+import * as os from 'node:os';
+import * as path from 'node:path';
 
 export class PdftotextUnavailableError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = "PdftotextUnavailableError";
+    this.name = 'PdftotextUnavailableError';
   }
 }
 
 export interface PdftotextInfo {
   bin: string;
-  version: string;        // "pdftotext version 24.02.0" or similar
-  flavor: "poppler" | "xpdf" | "unknown";
+  version: string; // "pdftotext version 24.02.0" or similar
+  flavor: 'poppler' | 'xpdf' | 'unknown';
 }
 
 /**
@@ -51,8 +51,8 @@ export interface PdftotextInfo {
  */
 export function findExecutable(base: string): string | null {
   if (isExecutable(base)) return base;
-  if (process.platform === "win32") {
-    for (const ext of [".exe", ".cmd", ".bat"]) {
+  if (process.platform === 'win32') {
+    for (const ext of ['.exe', '.cmd', '.bat']) {
       const withExt = base + ext;
       if (isExecutable(withExt)) return withExt;
     }
@@ -86,32 +86,34 @@ export function resolvePdftotext(env: NodeJS.ProcessEnv = process.env): Pdftotex
   // scatter across Scoop/Chocolatey/portable zips and guessing causes false
   // positives. Windows users set GSTACK_PDFTOTEXT_BIN explicitly.
   const posixCandidates = [
-    "/opt/homebrew/bin/pdftotext",     // Apple Silicon Homebrew
-    "/usr/local/bin/pdftotext",        // Intel Mac or Linuxbrew
-    "/usr/bin/pdftotext",              // distro package
+    '/opt/homebrew/bin/pdftotext', // Apple Silicon Homebrew
+    '/usr/local/bin/pdftotext', // Intel Mac or Linuxbrew
+    '/usr/bin/pdftotext', // distro package
   ];
   for (const candidate of posixCandidates) {
     if (isExecutable(candidate)) return describeBinary(candidate);
   }
 
-  throw new PdftotextUnavailableError([
-    "pdftotext not found.",
-    "",
-    "make-pdf needs pdftotext to run the copy-paste CI gate.",
-    "(Runtime rendering does NOT need it. This only affects tests.)",
-    "",
-    "To install:",
-    "  macOS:    brew install poppler",
-    "  Ubuntu:   sudo apt-get install poppler-utils",
-    "  Fedora:   sudo dnf install poppler-utils",
-    "  Windows:  scoop install poppler  (or download from",
-    "            https://github.com/oschwartz10612/poppler-windows)",
-    "",
-    "Or set GSTACK_PDFTOTEXT_BIN to an explicit path:",
-    process.platform === "win32"
-      ? '  setx GSTACK_PDFTOTEXT_BIN "C:\\path\\to\\pdftotext.exe"'
-      : "  export GSTACK_PDFTOTEXT_BIN=/path/to/pdftotext",
-  ].join("\n"));
+  throw new PdftotextUnavailableError(
+    [
+      'pdftotext not found.',
+      '',
+      'make-pdf needs pdftotext to run the copy-paste CI gate.',
+      '(Runtime rendering does NOT need it. This only affects tests.)',
+      '',
+      'To install:',
+      '  macOS:    brew install poppler',
+      '  Ubuntu:   sudo apt-get install poppler-utils',
+      '  Fedora:   sudo dnf install poppler-utils',
+      '  Windows:  scoop install poppler  (or download from',
+      '            https://github.com/oschwartz10612/poppler-windows)',
+      '',
+      'Or set GSTACK_PDFTOTEXT_BIN to an explicit path:',
+      process.platform === 'win32'
+        ? '  setx GSTACK_PDFTOTEXT_BIN "C:\\path\\to\\pdftotext.exe"'
+        : '  export GSTACK_PDFTOTEXT_BIN=/path/to/pdftotext',
+    ].join('\n'),
+  );
 }
 
 function isExecutable(p: string): boolean {
@@ -124,23 +126,23 @@ function isExecutable(p: string): boolean {
 }
 
 function describeBinary(bin: string): PdftotextInfo {
-  let version = "unknown";
-  let flavor: PdftotextInfo["flavor"] = "unknown";
+  let version = 'unknown';
+  let flavor: PdftotextInfo['flavor'] = 'unknown';
   try {
     // pdftotext -v writes to stderr and exits 0 on poppler, 99 on some xpdf builds.
-    const result = execFileSync(bin, ["-v"], {
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "pipe"],
+    const result = execFileSync(bin, ['-v'], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
     });
-    version = (result || "").trim().split("\n")[0] || "unknown";
+    version = (result || '').trim().split('\n')[0] || 'unknown';
   } catch (err: any) {
     // Many pdftotext builds exit non-zero on -v but still write to stderr.
-    const stderr = err?.stderr?.toString?.() ?? "";
-    version = stderr.trim().split("\n")[0] || "unknown";
+    const stderr = err?.stderr?.toString?.() ?? '';
+    version = stderr.trim().split('\n')[0] || 'unknown';
   }
   const v = version.toLowerCase();
-  if (v.includes("poppler")) flavor = "poppler";
-  else if (v.includes("xpdf")) flavor = "xpdf";
+  if (v.includes('poppler')) flavor = 'poppler';
+  else if (v.includes('xpdf')) flavor = 'xpdf';
   return { bin, version, flavor };
 }
 
@@ -154,11 +156,11 @@ export function pdftotext(pdfPath: string, opts?: { layout?: boolean }): string 
   const info = resolvePdftotext();
   const layout = opts?.layout ?? true;
   const args: string[] = [];
-  if (layout) args.push("-layout");
-  args.push(pdfPath, "-");   // "-" = stdout
+  if (layout) args.push('-layout');
+  args.push(pdfPath, '-'); // "-" = stdout
   try {
     return execFileSync(info.bin, args, {
-      encoding: "utf8",
+      encoding: 'utf8',
       maxBuffer: 32 * 1024 * 1024,
     });
   } catch (err: any) {
@@ -184,14 +186,14 @@ export function pdftotext(pdfPath: string, opts?: { layout?: boolean }): string 
  */
 export function normalize(raw: string): string {
   let s = raw;
-  s = s.normalize("NFC");
-  s = s.replace(/\r\n/g, "\n");
-  s = s.replace(/\r/g, "\n");
-  s = s.replace(/\f/g, "\n\n");
-  s = s.replace(/\u00a0/g, " ");
-  s = s.replace(/[\u200b\u200c\u00ad]/g, "");
-  s = s.replace(/[ \t]+$/gm, "");
-  s = s.replace(/\n{3,}/g, "\n\n");
+  s = s.normalize('NFC');
+  s = s.replace(/\r\n/g, '\n');
+  s = s.replace(/\r/g, '\n');
+  s = s.replace(/\f/g, '\n\n');
+  s = s.replace(/\u00a0/g, ' ');
+  s = s.replace(/[\u200b\u200c\u00ad]/g, '');
+  s = s.replace(/[ \t]+$/gm, '');
+  s = s.replace(/\n{3,}/g, '\n\n');
   s = s.trim();
   return s;
 }
@@ -220,9 +222,7 @@ export function copyPasteGate(pdfPath: string, expected: string): GateResult {
     const compact = collapseWhitespace(paragraph);
     const extractedCompact = collapseWhitespace(extracted);
     if (!extractedCompact.includes(compact)) {
-      reasons.push(
-        `expected paragraph not found in extracted text: ${truncate(paragraph, 80)}`,
-      );
+      reasons.push(`expected paragraph not found in extracted text: ${truncate(paragraph, 80)}`);
     }
   }
 
@@ -233,7 +233,7 @@ export function copyPasteGate(pdfPath: string, expected: string): GateResult {
   const fragRegex = /((?:\b\w\s){4,})/g;
   let fragMatch: RegExpExecArray | null;
   while ((fragMatch = fragRegex.exec(extracted)) !== null) {
-    const letters = fragMatch[1].replace(/\s/g, "");
+    const letters = fragMatch[1].replace(/\s/g, '');
     // Only flag if the reassembled letters appear in the expected text.
     if (expectedNorm.toLowerCase().includes(letters.toLowerCase()) && letters.length >= 4) {
       reasons.push(
@@ -247,24 +247,25 @@ export function copyPasteGate(pdfPath: string, expected: string): GateResult {
   const expectedBreaks = (expectedNorm.match(/\n\n/g) || []).length;
   const extractedBreaks = (extracted.match(/\n\n/g) || []).length;
   if (Math.abs(expectedBreaks - extractedBreaks) > 4) {
-    reasons.push(
-      `paragraph boundary count drift: expected ~${expectedBreaks}, got ${extractedBreaks}`,
-    );
+    reasons.push(`paragraph boundary count drift: expected ~${expectedBreaks}, got ${extractedBreaks}`);
   }
 
   return { ok: reasons.length === 0, reasons, extracted };
 }
 
 function splitParagraphs(s: string): string[] {
-  return s.split(/\n\n+/).map(p => p.trim()).filter(p => p.length > 0);
+  return s
+    .split(/\n\n+/)
+    .map((p) => p.trim())
+    .filter((p) => p.length > 0);
 }
 
 function collapseWhitespace(s: string): string {
-  return s.replace(/\s+/g, " ").trim();
+  return s.replace(/\s+/g, ' ').trim();
 }
 
 function truncate(s: string, n: number): string {
-  return s.length > n ? s.slice(0, n) + "..." : s;
+  return s.length > n ? s.slice(0, n) + '...' : s;
 }
 
 /**
@@ -276,7 +277,7 @@ export function logDiagnostics(): void {
     const info = resolvePdftotext();
     process.stderr.write(
       `[pdftotext] bin=${info.bin} flavor=${info.flavor} version="${info.version}" ` +
-      `os=${os.platform()}-${os.arch()} node=${process.version}\n`,
+        `os=${os.platform()}-${os.arch()} node=${process.version}\n`,
     );
   } catch (err: any) {
     process.stderr.write(`[pdftotext] unavailable: ${err.message}\n`);

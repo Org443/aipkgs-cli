@@ -87,12 +87,14 @@ describe('bootstrapTunnel', () => {
         argsMatch: /devicectl list devices/,
         jsonOutput: {
           result: {
-            devices: [{
-              identifier: 'TEST-UDID',
-              connectionProperties: { tunnelState: 'available (pairing)', pairingState: 'unpaired' },
-              deviceProperties: { name: 'Test iPhone' },
-              hardwareProperties: { productType: 'iPhone18,2' },
-            }],
+            devices: [
+              {
+                identifier: 'TEST-UDID',
+                connectionProperties: { tunnelState: 'available (pairing)', pairingState: 'unpaired' },
+                deviceProperties: { name: 'Test iPhone' },
+                hardwareProperties: { productType: 'iPhone18,2' },
+              },
+            ],
           },
         },
       },
@@ -110,10 +112,16 @@ describe('bootstrapTunnel', () => {
       {
         argsMatch: /devicectl list devices/,
         jsonOutput: {
-          result: { devices: [{
-            identifier: 'TEST', connectionProperties: { tunnelState: 'connected', pairingState: 'paired' },
-            deviceProperties: { name: 'Test' }, hardwareProperties: { productType: 'iPhone18,2' },
-          }] },
+          result: {
+            devices: [
+              {
+                identifier: 'TEST',
+                connectionProperties: { tunnelState: 'connected', pairingState: 'paired' },
+                deviceProperties: { name: 'Test' },
+                hardwareProperties: { productType: 'iPhone18,2' },
+              },
+            ],
+          },
         },
       },
       {
@@ -136,15 +144,30 @@ describe('bootstrapTunnel', () => {
       {
         argsMatch: /devicectl list devices/,
         jsonOutput: {
-          result: { devices: [{
-            identifier: 'TEST', connectionProperties: { tunnelState: 'connected', pairingState: 'paired' },
-            deviceProperties: { name: 'Test' }, hardwareProperties: { productType: 'iPhone18,2' },
-          }] },
+          result: {
+            devices: [
+              {
+                identifier: 'TEST',
+                connectionProperties: { tunnelState: 'connected', pairingState: 'paired' },
+                deviceProperties: { name: 'Test' },
+                hardwareProperties: { productType: 'iPhone18,2' },
+              },
+            ],
+          },
         },
       },
       {
         argsMatch: /devicectl device info processes/,
-        jsonOutput: { result: { runningProcesses: [{ executable: 'file:///private/var/containers/Bundle/Application/.../com.test.app/com.test', processIdentifier: 1234 }] } },
+        jsonOutput: {
+          result: {
+            runningProcesses: [
+              {
+                executable: 'file:///private/var/containers/Bundle/Application/.../com.test.app/com.test',
+                processIdentifier: 1234,
+              },
+            ],
+          },
+        },
         stdout: 'com.test',
       },
       {
@@ -159,7 +182,9 @@ describe('bootstrapTunnel', () => {
       spawnImpl: spawn,
       resolveImpl: async () => ['fd00::1'],
       // fetch always fails.
-      fetchImpl: (async () => { throw new Error('connection refused'); }) as typeof fetch,
+      fetchImpl: (async () => {
+        throw new Error('connection refused');
+      }) as typeof fetch,
       startupTimeoutMs: 200, // short, so test runs fast
     });
     expect(r.ok).toBe(false);
@@ -171,17 +196,30 @@ describe('bootstrapTunnel', () => {
       {
         argsMatch: /devicectl list devices/,
         jsonOutput: {
-          result: { devices: [{
-            identifier: 'TEST-UDID',
-            connectionProperties: { tunnelState: 'connected', pairingState: 'paired' },
-            deviceProperties: { name: 'Test Device' },
-            hardwareProperties: { productType: 'iPhone18,2' },
-          }] },
+          result: {
+            devices: [
+              {
+                identifier: 'TEST-UDID',
+                connectionProperties: { tunnelState: 'connected', pairingState: 'paired' },
+                deviceProperties: { name: 'Test Device' },
+                hardwareProperties: { productType: 'iPhone18,2' },
+              },
+            ],
+          },
         },
       },
       {
         argsMatch: /devicectl device info processes/,
-        jsonOutput: { result: { runningProcesses: [{ executable: 'file:///var/containers/Bundle/Application/X/com.test.app/com.test', processIdentifier: 5678 }] } },
+        jsonOutput: {
+          result: {
+            runningProcesses: [
+              {
+                executable: 'file:///var/containers/Bundle/Application/X/com.test.app/com.test',
+                processIdentifier: 5678,
+              },
+            ],
+          },
+        },
         stdout: '/com.test.app/',
       },
       {
@@ -239,16 +277,26 @@ describe('bootstrapTunnel', () => {
       {
         argsMatch: /devicectl list devices/,
         jsonOutput: {
-          result: { devices: [{
-            identifier: 'TEST', connectionProperties: { tunnelState: 'connected', pairingState: 'paired' },
-            deviceProperties: { name: 'Test' }, hardwareProperties: { productType: 'iPhone18,2' },
-          }] },
+          result: {
+            devices: [
+              {
+                identifier: 'TEST',
+                connectionProperties: { tunnelState: 'connected', pairingState: 'paired' },
+                deviceProperties: { name: 'Test' },
+                hardwareProperties: { productType: 'iPhone18,2' },
+              },
+            ],
+          },
         },
       },
       {
         argsMatch: /devicectl device info processes/,
         // jsonOutput body contains the bundle id path, so isAppRunning() returns true.
-        jsonOutput: { result: { runningProcesses: [{ executable: 'file:///var/containers/Bundle/Application/X/com.test.app/com.test' }] } },
+        jsonOutput: {
+          result: {
+            runningProcesses: [{ executable: 'file:///var/containers/Bundle/Application/X/com.test.app/com.test' }],
+          },
+        },
       },
       {
         // devicectl device info details returns no tunnel address.
@@ -259,7 +307,9 @@ describe('bootstrapTunnel', () => {
     const r = await bootstrapTunnel({
       bundleId: 'com.test',
       spawnImpl: spawn,
-      resolveImpl: async () => { throw new Error('ENOTFOUND'); },
+      resolveImpl: async () => {
+        throw new Error('ENOTFOUND');
+      },
     });
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.error).toBe('resolve_failed');
@@ -270,15 +320,31 @@ describe('bootstrapTunnel', () => {
       {
         argsMatch: /devicectl list devices/,
         jsonOutput: {
-          result: { devices: [
-            { identifier: 'A', connectionProperties: { tunnelState: 'connected', pairingState: 'paired' }, deviceProperties: { name: 'A' }, hardwareProperties: { productType: 'iPhone18,2' } },
-            { identifier: 'B', connectionProperties: { tunnelState: 'connected', pairingState: 'paired' }, deviceProperties: { name: 'B' }, hardwareProperties: { productType: 'iPhone18,2' } },
-          ] },
+          result: {
+            devices: [
+              {
+                identifier: 'A',
+                connectionProperties: { tunnelState: 'connected', pairingState: 'paired' },
+                deviceProperties: { name: 'A' },
+                hardwareProperties: { productType: 'iPhone18,2' },
+              },
+              {
+                identifier: 'B',
+                connectionProperties: { tunnelState: 'connected', pairingState: 'paired' },
+                deviceProperties: { name: 'B' },
+                hardwareProperties: { productType: 'iPhone18,2' },
+              },
+            ],
+          },
         },
       },
       {
         argsMatch: /devicectl device info processes -d B/,
-        jsonOutput: { result: { runningProcesses: [{ executable: 'file:///var/containers/Bundle/Application/X/com.test.app/com.test' }] } },
+        jsonOutput: {
+          result: {
+            runningProcesses: [{ executable: 'file:///var/containers/Bundle/Application/X/com.test.app/com.test' }],
+          },
+        },
       },
       {
         argsMatch: /devicectl device info details --device B/,
@@ -323,9 +389,7 @@ describe('getDeviceTunnelIPv6FromDevicectl', () => {
   });
 
   test('returns null when devicectl exits non-zero', () => {
-    const spawn = makeSpawn([
-      { argsMatch: /devicectl device info details/, exitCode: 1, stderr: 'no such device' },
-    ]);
+    const spawn = makeSpawn([{ argsMatch: /devicectl device info details/, exitCode: 1, stderr: 'no such device' }]);
     expect(getDeviceTunnelIPv6FromDevicectl('UDID', spawn)).toBeNull();
   });
 
@@ -350,8 +414,14 @@ describe('resolveTunnelIPv6 fallback chain', () => {
       udid: 'U',
       deviceName: 'Test',
       spawn,
-      resolve: async () => { resolveCalled = true; return ['fd99::99']; },
-      legacyResolve: async () => { resolveCalled = true; return ['fdAA::AA']; },
+      resolve: async () => {
+        resolveCalled = true;
+        return ['fd99::99'];
+      },
+      legacyResolve: async () => {
+        resolveCalled = true;
+        return ['fdAA::AA'];
+      },
     });
     expect(addr).toBe('fd11::1');
     expect(resolveCalled).toBe(false);
@@ -367,36 +437,41 @@ describe('resolveTunnelIPv6 fallback chain', () => {
       deviceName: 'Test',
       spawn,
       resolve: async () => ['fd22::2'],
-      legacyResolve: async () => { legacyCalled = true; return ['fdAA::AA']; },
+      legacyResolve: async () => {
+        legacyCalled = true;
+        return ['fdAA::AA'];
+      },
     });
     expect(addr).toBe('fd22::2');
     expect(legacyCalled).toBe(false);
   });
 
   test('falls through to legacy resolve6 when both devicectl and dns.lookup fail', async () => {
-    const spawn = makeSpawn([
-      { argsMatch: /devicectl device info details/, exitCode: 1 },
-    ]);
+    const spawn = makeSpawn([{ argsMatch: /devicectl device info details/, exitCode: 1 }]);
     const addr = await resolveTunnelIPv6({
       udid: 'U',
       deviceName: 'Test',
       spawn,
-      resolve: async () => { throw new Error('ESERVFAIL'); },
+      resolve: async () => {
+        throw new Error('ESERVFAIL');
+      },
       legacyResolve: async () => ['fd33::3'],
     });
     expect(addr).toBe('fd33::3');
   });
 
   test('returns null when all three strategies fail', async () => {
-    const spawn = makeSpawn([
-      { argsMatch: /devicectl device info details/, exitCode: 1 },
-    ]);
+    const spawn = makeSpawn([{ argsMatch: /devicectl device info details/, exitCode: 1 }]);
     const addr = await resolveTunnelIPv6({
       udid: 'U',
       deviceName: 'Test',
       spawn,
-      resolve: async () => { throw new Error('ESERVFAIL'); },
-      legacyResolve: async () => { throw new Error('ESERVFAIL'); },
+      resolve: async () => {
+        throw new Error('ESERVFAIL');
+      },
+      legacyResolve: async () => {
+        throw new Error('ESERVFAIL');
+      },
     });
     expect(addr).toBeNull();
   });

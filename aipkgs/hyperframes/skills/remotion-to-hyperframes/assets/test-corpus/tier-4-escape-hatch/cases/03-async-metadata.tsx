@@ -9,8 +9,8 @@
 // the metadata would need to be resolved at build time before the HTML is
 // authored.
 
-import React from "react";
-import { AbsoluteFill, useCurrentFrame } from "remotion";
+import React from 'react';
+import { AbsoluteFill, useCurrentFrame } from 'remotion';
 
 interface Props {
   text: string;
@@ -28,9 +28,7 @@ export const AsyncMetadataDriven: React.FC<Props> = ({ text }) => {
 };
 
 export const calculateMetadata = async ({ props }: { props: Props }) => {
-  const response = await fetch(
-    `https://api.example.com/duration?text=${encodeURIComponent(props.text)}`,
-  );
+  const response = await fetch(`https://api.example.com/duration?text=${encodeURIComponent(props.text)}`);
   const { durationInFrames } = await response.json();
   return {
     durationInFrames,

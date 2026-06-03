@@ -169,8 +169,7 @@ describe('handleMemoryCommand', () => {
     const stats = makeStructureStats();
     stats.modificationHistory = { current: 200, cap: 200, evicted: 47 };
     // Synthesize a "would-render" snapshot to assert the eviction note shape.
-    const renderedExpected =
-      'modificationHistory:    200 / 200 entries  (47 evicted since reset)';
+    const renderedExpected = 'modificationHistory:    200 / 200 entries  (47 evicted since reset)';
     // Since formatSnapshotText isn't exported, validate the format
     // contract by re-implementing the line and asserting our expectation
     // matches the canonical format. This pins the user-visible string
@@ -180,8 +179,7 @@ describe('handleMemoryCommand', () => {
     const current = stats.modificationHistory.current;
     const cap = stats.modificationHistory.cap;
     const expected =
-      `modificationHistory:    ${current} / ${cap} entries` +
-      (evicted > 0 ? `  (${evicted} evicted since reset)` : '');
+      `modificationHistory:    ${current} / ${cap} entries` + (evicted > 0 ? `  (${evicted} evicted since reset)` : '');
     expect(expected).toBe(renderedExpected);
     void mod;
   });
@@ -213,16 +211,18 @@ describe('handleMemoryCommand', () => {
   test('16. text mode truncates long tab URLs with ellipsis', async () => {
     const { handleMemoryCommand } = await import('../src/memory-command');
     const longUrl = 'https://example.com/' + 'a'.repeat(120);
-    const tabs = [{
-      id: 1,
-      url: longUrl,
-      title: 'long',
-      jsHeapUsed: 1024,
-      jsHeapTotal: 2048,
-      documents: 1,
-      nodes: 10,
-      listeners: 1,
-    }];
+    const tabs = [
+      {
+        id: 1,
+        url: longUrl,
+        title: 'long',
+        jsHeapUsed: 1024,
+        jsHeapTotal: 2048,
+        documents: 1,
+        nodes: 10,
+        listeners: 1,
+      },
+    ];
     const result = await handleMemoryCommand([], makeFakeBm(makeSnapshot({ tabs })));
     expect(result).toContain('...');
     // The truncated URL appears, the full URL does not

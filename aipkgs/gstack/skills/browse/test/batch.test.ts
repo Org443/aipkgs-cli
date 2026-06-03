@@ -43,7 +43,9 @@ beforeAll(async () => {
 });
 
 afterAll(() => {
-  try { testServer.server.stop(); } catch {}
+  try {
+    testServer.server.stop();
+  } catch {}
   setTimeout(() => process.exit(0), 500);
 });
 
@@ -182,15 +184,36 @@ describe('Batch execution', () => {
 
   test('batch-safe command subset validation', () => {
     const BATCH_SAFE = new Set([
-      'text', 'html', 'links', 'snapshot', 'accessibility', 'cookies', 'url',
-      'goto', 'click', 'fill', 'select', 'hover', 'scroll', 'wait',
-      'screenshot', 'pdf',
-      'newtab', 'closetab',
+      'text',
+      'html',
+      'links',
+      'snapshot',
+      'accessibility',
+      'cookies',
+      'url',
+      'goto',
+      'click',
+      'fill',
+      'select',
+      'hover',
+      'scroll',
+      'wait',
+      'screenshot',
+      'pdf',
+      'newtab',
+      'closetab',
     ]);
 
     // All batch-safe commands should be in the main command sets (except newtab/closetab which are meta)
     for (const cmd of BATCH_SAFE) {
-      if (cmd === 'newtab' || cmd === 'closetab' || cmd === 'snapshot' || cmd === 'screenshot' || cmd === 'pdf' || cmd === 'url') {
+      if (
+        cmd === 'newtab' ||
+        cmd === 'closetab' ||
+        cmd === 'snapshot' ||
+        cmd === 'screenshot' ||
+        cmd === 'pdf' ||
+        cmd === 'url'
+      ) {
         continue; // These are META_COMMANDS, handled separately
       }
       const isKnown = READ_COMMANDS.has(cmd) || WRITE_COMMANDS.has(cmd);
@@ -227,7 +250,7 @@ describe('Batch execution', () => {
       _handleWriteCommand('goto', [baseUrl + '/basic.html'], session3, bm),
     ]);
 
-    expect(results.every(r => r.status === 'fulfilled')).toBe(true);
+    expect(results.every((r) => r.status === 'fulfilled')).toBe(true);
 
     // Verify each tab landed on the right page
     expect(session1.getPage().url()).toContain('basic.html');

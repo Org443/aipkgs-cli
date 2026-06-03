@@ -80,7 +80,7 @@ function workflowGuardEnabled(cwd) {
 let input = '';
 const stdinTimeout = setTimeout(() => process.exit(0), 3000);
 process.stdin.setEncoding('utf8');
-process.stdin.on('data', chunk => input += chunk);
+process.stdin.on('data', (chunk) => (input += chunk));
 process.stdin.on('end', () => {
   clearTimeout(stdinTimeout);
   try {
@@ -97,11 +97,14 @@ process.stdin.on('end', () => {
       for (const gitCwd of forceGitAddCwds(command, cwd)) {
         const branch = currentBranch(gitCwd);
         if (branch.startsWith('worktree-agent-')) {
-          process.stdout.write(JSON.stringify({
-            decision: 'block',
-            code: 'WORKTREE_AGENT_FORCE_ADD_FORBIDDEN',
-            reason: 'worktree-agent branches must not run git add -f or git add --force. Respect the SDK skipped_gitignored/skipped_commit_docs_false contract and leave gitignored files untracked.',
-          }));
+          process.stdout.write(
+            JSON.stringify({
+              decision: 'block',
+              code: 'WORKTREE_AGENT_FORCE_ADD_FORBIDDEN',
+              reason:
+                'worktree-agent branches must not run git add -f or git add --force. Respect the SDK skipped_gitignored/skipped_commit_docs_false contract and leave gitignored files untracked.',
+            }),
+          );
           process.exit(2);
         }
       }
@@ -129,15 +132,8 @@ process.stdin.on('end', () => {
     }
 
     // Allow edits to common config/docs files that don't need GSD tracking
-    const allowedPatterns = [
-      /\.gitignore$/,
-      /\.env/,
-      /CLAUDE\.md$/,
-      /AGENTS\.md$/,
-      /GEMINI\.md$/,
-      /settings\.json$/,
-    ];
-    if (allowedPatterns.some(p => p.test(filePath))) {
+    const allowedPatterns = [/\.gitignore$/, /\.env/, /CLAUDE\.md$/, /AGENTS\.md$/, /GEMINI\.md$/, /settings\.json$/];
+    if (allowedPatterns.some((p) => p.test(filePath))) {
       process.exit(0);
     }
 
@@ -149,13 +145,14 @@ process.stdin.on('end', () => {
     // not in a subagent context. Inject advisory warning.
     const output = {
       hookSpecificOutput: {
-        hookEventName: "PreToolUse",
-        additionalContext: `⚠️ WORKFLOW ADVISORY: You're editing ${path.basename(filePath)} directly without a GSD command. ` +
+        hookEventName: 'PreToolUse',
+        additionalContext:
+          `⚠️ WORKFLOW ADVISORY: You're editing ${path.basename(filePath)} directly without a GSD command. ` +
           'This edit will not be tracked in STATE.md or produce a SUMMARY.md. ' +
           'Consider using /gsd:fast for trivial fixes or /gsd:quick for larger changes ' +
           'to maintain project state tracking. ' +
-          'If this is intentional (e.g., user explicitly asked for a direct edit), proceed normally.'
-      }
+          'If this is intentional (e.g., user explicitly asked for a direct edit), proceed normally.',
+      },
     };
 
     process.stdout.write(JSON.stringify(output));

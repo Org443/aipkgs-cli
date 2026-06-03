@@ -101,9 +101,7 @@ function main() {
   const now = Math.floor(Date.now() / 1000);
 
   const { cache, parseError } = readCache(cacheFile);
-  const suppressFailureWarning = parseError
-    ? shouldSuppressFailureWarning(sentinelFile, now)
-    : false;
+  const suppressFailureWarning = parseError ? shouldSuppressFailureWarning(sentinelFile, now) : false;
   const output = buildBannerOutput({ cache, parseError, suppressFailureWarning });
 
   if (parseError && !suppressFailureWarning) {

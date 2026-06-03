@@ -24,9 +24,23 @@ const STATE_SERVER_TOKEN = 'rotated-mock-token-XXXXXXXX';
 
 // Stub iOS StateServer running on loopback. Mimics the real Swift server's
 // behavior for the integration test.
-function startStubStateServer(): Promise<{ server: Server; port: number; receivedRequests: Array<{ method: string; path: string; headers: Record<string, string | string[] | undefined>; body: string }> }> {
+function startStubStateServer(): Promise<{
+  server: Server;
+  port: number;
+  receivedRequests: Array<{
+    method: string;
+    path: string;
+    headers: Record<string, string | string[] | undefined>;
+    body: string;
+  }>;
+}> {
   return new Promise((resolve) => {
-    const received: Array<{ method: string; path: string; headers: Record<string, string | string[] | undefined>; body: string }> = [];
+    const received: Array<{
+      method: string;
+      path: string;
+      headers: Record<string, string | string[] | undefined>;
+      body: string;
+    }> = [];
     const server = createServer((req, res) => {
       const chunks: Buffer[] = [];
       req.on('data', (c) => chunks.push(c));
@@ -69,7 +83,11 @@ function startStubStateServer(): Promise<{ server: Server; port: number; receive
   });
 }
 
-async function fetchWith(method: string, url: string, init: { headers?: Record<string, string>; body?: string } = {}): Promise<{ status: number; bodyText: string }> {
+async function fetchWith(
+  method: string,
+  url: string,
+  init: { headers?: Record<string, string>; body?: string } = {},
+): Promise<{ status: number; bodyText: string }> {
   const res = await fetch(url, { method, headers: init.headers, body: init.body });
   return { status: res.status, bodyText: await res.text() };
 }
@@ -247,7 +265,7 @@ describe('daemon — tailnet listener (mocked tailscaled)', () => {
 
     // Use the token to call /tap.
     const tapR = await fetchWith('POST', `http://127.0.0.1:${daemon.tailnetPort}/tap`, {
-      headers: { 'authorization': `Bearer ${session_token}`, 'content-type': 'application/json', 'x-session-id': 's1' },
+      headers: { authorization: `Bearer ${session_token}`, 'content-type': 'application/json', 'x-session-id': 's1' },
       body: JSON.stringify({ x: 1, y: 2 }),
     });
     expect(tapR.status).toBe(200);
@@ -269,7 +287,7 @@ describe('daemon — tailnet listener (mocked tailscaled)', () => {
     const { session_token } = JSON.parse(mintR.bodyText);
 
     const tapR = await fetchWith('POST', `http://127.0.0.1:${daemon.tailnetPort}/tap`, {
-      headers: { 'authorization': `Bearer ${session_token}`, 'content-type': 'application/json', 'x-session-id': 's1' },
+      headers: { authorization: `Bearer ${session_token}`, 'content-type': 'application/json', 'x-session-id': 's1' },
       body: JSON.stringify({ x: 1, y: 2 }),
     });
     expect(tapR.status).toBe(403);
@@ -299,7 +317,7 @@ describe('daemon — tailnet listener (mocked tailscaled)', () => {
 
     const huge = 'x'.repeat(2_000_000); // 2MB > 1MB cap
     const r = await fetchWith('POST', `http://127.0.0.1:${daemon.tailnetPort}/tap`, {
-      headers: { 'authorization': `Bearer ${session_token}`, 'content-type': 'application/json', 'x-session-id': 's' },
+      headers: { authorization: `Bearer ${session_token}`, 'content-type': 'application/json', 'x-session-id': 's' },
       body: JSON.stringify({ padding: huge }),
     });
     expect(r.status).toBe(413);
@@ -314,17 +332,25 @@ describe('daemon — tailnet listener (mocked tailscaled)', () => {
     const { session_token } = JSON.parse(mintR.bodyText);
 
     await fetchWith('POST', `http://127.0.0.1:${daemon.tailnetPort}/tap`, {
-      headers: { 'authorization': `Bearer ${session_token}`, 'content-type': 'application/json', 'x-session-id': 'audit-s' },
+      headers: {
+        authorization: `Bearer ${session_token}`,
+        'content-type': 'application/json',
+        'x-session-id': 'audit-s',
+      },
       body: JSON.stringify({ x: 1, y: 2 }),
     });
 
     // Allow async file write to complete.
-    await new Promise(r => setTimeout(r, 100));
+    await new Promise((r) => setTimeout(r, 100));
     const auditPath = process.env.GSTACK_IOS_AUDIT_PATH!;
     const { readFileSync, existsSync } = await import('fs');
     expect(existsSync(auditPath)).toBe(true);
-    const rows = readFileSync(auditPath, 'utf-8').trim().split('\n').filter(Boolean).map(l => JSON.parse(l));
-    const tapRow = rows.find(r => r.endpoint === 'POST /tap');
+    const rows = readFileSync(auditPath, 'utf-8')
+      .trim()
+      .split('\n')
+      .filter(Boolean)
+      .map((l) => JSON.parse(l));
+    const tapRow = rows.find((r) => r.endpoint === 'POST /tap');
     expect(tapRow).toBeDefined();
     expect(tapRow.identity).toBe('caller@example.com');
     expect(tapRow.capability).toBe('interact');
@@ -340,7 +366,7 @@ describe('daemon — tailnet listener (mocked tailscaled)', () => {
 
     const { session_token } = JSON.parse(mintR.bodyText);
     const screenshotR = await fetchWith('GET', `http://127.0.0.1:${daemon.tailnetPort}/screenshot`, {
-      headers: { 'authorization': `Bearer ${session_token}` },
+      headers: { authorization: `Bearer ${session_token}` },
     });
     expect(screenshotR.bodyText).not.toContain(STATE_SERVER_TOKEN);
   });

@@ -47,13 +47,11 @@ describe('CDP session cleanup invariant', () => {
       }
     }
     if (offenders.length > 0) {
-      const formatted = offenders
-        .map((o) => `  ${o.file}:${o.line}  ${o.text}`)
-        .join('\n');
+      const formatted = offenders.map((o) => `  ${o.file}:${o.line}  ${o.text}`).join('\n');
       throw new Error(
         `Direct newCDPSession(...) calls found outside cdp-bridge.ts. ` +
-        `Route through withCdpSession() (one-shot, finally-detach) or ` +
-        `getOrCreateCdpSession() (cached, close-detach) instead:\n${formatted}`,
+          `Route through withCdpSession() (one-shot, finally-detach) or ` +
+          `getOrCreateCdpSession() (cached, close-detach) instead:\n${formatted}`,
       );
     }
     expect(offenders).toEqual([]);

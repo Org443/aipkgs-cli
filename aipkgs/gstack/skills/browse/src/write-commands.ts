@@ -7,7 +7,13 @@
 
 import type { TabSession } from './tab-session';
 import type { BrowserManager } from './browser-manager';
-import { findInstalledBrowsers, importCookies, importCookiesViaCdp, hasV20Cookies, listSupportedBrowserNames } from './cookie-import-browser';
+import {
+  findInstalledBrowsers,
+  importCookies,
+  importCookiesViaCdp,
+  hasV20Cookies,
+  listSupportedBrowserNames,
+} from './cookie-import-browser';
 import { generatePickerCode } from './cookie-picker-routes';
 import { validateNavigationUrl } from './url-validation';
 import { validateOutputPath, validateReadPath } from './path-security';
@@ -28,104 +34,195 @@ import { withCdpSession } from './cdp-bridge';
 const CLEANUP_SELECTORS = {
   ads: [
     // Google Ads
-    'ins.adsbygoogle', '[id^="google_ads"]', '[id^="div-gpt-ad"]',
-    'iframe[src*="doubleclick"]', 'iframe[src*="googlesyndication"]',
-    '[data-google-query-id]', '.google-auto-placed',
+    'ins.adsbygoogle',
+    '[id^="google_ads"]',
+    '[id^="div-gpt-ad"]',
+    'iframe[src*="doubleclick"]',
+    'iframe[src*="googlesyndication"]',
+    '[data-google-query-id]',
+    '.google-auto-placed',
     // Generic ad patterns (uBlock Origin common filters)
-    '[class*="ad-banner"]', '[class*="ad-wrapper"]', '[class*="ad-container"]',
-    '[class*="ad-slot"]', '[class*="ad-unit"]', '[class*="ad-zone"]',
-    '[class*="ad-placement"]', '[class*="ad-holder"]', '[class*="ad-block"]',
-    '[class*="adbox"]', '[class*="adunit"]', '[class*="adwrap"]',
-    '[id*="ad-banner"]', '[id*="ad-wrapper"]', '[id*="ad-container"]',
-    '[id*="ad-slot"]', '[id*="ad_banner"]', '[id*="ad_container"]',
-    '[data-ad]', '[data-ad-slot]', '[data-ad-unit]', '[data-adunit]',
-    '[class*="sponsored"]', '[class*="Sponsored"]',
-    '.ad', '.ads', '.advert', '.advertisement',
-    '#ad', '#ads', '#advert', '#advertisement',
+    '[class*="ad-banner"]',
+    '[class*="ad-wrapper"]',
+    '[class*="ad-container"]',
+    '[class*="ad-slot"]',
+    '[class*="ad-unit"]',
+    '[class*="ad-zone"]',
+    '[class*="ad-placement"]',
+    '[class*="ad-holder"]',
+    '[class*="ad-block"]',
+    '[class*="adbox"]',
+    '[class*="adunit"]',
+    '[class*="adwrap"]',
+    '[id*="ad-banner"]',
+    '[id*="ad-wrapper"]',
+    '[id*="ad-container"]',
+    '[id*="ad-slot"]',
+    '[id*="ad_banner"]',
+    '[id*="ad_container"]',
+    '[data-ad]',
+    '[data-ad-slot]',
+    '[data-ad-unit]',
+    '[data-adunit]',
+    '[class*="sponsored"]',
+    '[class*="Sponsored"]',
+    '.ad',
+    '.ads',
+    '.advert',
+    '.advertisement',
+    '#ad',
+    '#ads',
+    '#advert',
+    '#advertisement',
     // Common ad network iframes
-    'iframe[src*="amazon-adsystem"]', 'iframe[src*="outbrain"]',
-    'iframe[src*="taboola"]', 'iframe[src*="criteo"]',
-    'iframe[src*="adsafeprotected"]', 'iframe[src*="moatads"]',
+    'iframe[src*="amazon-adsystem"]',
+    'iframe[src*="outbrain"]',
+    'iframe[src*="taboola"]',
+    'iframe[src*="criteo"]',
+    'iframe[src*="adsafeprotected"]',
+    'iframe[src*="moatads"]',
     // Promoted/sponsored content
-    '[class*="promoted"]', '[class*="Promoted"]',
-    '[data-testid*="promo"]', '[class*="native-ad"]',
+    '[class*="promoted"]',
+    '[class*="Promoted"]',
+    '[data-testid*="promo"]',
+    '[class*="native-ad"]',
     // Empty ad placeholders (divs with only ad classes, no real content)
-    'aside[class*="ad"]', 'section[class*="ad-"]',
+    'aside[class*="ad"]',
+    'section[class*="ad-"]',
   ],
   cookies: [
     // Cookie consent frameworks
-    '[class*="cookie-consent"]', '[class*="cookie-banner"]', '[class*="cookie-notice"]',
-    '[id*="cookie-consent"]', '[id*="cookie-banner"]', '[id*="cookie-notice"]',
-    '[class*="consent-banner"]', '[class*="consent-modal"]', '[class*="consent-wall"]',
-    '[class*="gdpr"]', '[id*="gdpr"]', '[class*="GDPR"]',
-    '[class*="CookieConsent"]', '[id*="CookieConsent"]',
+    '[class*="cookie-consent"]',
+    '[class*="cookie-banner"]',
+    '[class*="cookie-notice"]',
+    '[id*="cookie-consent"]',
+    '[id*="cookie-banner"]',
+    '[id*="cookie-notice"]',
+    '[class*="consent-banner"]',
+    '[class*="consent-modal"]',
+    '[class*="consent-wall"]',
+    '[class*="gdpr"]',
+    '[id*="gdpr"]',
+    '[class*="GDPR"]',
+    '[class*="CookieConsent"]',
+    '[id*="CookieConsent"]',
     // OneTrust (very common)
-    '#onetrust-consent-sdk', '.onetrust-pc-dark-filter', '#onetrust-banner-sdk',
+    '#onetrust-consent-sdk',
+    '.onetrust-pc-dark-filter',
+    '#onetrust-banner-sdk',
     // Cookiebot
-    '#CybotCookiebotDialog', '#CybotCookiebotDialogBodyUnderlay',
+    '#CybotCookiebotDialog',
+    '#CybotCookiebotDialogBodyUnderlay',
     // TrustArc / TRUSTe
-    '#truste-consent-track', '.truste_overlay', '.truste_box_overlay',
+    '#truste-consent-track',
+    '.truste_overlay',
+    '.truste_box_overlay',
     // Quantcast
-    '.qc-cmp2-container', '#qc-cmp2-main',
+    '.qc-cmp2-container',
+    '#qc-cmp2-main',
     // Generic patterns
-    '[class*="cc-banner"]', '[class*="cc-window"]', '[class*="cc-overlay"]',
-    '[class*="privacy-banner"]', '[class*="privacy-notice"]',
-    '[id*="privacy-banner"]', '[id*="privacy-notice"]',
-    '[class*="accept-cookies"]', '[id*="accept-cookies"]',
+    '[class*="cc-banner"]',
+    '[class*="cc-window"]',
+    '[class*="cc-overlay"]',
+    '[class*="privacy-banner"]',
+    '[class*="privacy-notice"]',
+    '[id*="privacy-banner"]',
+    '[id*="privacy-notice"]',
+    '[class*="accept-cookies"]',
+    '[id*="accept-cookies"]',
   ],
   overlays: [
     // Paywall / subscription overlays
-    '[class*="paywall"]', '[class*="Paywall"]', '[id*="paywall"]',
-    '[class*="subscribe-wall"]', '[class*="subscription-wall"]',
-    '[class*="meter-wall"]', '[class*="regwall"]', '[class*="reg-wall"]',
+    '[class*="paywall"]',
+    '[class*="Paywall"]',
+    '[id*="paywall"]',
+    '[class*="subscribe-wall"]',
+    '[class*="subscription-wall"]',
+    '[class*="meter-wall"]',
+    '[class*="regwall"]',
+    '[class*="reg-wall"]',
     // Newsletter / signup popups
-    '[class*="newsletter-popup"]', '[class*="newsletter-modal"]',
-    '[class*="signup-modal"]', '[class*="signup-popup"]',
-    '[class*="email-capture"]', '[class*="lead-capture"]',
-    '[class*="popup-modal"]', '[class*="modal-overlay"]',
+    '[class*="newsletter-popup"]',
+    '[class*="newsletter-modal"]',
+    '[class*="signup-modal"]',
+    '[class*="signup-popup"]',
+    '[class*="email-capture"]',
+    '[class*="lead-capture"]',
+    '[class*="popup-modal"]',
+    '[class*="modal-overlay"]',
     // Interstitials
-    '[class*="interstitial"]', '[id*="interstitial"]',
+    '[class*="interstitial"]',
+    '[id*="interstitial"]',
     // Push notification prompts
-    '[class*="push-notification"]', '[class*="notification-prompt"]',
+    '[class*="push-notification"]',
+    '[class*="notification-prompt"]',
     '[class*="web-push"]',
     // Survey / feedback popups
-    '[class*="survey-"]', '[class*="feedback-modal"]',
-    '[id*="survey-"]', '[class*="nps-"]',
+    '[class*="survey-"]',
+    '[class*="feedback-modal"]',
+    '[id*="survey-"]',
+    '[class*="nps-"]',
     // App download banners
-    '[class*="app-banner"]', '[class*="smart-banner"]', '[class*="app-download"]',
-    '[id*="branch-banner"]', '.smartbanner',
+    '[class*="app-banner"]',
+    '[class*="smart-banner"]',
+    '[class*="app-download"]',
+    '[id*="branch-banner"]',
+    '.smartbanner',
     // Cross-promotion / "follow us" / "preferred source" widgets
-    '[class*="promo-banner"]', '[class*="cross-promo"]', '[class*="partner-promo"]',
-    '[class*="preferred-source"]', '[class*="google-promo"]',
+    '[class*="promo-banner"]',
+    '[class*="cross-promo"]',
+    '[class*="partner-promo"]',
+    '[class*="preferred-source"]',
+    '[class*="google-promo"]',
   ],
   clutter: [
     // Audio/podcast player widgets (not part of the article text)
-    '[class*="audio-player"]', '[class*="podcast-player"]', '[class*="listen-widget"]',
-    '[class*="everlit"]', '[class*="Everlit"]',
+    '[class*="audio-player"]',
+    '[class*="podcast-player"]',
+    '[class*="listen-widget"]',
+    '[class*="everlit"]',
+    '[class*="Everlit"]',
     'audio', // bare audio elements
     // Sidebar games/puzzles widgets
-    '[class*="puzzle"]', '[class*="daily-game"]', '[class*="games-widget"]',
-    '[class*="crossword-promo"]', '[class*="mini-game"]',
+    '[class*="puzzle"]',
+    '[class*="daily-game"]',
+    '[class*="games-widget"]',
+    '[class*="crossword-promo"]',
+    '[class*="mini-game"]',
     // "Most Popular" / "Trending" sidebar recirculation (not the top nav trending bar)
-    'aside [class*="most-popular"]', 'aside [class*="trending"]',
-    'aside [class*="most-read"]', 'aside [class*="recommended"]',
+    'aside [class*="most-popular"]',
+    'aside [class*="trending"]',
+    'aside [class*="most-read"]',
+    'aside [class*="recommended"]',
     // Related articles / recirculation at bottom
-    '[class*="related-articles"]', '[class*="more-stories"]',
-    '[class*="recirculation"]', '[class*="taboola"]', '[class*="outbrain"]',
+    '[class*="related-articles"]',
+    '[class*="more-stories"]',
+    '[class*="recirculation"]',
+    '[class*="taboola"]',
+    '[class*="outbrain"]',
     // Hearst-specific (SF Chronicle, etc.)
-    '[class*="nativo"]', '[data-tb-region]',
+    '[class*="nativo"]',
+    '[data-tb-region]',
   ],
   sticky: [
     // Handled via JavaScript evaluation, not pure selectors
   ],
   social: [
-    '[class*="social-share"]', '[class*="share-buttons"]', '[class*="share-bar"]',
-    '[class*="social-widget"]', '[class*="social-icons"]', '[class*="share-tools"]',
-    'iframe[src*="facebook.com/plugins"]', 'iframe[src*="platform.twitter"]',
-    '[class*="fb-like"]', '[class*="tweet-button"]',
-    '[class*="addthis"]', '[class*="sharethis"]',
+    '[class*="social-share"]',
+    '[class*="share-buttons"]',
+    '[class*="share-bar"]',
+    '[class*="social-widget"]',
+    '[class*="social-icons"]',
+    '[class*="share-tools"]',
+    'iframe[src*="facebook.com/plugins"]',
+    'iframe[src*="platform.twitter"]',
+    '[class*="fb-like"]',
+    '[class*="tweet-button"]',
+    '[class*="addthis"]',
+    '[class*="sharethis"]',
     // Follow prompts
-    '[class*="follow-us"]', '[class*="social-follow"]',
+    '[class*="follow-us"]',
+    '[class*="social-follow"]',
   ],
 };
 
@@ -133,7 +230,7 @@ export async function handleWriteCommand(
   command: string,
   args: string[],
   session: TabSession,
-  bm: BrowserManager
+  bm: BrowserManager,
 ): Promise<string> {
   const page = session.getPage();
   // Frame-aware target for locator-based operations (click, fill, etc.)
@@ -142,7 +239,7 @@ export async function handleWriteCommand(
 
   switch (command) {
     case 'goto': {
-      if (inFrame) throw new Error('Cannot use goto inside a frame. Run \'frame main\' first.');
+      if (inFrame) throw new Error("Cannot use goto inside a frame. Run 'frame main' first.");
       const url = args[0];
       if (!url) throw new Error('Usage: browse goto <url>');
       // Clear loadedHtml BEFORE navigation — a timeout after the main-frame commit
@@ -155,28 +252,28 @@ export async function handleWriteCommand(
     }
 
     case 'back': {
-      if (inFrame) throw new Error('Cannot use back inside a frame. Run \'frame main\' first.');
+      if (inFrame) throw new Error("Cannot use back inside a frame. Run 'frame main' first.");
       session.clearLoadedHtml();
       await page.goBack({ waitUntil: 'domcontentloaded', timeout: 15000 });
       return `Back → ${page.url()}`;
     }
 
     case 'forward': {
-      if (inFrame) throw new Error('Cannot use forward inside a frame. Run \'frame main\' first.');
+      if (inFrame) throw new Error("Cannot use forward inside a frame. Run 'frame main' first.");
       session.clearLoadedHtml();
       await page.goForward({ waitUntil: 'domcontentloaded', timeout: 15000 });
       return `Forward → ${page.url()}`;
     }
 
     case 'reload': {
-      if (inFrame) throw new Error('Cannot use reload inside a frame. Run \'frame main\' first.');
+      if (inFrame) throw new Error("Cannot use reload inside a frame. Run 'frame main' first.");
       session.clearLoadedHtml();
       await page.reload({ waitUntil: 'domcontentloaded', timeout: 15000 });
       return `Reloaded ${page.url()}`;
     }
 
     case 'load-html': {
-      if (inFrame) throw new Error('Cannot use load-html inside a frame. Run \'frame main\' first.');
+      if (inFrame) throw new Error("Cannot use load-html inside a frame. Run 'frame main' first.");
 
       // --from-file <path.json>: read inline HTML from a JSON payload. Used by
       // make-pdf to dodge Windows argv size limits on large rendered HTML.
@@ -200,18 +297,25 @@ export async function handleWriteCommand(
             validateReadPath(path.resolve(payloadPath));
           } catch {
             throw new Error(
-              `load-html: --from-file ${payloadPath} must be under ${SAFE_DIRECTORIES.join(' or ')} (security policy). Copy the payload into the project tree or /tmp first.`
+              `load-html: --from-file ${payloadPath} must be under ${SAFE_DIRECTORIES.join(' or ')} (security policy). Copy the payload into the project tree or /tmp first.`,
             );
           }
           const raw = fs.readFileSync(payloadPath, 'utf8');
           let json: any;
-          try { json = JSON.parse(raw); }
-          catch (e: any) { throw new Error(`load-html: --from-file JSON parse failed: ${e.message}`); }
+          try {
+            json = JSON.parse(raw);
+          } catch (e: any) {
+            throw new Error(`load-html: --from-file JSON parse failed: ${e.message}`);
+          }
           if (typeof json.html !== 'string') {
             throw new Error('load-html: --from-file JSON must have a "html" string field');
           }
-          if (json.waitUntil && json.waitUntil !== 'load'
-              && json.waitUntil !== 'domcontentloaded' && json.waitUntil !== 'networkidle') {
+          if (
+            json.waitUntil &&
+            json.waitUntil !== 'load' &&
+            json.waitUntil !== 'domcontentloaded' &&
+            json.waitUntil !== 'networkidle'
+          ) {
             throw new Error(`load-html: --from-file waitUntil '${json.waitUntil}' invalid`);
           }
           fromFilePayload = { html: json.html, waitUntil: json.waitUntil };
@@ -230,11 +334,11 @@ export async function handleWriteCommand(
 
       // Inline HTML path: validate size + magic byte, then setContent directly.
       if (fromFilePayload) {
-        const MAX_BYTES = parseInt(process.env.GSTACK_BROWSE_MAX_HTML_BYTES || '', 10) || (50 * 1024 * 1024);
+        const MAX_BYTES = parseInt(process.env.GSTACK_BROWSE_MAX_HTML_BYTES || '', 10) || 50 * 1024 * 1024;
         if (Buffer.byteLength(fromFilePayload.html, 'utf8') > MAX_BYTES) {
           throw new Error(
             `load-html: --from-file html too large (> ${MAX_BYTES} bytes). ` +
-            'Raise with GSTACK_BROWSE_MAX_HTML_BYTES=<N>.'
+              'Raise with GSTACK_BROWSE_MAX_HTML_BYTES=<N>.',
           );
         }
         const peek = fromFilePayload.html.trimStart();
@@ -246,14 +350,17 @@ export async function handleWriteCommand(
         return `Loaded HTML: (inline from --from-file, ${fromFilePayload.html.length} chars)`;
       }
 
-      if (!filePath) throw new Error('Usage: browse load-html <file> [--wait-until load|domcontentloaded|networkidle] [--tab-id <N>]  |  load-html --from-file <payload.json> [--tab-id <N>]');
+      if (!filePath)
+        throw new Error(
+          'Usage: browse load-html <file> [--wait-until load|domcontentloaded|networkidle] [--tab-id <N>]  |  load-html --from-file <payload.json> [--tab-id <N>]',
+        );
 
       // Extension allowlist
       const ALLOWED_EXT = ['.html', '.htm', '.xhtml', '.svg'];
       const ext = path.extname(filePath).toLowerCase();
       if (!ALLOWED_EXT.includes(ext)) {
         throw new Error(
-          `load-html: file does not appear to be HTML. Expected .html/.htm/.xhtml/.svg, got ${ext || '(no extension)'}. Rename the file if it's really HTML.`
+          `load-html: file does not appear to be HTML. Expected .html/.htm/.xhtml/.svg, got ${ext || '(no extension)'}. Rename the file if it's really HTML.`,
         );
       }
 
@@ -264,7 +371,7 @@ export async function handleWriteCommand(
         validateReadPath(absolutePath);
       } catch (e: any) {
         throw new Error(
-          `load-html: ${absolutePath} must be under ${SAFE_DIRECTORIES.join(' or ')} (security policy). Copy the file into the project tree or /tmp first.`
+          `load-html: ${absolutePath} must be under ${SAFE_DIRECTORIES.join(' or ')} (security policy). Copy the file into the project tree or /tmp first.`,
         );
       }
 
@@ -275,7 +382,7 @@ export async function handleWriteCommand(
       } catch (e: any) {
         if (e.code === 'ENOENT') {
           throw new Error(
-            `load-html: file not found at ${absolutePath}. Check spelling or copy the file under ${process.cwd()} or ${TEMP_DIR}.`
+            `load-html: file not found at ${absolutePath}. Check spelling or copy the file under ${process.cwd()} or ${TEMP_DIR}.`,
           );
         }
         throw e;
@@ -288,10 +395,10 @@ export async function handleWriteCommand(
       }
 
       // Size cap
-      const MAX_BYTES = parseInt(process.env.GSTACK_BROWSE_MAX_HTML_BYTES || '', 10) || (50 * 1024 * 1024);
+      const MAX_BYTES = parseInt(process.env.GSTACK_BROWSE_MAX_HTML_BYTES || '', 10) || 50 * 1024 * 1024;
       if (stat.size > MAX_BYTES) {
         throw new Error(
-          `load-html: file too large (${stat.size} bytes > ${MAX_BYTES} cap). Raise with GSTACK_BROWSE_MAX_HTML_BYTES=<N> or split the HTML.`
+          `load-html: file too large (${stat.size} bytes > ${MAX_BYTES} cap). Raise with GSTACK_BROWSE_MAX_HTML_BYTES=<N> or split the HTML.`,
         );
       }
 
@@ -304,16 +411,18 @@ export async function handleWriteCommand(
       // which setContent wraps in a full document. Rejects binary files mis-renamed .html
       // (first byte won't be `<`).
       let peek = buf.slice(0, 200);
-      if (peek[0] === 0xEF && peek[1] === 0xBB && peek[2] === 0xBF) {
+      if (peek[0] === 0xef && peek[1] === 0xbb && peek[2] === 0xbf) {
         peek = peek.slice(3);
       }
       const peekStr = peek.toString('utf8').trimStart();
       // Valid markup opener: '<' followed by alpha (tag), '!' (doctype/comment), or '?' (xml prolog)
       const looksLikeMarkup = /^<[a-zA-Z!?]/.test(peekStr);
       if (!looksLikeMarkup) {
-        const hexDump = Array.from(buf.slice(0, 16)).map(b => b.toString(16).padStart(2, '0')).join(' ');
+        const hexDump = Array.from(buf.slice(0, 16))
+          .map((b) => b.toString(16).padStart(2, '0'))
+          .join(' ');
         throw new Error(
-          `load-html: ${absolutePath} has ${ext} extension but content does not look like HTML. First bytes: ${hexDump}`
+          `load-html: ${absolutePath} has ${ext} extension but content does not look like HTML. First bytes: ${hexDump}`,
         );
       }
 
@@ -331,7 +440,7 @@ export async function handleWriteCommand(
       if (role === 'option') {
         const resolved = await session.resolveRef(selector);
         if ('locator' in resolved) {
-          const optionInfo = await resolved.locator.evaluate(el => {
+          const optionInfo = await resolved.locator.evaluate((el) => {
             if (el.tagName !== 'OPTION') return null; // custom [role=option], not real <option>
             const option = el as HTMLOptionElement;
             const select = option.closest('select');
@@ -355,14 +464,16 @@ export async function handleWriteCommand(
         }
       } catch (err: any) {
         // Enhanced error guidance: clicking <option> elements always fails (not visible / timeout)
-        const isOption = 'locator' in resolved
-          ? await resolved.locator.evaluate(el => el.tagName === 'OPTION').catch(() => false)
-          : await target.locator(resolved.selector).evaluate(
-              el => el.tagName === 'OPTION'
-            ).catch(() => false);
+        const isOption =
+          'locator' in resolved
+            ? await resolved.locator.evaluate((el) => el.tagName === 'OPTION').catch(() => false)
+            : await target
+                .locator(resolved.selector)
+                .evaluate((el) => el.tagName === 'OPTION')
+                .catch(() => false);
         if (isOption) {
           throw new Error(
-            `Cannot click <option> elements. Use 'browse select <parent-select> <value>' instead of 'click' for dropdown options.`
+            `Cannot click <option> elements. Use 'browse select <parent-select> <value>' instead of 'click' for dropdown options.`,
           );
         }
         throw err;
@@ -434,7 +545,9 @@ export async function handleWriteCommand(
       const times = timesIdx >= 0 ? parseInt(args[timesIdx + 1], 10) || 1 : 0;
       const waitIdx = args.indexOf('--wait');
       const waitMs = waitIdx >= 0 ? parseInt(args[waitIdx + 1], 10) || 1000 : 1000;
-      const selector = args.find(a => !a.startsWith('--') && args.indexOf(a) !== timesIdx + 1 && args.indexOf(a) !== waitIdx + 1);
+      const selector = args.find(
+        (a) => !a.startsWith('--') && args.indexOf(a) !== timesIdx + 1 && args.indexOf(a) !== waitIdx + 1,
+      );
 
       if (times > 0) {
         // Repeated scroll mode
@@ -449,7 +562,7 @@ export async function handleWriteCommand(
           } else {
             await target.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
           }
-          if (i < times - 1) await new Promise(r => setTimeout(r, waitMs));
+          if (i < times - 1) await new Promise((r) => setTimeout(r, waitMs));
         }
         return `Scrolled ${times} times${selector ? ` (${selector})` : ''} with ${waitMs}ms delay`;
       }
@@ -474,7 +587,10 @@ export async function handleWriteCommand(
       if (selector === '--networkidle') {
         const MAX_WAIT_MS = 300_000;
         const MIN_WAIT_MS = 1_000;
-        const timeout = Math.min(Math.max(args[1] ? parseInt(args[1], 10) || MIN_WAIT_MS : 15000, MIN_WAIT_MS), MAX_WAIT_MS);
+        const timeout = Math.min(
+          Math.max(args[1] ? parseInt(args[1], 10) || MIN_WAIT_MS : 15000, MIN_WAIT_MS),
+          MAX_WAIT_MS,
+        );
         await page.waitForLoadState('networkidle', { timeout });
         return 'Network idle';
       }
@@ -488,7 +604,10 @@ export async function handleWriteCommand(
       }
       const MAX_WAIT_MS = 300_000;
       const MIN_WAIT_MS = 1_000;
-      const timeout = Math.min(Math.max(args[1] ? parseInt(args[1], 10) || MIN_WAIT_MS : 15000, MIN_WAIT_MS), MAX_WAIT_MS);
+      const timeout = Math.min(
+        Math.max(args[1] ? parseInt(args[1], 10) || MIN_WAIT_MS : 15000, MIN_WAIT_MS),
+        MAX_WAIT_MS,
+      );
       const resolved = await session.resolveRef(selector);
       if ('locator' in resolved) {
         await resolved.locator.waitFor({ state: 'visible', timeout });
@@ -523,7 +642,9 @@ export async function handleWriteCommand(
       }
 
       if (sizeArg === undefined && scaleArg === undefined) {
-        throw new Error('Usage: browse viewport [<WxH>] [--scale <n>]  (e.g. 375x812, or --scale 2 to keep current size)');
+        throw new Error(
+          'Usage: browse viewport [<WxH>] [--scale <n>]  (e.g. 375x812, or --scale 2 to keep current size)',
+        );
       }
 
       // Resolve width/height: either from sizeArg or from current viewport if --scale-only.
@@ -559,12 +680,14 @@ export async function handleWriteCommand(
       const name = cookieStr.slice(0, eq);
       const value = cookieStr.slice(eq + 1);
       const url = new URL(page.url());
-      await page.context().addCookies([{
-        name,
-        value,
-        domain: url.hostname,
-        path: '/',
-      }]);
+      await page.context().addCookies([
+        {
+          name,
+          value,
+          domain: url.hostname,
+          path: '/',
+        },
+      ]);
       return `Cookie set: ${name}=****`;
     }
 
@@ -600,8 +723,13 @@ export async function handleWriteCommand(
         if (!fs.existsSync(fp)) throw new Error(`File not found: ${fp}`);
         if (path.isAbsolute(fp)) {
           let resolvedFp: string;
-          try { resolvedFp = fs.realpathSync(path.resolve(fp)); } catch (err: any) { if (err?.code !== 'ENOENT') throw err; resolvedFp = path.resolve(fp); }
-          if (!SAFE_DIRECTORIES.some(dir => isPathWithin(resolvedFp, dir))) {
+          try {
+            resolvedFp = fs.realpathSync(path.resolve(fp));
+          } catch (err: any) {
+            if (err?.code !== 'ENOENT') throw err;
+            resolvedFp = path.resolve(fp);
+          }
+          if (!SAFE_DIRECTORIES.some((dir) => isPathWithin(resolvedFp, dir))) {
             throw new Error(`Path must be within: ${SAFE_DIRECTORIES.join(', ')}`);
           }
         }
@@ -617,10 +745,12 @@ export async function handleWriteCommand(
         await target.locator(resolved.selector).setInputFiles(filePaths);
       }
 
-      const fileInfo = filePaths.map(fp => {
-        const stat = fs.statSync(fp);
-        return `${path.basename(fp)} (${stat.size}B)`;
-      }).join(', ');
+      const fileInfo = filePaths
+        .map((fp) => {
+          const stat = fs.statSync(fp);
+          return `${path.basename(fp)} (${stat.size}B)`;
+        })
+        .join(', ');
       return `Uploaded: ${fileInfo}`;
     }
 
@@ -628,9 +758,7 @@ export async function handleWriteCommand(
       const text = args.length > 0 ? args.join(' ') : null;
       bm.setDialogAutoAccept(true);
       bm.setDialogPromptText(text);
-      return text
-        ? `Dialogs will be accepted with text: "${text}"`
-        : 'Dialogs will be accepted';
+      return text ? `Dialogs will be accepted with text: "${text}"` : 'Dialogs will be accepted';
     }
 
     case 'dialog-dismiss': {
@@ -647,17 +775,25 @@ export async function handleWriteCommand(
       // Mirrors validateOutputPath() — resolves symlinks (e.g., macOS /tmp → /private/tmp).
       const resolved = path.resolve(filePath);
       let resolvedReal = resolved;
-      try { resolvedReal = fs.realpathSync(resolved); } catch {
+      try {
+        resolvedReal = fs.realpathSync(resolved);
+      } catch {
         // File may not exist yet — resolve parent dir instead
-        try { resolvedReal = path.join(fs.realpathSync(path.dirname(resolved)), path.basename(resolved)); } catch {}
+        try {
+          resolvedReal = path.join(fs.realpathSync(path.dirname(resolved)), path.basename(resolved));
+        } catch {}
       }
-      if (!SAFE_DIRECTORIES.some(dir => isPathWithin(resolvedReal, dir))) {
+      if (!SAFE_DIRECTORIES.some((dir) => isPathWithin(resolvedReal, dir))) {
         throw new Error(`Path must be within: ${SAFE_DIRECTORIES.join(', ')}`);
       }
       if (!fs.existsSync(filePath)) throw new Error(`File not found: ${filePath}`);
       const raw = fs.readFileSync(filePath, 'utf-8');
       let cookies: any[];
-      try { cookies = JSON.parse(raw); } catch (err: any) { throw new Error(`Invalid JSON in ${filePath}: ${err?.message || err}`); }
+      try {
+        cookies = JSON.parse(raw);
+      } catch (err: any) {
+        throw new Error(`Invalid JSON in ${filePath}: ${err?.message || err}`);
+      }
       if (!Array.isArray(cookies)) throw new Error('Cookie file must contain a JSON array');
 
       // Auto-fill domain from current page URL when missing (consistent with cookie command)
@@ -671,7 +807,9 @@ export async function handleWriteCommand(
         } else {
           const cookieDomain = c.domain.startsWith('.') ? c.domain.slice(1) : c.domain;
           if (cookieDomain !== defaultDomain && !defaultDomain.endsWith('.' + cookieDomain)) {
-            throw new Error(`Cookie domain "${c.domain}" does not match current page domain "${defaultDomain}". Use the target site first.`);
+            throw new Error(
+              `Cookie domain "${c.domain}" does not match current page domain "${defaultDomain}". Use the target site first.`,
+            );
           }
         }
         if (!c.path) c.path = '/';
@@ -692,7 +830,7 @@ export async function handleWriteCommand(
       const domainIdx = args.indexOf('--domain');
       const profileIdx = args.indexOf('--profile');
       const hasAll = args.includes('--all');
-      const profile = (profileIdx !== -1 && profileIdx + 1 < args.length) ? args[profileIdx + 1] : 'Default';
+      const profile = profileIdx !== -1 && profileIdx + 1 < args.length ? args[profileIdx + 1] : 'Default';
 
       if (domainIdx !== -1 && domainIdx + 1 < args.length) {
         // Direct import mode — scoped to specific domain
@@ -701,7 +839,9 @@ export async function handleWriteCommand(
         const pageHostname = new URL(page.url()).hostname;
         const normalizedDomain = domain.startsWith('.') ? domain.slice(1) : domain;
         if (normalizedDomain !== pageHostname && !pageHostname.endsWith('.' + normalizedDomain)) {
-          throw new Error(`--domain "${domain}" does not match current page domain "${pageHostname}". Navigate to the target site first.`);
+          throw new Error(
+            `--domain "${domain}" does not match current page domain "${pageHostname}". Navigate to the target site first.`,
+          );
         }
         const browser = browserArg || 'comet';
         let result = await importCookies(browser, [domain], profile);
@@ -733,7 +873,9 @@ export async function handleWriteCommand(
           await page.context().addCookies(result.cookies);
           bm.trackCookieImportDomains(allDomainNames);
         }
-        const msg = [`Imported ${result.count} cookies across ${Object.keys(result.domainCounts).length} domains from ${browser}`];
+        const msg = [
+          `Imported ${result.count} cookies across ${Object.keys(result.domainCounts).length} domains from ${browser}`,
+        ];
         msg.push('(used --all: all browser cookies imported, consider --domain for tighter scoping)');
         if (result.failed > 0) msg.push(`(${result.failed} failed to decrypt)`);
         return msg.join(' ');
@@ -757,7 +899,7 @@ export async function handleWriteCommand(
         if (err?.code !== 'ENOENT' && !err?.message?.includes('spawn')) throw err;
       }
 
-      return `Cookie picker opened at http://127.0.0.1:${port}/cookie-picker\nDetected browsers: ${browsers.map(b => b.name).join(', ')}\nSelect domains to import, then close the picker when done.\n\nTip: For scripted imports, use --domain <domain> to scope cookies to a single domain.`;
+      return `Cookie picker opened at http://127.0.0.1:${port}/cookie-picker\nDetected browsers: ${browsers.map((b) => b.name).join(', ')}\nSelect domains to import, then close the picker when done.\n\nTip: For scripted imports, use --domain <domain> to scope cookies to a single domain.`;
     }
 
     case 'style': {
@@ -792,8 +934,12 @@ export async function handleWriteCommand(
 
     case 'cleanup': {
       // Parse flags
-      let doAds = false, doCookies = false, doSticky = false, doSocial = false;
-      let doOverlays = false, doClutter = false;
+      let doAds = false,
+        doCookies = false,
+        doSticky = false,
+        doSocial = false;
+      let doOverlays = false,
+        doClutter = false;
       let doAll = false;
 
       // Default to --all if no args (most common use case from sidebar button)
@@ -803,15 +949,31 @@ export async function handleWriteCommand(
 
       for (const arg of args) {
         switch (arg) {
-          case '--ads': doAds = true; break;
-          case '--cookies': doCookies = true; break;
-          case '--sticky': doSticky = true; break;
-          case '--social': doSocial = true; break;
-          case '--overlays': doOverlays = true; break;
-          case '--clutter': doClutter = true; break;
-          case '--all': doAll = true; break;
+          case '--ads':
+            doAds = true;
+            break;
+          case '--cookies':
+            doCookies = true;
+            break;
+          case '--sticky':
+            doSticky = true;
+            break;
+          case '--social':
+            doSocial = true;
+            break;
+          case '--overlays':
+            doOverlays = true;
+            break;
+          case '--clutter':
+            doClutter = true;
+            break;
+          case '--all':
+            doAll = true;
+            break;
           default:
-            throw new Error(`Unknown cleanup flag: ${arg}. Use: --ads, --cookies, --sticky, --social, --overlays, --clutter, --all`);
+            throw new Error(
+              `Unknown cleanup flag: ${arg}. Use: --ads, --cookies, --sticky, --social, --overlays, --clutter, --all`,
+            );
         }
       }
 
@@ -835,7 +997,7 @@ export async function handleWriteCommand(
           for (const sel of sels) {
             try {
               const els = document.querySelectorAll(sel);
-              els.forEach(el => {
+              els.forEach((el) => {
                 (el as HTMLElement).style.setProperty('display', 'none', 'important');
                 removed++;
               });
@@ -914,7 +1076,7 @@ export async function handleWriteCommand(
         }
         // Remove blur/filter effects (paywalls often blur the content)
         const blurred = document.querySelectorAll('[style*="blur"], [style*="filter"]');
-        blurred.forEach(el => {
+        blurred.forEach((el) => {
           const s = (el as HTMLElement).style;
           if (s.filter?.includes('blur') || s.webkitFilter?.includes('blur')) {
             s.setProperty('filter', 'none', 'important');
@@ -924,7 +1086,7 @@ export async function handleWriteCommand(
         });
         // Remove max-height truncation (article truncation)
         const truncated = document.querySelectorAll('[class*="truncat"], [class*="preview"], [class*="teaser"]');
-        truncated.forEach(el => {
+        truncated.forEach((el) => {
           const s = getComputedStyle(el);
           if (s.maxHeight && s.maxHeight !== 'none' && parseInt(s.maxHeight) < 500) {
             (el as HTMLElement).style.setProperty('max-height', 'none', 'important');
@@ -940,16 +1102,21 @@ export async function handleWriteCommand(
       const adLabelCount = await page.evaluate(() => {
         let removed = 0;
         const adTextPatterns = [
-          /^advertisement$/i, /^sponsored$/i, /^promoted$/i,
-          /article continues/i, /continues below/i,
-          /^ad$/i, /^paid content$/i, /^partner content$/i,
+          /^advertisement$/i,
+          /^sponsored$/i,
+          /^promoted$/i,
+          /article continues/i,
+          /continues below/i,
+          /^ad$/i,
+          /^paid content$/i,
+          /^partner content$/i,
         ];
         // Walk text-heavy small elements looking for ad labels
         const candidates = document.querySelectorAll('div, span, p, figcaption, label');
         for (const el of candidates) {
           const text = (el.textContent || '').trim();
           if (text.length > 50) continue; // Too much text, probably real content
-          if (adTextPatterns.some(p => p.test(text))) {
+          if (adTextPatterns.some((p) => p.test(text))) {
             // Also hide the parent if it's a wrapper with little else
             const parent = el.parentElement;
             if (parent && (parent.textContent || '').trim().length < 80) {
@@ -969,7 +1136,7 @@ export async function handleWriteCommand(
         let collapsed = 0;
         const candidates = document.querySelectorAll(
           'div[class*="ad"], div[id*="ad"], aside[class*="ad"], div[class*="sidebar"], ' +
-          'div[class*="rail"], div[class*="right-col"], div[class*="widget"]'
+            'div[class*="rail"], div[class*="right-col"], div[class*="widget"]',
         );
         for (const el of candidates) {
           const rect = el.getBoundingClientRect();
@@ -1040,15 +1207,11 @@ export async function handleWriteCommand(
 
       // Run cleanup if requested
       if (doCleanup) {
-        const allSelectors = [
-          ...CLEANUP_SELECTORS.ads,
-          ...CLEANUP_SELECTORS.cookies,
-          ...CLEANUP_SELECTORS.social,
-        ];
+        const allSelectors = [...CLEANUP_SELECTORS.ads, ...CLEANUP_SELECTORS.cookies, ...CLEANUP_SELECTORS.social];
         await page.evaluate((sels: string[]) => {
           for (const sel of sels) {
             try {
-              document.querySelectorAll(sel).forEach(el => {
+              document.querySelectorAll(sel).forEach((el) => {
                 (el as HTMLElement).style.display = 'none';
               });
             } catch (err: any) {
@@ -1073,7 +1236,7 @@ export async function handleWriteCommand(
         await page.evaluate((sels: string[]) => {
           for (const sel of sels) {
             try {
-              document.querySelectorAll(sel).forEach(el => {
+              document.querySelectorAll(sel).forEach((el) => {
                 (el as HTMLElement).style.display = 'none';
               });
             } catch (err: any) {
@@ -1094,11 +1257,7 @@ export async function handleWriteCommand(
             return true;
           }
           // Try text match
-          const walker = document.createTreeWalker(
-            document.body,
-            NodeFilter.SHOW_TEXT,
-            null,
-          );
+          const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
           let node: Node | null;
           while ((node = walker.nextNode())) {
             if (node.textContent?.includes(target)) {
@@ -1146,7 +1305,7 @@ export async function handleWriteCommand(
       if (args.length === 0) throw new Error('Usage: download <url|@ref> [path] [--base64] [--navigate]');
       const isBase64 = args.includes('--base64');
       const useNavigate = args.includes('--navigate');
-      const filteredArgs = args.filter(a => a !== '--base64' && a !== '--navigate');
+      const filteredArgs = args.filter((a) => a !== '--base64' && a !== '--navigate');
       let url = filteredArgs[0];
       const outputPath = filteredArgs[1];
 
@@ -1155,19 +1314,23 @@ export async function handleWriteCommand(
         const resolved = await bm.resolveRef(url);
         if (!('locator' in resolved)) throw new Error(`Expected @ref, got CSS selector: ${url}`);
         const locator = resolved.locator;
-        const tagName = await locator.evaluate(el => el.tagName.toLowerCase());
+        const tagName = await locator.evaluate((el) => el.tagName.toLowerCase());
         if (tagName === 'img') {
-          url = await locator.evaluate(el => {
+          url = await locator.evaluate((el) => {
             const img = el as HTMLImageElement;
             return img.currentSrc || img.src || img.getAttribute('data-src') || '';
           });
         } else if (tagName === 'video') {
-          url = await locator.evaluate(el => (el as HTMLVideoElement).currentSrc || (el as HTMLVideoElement).src || '');
+          url = await locator.evaluate(
+            (el) => (el as HTMLVideoElement).currentSrc || (el as HTMLVideoElement).src || '',
+          );
         } else if (tagName === 'audio') {
-          url = await locator.evaluate(el => (el as HTMLAudioElement).currentSrc || (el as HTMLAudioElement).src || '');
+          url = await locator.evaluate(
+            (el) => (el as HTMLAudioElement).currentSrc || (el as HTMLAudioElement).src || '',
+          );
         } else {
           // Try src attribute on any element
-          url = await locator.evaluate(el => el.getAttribute('src') || '');
+          url = await locator.evaluate((el) => el.getAttribute('src') || '');
         }
         if (!url) throw new Error(`Could not extract URL from ${filteredArgs[0]} (${tagName})`);
       }
@@ -1201,7 +1364,8 @@ export async function handleWriteCommand(
         }, url);
 
         if (dataUrl === 'ERROR:TOO_LARGE') throw new Error('Blob too large (>100MB). Use a different approach.');
-        if (dataUrl.startsWith('ERROR:EXPIRED')) throw new Error(`Blob URL expired or inaccessible: ${dataUrl.slice('ERROR:EXPIRED:'.length)}`);
+        if (dataUrl.startsWith('ERROR:EXPIRED'))
+          throw new Error(`Blob URL expired or inaccessible: ${dataUrl.slice('ERROR:EXPIRED:'.length)}`);
 
         const match = dataUrl.match(/^data:([^;]+);base64,(.+)$/);
         if (!match) throw new Error('Failed to decode blob data');
@@ -1236,23 +1400,32 @@ export async function handleWriteCommand(
           if (extMatch) {
             const extLower = extMatch[1].toLowerCase();
             const mimeMap: Record<string, string> = {
-              epub: 'application/epub+zip', pdf: 'application/pdf',
-              zip: 'application/zip', gz: 'application/gzip',
-              mp3: 'audio/mpeg', mp4: 'video/mp4',
-              jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png',
-              txt: 'text/plain', html: 'text/html', json: 'application/json',
+              epub: 'application/epub+zip',
+              pdf: 'application/pdf',
+              zip: 'application/zip',
+              gz: 'application/gzip',
+              mp3: 'audio/mpeg',
+              mp4: 'video/mp4',
+              jpg: 'image/jpeg',
+              jpeg: 'image/jpeg',
+              png: 'image/png',
+              txt: 'text/plain',
+              html: 'text/html',
+              json: 'application/json',
             };
             contentType = mimeMap[extLower] || 'application/octet-stream';
           }
         }
         // Clean up temp file if we're going to write elsewhere
         if (outputPath || isBase64) {
-          try { fs.unlinkSync(tempPath); } catch { /* ignore */ }
+          try {
+            fs.unlinkSync(tempPath);
+          } catch {
+            /* ignore */
+          }
         } else {
           // No explicit output path — rename temp file with inferred extension.
-          const ext = contentType.split(';')[0].includes('/')
-            ? mimeToExt(contentType.split(';')[0].trim())
-            : '.bin';
+          const ext = contentType.split(';')[0].includes('/') ? mimeToExt(contentType.split(';')[0].trim()) : '.bin';
           const finalPath = path.join(TEMP_DIR, `browse-download-${Date.now()}${ext}`);
           fs.renameSync(tempPath, finalPath);
           const sizeKB = Math.round(buffer.length / 1024);
@@ -1294,9 +1467,7 @@ export async function handleWriteCommand(
       }
 
       // Write to disk
-      const ext = contentType.split(';')[0].includes('/')
-        ? mimeToExt(contentType.split(';')[0].trim())
-        : '.bin';
+      const ext = contentType.split(';')[0].includes('/') ? mimeToExt(contentType.split(';')[0].trim()) : '.bin';
       const destPath = outputPath || path.join(TEMP_DIR, `browse-download-${Date.now()}${ext}`);
       validateOutputPath(destPath);
       fs.writeFileSync(destPath, buffer);
@@ -1305,7 +1476,8 @@ export async function handleWriteCommand(
     }
 
     case 'scrape': {
-      if (args.length === 0) throw new Error('Usage: scrape <images|videos|media> [--selector sel] [--dir path] [--limit N]');
+      if (args.length === 0)
+        throw new Error('Usage: scrape <images|videos|media> [--selector sel] [--dir path] [--limit N]');
       const mediaType = args[0];
       if (!['images', 'videos', 'media'].includes(mediaType)) {
         throw new Error(`Invalid type: ${mediaType}. Use: images, videos, or media`);
@@ -1324,9 +1496,8 @@ export async function handleWriteCommand(
 
       const { extractMedia } = await import('./media-extract');
       const target = bm.getActiveFrameOrPage();
-      const filter = mediaType === 'images' ? 'images' as const
-        : mediaType === 'videos' ? 'videos' as const
-        : undefined;
+      const filter =
+        mediaType === 'images' ? ('images' as const) : mediaType === 'videos' ? ('videos' as const) : undefined;
       const mediaResult = await extractMedia(target, { selector, filter });
 
       // Collect URLs to download
@@ -1395,7 +1566,7 @@ export async function handleWriteCommand(
           lines.push(`  [${i + 1}/${toDownload.length}] FAILED: ${err.message}`);
         }
         // 100ms delay between downloads
-        if (i < toDownload.length - 1) await new Promise(r => setTimeout(r, 100));
+        if (i < toDownload.length - 1) await new Promise((r) => setTimeout(r, 100));
       }
 
       // Write manifest
@@ -1417,7 +1588,9 @@ export async function handleWriteCommand(
         fs.writeFileSync(outputPath, data);
         return `Archive saved: ${outputPath} (${Math.round(data.length / 1024)}KB, MHTML)`;
       } catch (err: any) {
-        throw new Error(`MHTML archive requires Chromium CDP. Use 'text' or 'html' for raw page content. (${err.message})`);
+        throw new Error(
+          `MHTML archive requires Chromium CDP. Use 'text' or 'html' for raw page content. (${err.message})`,
+        );
       }
     }
 
@@ -1429,12 +1602,22 @@ export async function handleWriteCommand(
 /** Map MIME type to file extension. */
 function mimeToExt(mime: string): string {
   const map: Record<string, string> = {
-    'image/png': '.png', 'image/jpeg': '.jpg', 'image/gif': '.gif',
-    'image/webp': '.webp', 'image/svg+xml': '.svg', 'image/avif': '.avif',
-    'video/mp4': '.mp4', 'video/webm': '.webm', 'video/quicktime': '.mov',
-    'audio/mpeg': '.mp3', 'audio/wav': '.wav', 'audio/ogg': '.ogg',
-    'application/pdf': '.pdf', 'application/json': '.json',
-    'text/html': '.html', 'text/plain': '.txt',
+    'image/png': '.png',
+    'image/jpeg': '.jpg',
+    'image/gif': '.gif',
+    'image/webp': '.webp',
+    'image/svg+xml': '.svg',
+    'image/avif': '.avif',
+    'video/mp4': '.mp4',
+    'video/webm': '.webm',
+    'video/quicktime': '.mov',
+    'audio/mpeg': '.mp3',
+    'audio/wav': '.wav',
+    'audio/ogg': '.ogg',
+    'application/pdf': '.pdf',
+    'application/json': '.json',
+    'text/html': '.html',
+    'text/plain': '.txt',
   };
   return map[mime] || '.bin';
 }

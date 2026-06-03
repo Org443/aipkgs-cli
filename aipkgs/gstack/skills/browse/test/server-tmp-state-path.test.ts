@@ -36,19 +36,14 @@ import { describe, test, expect } from 'bun:test';
 import { readFileSync } from 'fs';
 import * as path from 'path';
 
-const SERVER_TS = readFileSync(
-  path.resolve(import.meta.dir, '../src/server.ts'),
-  'utf-8',
-);
+const SERVER_TS = readFileSync(path.resolve(import.meta.dir, '../src/server.ts'), 'utf-8');
 
 describe('server.ts — state-file temp-path uniqueness', () => {
-  test('no remaining `stateFile + \'.tmp\'` literals (regression catch)', () => {
+  test("no remaining `stateFile + '.tmp'` literals (regression catch)", () => {
     // The shared-temp-filename pattern that caused the cold-start ENOENT
     // race. A future contributor that copy-pastes the old pattern (or a
     // revert) will fail this test.
-    const sharedTempLiterals = [
-      ...SERVER_TS.matchAll(/stateFile\s*\+\s*['"`]\.tmp['"`]/g),
-    ];
+    const sharedTempLiterals = [...SERVER_TS.matchAll(/stateFile\s*\+\s*['"`]\.tmp['"`]/g)];
     expect(
       sharedTempLiterals.length,
       `Found ${sharedTempLiterals.length} reference(s) to the shared ` +
@@ -63,21 +58,14 @@ describe('server.ts — state-file temp-path uniqueness', () => {
     // `…(state, …)` call and verify X is `tmpStatePath()` or a variable
     // assigned from `tmpStatePath()`.
     const writeCalls = [
-      ...SERVER_TS.matchAll(
-        /fs\.writeFileSync\s*\(\s*(\w+)\s*,\s*JSON\.stringify\(\s*(state|stateContent)/g,
-      ),
+      ...SERVER_TS.matchAll(/fs\.writeFileSync\s*\(\s*(\w+)\s*,\s*JSON\.stringify\(\s*(state|stateContent)/g),
     ];
-    expect(
-      writeCalls.length,
-      'expected at least one state-file write site',
-    ).toBeGreaterThan(0);
+    expect(writeCalls.length, 'expected at least one state-file write site').toBeGreaterThan(0);
 
     for (const m of writeCalls) {
       const varName = m[1]!;
       // Walk back to the assignment of varName — must come from tmpStatePath()
-      const assignRe = new RegExp(
-        `(?:const|let)\\s+${varName}\\s*=\\s*tmpStatePath\\(\\)`,
-      );
+      const assignRe = new RegExp(`(?:const|let)\\s+${varName}\\s*=\\s*tmpStatePath\\(\\)`);
       expect(
         assignRe.test(SERVER_TS),
         `state-file writeFileSync uses \`${varName}\` but no \`const ${varName} = tmpStatePath()\` ` +
@@ -91,20 +79,13 @@ describe('server.ts — state-file temp-path uniqueness', () => {
   test('tmpStatePath() declaration includes a per-process unique suffix', () => {
     // Lock the suffix shape so a future contributor doesn't accidentally
     // strip the uniqueness back out by simplifying the helper.
-    const declMatch = SERVER_TS.match(
-      /function tmpStatePath\(\)[^{]*\{([\s\S]*?)\n\}/,
-    );
+    const declMatch = SERVER_TS.match(/function tmpStatePath\(\)[^{]*\{([\s\S]*?)\n\}/);
     expect(declMatch, 'tmpStatePath() declaration not found').not.toBeNull();
     const body = declMatch![1]!;
 
     // Must reference both process.pid and crypto.randomBytes — two
     // independent sources of uniqueness.
-    expect(body, 'tmpStatePath() must include process.pid in the suffix').toContain(
-      'process.pid',
-    );
-    expect(
-      body,
-      'tmpStatePath() must include a random suffix via crypto.randomBytes',
-    ).toContain('crypto.randomBytes');
+    expect(body, 'tmpStatePath() must include process.pid in the suffix').toContain('process.pid');
+    expect(body, 'tmpStatePath() must include a random suffix via crypto.randomBytes').toContain('crypto.randomBytes');
   });
 });

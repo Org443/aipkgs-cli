@@ -49,9 +49,16 @@ export interface AttemptRow {
   ts: string;
   identity_canon: string; // sha256 salted — never the raw identity
   endpoint: string;
-  reason: 'no_token' | 'invalid_token' | 'expired_token' | 'identity_not_allowed' |
-          'capability_insufficient' | 'rate_limited' | 'allowlist_violation' |
-          'tailnet_socket_missing' | 'whois_unparseable';
+  reason:
+    | 'no_token'
+    | 'invalid_token'
+    | 'expired_token'
+    | 'identity_not_allowed'
+    | 'capability_insufficient'
+    | 'rate_limited'
+    | 'allowlist_violation'
+    | 'tailnet_socket_missing'
+    | 'whois_unparseable';
 }
 
 export interface WhoIsResult {

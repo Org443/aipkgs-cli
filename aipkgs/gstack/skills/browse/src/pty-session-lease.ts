@@ -39,10 +39,7 @@ interface Lease {
   expiresAt: number;
 }
 
-const LEASE_TTL_MS = parseInt(
-  process.env.GSTACK_PTY_LEASE_TTL_MS || `${30 * 60 * 1000}`,
-  10,
-); // 30 minutes default; covers idle-but-engaged user sessions
+const LEASE_TTL_MS = parseInt(process.env.GSTACK_PTY_LEASE_TTL_MS || `${30 * 60 * 1000}`, 10); // 30 minutes default; covers idle-but-engaged user sessions
 const MAX_LEASES = 10_000;
 const leases = new Map<string, Lease>();
 

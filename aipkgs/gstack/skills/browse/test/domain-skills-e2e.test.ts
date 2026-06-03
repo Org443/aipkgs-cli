@@ -41,8 +41,12 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  try { await bm.cleanup?.(); } catch {}
-  try { testServer.server.stop(); } catch {}
+  try {
+    await bm.cleanup?.();
+  } catch {}
+  try {
+    testServer.server.stop();
+  } catch {}
   await fs.rm(TMP_HOME, { recursive: true, force: true });
 });
 
@@ -62,11 +66,11 @@ describe('$B domain-skill (E2E gate tier)', () => {
     expect(out).toContain('Next:');
 
     // Check the JSONL file actually has it
-    const jsonl = await fs.readFile(
-      path.join(TMP_HOME, 'projects', 'e2e-test-slug', 'learnings.jsonl'),
-      'utf8',
-    );
-    const lines = jsonl.trim().split('\n').map((l) => JSON.parse(l));
+    const jsonl = await fs.readFile(path.join(TMP_HOME, 'projects', 'e2e-test-slug', 'learnings.jsonl'), 'utf8');
+    const lines = jsonl
+      .trim()
+      .split('\n')
+      .map((l) => JSON.parse(l));
     const skill = lines.find((r: any) => r.type === 'domain' && r.host === '127.0.0.1');
     expect(skill).toBeTruthy();
     expect(skill.state).toBe('quarantined');
@@ -105,10 +109,18 @@ describe('$B domain-skill (E2E gate tier)', () => {
     // new tombstone row with a non-zero score, then verify the next use
     // promotes. This documents the unblock path the day L4 starts populating
     // classifier_score for skill writes again.
-    const lines = (await fs.readFile(jsonlPath, 'utf8')).trim().split('\n').map((l) => JSON.parse(l));
+    const lines = (await fs.readFile(jsonlPath, 'utf8'))
+      .trim()
+      .split('\n')
+      .map((l) => JSON.parse(l));
     const latest = lines.filter((r: any) => r.type === 'domain' && r.host === '127.0.0.1').pop();
     expect(latest).toBeTruthy();
-    const scored = { ...latest, classifier_score: 0.05, version: latest.version + 1, updated_ts: new Date().toISOString() };
+    const scored = {
+      ...latest,
+      classifier_score: 0.05,
+      version: latest.version + 1,
+      updated_ts: new Date().toISOString(),
+    };
     await fs.appendFile(jsonlPath, JSON.stringify(scored) + '\n');
 
     // Now three uses promote

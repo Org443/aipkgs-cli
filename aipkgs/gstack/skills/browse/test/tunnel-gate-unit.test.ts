@@ -24,12 +24,32 @@ describe('canDispatchOverTunnel — closed allowlist', () => {
     // Mirror the source-level guard in dual-listener.test.ts. If this ever
     // disagrees with the literal in server.ts, one of them is wrong.
     const expected = new Set([
-      'goto', 'click', 'text', 'screenshot',
-      'html', 'links', 'forms', 'accessibility',
-      'attrs', 'media', 'data',
-      'scroll', 'press', 'type', 'select', 'wait', 'eval',
-      'newtab', 'tabs', 'back', 'forward', 'reload',
-      'snapshot', 'fill', 'url', 'closetab',
+      'goto',
+      'click',
+      'text',
+      'screenshot',
+      'html',
+      'links',
+      'forms',
+      'accessibility',
+      'attrs',
+      'media',
+      'data',
+      'scroll',
+      'press',
+      'type',
+      'select',
+      'wait',
+      'eval',
+      'newtab',
+      'tabs',
+      'back',
+      'forward',
+      'reload',
+      'snapshot',
+      'fill',
+      'url',
+      'closetab',
     ]);
     expect(TUNNEL_COMMANDS.size).toBe(expected.size);
     for (const c of expected) expect(TUNNEL_COMMANDS.has(c)).toBe(true);
@@ -39,12 +59,26 @@ describe('canDispatchOverTunnel — closed allowlist', () => {
 
 describe('canDispatchOverTunnel — daemon-config + bootstrap commands rejected', () => {
   const blocked = [
-    'pair', 'unpair', 'cookies', 'setup',
-    'launch', 'launch-browser', 'connect', 'disconnect',
-    'restart', 'stop', 'tunnel-start', 'tunnel-stop',
-    'token-mint', 'token-revoke', 'cookie-picker', 'cookie-import',
-    'inspector-pick', 'extension-inspect',
-    'invalid-command-xyz', 'totally-made-up',
+    'pair',
+    'unpair',
+    'cookies',
+    'setup',
+    'launch',
+    'launch-browser',
+    'connect',
+    'disconnect',
+    'restart',
+    'stop',
+    'tunnel-start',
+    'tunnel-stop',
+    'token-mint',
+    'token-revoke',
+    'cookie-picker',
+    'cookie-import',
+    'inspector-pick',
+    'extension-inspect',
+    'invalid-command-xyz',
+    'totally-made-up',
   ];
   for (const cmd of blocked) {
     test(`rejects '${cmd}'`, () => {

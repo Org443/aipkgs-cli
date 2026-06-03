@@ -90,7 +90,9 @@ function formatSkillListing(list: { project: DomainSkillRow[]; global: DomainSki
   if (list.project.length > 0) {
     lines.push('Project (per-project):');
     for (const r of list.project) {
-      lines.push(`  [${r.state}] ${r.host} — v${r.version}, ${r.body.length} bytes, used ${r.use_count}× (${r.flag_count} flags)`);
+      lines.push(
+        `  [${r.state}] ${r.host} — v${r.version}, ${r.body.length} bytes, used ${r.use_count}× (${r.flag_count} flags)`,
+      );
     }
   }
   if (list.global.length > 0) {
@@ -113,7 +115,7 @@ async function handleSave(args: string[], bm: BrowserManager): Promise<string> {
     throw new Error(
       'Save failed: empty body.\n' +
         'Cause: no content provided via --from-file or stdin.\n' +
-        'Action: pipe markdown into $B domain-skill save, or pass --from-file <path>.'
+        'Action: pipe markdown into $B domain-skill save, or pass --from-file <path>.',
     );
   }
   // L1-L3 content filters (datamarking, hidden-element strip, ARIA regex,
@@ -125,7 +127,7 @@ async function handleSave(args: string[], bm: BrowserManager): Promise<string> {
     throw new Error(
       `Save blocked: ${filterResult.message}\n` +
         'Cause: skill body trips L1-L3 content filters (likely contains URL blocklist match or ARIA injection patterns).\n' +
-        'Action: review the body for suspicious instruction-like content; rewrite and retry.'
+        'Action: review the body for suspicious instruction-like content; rewrite and retry.',
     );
   }
   // L1-L3 score is binary (passed or not). For the L4 score field we leave 0
@@ -155,7 +157,7 @@ async function handleShow(args: string[]): Promise<string> {
     throw new Error(
       'Usage: $B domain-skill show <host>\n' +
         'Cause: missing hostname argument.\n' +
-        'Action: $B domain-skill list to see available hosts.'
+        'Action: $B domain-skill list to see available hosts.',
     );
   }
   const slug = getCurrentProjectSlug();
@@ -184,7 +186,7 @@ async function handleEdit(args: string[]): Promise<string> {
     throw new Error(
       `Cannot edit: no skill for ${host}.\n` +
         'Cause: skill does not exist in this project or global scope.\n' +
-        'Action: $B domain-skill save to create one first.'
+        'Action: $B domain-skill save to create one first.',
     );
   }
   const editor = process.env.EDITOR || 'vi';
@@ -294,7 +296,7 @@ export async function handleDomainSkillCommand(args: string[], bm: BrowserManage
       throw new Error(
         `Unknown subcommand: ${sub}\n` +
           'Cause: not one of save|list|show|edit|promote-to-global|rollback|rm.\n' +
-          'Action: $B domain-skill help for the full list.'
+          'Action: $B domain-skill help for the full list.',
       );
   }
 }

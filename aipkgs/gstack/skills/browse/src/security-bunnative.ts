@@ -87,7 +87,10 @@ export function loadHFTokenizer(dir: string): TokenizerState {
 
   return {
     vocab,
-    unkId, clsId, sepId, padId,
+    unkId,
+    clsId,
+    sepId,
+    padId,
     maxInputCharsPerWord: config.model?.max_input_chars_per_word ?? 100,
     continuingPrefix: config.model?.continuing_subword_prefix ?? '##',
   };
@@ -126,10 +129,16 @@ export function encodeWordPiece(text: string, tok: TokenizerState, maxLength: nu
         let sub = word.slice(start, end);
         if (start > 0) sub = tok.continuingPrefix + sub;
         const id = tok.vocab.get(sub);
-        if (id !== undefined) { curId = id; break; }
+        if (id !== undefined) {
+          curId = id;
+          break;
+        }
         end--;
       }
-      if (curId === null) { badWord = true; break; }
+      if (curId === null) {
+        badWord = true;
+        break;
+      }
       subTokens.push(curId);
       start = end;
     }
@@ -182,7 +191,7 @@ export async function classify(text: string): Promise<ClassifyResult> {
   const raw = await cls(text);
   const top = Array.isArray(raw) ? raw[0] : raw;
   return {
-    label: (top?.label === 'INJECTION' ? 'INJECTION' : 'SAFE'),
+    label: top?.label === 'INJECTION' ? 'INJECTION' : 'SAFE',
     score: Number(top?.score ?? 0),
     tokensUsed: ids.length,
   };

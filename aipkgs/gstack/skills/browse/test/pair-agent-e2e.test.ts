@@ -46,7 +46,7 @@ async function waitForReady(baseUrl: string, timeoutMs = 15_000): Promise<void> 
     } catch {
       // not ready yet
     }
-    await new Promise(r => setTimeout(r, 200));
+    await new Promise((r) => setTimeout(r, 200));
   }
   throw new Error(`Daemon did not become ready within ${timeoutMs}ms`);
 }
@@ -79,8 +79,12 @@ async function spawnDaemon(): Promise<DaemonHandle> {
 }
 
 function killDaemon(handle: DaemonHandle): void {
-  try { handle.proc.kill('SIGKILL'); } catch {}
-  try { fs.rmSync(handle.tempDir, { recursive: true, force: true }); } catch {}
+  try {
+    handle.proc.kill('SIGKILL');
+  } catch {}
+  try {
+    fs.rmSync(handle.tempDir, { recursive: true, force: true });
+  } catch {}
 }
 
 describe('pair-agent flow end-to-end (HTTP only, no ngrok)', () => {
@@ -99,7 +103,7 @@ describe('pair-agent flow end-to-end (HTTP only, no ngrok)', () => {
       headers: { Origin: 'chrome-extension://test-extension-id' },
     });
     expect(resp.status).toBe(200);
-    const body = await resp.json() as any;
+    const body = (await resp.json()) as any;
     expect(body.status).toBeDefined();
     // Extension bootstrap — local listener delivers the token
     expect(body.token).toBe(daemon.token);
@@ -108,7 +112,7 @@ describe('pair-agent flow end-to-end (HTTP only, no ngrok)', () => {
   test('GET /health without chrome-extension origin does NOT include token', async () => {
     const resp = await fetch(`${daemon.baseUrl}/health`);
     expect(resp.status).toBe(200);
-    const body = await resp.json() as any;
+    const body = (await resp.json()) as any;
     // Headless mode + no chrome-extension origin → token withheld
     expect(body.token).toBeUndefined();
   });
@@ -116,7 +120,7 @@ describe('pair-agent flow end-to-end (HTTP only, no ngrok)', () => {
   test('GET /connect alive probe returns {alive: true} unauth', async () => {
     const resp = await fetch(`${daemon.baseUrl}/connect`);
     expect(resp.status).toBe(200);
-    const body = await resp.json() as any;
+    const body = (await resp.json()) as any;
     expect(body.alive).toBe(true);
   });
 
@@ -130,7 +134,7 @@ describe('pair-agent flow end-to-end (HTTP only, no ngrok)', () => {
       body: JSON.stringify({ clientId: 'test-agent' }),
     });
     expect(resp.status).toBe(200);
-    const body = await resp.json() as any;
+    const body = (await resp.json()) as any;
     expect(body.setup_key).toBeDefined();
     expect(typeof body.setup_key).toBe('string');
     expect(body.setup_key.length).toBeGreaterThan(10);
@@ -155,7 +159,7 @@ describe('pair-agent flow end-to-end (HTTP only, no ngrok)', () => {
       },
       body: JSON.stringify({ clientId: 'e2e-connect' }),
     });
-    const { setup_key } = await pairResp.json() as any;
+    const { setup_key } = (await pairResp.json()) as any;
 
     // 2) Exchange setup key for scoped token via /connect
     const connectResp = await fetch(`${daemon.baseUrl}/connect`, {
@@ -164,7 +168,7 @@ describe('pair-agent flow end-to-end (HTTP only, no ngrok)', () => {
       body: JSON.stringify({ setup_key }),
     });
     expect(connectResp.status).toBe(200);
-    const { token, scopes } = await connectResp.json() as any;
+    const { token, scopes } = (await connectResp.json()) as any;
     expect(token).toBeDefined();
     expect(typeof token).toBe('string');
     expect(token).not.toBe(daemon.token); // scoped token, not root

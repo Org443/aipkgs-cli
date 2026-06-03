@@ -16,11 +16,14 @@ import * as path from 'path';
 // doesn't leak a 60s-zombie claude.
 
 const TERMINAL_JS = path.resolve(
-  new URL(import.meta.url).pathname, '..', '..', '..', 'extension', 'sidepanel-terminal.js',
+  new URL(import.meta.url).pathname,
+  '..',
+  '..',
+  '..',
+  'extension',
+  'sidepanel-terminal.js',
 );
-const SIDEPANEL_JS = path.resolve(
-  new URL(import.meta.url).pathname, '..', '..', '..', 'extension', 'sidepanel.js',
-);
+const SIDEPANEL_JS = path.resolve(new URL(import.meta.url).pathname, '..', '..', '..', 'extension', 'sidepanel.js');
 
 describe('sidepanel-terminal: forceRestart via /pty-restart (v1.44+)', () => {
   test('1. mintSession callers read the 4-tuple (sessionId + attachToken)', () => {

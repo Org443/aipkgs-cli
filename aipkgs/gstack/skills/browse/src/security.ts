@@ -36,7 +36,7 @@ import { writeSecureFile, appendSecureFile, mkdirSecure } from './file-permissio
 export const THRESHOLDS = {
   BLOCK: 0.85,
   WARN: 0.75,
-  LOG_ONLY: 0.40,
+  LOG_ONLY: 0.4,
   // Single-layer BLOCK threshold for content classifiers (testsavant, deberta)
   // — intentionally HIGHER than BLOCK because these layers are label-less and
   // cannot distinguish "this is an injection" from "this looks like phishing
@@ -55,7 +55,7 @@ export type Verdict = 'safe' | 'log_only' | 'warn' | 'block' | 'user_overrode';
 
 export type LayerName =
   | 'testsavant_content'
-  | 'deberta_content'        // opt-in ensemble layer (GSTACK_SECURITY_ENSEMBLE=deberta)
+  | 'deberta_content' // opt-in ensemble layer (GSTACK_SECURITY_ENSEMBLE=deberta)
   | 'transcript_classifier'
   | 'aria_regex'
   | 'canary';
@@ -174,7 +174,10 @@ export function combineVerdict(signals: LayerSignal[], opts: CombineVerdictOpts 
   let transcriptVote: VoteStrength = 'none';
   for (const s of transcriptSignals) {
     const v = classifyTranscript(s);
-    if (v === 'block') { transcriptVote = 'block'; break; }
+    if (v === 'block') {
+      transcriptVote = 'block';
+      break;
+    }
     if (v === 'warn' && transcriptVote !== 'block') transcriptVote = 'warn';
   }
 
@@ -302,9 +305,7 @@ export function checkCanaryInStructure(value: unknown, canary: string): boolean 
     return value.some((v) => checkCanaryInStructure(v, canary));
   }
   if (typeof value === 'object') {
-    return Object.values(value as Record<string, unknown>).some((v) =>
-      checkCanaryInStructure(v, canary),
-    );
+    return Object.values(value as Record<string, unknown>).some((v) => checkCanaryInStructure(v, canary));
   }
   return false;
 }
@@ -483,12 +484,18 @@ function reportAttemptTelemetry(record: AttemptRecord): void {
   if (!bin) return;
   try {
     const result = buildTelemetrySpawnCommand(bin, [
-      '--event-type', 'attack_attempt',
-      '--url-domain', record.urlDomain || '',
-      '--payload-hash', record.payloadHash,
-      '--confidence', String(record.confidence),
-      '--layer', record.layer,
-      '--verdict', record.verdict,
+      '--event-type',
+      'attack_attempt',
+      '--url-domain',
+      record.urlDomain || '',
+      '--payload-hash',
+      record.payloadHash,
+      '--confidence',
+      String(record.confidence),
+      '--layer',
+      record.layer,
+      '--verdict',
+      record.verdict,
     ]);
     if (!result) return;
     const child = spawn(result.cmd, result.cmdArgs, {
@@ -497,7 +504,9 @@ function reportAttemptTelemetry(record: AttemptRecord): void {
     });
     // unref so this subprocess doesn't hold the event loop open
     child.unref();
-    child.on('error', () => { /* swallow — telemetry must never break sidebar */ });
+    child.on('error', () => {
+      /* swallow — telemetry must never break sidebar */
+    });
   } catch {
     // Spawn failure is non-fatal.
   }

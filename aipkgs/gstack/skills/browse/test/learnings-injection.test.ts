@@ -23,11 +23,11 @@ describe('gstack-learnings-search injection safety', () => {
 
 describe('gstack-learnings-search injection behavioral', () => {
   it('handles single quotes in query safely', () => {
-    const result = spawnSync('bash', [
-      path.join(BIN_DIR, 'gstack-learnings-search'),
-      '--query', "test'; process.exit(99); //",
-      '--limit', '1'
-    ], { encoding: 'utf-8', timeout: 5000, env: { ...process.env, HOME: '/tmp/nonexistent-gstack-test' } });
+    const result = spawnSync(
+      'bash',
+      [path.join(BIN_DIR, 'gstack-learnings-search'), '--query', "test'; process.exit(99); //", '--limit', '1'],
+      { encoding: 'utf-8', timeout: 5000, env: { ...process.env, HOME: '/tmp/nonexistent-gstack-test' } },
+    );
     expect(result.status).not.toBe(99);
   });
 });
