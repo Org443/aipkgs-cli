@@ -1,0 +1,15 @@
+{
+  "type": "cmd",
+  "ref": "org443/code-simplify",
+  "version": "0.0.1",
+  "description": "Simplifies modified code for readability and clarity",
+  "homepage": "https://aipkgs.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Org443/aipkgs-cli.git"
+  },
+  "issues": {
+    "url": "https://github.com/Org443/aipkgs-cli/issues"
+  },
+  "deps": {}
+}
