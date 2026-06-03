@@ -18,7 +18,9 @@ export function startTestServer(port: number = 0): { server: ReturnType<typeof B
       // Echo endpoint — returns request headers as JSON
       if (url.pathname === '/echo') {
         const headers: Record<string, string> = {};
-        req.headers.forEach((value, key) => { headers[key] = value; });
+        req.headers.forEach((value, key) => {
+          headers[key] = value;
+        });
         return new Response(JSON.stringify(headers, null, 2), {
           headers: { 'Content-Type': 'application/json' },
         });

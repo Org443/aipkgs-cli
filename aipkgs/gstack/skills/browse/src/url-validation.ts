@@ -9,13 +9,13 @@ import * as os from 'node:os';
 import { validateReadPath } from './path-security';
 
 export const BLOCKED_METADATA_HOSTS = new Set([
-  '169.254.169.254',  // AWS/GCP/Azure instance metadata
-  'fe80::1',          // IPv6 link-local — common metadata endpoint alias
+  '169.254.169.254', // AWS/GCP/Azure instance metadata
+  'fe80::1', // IPv6 link-local — common metadata endpoint alias
   '::ffff:169.254.169.254', // IPv4-mapped IPv6 form of the metadata IP
   '::ffff:a9fe:a9fe', // Hex-encoded IPv4-mapped form (URL constructor normalizes to this)
-  '::a9fe:a9fe',      // Deprecated IPv4-compatible hex form
+  '::a9fe:a9fe', // Deprecated IPv4-compatible hex form
   'metadata.google.internal', // GCP metadata
-  'metadata.azure.internal',  // Azure IMDS
+  'metadata.azure.internal', // Azure IMDS
 ]);
 
 /**
@@ -36,7 +36,7 @@ function isBlockedIpv6(addr: string): boolean {
   // Must contain a colon to be an IPv6 address — avoids false positives on
   // hostnames like fd.example.com or fcustomer.com
   if (!normalized.includes(':')) return false;
-  return BLOCKED_IPV6_PREFIXES.some(prefix => normalized.startsWith(prefix));
+  return BLOCKED_IPV6_PREFIXES.some((prefix) => normalized.startsWith(prefix));
 }
 
 /**
@@ -47,9 +47,7 @@ function isBlockedIpv6(addr: string): boolean {
  */
 function normalizeHostname(hostname: string): string {
   // Strip IPv6 brackets
-  let h = hostname.startsWith('[') && hostname.endsWith(']')
-    ? hostname.slice(1, -1)
-    : hostname;
+  let h = hostname.startsWith('[') && hostname.endsWith(']') ? hostname.slice(1, -1) : hostname;
   // Strip trailing dot
   if (h.endsWith('.')) h = h.slice(0, -1);
   return h;
@@ -88,16 +86,17 @@ async function resolvesToBlockedIp(hostname: string): Promise<boolean> {
 
     // Check IPv4 A records
     const v4Check = resolve4(hostname).then(
-      (addresses) => addresses.some(addr => BLOCKED_METADATA_HOSTS.has(addr)),
+      (addresses) => addresses.some((addr) => BLOCKED_METADATA_HOSTS.has(addr)),
       () => false, // ENODATA / ENOTFOUND — no A records, not a risk
     );
 
     // Check IPv6 AAAA records — the gap that issue #668 identified
     const v6Check = resolve6(hostname).then(
-      (addresses) => addresses.some(addr => {
-        const normalized = addr.toLowerCase();
-        return BLOCKED_METADATA_HOSTS.has(normalized) || isBlockedIpv6(normalized);
-      }),
+      (addresses) =>
+        addresses.some((addr) => {
+          const normalized = addr.toLowerCase();
+          return BLOCKED_METADATA_HOSTS.has(normalized) || isBlockedIpv6(normalized);
+        }),
       () => false, // ENODATA / ENOTFOUND — no AAAA records, not a risk
     );
 
@@ -168,10 +167,14 @@ export function normalizeFileUrl(url: string): string {
     throw new Error('Invalid file URL: file:// is empty. Use file:///<absolute-path>.');
   }
   if (afterDoubleSlash === '.' || afterDoubleSlash === './') {
-    throw new Error('Invalid file URL: file://./ would list the current directory. Use file://./<filename> to render a specific file.');
+    throw new Error(
+      'Invalid file URL: file://./ would list the current directory. Use file://./<filename> to render a specific file.',
+    );
   }
   if (afterDoubleSlash === '~' || afterDoubleSlash === '~/') {
-    throw new Error('Invalid file URL: file://~/ would list the home directory. Use file://~/<filename> to render a specific file.');
+    throw new Error(
+      'Invalid file URL: file://~/ would list the home directory. Use file://~/<filename> to render a specific file.',
+    );
   }
 
   // Home-relative: file://~/<rel>
@@ -204,7 +207,7 @@ export function normalizeFileUrl(url: string): string {
   const looksLikeHost = /[.:\\%]/.test(segment) || segment.startsWith('[');
   if (looksLikeHost) {
     throw new Error(
-      `Unsupported file URL host: ${segment}. Use file:///<absolute-path> for local files (network/UNC paths are not supported).`
+      `Unsupported file URL host: ${segment}. Use file:///<absolute-path> for local files (network/UNC paths are not supported).`,
     );
   }
 
@@ -243,9 +246,7 @@ export async function validateNavigationUrl(url: string): Promise<string> {
   if (parsed.protocol === 'file:') {
     // Reject non-empty non-localhost hosts (UNC / network paths).
     if (parsed.host !== '' && parsed.host.toLowerCase() !== 'localhost') {
-      throw new Error(
-        `Unsupported file URL host: ${parsed.host}. Use file:///<absolute-path> for local files.`
-      );
+      throw new Error(`Unsupported file URL host: ${parsed.host}. Use file:///<absolute-path> for local files.`);
     }
 
     // Convert URL → filesystem path with proper decoding (handles %20, %2F, etc.)
@@ -271,16 +272,14 @@ export async function validateNavigationUrl(url: string): Promise<string> {
 
   if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
     throw new Error(
-      `Blocked: scheme "${parsed.protocol}" is not allowed. Only http:, https:, and file: URLs are permitted.`
+      `Blocked: scheme "${parsed.protocol}" is not allowed. Only http:, https:, and file: URLs are permitted.`,
     );
   }
 
   const hostname = normalizeHostname(parsed.hostname.toLowerCase());
 
   if (BLOCKED_METADATA_HOSTS.has(hostname) || isMetadataIp(hostname) || isBlockedIpv6(hostname)) {
-    throw new Error(
-      `Blocked: ${parsed.hostname} is a cloud metadata endpoint. Access is denied for security.`
-    );
+    throw new Error(`Blocked: ${parsed.hostname} is a cloud metadata endpoint. Access is denied for security.`);
   }
 
   // DNS rebinding protection: resolve hostname and check if it points to metadata IPs.
@@ -288,10 +287,8 @@ export async function validateNavigationUrl(url: string): Promise<string> {
   // resolution adds latency that breaks concurrent E2E tests under load.
   const isLoopback = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1';
   const isPrivateNet = /^(10\.|172\.(1[6-9]|2[0-9]|3[01])\.|192\.168\.)/.test(hostname);
-  if (!isLoopback && !isPrivateNet && await resolvesToBlockedIp(hostname)) {
-    throw new Error(
-      `Blocked: ${parsed.hostname} resolves to a cloud metadata IP. Possible DNS rebinding attack.`
-    );
+  if (!isLoopback && !isPrivateNet && (await resolvesToBlockedIp(hostname))) {
+    throw new Error(`Blocked: ${parsed.hostname} resolves to a cloud metadata IP. Possible DNS rebinding attack.`);
   }
 
   return url;

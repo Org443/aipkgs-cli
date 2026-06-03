@@ -21,16 +21,19 @@ afterEach(() => {
 describe('writeAudit', () => {
   test('appends a JSONL row', async () => {
     const path = join(tmpDir, 'audit.jsonl');
-    await writeAudit({
-      ts: '2026-05-18T00:00:00Z',
-      identity: 'u@e.com',
-      device_udid: 'UDID-1',
-      endpoint: 'POST /tap',
-      session_id: 'S1',
-      capability: 'interact',
-      request_id: 'req-1',
-      status: 200,
-    }, path);
+    await writeAudit(
+      {
+        ts: '2026-05-18T00:00:00Z',
+        identity: 'u@e.com',
+        device_udid: 'UDID-1',
+        endpoint: 'POST /tap',
+        session_id: 'S1',
+        capability: 'interact',
+        request_id: 'req-1',
+        status: 200,
+      },
+      path,
+    );
     const lines = readFileSync(path, 'utf-8').trim().split('\n');
     expect(lines).toHaveLength(1);
     expect(JSON.parse(lines[0]!).identity).toBe('u@e.com');
@@ -74,11 +77,11 @@ describe('sanitizeReplacer', () => {
   const hasUnpairedSurrogate = (s: string): boolean => {
     for (let i = 0; i < s.length; i++) {
       const c = s.charCodeAt(i);
-      if (c >= 0xD800 && c <= 0xDBFF) {
+      if (c >= 0xd800 && c <= 0xdbff) {
         const next = s.charCodeAt(i + 1);
-        if (!(next >= 0xDC00 && next <= 0xDFFF)) return true;
+        if (!(next >= 0xdc00 && next <= 0xdfff)) return true;
         i++; // skip the valid pair
-      } else if (c >= 0xDC00 && c <= 0xDFFF) {
+      } else if (c >= 0xdc00 && c <= 0xdfff) {
         return true;
       }
     }

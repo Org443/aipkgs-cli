@@ -1,11 +1,27 @@
 import { describe, it, expect, beforeEach } from 'bun:test';
 import {
-  initRegistry, getRootToken, isRootToken,
-  createToken, createSetupKey, exchangeSetupKey,
-  validateToken, checkScope, checkDomain, checkRate,
-  revokeToken, rotateRoot, listTokens, recordCommand,
-  serializeRegistry, restoreRegistry, checkConnectRateLimit,
-  SCOPE_READ, SCOPE_WRITE, SCOPE_ADMIN, SCOPE_CONTROL, SCOPE_META,
+  initRegistry,
+  getRootToken,
+  isRootToken,
+  createToken,
+  createSetupKey,
+  exchangeSetupKey,
+  validateToken,
+  checkScope,
+  checkDomain,
+  checkRate,
+  revokeToken,
+  rotateRoot,
+  listTokens,
+  recordCommand,
+  serializeRegistry,
+  restoreRegistry,
+  checkConnectRateLimit,
+  SCOPE_READ,
+  SCOPE_WRITE,
+  SCOPE_ADMIN,
+  SCOPE_CONTROL,
+  SCOPE_META,
   __resetRegistry,
 } from '../src/token-registry';
 
@@ -42,9 +58,7 @@ describe('token-registry', () => {
       // 'é'.repeat(20) is 20 chars but 40 UTF-8 bytes.
       const multibyte = 'é'.repeat(20);
       expect(multibyte.length).toBe('root-token-for-tests'.length);
-      expect(Buffer.byteLength(multibyte, 'utf8')).not.toBe(
-        Buffer.byteLength('root-token-for-tests', 'utf8'),
-      );
+      expect(Buffer.byteLength(multibyte, 'utf8')).not.toBe(Buffer.byteLength('root-token-for-tests', 'utf8'));
       expect(() => isRootToken(multibyte)).not.toThrow();
       expect(isRootToken(multibyte)).toBe(false);
     });
@@ -179,7 +193,7 @@ describe('token-registry', () => {
       // expiresSeconds: 0 creates a token that expires at creation time
       const created = createToken({ clientId: 'expiring', expiresSeconds: 0 });
       // Wait 1ms so the expiry is definitively in the past
-      await new Promise(r => setTimeout(r, 2));
+      await new Promise((r) => setTimeout(r, 2));
       expect(validateToken(created.token)).toBeNull();
     });
   });
@@ -345,7 +359,7 @@ describe('token-registry', () => {
 
       const restored = listTokens();
       expect(restored).toHaveLength(2);
-      expect(restored.find(t => t.clientId === 'persist-1')?.scopes).toEqual(['read']);
+      expect(restored.find((t) => t.clientId === 'persist-1')?.scopes).toEqual(['read']);
     });
   });
 
@@ -361,9 +375,7 @@ describe('token-registry', () => {
   describe('scope coverage', () => {
     it('every command in commands.ts is covered by a scope', () => {
       // Import the command sets to verify coverage
-      const allInScopes = new Set([
-        ...SCOPE_READ, ...SCOPE_WRITE, ...SCOPE_ADMIN, ...SCOPE_CONTROL, ...SCOPE_META,
-      ]);
+      const allInScopes = new Set([...SCOPE_READ, ...SCOPE_WRITE, ...SCOPE_ADMIN, ...SCOPE_CONTROL, ...SCOPE_META]);
       // chain is a special case (checked via meta scope but dispatches subcommands)
       allInScopes.add('chain');
 
@@ -394,24 +406,30 @@ describe('token-registry', () => {
   // ─── CSO Fix #4: Input validation ──────────────────────────────
   describe('Input validation (CSO finding #4)', () => {
     it('rejects invalid scope values', () => {
-      expect(() => createToken({
-        clientId: 'test-invalid-scope',
-        scopes: ['read', 'bogus' as any],
-      })).toThrow('Invalid scope: bogus');
+      expect(() =>
+        createToken({
+          clientId: 'test-invalid-scope',
+          scopes: ['read', 'bogus' as any],
+        }),
+      ).toThrow('Invalid scope: bogus');
     });
 
     it('rejects negative rateLimit', () => {
-      expect(() => createToken({
-        clientId: 'test-neg-rate',
-        rateLimit: -1,
-      })).toThrow('rateLimit must be >= 0');
+      expect(() =>
+        createToken({
+          clientId: 'test-neg-rate',
+          rateLimit: -1,
+        }),
+      ).toThrow('rateLimit must be >= 0');
     });
 
     it('rejects negative expiresSeconds', () => {
-      expect(() => createToken({
-        clientId: 'test-neg-expire',
-        expiresSeconds: -100,
-      })).toThrow('expiresSeconds must be >= 0 or null');
+      expect(() =>
+        createToken({
+          clientId: 'test-neg-expire',
+          expiresSeconds: -100,
+        }),
+      ).toThrow('expiresSeconds must be >= 0 or null');
     });
 
     it('accepts null expiresSeconds (indefinite)', () => {

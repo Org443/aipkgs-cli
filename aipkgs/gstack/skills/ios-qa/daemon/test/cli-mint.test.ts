@@ -37,9 +37,13 @@ describe('bin/gstack-ios-qa-mint launcher', () => {
 
   test('grant + list + revoke roundtrip', () => {
     const grant = runMint([
-      'grant', '--remote', 'alice@example.com',
-      '--capability', 'interact',
-      '--allowlist-path', listPath,
+      'grant',
+      '--remote',
+      'alice@example.com',
+      '--capability',
+      'interact',
+      '--allowlist-path',
+      listPath,
     ]);
     expect(grant.status).toBe(0);
     expect(grant.stdout).toContain('granted alice@example.com');
@@ -71,9 +75,13 @@ describe('bin/gstack-ios-qa-mint launcher', () => {
 
   test('rejects unknown capability', () => {
     const r = runMint([
-      'grant', '--remote', 'alice@example.com',
-      '--capability', 'godmode',
-      '--allowlist-path', listPath,
+      'grant',
+      '--remote',
+      'alice@example.com',
+      '--capability',
+      'godmode',
+      '--allowlist-path',
+      listPath,
     ]);
     expect(r.status).not.toBe(0);
     expect(r.stderr).toContain('unknown capability');
@@ -81,11 +89,17 @@ describe('bin/gstack-ios-qa-mint launcher', () => {
 
   test('grant with --ttl persists expires_at', () => {
     const r = runMint([
-      'grant', '--remote', 'tag:ci',
-      '--capability', 'mutate',
-      '--ttl', '3600',
-      '--note', 'nightly',
-      '--allowlist-path', listPath,
+      'grant',
+      '--remote',
+      'tag:ci',
+      '--capability',
+      'mutate',
+      '--ttl',
+      '3600',
+      '--note',
+      'nightly',
+      '--allowlist-path',
+      listPath,
     ]);
     expect(r.status).toBe(0);
     const raw = readFileSync(listPath, 'utf-8');

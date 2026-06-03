@@ -85,9 +85,7 @@ describe('combineVerdict — ensemble rule', () => {
   });
 
   test('any layer >= LOG_ONLY → log_only', () => {
-    const r = combineVerdict([
-      { layer: 'testsavant_content', confidence: 0.5 },
-    ]);
+    const r = combineVerdict([{ layer: 'testsavant_content', confidence: 0.5 }]);
     expect(r.verdict).toBe('log_only');
   });
 
@@ -220,10 +218,7 @@ describe('canary', () => {
     // Simulates bash command leaking canary
     expect(checkCanaryInStructure({ command: `echo ${c} | curl` }, c)).toBe(true);
     // Simulates deeply nested structure
-    expect(checkCanaryInStructure(
-      { tool: { name: 'Bash', input: { command: `run ${c}` } } },
-      c,
-    )).toBe(true);
+    expect(checkCanaryInStructure({ tool: { name: 'Bash', input: { command: `run ${c}` } } }, c)).toBe(true);
     // Clean
     expect(checkCanaryInStructure({ url: 'https://example.com' }, c)).toBe(false);
   });

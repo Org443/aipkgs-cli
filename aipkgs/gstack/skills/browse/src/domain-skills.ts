@@ -100,7 +100,7 @@ export async function deriveHostFromActiveTab(page: Page): Promise<string> {
     throw new Error(
       'Cannot save domain-skill: no top-level URL on active tab.\n' +
         'Cause: tab is empty or on chrome:// page.\n' +
-        'Action: navigate to the target site first with $B goto <url>.'
+        'Action: navigate to the target site first with $B goto <url>.',
     );
   }
   return normalizeHost(url);
@@ -254,7 +254,7 @@ export async function writeSkill(input: WriteSkillInput): Promise<DomainSkillRow
     throw new Error(
       `Save blocked: classifier flagged content as potential injection (score: ${input.classifierScore.toFixed(2)}).\n` +
         'Cause: skill body contains patterns the L4 classifier marks as risky.\n' +
-        'Action: rewrite the skill content removing instruction-like prose, retry.'
+        'Action: rewrite the skill content removing instruction-like prose, retry.',
     );
   }
   const normalized = normalizeHost(input.host);
@@ -306,7 +306,11 @@ export async function writeSkill(input: WriteSkillInput): Promise<DomainSkillRow
  * for every subsequent visit. The gate re-opens automatically the day L4 is
  * rewired and writeSkill / recordSkillUse start receiving non-zero scores.
  */
-export async function recordSkillUse(host: string, projectSlug: string, classifierFlagged: boolean): Promise<DomainSkillRow | null> {
+export async function recordSkillUse(
+  host: string,
+  projectSlug: string,
+  classifierFlagged: boolean,
+): Promise<DomainSkillRow | null> {
   const normalized = normalizeHost(host);
   const rows = await readRows(projectFile(projectSlug));
   const latest = resolveLatest(rows);
@@ -315,12 +319,7 @@ export async function recordSkillUse(host: string, projectSlug: string, classifi
   const useCount = current.use_count + 1;
   const flagCount = current.flag_count + (classifierFlagged ? 1 : 0);
   let state: SkillState = current.state;
-  if (
-    state === 'quarantined' &&
-    useCount >= PROMOTE_THRESHOLD &&
-    flagCount === 0 &&
-    current.classifier_score > 0
-  ) {
+  if (state === 'quarantined' && useCount >= PROMOTE_THRESHOLD && flagCount === 0 && current.classifier_score > 0) {
     state = 'active';
   }
   const updated: DomainSkillRow = {
@@ -348,14 +347,14 @@ export async function promoteToGlobal(host: string, projectSlug: string): Promis
     throw new Error(
       `Cannot promote: no skill for ${normalized} in project ${projectSlug}.\n` +
         'Cause: skill does not exist or is tombstoned.\n' +
-        'Action: $B domain-skill list to see what exists in this project.'
+        'Action: $B domain-skill list to see what exists in this project.',
     );
   }
   if (current.state !== 'active') {
     throw new Error(
       `Cannot promote: skill for ${normalized} is in state "${current.state}", expected "active".\n` +
         `Cause: skill must be active in this project (used ${PROMOTE_THRESHOLD}+ times without flag) before global promotion.\n` +
-        'Action: use the skill in this project until it auto-promotes to active.'
+        'Action: use the skill in this project until it auto-promotes to active.',
     );
   }
   const now = new Date().toISOString();
@@ -376,7 +375,11 @@ export async function promoteToGlobal(host: string, projectSlug: string): Promis
  * Rollback to a prior version (by sha256 OR previous version number).
  * Re-emits the prior row as the latest, preserving the version counter monotonicity.
  */
-export async function rollbackSkill(host: string, projectSlug: string, scope: SkillScope = 'project'): Promise<DomainSkillRow> {
+export async function rollbackSkill(
+  host: string,
+  projectSlug: string,
+  scope: SkillScope = 'project',
+): Promise<DomainSkillRow> {
   const normalized = normalizeHost(host);
   const file = scope === 'project' ? projectFile(projectSlug) : globalFile();
   const rows = await readRows(file);
@@ -385,7 +388,7 @@ export async function rollbackSkill(host: string, projectSlug: string, scope: Sk
     throw new Error(
       `Cannot rollback: ${normalized} has fewer than 2 versions in ${scope} scope.\n` +
         'Cause: no prior version to roll back to.\n' +
-        'Action: $B domain-skill rm to delete instead, or wait for a future revision to roll back from.'
+        'Action: $B domain-skill rm to delete instead, or wait for a future revision to roll back from.',
     );
   }
   // Sort by version desc; take second-latest as the rollback target.
@@ -404,7 +407,9 @@ export async function rollbackSkill(host: string, projectSlug: string, scope: Sk
 /**
  * List all non-tombstoned skills visible to a project (active project + active global).
  */
-export async function listSkills(projectSlug: string): Promise<{ project: DomainSkillRow[]; global: DomainSkillRow[] }> {
+export async function listSkills(
+  projectSlug: string,
+): Promise<{ project: DomainSkillRow[]; global: DomainSkillRow[] }> {
   const projectRows = await readRows(projectFile(projectSlug));
   const globalRows = await readRows(globalFile());
   const projectLatest = Array.from(resolveLatest(projectRows).values());
@@ -425,7 +430,7 @@ export async function deleteSkill(host: string, projectSlug: string, scope: Skil
     throw new Error(
       `Cannot delete: no skill for ${normalized} in ${scope} scope.\n` +
         'Cause: skill does not exist or is already tombstoned.\n' +
-        'Action: $B domain-skill list to see what exists.'
+        'Action: $B domain-skill list to see what exists.',
     );
   }
   const tombstone: DomainSkillRow = {

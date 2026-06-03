@@ -1,9 +1,6 @@
 import { describe, test, expect, beforeEach } from 'bun:test';
 import type { Page } from 'playwright';
-import {
-  __testInternals,
-  undoModification,
-} from '../src/cdp-inspector';
+import { __testInternals, undoModification } from '../src/cdp-inspector';
 
 // Regression tests for the modificationHistory cap (D6 / smoking gun #2).
 // Pre-cap, the module-scoped array grew unbounded across the session. Cap is
@@ -71,9 +68,7 @@ describe('undoModification eviction-aware error', () => {
 
   test('5. out-of-range BEFORE any eviction → no evicted note', async () => {
     for (let i = 0; i < 5; i++) pushModification(fakeMod(i));
-    await expect(undoModification(stubPage, 99)).rejects.toThrow(
-      'No modification at index 99. History has 5 entries.',
-    );
+    await expect(undoModification(stubPage, 99)).rejects.toThrow('No modification at index 99. History has 5 entries.');
   });
 
   test('6. out-of-range AFTER eviction → message names the evicted count', async () => {
@@ -82,14 +77,12 @@ describe('undoModification eviction-aware error', () => {
     // 273 pushed, 200 in buffer, 73 evicted. Ask for idx=400 (above buffer).
     await expect(undoModification(stubPage, 400)).rejects.toThrow(
       `No modification at index 400. History has ${MOD_HISTORY_CAP} entries ` +
-      `(most recent ${MOD_HISTORY_CAP} only — 73 earlier entries evicted at the cap).`,
+        `(most recent ${MOD_HISTORY_CAP} only — 73 earlier entries evicted at the cap).`,
     );
   });
 
   test('7. negative explicit index throws cleanly (no NaN propagation)', async () => {
     for (let i = 0; i < 10; i++) pushModification(fakeMod(i));
-    await expect(undoModification(stubPage, -1)).rejects.toThrow(
-      'No modification at index -1.',
-    );
+    await expect(undoModification(stubPage, -1)).rejects.toThrow('No modification at index -1.');
   });
 });

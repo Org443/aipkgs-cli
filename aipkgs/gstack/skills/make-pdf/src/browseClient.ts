@@ -23,17 +23,17 @@
  *     natively via PATHEXT semantics.
  */
 
-import { execFileSync } from "node:child_process";
-import * as fs from "node:fs";
-import * as os from "node:os";
-import * as path from "node:path";
-import * as crypto from "node:crypto";
+import { execFileSync } from 'node:child_process';
+import * as fs from 'node:fs';
+import * as os from 'node:os';
+import * as path from 'node:path';
+import * as crypto from 'node:crypto';
 
-import { BrowseClientError } from "./types";
+import { BrowseClientError } from './types';
 
 export interface LoadHtmlOptions {
-  html: string;                   // raw HTML string
-  waitUntil?: "load" | "domcontentloaded" | "networkidle";
+  html: string; // raw HTML string
+  waitUntil?: 'load' | 'domcontentloaded' | 'networkidle';
   tabId: number;
 }
 
@@ -59,7 +59,7 @@ export interface PdfOptions {
 
 export interface JsOptions {
   tabId: number;
-  expression: string;             // JS expression to evaluate
+  expression: string; // JS expression to evaluate
 }
 
 /**
@@ -88,8 +88,8 @@ function resolveOverride(value: string | undefined, env: NodeJS.ProcessEnv): str
  */
 export function findExecutable(base: string): string | null {
   if (isExecutable(base)) return base;
-  if (process.platform === "win32") {
-    for (const ext of [".exe", ".cmd", ".bat"]) {
+  if (process.platform === 'win32') {
+    for (const ext of ['.exe', '.cmd', '.bat']) {
       const withExt = base + ext;
       if (isExecutable(withExt)) return withExt;
     }
@@ -110,9 +110,9 @@ export function resolveBrowseBin(env: NodeJS.ProcessEnv = process.env): string {
   // 3: sibling — make-pdf and browse co-located in dist/.
   const selfDir = path.dirname(process.argv[0]);
   const siblingCandidates = [
-    path.resolve(selfDir, "../browse/dist/browse"),
-    path.resolve(selfDir, "../../browse/dist/browse"),
-    path.resolve(selfDir, "../browse"),
+    path.resolve(selfDir, '../browse/dist/browse'),
+    path.resolve(selfDir, '../../browse/dist/browse'),
+    path.resolve(selfDir, '../browse'),
   ];
   for (const candidate of siblingCandidates) {
     const found = findExecutable(candidate);
@@ -121,7 +121,7 @@ export function resolveBrowseBin(env: NodeJS.ProcessEnv = process.env): string {
 
   // 4: global install.
   const home = os.homedir();
-  const globalPath = path.join(home, ".claude/skills/gstack/browse/dist/browse");
+  const globalPath = path.join(home, '.claude/skills/gstack/browse/dist/browse');
   const globalFound = findExecutable(globalPath);
   if (globalFound) return globalFound;
 
@@ -133,26 +133,26 @@ export function resolveBrowseBin(env: NodeJS.ProcessEnv = process.env): string {
 
   throw new BrowseClientError(
     /* exitCode */ 127,
-    "resolve",
+    'resolve',
     [
-      "browse binary not found.",
-      "",
-      "make-pdf needs browse (the gstack Chromium daemon) to render PDFs.",
-      "Tried:",
-      `  - $GSTACK_BROWSE_BIN (${env.GSTACK_BROWSE_BIN || "unset"})`,
-      `  - $BROWSE_BIN (${env.BROWSE_BIN || "unset"})`,
-      `  - sibling: ${siblingCandidates.join(", ")}`,
+      'browse binary not found.',
+      '',
+      'make-pdf needs browse (the gstack Chromium daemon) to render PDFs.',
+      'Tried:',
+      `  - $GSTACK_BROWSE_BIN (${env.GSTACK_BROWSE_BIN || 'unset'})`,
+      `  - $BROWSE_BIN (${env.BROWSE_BIN || 'unset'})`,
+      `  - sibling: ${siblingCandidates.join(', ')}`,
       `  - global: ${globalPath}`,
-      "  - PATH: `browse`",
-      "",
-      "To fix: run gstack setup from the gstack repo:",
-      "  cd ~/.claude/skills/gstack && ./setup",
-      "",
-      "Or set GSTACK_BROWSE_BIN explicitly:",
-      process.platform === "win32"
+      '  - PATH: `browse`',
+      '',
+      'To fix: run gstack setup from the gstack repo:',
+      '  cd ~/.claude/skills/gstack && ./setup',
+      '',
+      'Or set GSTACK_BROWSE_BIN explicitly:',
+      process.platform === 'win32'
         ? '  setx GSTACK_BROWSE_BIN "C:\\path\\to\\browse.exe"'
-        : "  export GSTACK_BROWSE_BIN=/path/to/browse",
-    ].join("\n"),
+        : '  export GSTACK_BROWSE_BIN=/path/to/browse',
+    ].join('\n'),
   );
 }
 
@@ -173,16 +173,14 @@ function runBrowse(args: string[]): string {
   const bin = resolveBrowseBin();
   try {
     return execFileSync(bin, args, {
-      encoding: "utf8",
-      maxBuffer: 16 * 1024 * 1024,    // 16MB; tab content can be large
-      stdio: ["ignore", "pipe", "pipe"],
+      encoding: 'utf8',
+      maxBuffer: 16 * 1024 * 1024, // 16MB; tab content can be large
+      stdio: ['ignore', 'pipe', 'pipe'],
     });
   } catch (err: any) {
-    const exitCode = typeof err.status === "number" ? err.status : 1;
-    const stderr = typeof err.stderr === "string"
-      ? err.stderr
-      : (err.stderr?.toString() ?? "");
-    throw new BrowseClientError(exitCode, args[0] || "unknown", stderr);
+    const exitCode = typeof err.status === 'number' ? err.status : 1;
+    const stderr = typeof err.stderr === 'string' ? err.stderr : (err.stderr?.toString() ?? '');
+    throw new BrowseClientError(exitCode, args[0] || 'unknown', stderr);
   }
 }
 
@@ -196,20 +194,21 @@ function runBrowse(args: string[]): string {
  * on macOS (/var/folders/...) now fails validateReadPath.  Use the same
  * TEMP_DIR convention as browse/src/platform.ts.
  */
-const PAYLOAD_TMP_DIR = process.platform === "win32" ? os.tmpdir() : "/tmp";
+const PAYLOAD_TMP_DIR = process.platform === 'win32' ? os.tmpdir() : '/tmp';
 
 function writePayloadFile(payload: Record<string, unknown>): string {
-  const hash = crypto.createHash("sha256")
-    .update(JSON.stringify(payload))
-    .digest("hex")
-    .slice(0, 12);
+  const hash = crypto.createHash('sha256').update(JSON.stringify(payload)).digest('hex').slice(0, 12);
   const tmpPath = path.join(PAYLOAD_TMP_DIR, `make-pdf-browse-${process.pid}-${hash}.json`);
-  fs.writeFileSync(tmpPath, JSON.stringify(payload), "utf8");
+  fs.writeFileSync(tmpPath, JSON.stringify(payload), 'utf8');
   return tmpPath;
 }
 
 function cleanupPayloadFile(p: string): void {
-  try { fs.unlinkSync(p); } catch { /* best-effort */ }
+  try {
+    fs.unlinkSync(p);
+  } catch {
+    /* best-effort */
+  }
 }
 
 // ─── Public API ─────────────────────────────────────────────────
@@ -221,19 +220,19 @@ function cleanupPayloadFile(p: string): void {
  * parses "Opened tab N" from stdout.
  */
 export function newtab(url?: string): number {
-  const args = ["newtab"];
+  const args = ['newtab'];
   if (url) args.push(url);
   // Try --json first (preferred path for programmatic use)
   try {
-    const out = runBrowse([...args, "--json"]);
+    const out = runBrowse([...args, '--json']);
     const parsed = JSON.parse(out);
-    if (typeof parsed.tabId === "number") return parsed.tabId;
+    if (typeof parsed.tabId === 'number') return parsed.tabId;
   } catch {
     // Fall back to stdout-string parsing. Brittle, but works on older browse builds.
   }
   const out = runBrowse(args);
   const m = out.match(/tab\s+(\d+)/i);
-  if (!m) throw new BrowseClientError(1, "newtab", `could not parse tab id from: ${out}`);
+  if (!m) throw new BrowseClientError(1, 'newtab', `could not parse tab id from: ${out}`);
   return parseInt(m[1], 10);
 }
 
@@ -241,7 +240,7 @@ export function newtab(url?: string): number {
  * Close a tab (by id or the active tab).
  */
 export function closetab(tabId?: number): void {
-  const args = ["closetab"];
+  const args = ['closetab'];
   if (tabId !== undefined) args.push(String(tabId));
   runBrowse(args);
 }
@@ -254,15 +253,11 @@ export function loadHtml(opts: LoadHtmlOptions): void {
   // Always use --from-file to dodge argv limits. The HTML is almost always >4KB.
   const payload = {
     html: opts.html,
-    waitUntil: opts.waitUntil ?? "domcontentloaded",
+    waitUntil: opts.waitUntil ?? 'domcontentloaded',
   };
   const payloadFile = writePayloadFile(payload);
   try {
-    runBrowse([
-      "load-html",
-      "--from-file", payloadFile,
-      "--tab-id", String(opts.tabId),
-    ]);
+    runBrowse(['load-html', '--from-file', payloadFile, '--tab-id', String(opts.tabId)]);
   } finally {
     cleanupPayloadFile(payloadFile);
   }
@@ -272,11 +267,7 @@ export function loadHtml(opts: LoadHtmlOptions): void {
  * Evaluate a JS expression in a tab. Returns the serialized result as string.
  */
 export function js(opts: JsOptions): string {
-  return runBrowse([
-    "js",
-    opts.expression,
-    "--tab-id", String(opts.tabId),
-  ]).trim();
+  return runBrowse(['js', opts.expression, '--tab-id', String(opts.tabId)]).trim();
 }
 
 /**
@@ -294,7 +285,7 @@ export function waitForExpression(opts: {
   while (Date.now() < deadline) {
     try {
       const result = js({ expression: opts.expression, tabId: opts.tabId });
-      if (result === "true") return true;
+      if (result === 'true') return true;
     } catch {
       // Tab may still be loading; keep polling
     }
@@ -302,7 +293,9 @@ export function waitForExpression(opts: {
     if (wait <= 0) break;
     // Synchronous sleep is fine — this only runs once per PDF render
     const end = Date.now() + wait;
-    while (Date.now() < end) { /* busy wait */ }
+    while (Date.now() < end) {
+      /* busy wait */
+    }
   }
   return false;
 }
@@ -324,7 +317,7 @@ export function pdf(opts: PdfOptions): void {
       ...optionsToPdfFlags(opts),
     });
     try {
-      runBrowse(["pdf", "--from-file", payloadFile]);
+      runBrowse(['pdf', '--from-file', payloadFile]);
     } finally {
       cleanupPayloadFile(payloadFile);
     }
@@ -332,7 +325,7 @@ export function pdf(opts: PdfOptions): void {
   }
 
   // Small payload: pass flags via argv
-  const args = ["pdf", opts.output, "--tab-id", String(opts.tabId)];
+  const args = ['pdf', opts.output, '--tab-id', String(opts.tabId)];
   pushFlagsFromOptions(args, opts);
   runBrowse(args);
 }
@@ -359,23 +352,37 @@ function optionsToPdfFlags(opts: PdfOptions): Record<string, unknown> {
 }
 
 function pushFlagsFromOptions(args: string[], opts: PdfOptions): void {
-  if (opts.format) { args.push("--format", opts.format); }
-  if (opts.width) { args.push("--width", opts.width); }
-  if (opts.height) { args.push("--height", opts.height); }
-  if (opts.marginTop) { args.push("--margin-top", opts.marginTop); }
-  if (opts.marginRight) { args.push("--margin-right", opts.marginRight); }
-  if (opts.marginBottom) { args.push("--margin-bottom", opts.marginBottom); }
-  if (opts.marginLeft) { args.push("--margin-left", opts.marginLeft); }
+  if (opts.format) {
+    args.push('--format', opts.format);
+  }
+  if (opts.width) {
+    args.push('--width', opts.width);
+  }
+  if (opts.height) {
+    args.push('--height', opts.height);
+  }
+  if (opts.marginTop) {
+    args.push('--margin-top', opts.marginTop);
+  }
+  if (opts.marginRight) {
+    args.push('--margin-right', opts.marginRight);
+  }
+  if (opts.marginBottom) {
+    args.push('--margin-bottom', opts.marginBottom);
+  }
+  if (opts.marginLeft) {
+    args.push('--margin-left', opts.marginLeft);
+  }
   if (opts.headerTemplate !== undefined) {
-    args.push("--header-template", opts.headerTemplate);
+    args.push('--header-template', opts.headerTemplate);
   }
   if (opts.footerTemplate !== undefined) {
-    args.push("--footer-template", opts.footerTemplate);
+    args.push('--footer-template', opts.footerTemplate);
   }
-  if (opts.pageNumbers === true) args.push("--page-numbers");
-  if (opts.tagged === true) args.push("--tagged");
-  if (opts.outline === true) args.push("--outline");
-  if (opts.printBackground === true) args.push("--print-background");
-  if (opts.preferCSSPageSize === true) args.push("--prefer-css-page-size");
-  if (opts.toc === true) args.push("--toc");
+  if (opts.pageNumbers === true) args.push('--page-numbers');
+  if (opts.tagged === true) args.push('--tagged');
+  if (opts.outline === true) args.push('--outline');
+  if (opts.printBackground === true) args.push('--print-background');
+  if (opts.preferCSSPageSize === true) args.push('--prefer-css-page-size');
+  if (opts.toc === true) args.push('--toc');
 }

@@ -30,9 +30,16 @@ async function startAuthUpstream(user: string, pass: string): Promise<MockUpstre
   let connects = 0;
   const server = net.createServer((sock) => {
     sock.once('data', (greeting) => {
-      if (greeting[0] !== 0x05) { sock.destroy(); return; }
+      if (greeting[0] !== 0x05) {
+        sock.destroy();
+        return;
+      }
       const methods = greeting.subarray(2, 2 + greeting[1]);
-      if (!methods.includes(0x02)) { sock.write(Buffer.from([0x05, 0xFF])); sock.destroy(); return; }
+      if (!methods.includes(0x02)) {
+        sock.write(Buffer.from([0x05, 0xff]));
+        sock.destroy();
+        return;
+      }
       sock.write(Buffer.from([0x05, 0x02]));
       sock.once('data', (auth) => {
         const ulen = auth[1];
@@ -40,12 +47,15 @@ async function startAuthUpstream(user: string, pass: string): Promise<MockUpstre
         const plen = auth[2 + ulen];
         const passwd = auth.subarray(3 + ulen, 3 + ulen + plen).toString();
         if (uname !== user || passwd !== pass) {
-          sock.write(Buffer.from([0x01, 0x01])); sock.destroy(); return;
+          sock.write(Buffer.from([0x01, 0x01]));
+          sock.destroy();
+          return;
         }
         sock.write(Buffer.from([0x01, 0x00]));
         sock.once('data', (req) => {
           const atyp = req[3];
-          let host: string; let port: number;
+          let host: string;
+          let port: number;
           if (atyp === 0x01) {
             host = `${req[4]}.${req[5]}.${req[6]}.${req[7]}`;
             port = req.readUInt16BE(8);
@@ -55,7 +65,8 @@ async function startAuthUpstream(user: string, pass: string): Promise<MockUpstre
             port = req.readUInt16BE(5 + len);
           } else {
             sock.write(Buffer.from([0x05, 0x08, 0x00, 0x01, 0, 0, 0, 0, 0, 0]));
-            sock.destroy(); return;
+            sock.destroy();
+            return;
           }
           const dest = net.createConnection({ host, port }, () => {
             connects++;
@@ -68,7 +79,9 @@ async function startAuthUpstream(user: string, pass: string): Promise<MockUpstre
             dest.on('close', () => sock.destroy());
           });
           dest.on('error', () => {
-            try { sock.write(Buffer.from([0x05, 0x04, 0x00, 0x01, 0, 0, 0, 0, 0, 0])); } catch {}
+            try {
+              sock.write(Buffer.from([0x05, 0x04, 0x00, 0x01, 0, 0, 0, 0, 0, 0]));
+            } catch {}
             sock.destroy();
           });
         });
@@ -91,7 +104,9 @@ async function startAuthUpstream(user: string, pass: string): Promise<MockUpstre
 }
 
 /** Tiny HTTP server to serve as the navigation target. */
-async function startHttpFixture(body: string): Promise<{ port: number; close: () => Promise<void>; hits: () => number }> {
+async function startHttpFixture(
+  body: string,
+): Promise<{ port: number; close: () => Promise<void>; hits: () => number }> {
   let hits = 0;
   const server = http.createServer((_req, res) => {
     hits++;

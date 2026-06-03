@@ -50,9 +50,7 @@ export function getGitRoot(): string | null {
  * tests for isolation), all paths are derived from it. Otherwise, the
  * project root is detected via git or cwd.
  */
-export function resolveConfig(
-  env: Record<string, string | undefined> = process.env,
-): BrowseConfig {
+export function resolveConfig(env: Record<string, string | undefined> = process.env): BrowseConfig {
   let stateFile: string;
   let stateDir: string;
   let projectDir: string;
@@ -108,7 +106,10 @@ export function ensureStateDir(config: BrowseConfig): void {
       // Write warning to server log (visible even in daemon mode)
       const logPath = path.join(config.stateDir, 'browse-server.log');
       try {
-        fs.appendFileSync(logPath, `[${new Date().toISOString()}] Warning: could not update .gitignore at ${gitignorePath}: ${err.message}\n`);
+        fs.appendFileSync(
+          logPath,
+          `[${new Date().toISOString()}] Warning: could not update .gitignore at ${gitignorePath}: ${err.message}\n`,
+        );
       } catch {
         // stateDir write failed too — nothing more we can do
       }
@@ -206,9 +207,7 @@ export function cleanSingletonLocks(userDataDir: string): void {
   const resolved = path.resolve(userDataDir);
   const basename = path.basename(resolved);
   const explicitProfile = process.env.CHROMIUM_PROFILE;
-  const explicitAbs = explicitProfile && path.isAbsolute(explicitProfile)
-    ? path.resolve(explicitProfile)
-    : null;
+  const explicitAbs = explicitProfile && path.isAbsolute(explicitProfile) ? path.resolve(explicitProfile) : null;
   const isSafe = basename === 'chromium-profile' || (explicitAbs !== null && resolved === explicitAbs);
   if (!isSafe) {
     console.warn(`[browse] cleanSingletonLocks: refusing to clean unrecognized profile dir: ${resolved}`);

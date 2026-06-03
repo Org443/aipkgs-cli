@@ -24,7 +24,11 @@ async function readEvents(): Promise<any[]> {
   await new Promise((r) => setTimeout(r, 30));
   try {
     const raw = await fs.readFile(TELEMETRY_FILE, 'utf8');
-    return raw.trim().split('\n').filter(Boolean).map((l) => JSON.parse(l));
+    return raw
+      .trim()
+      .split('\n')
+      .filter(Boolean)
+      .map((l) => JSON.parse(l));
   } catch {
     return [];
   }

@@ -11,13 +11,11 @@ const MAX_BYTES = 10 * 1024 * 1024;
 const MAX_GENS = 5;
 
 export function defaultAuditPath(): string {
-  return process.env.GSTACK_IOS_AUDIT_PATH
-    ?? join(homedir(), '.gstack', 'security', 'ios-qa-audit.jsonl');
+  return process.env.GSTACK_IOS_AUDIT_PATH ?? join(homedir(), '.gstack', 'security', 'ios-qa-audit.jsonl');
 }
 
 export function defaultAttemptsPath(): string {
-  return process.env.GSTACK_IOS_ATTEMPTS_PATH
-    ?? join(homedir(), '.gstack', 'security', 'attempts.jsonl');
+  return process.env.GSTACK_IOS_ATTEMPTS_PATH ?? join(homedir(), '.gstack', 'security', 'attempts.jsonl');
 }
 
 let _saltCache: string | null = null;
@@ -67,7 +65,10 @@ export async function writeAttempt(opts: {
   path?: string;
 }): Promise<void> {
   const salt = await loadDeviceSalt();
-  const hash = createHash('sha256').update(salt + ':' + opts.rawIdentity).digest('hex').slice(0, 16);
+  const hash = createHash('sha256')
+    .update(salt + ':' + opts.rawIdentity)
+    .digest('hex')
+    .slice(0, 16);
   const row: AttemptRow = {
     ts: new Date().toISOString(),
     identity_canon: hash,

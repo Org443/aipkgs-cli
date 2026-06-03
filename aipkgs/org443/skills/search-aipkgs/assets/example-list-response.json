@@ -8,14 +8,8 @@
         "slug": "pr-create",
         "type": "cmd",
         "visibility": "public",
-        "tags": [
-          "git",
-          "github",
-          "pr"
-        ],
-        "supports": [
-          "claude"
-        ],
+        "tags": ["git", "github", "pr"],
+        "supports": ["claude"],
         "latest_version": "0.2.1",
         "latest_version_created_at": 1716400000000,
         "total_downloads": 142,
@@ -34,14 +28,8 @@
         "slug": "code-review",
         "type": "skill",
         "visibility": "public",
-        "tags": [
-          "review",
-          "diff",
-          "github"
-        ],
-        "supports": [
-          "claude"
-        ],
+        "tags": ["review", "diff", "github"],
+        "supports": ["claude"],
         "latest_version": "1.4.0",
         "latest_version_created_at": 1716200000000,
         "total_downloads": 980,
@@ -60,13 +48,8 @@
         "slug": "stack-pr",
         "type": "cmd",
         "visibility": "public",
-        "tags": [
-          "git",
-          "stacked-prs"
-        ],
-        "supports": [
-          "claude"
-        ],
+        "tags": ["git", "stacked-prs"],
+        "supports": ["claude"],
         "latest_version": "0.0.4",
         "latest_version_created_at": 1716100000000,
         "total_downloads": 31,

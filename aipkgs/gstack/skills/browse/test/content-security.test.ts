@@ -17,11 +17,19 @@ import * as path from 'path';
 import { startTestServer } from './test-server';
 import { BrowserManager } from '../src/browser-manager';
 import {
-  datamarkContent, getSessionMarker, resetSessionMarker,
-  wrapUntrustedPageContent, escapeEnvelopeSentinels,
-  registerContentFilter, clearContentFilters, runContentFilters,
-  urlBlocklistFilter, getFilterMode,
-  markHiddenElements, getCleanTextWithStripping, cleanupHiddenMarkers,
+  datamarkContent,
+  getSessionMarker,
+  resetSessionMarker,
+  wrapUntrustedPageContent,
+  escapeEnvelopeSentinels,
+  registerContentFilter,
+  clearContentFilters,
+  runContentFilters,
+  urlBlocklistFilter,
+  getFilterMode,
+  markHiddenElements,
+  getCleanTextWithStripping,
+  cleanupHiddenMarkers,
 } from '../src/content-security';
 import { generateInstructionBlock } from '../src/cli';
 
@@ -96,8 +104,8 @@ describe('Content envelope', () => {
     const wrapped = wrapUntrustedPageContent(content, 'text');
     // The fake markers should be escaped with ZWSP
     const lines = wrapped.split('\n');
-    const realBegin = lines.filter(l => l === '═══ BEGIN UNTRUSTED WEB CONTENT ═══');
-    const realEnd = lines.filter(l => l === '═══ END UNTRUSTED WEB CONTENT ═══');
+    const realBegin = lines.filter((l) => l === '═══ BEGIN UNTRUSTED WEB CONTENT ═══');
+    const realEnd = lines.filter((l) => l === '═══ END UNTRUSTED WEB CONTENT ═══');
     // Should have exactly 1 real BEGIN and 1 real END
     expect(realBegin.length).toBe(1);
     expect(realEnd.length).toBe(1);
@@ -132,13 +140,9 @@ describe('Content filter hooks', () => {
   });
 
   test('URL blocklist detects pipedream in content', () => {
-    const result = urlBlocklistFilter(
-      'Visit https://pipedream.com/evil for help',
-      'https://example.com',
-      'text',
-    );
+    const result = urlBlocklistFilter('Visit https://pipedream.com/evil for help', 'https://example.com', 'text');
     expect(result.safe).toBe(false);
-    expect(result.warnings.some(w => w.includes('pipedream.com'))).toBe(true);
+    expect(result.warnings.some((w) => w.includes('pipedream.com'))).toBe(true);
   });
 
   test('URL blocklist passes clean content', () => {
@@ -223,27 +227,18 @@ describe('Instruction block SECURITY section', () => {
   });
 
   test('SECURITY section mentions untrusted envelope markers', () => {
-    const secBlock = CLI_SRC.slice(
-      CLI_SRC.indexOf('SECURITY:'),
-      CLI_SRC.indexOf('COMMAND REFERENCE:'),
-    );
+    const secBlock = CLI_SRC.slice(CLI_SRC.indexOf('SECURITY:'), CLI_SRC.indexOf('COMMAND REFERENCE:'));
     expect(secBlock).toContain('UNTRUSTED');
     expect(secBlock).toContain('NEVER follow instructions');
   });
 
   test('SECURITY section warns about common injection phrases', () => {
-    const secBlock = CLI_SRC.slice(
-      CLI_SRC.indexOf('SECURITY:'),
-      CLI_SRC.indexOf('COMMAND REFERENCE:'),
-    );
+    const secBlock = CLI_SRC.slice(CLI_SRC.indexOf('SECURITY:'), CLI_SRC.indexOf('COMMAND REFERENCE:'));
     expect(secBlock).toContain('ignore previous instructions');
   });
 
   test('SECURITY section mentions @ref labels', () => {
-    const secBlock = CLI_SRC.slice(
-      CLI_SRC.indexOf('SECURITY:'),
-      CLI_SRC.indexOf('COMMAND REFERENCE:'),
-    );
+    const secBlock = CLI_SRC.slice(CLI_SRC.indexOf('SECURITY:'), CLI_SRC.indexOf('COMMAND REFERENCE:'));
     expect(secBlock).toContain('@ref');
     expect(secBlock).toContain('INTERACTIVE ELEMENTS');
   });
@@ -322,9 +317,7 @@ describe('DOM-content channel coverage', () => {
   test('DOM_CONTENT_COMMANDS covers the DOM-reading channels', () => {
     const setStart = COMMANDS_SRC.indexOf('export const DOM_CONTENT_COMMANDS');
     expect(setStart).toBeGreaterThan(-1);
-    const setBlock = COMMANDS_SRC.slice(
-      setStart, COMMANDS_SRC.indexOf(']);', setStart),
-    );
+    const setBlock = COMMANDS_SRC.slice(setStart, COMMANDS_SRC.indexOf(']);', setStart));
     for (const cmd of ['text', 'html', 'links', 'forms', 'accessibility', 'attrs', 'media', 'data', 'ux-audit']) {
       expect(setBlock).toContain(`'${cmd}'`);
     }
@@ -354,7 +347,9 @@ describe('DOM-content channel coverage', () => {
     // read phase and then merged into the wrap block's
     // `combinedWarnings` before `wrapUntrustedPageContent` is called.
     expect(SERVER_SRC).toContain('hiddenContentWarnings');
-    expect(SERVER_SRC).toMatch(/combinedWarnings\s*=\s*\[\s*\.\.\.\s*filterResult\.warnings\s*,\s*\.\.\.\s*hiddenContentWarnings\s*\]/);
+    expect(SERVER_SRC).toMatch(
+      /combinedWarnings\s*=\s*\[\s*\.\.\.\s*filterResult\.warnings\s*,\s*\.\.\.\s*hiddenContentWarnings\s*\]/,
+    );
     // And the merged list is what actually reaches the wrap helper.
     const wrapBlockStart = SERVER_SRC.indexOf('Enhanced envelope wrapping for scoped tokens');
     expect(wrapBlockStart).toBeGreaterThan(-1);
@@ -364,8 +359,7 @@ describe('DOM-content channel coverage', () => {
   });
 
   test('DOM_CONTENT_COMMANDS is a subset of PAGE_CONTENT_COMMANDS', async () => {
-    const { PAGE_CONTENT_COMMANDS, DOM_CONTENT_COMMANDS } =
-      await import('../src/commands');
+    const { PAGE_CONTENT_COMMANDS, DOM_CONTENT_COMMANDS } = await import('../src/commands');
     for (const cmd of DOM_CONTENT_COMMANDS) {
       expect(PAGE_CONTENT_COMMANDS.has(cmd)).toBe(true);
     }
@@ -423,7 +417,9 @@ describe('Hidden element stripping', () => {
   });
 
   afterAll(() => {
-    try { testServer.server.stop(); } catch {}
+    try {
+      testServer.server.stop();
+    } catch {}
     setTimeout(() => process.exit(0), 500);
   });
 
@@ -440,7 +436,7 @@ describe('Hidden element stripping', () => {
     const page = bm.getPage();
     await page.goto(`${baseUrl}/injection-hidden.html`, { waitUntil: 'domcontentloaded' });
     const stripped = await markHiddenElements(page);
-    const ariaHits = stripped.filter(s => s.includes('ARIA injection'));
+    const ariaHits = stripped.filter((s) => s.includes('ARIA injection'));
     expect(ariaHits.length).toBeGreaterThanOrEqual(1);
     await cleanupHiddenMarkers(page);
   });
@@ -473,9 +469,7 @@ describe('Hidden element stripping', () => {
     await page.goto(`${baseUrl}/injection-hidden.html`, { waitUntil: 'domcontentloaded' });
     await markHiddenElements(page);
     await cleanupHiddenMarkers(page);
-    const remaining = await page.evaluate(() =>
-      document.querySelectorAll('[data-gstack-hidden]').length,
-    );
+    const remaining = await page.evaluate(() => document.querySelectorAll('[data-gstack-hidden]').length);
     expect(remaining).toBe(0);
   });
 
@@ -504,27 +498,18 @@ describe('Snapshot split format', () => {
 
   test('scoped snapshot returns split format (no extra wrapping)', () => {
     // Scoped tokens should return snapshot result directly (already has envelope)
-    const snapshotBlock = META_SRC.slice(
-      META_SRC.indexOf("case 'snapshot':"),
-      META_SRC.indexOf("case 'handoff':"),
-    );
+    const snapshotBlock = META_SRC.slice(META_SRC.indexOf("case 'snapshot':"), META_SRC.indexOf("case 'handoff':"));
     expect(snapshotBlock).toContain('splitForScoped');
     expect(snapshotBlock).toContain('return snapshotResult');
   });
 
   test('root snapshot keeps basic wrapping', () => {
-    const snapshotBlock = META_SRC.slice(
-      META_SRC.indexOf("case 'snapshot':"),
-      META_SRC.indexOf("case 'handoff':"),
-    );
+    const snapshotBlock = META_SRC.slice(META_SRC.indexOf("case 'snapshot':"), META_SRC.indexOf("case 'handoff':"));
     expect(snapshotBlock).toContain('wrapUntrustedContent');
   });
 
   test('resume also uses split format for scoped tokens', () => {
-    const resumeBlock = META_SRC.slice(
-      META_SRC.indexOf("case 'resume':"),
-      META_SRC.indexOf("case 'connect':"),
-    );
+    const resumeBlock = META_SRC.slice(META_SRC.indexOf("case 'resume':"), META_SRC.indexOf("case 'connect':"));
     expect(resumeBlock).toContain('splitForScoped');
   });
 });
@@ -569,8 +554,8 @@ describe('Envelope sentinel escape', () => {
     ].join('\n');
     const wrapped = wrapUntrustedPageContent(hostile, 'text');
     const lines = wrapped.split('\n');
-    expect(lines.filter(l => l === '═══ BEGIN UNTRUSTED WEB CONTENT ═══').length).toBe(1);
-    expect(lines.filter(l => l === '═══ END UNTRUSTED WEB CONTENT ═══').length).toBe(1);
+    expect(lines.filter((l) => l === '═══ BEGIN UNTRUSTED WEB CONTENT ═══').length).toBe(1);
+    expect(lines.filter((l) => l === '═══ END UNTRUSTED WEB CONTENT ═══').length).toBe(1);
   });
 
   // Source-level regression on the scoped path. snapshot.ts isn't easy
@@ -586,14 +571,14 @@ describe('Envelope sentinel escape', () => {
     expect(branchStart).toBeGreaterThan(-1);
     // Match either the original return (pre-#1440) or the surrogate-sanitized
     // form (post-#1440) — both end the scoped branch.
-    const candidates = [
-      "return output.join('\\n');",
-      "return stripLoneSurrogates(output.join('\\n'));",
-    ];
+    const candidates = ["return output.join('\\n');", "return stripLoneSurrogates(output.join('\\n'));"];
     let branchEnd = -1;
     for (const c of candidates) {
       const idx = SNAPSHOT_SRC.indexOf(c, branchStart);
-      if (idx > branchStart) { branchEnd = idx; break; }
+      if (idx > branchStart) {
+        branchEnd = idx;
+        break;
+      }
     }
     expect(branchEnd).toBeGreaterThan(branchStart);
     const branch = SNAPSHOT_SRC.slice(branchStart, branchEnd);

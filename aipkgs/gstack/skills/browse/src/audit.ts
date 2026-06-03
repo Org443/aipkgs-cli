@@ -42,12 +42,9 @@ export function initAuditLog(logPath: string): void {
 export function writeAuditEntry(entry: AuditEntry): void {
   if (!auditPath) return;
   try {
-    const truncatedArgs = entry.args.length > MAX_ARGS_LENGTH
-      ? entry.args.slice(0, MAX_ARGS_LENGTH) + '…'
-      : entry.args;
-    const truncatedError = entry.error && entry.error.length > MAX_ERROR_LENGTH
-      ? entry.error.slice(0, MAX_ERROR_LENGTH) + '…'
-      : entry.error;
+    const truncatedArgs = entry.args.length > MAX_ARGS_LENGTH ? entry.args.slice(0, MAX_ARGS_LENGTH) + '…' : entry.args;
+    const truncatedError =
+      entry.error && entry.error.length > MAX_ERROR_LENGTH ? entry.error.slice(0, MAX_ERROR_LENGTH) + '…' : entry.error;
 
     const record: Record<string, unknown> = {
       ts: entry.ts,

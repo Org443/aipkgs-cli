@@ -1,5 +1,14 @@
 import { describe, test, expect } from 'bun:test';
-import { resolveConfig, ensureStateDir, readVersionHash, getGitRoot, getRemoteSlug, resolveGstackHome, resolveChromiumProfile, cleanSingletonLocks } from '../src/config';
+import {
+  resolveConfig,
+  ensureStateDir,
+  readVersionHash,
+  getGitRoot,
+  getRemoteSlug,
+  resolveGstackHome,
+  resolveChromiumProfile,
+  cleanSingletonLocks,
+} from '../src/config';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
@@ -192,8 +201,9 @@ describe('resolveServerScript', () => {
   });
 
   test('throws when server.ts cannot be found', () => {
-    expect(() => resolveServerScript({}, '/nonexistent/$bunfs', '/nonexistent/browse'))
-      .toThrow('Cannot find server.ts');
+    expect(() => resolveServerScript({}, '/nonexistent/$bunfs', '/nonexistent/browse')).toThrow(
+      'Cannot find server.ts',
+    );
   });
 });
 
@@ -258,7 +268,7 @@ describe('isServerHealthy', () => {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ status: 'healthy' }));
     });
-    await new Promise<void>(resolve => server.listen(0, resolve));
+    await new Promise<void>((resolve) => server.listen(0, resolve));
     const port = server.address().port;
     try {
       expect(await isServerHealthy(port)).toBe(true);
@@ -272,7 +282,7 @@ describe('isServerHealthy', () => {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ status: 'unhealthy' }));
     });
-    await new Promise<void>(resolve => server.listen(0, resolve));
+    await new Promise<void>((resolve) => server.listen(0, resolve));
     const port = server.address().port;
     try {
       expect(await isServerHealthy(port)).toBe(false);
@@ -291,7 +301,7 @@ describe('isServerHealthy', () => {
       res.writeHead(500);
       res.end('Internal Server Error');
     });
-    await new Promise<void>(resolve => server.listen(0, resolve));
+    await new Promise<void>((resolve) => server.listen(0, resolve));
     const port = server.address().port;
     try {
       expect(await isServerHealthy(port)).toBe(false);
@@ -408,7 +418,9 @@ describe('cleanSingletonLocks', () => {
     fs.writeFileSync(lockFile, 'should-survive');
     const origWarn = console.warn;
     let warned = '';
-    console.warn = (msg: string) => { warned = msg; };
+    console.warn = (msg: string) => {
+      warned = msg;
+    };
     try {
       cleanSingletonLocks(tmpDir);
       expect(warned).toContain('refusing to clean unrecognized profile dir');

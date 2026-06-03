@@ -103,7 +103,7 @@ describe('domain-skills: state machine (T6)', () => {
         projectSlug: 'test-slug',
         source: 'agent',
         classifierScore: 0.92,
-      })
+      }),
     ).rejects.toThrow(/classifier flagged/);
   });
 
@@ -222,8 +222,20 @@ describe('domain-skills: persistence (T5)', () => {
 describe('domain-skills: rollback by version log', () => {
   it('rollback restores prior version', async () => {
     const m = await freshImport();
-    await m.writeSkill({ host: 'a.com', body: '# v1', projectSlug: 'test-slug', source: 'agent', classifierScore: 0.1 });
-    const v2 = await m.writeSkill({ host: 'a.com', body: '# v2 newer', projectSlug: 'test-slug', source: 'agent', classifierScore: 0.1 });
+    await m.writeSkill({
+      host: 'a.com',
+      body: '# v1',
+      projectSlug: 'test-slug',
+      source: 'agent',
+      classifierScore: 0.1,
+    });
+    const v2 = await m.writeSkill({
+      host: 'a.com',
+      body: '# v2 newer',
+      projectSlug: 'test-slug',
+      source: 'agent',
+      classifierScore: 0.1,
+    });
     expect(v2.version).toBe(2);
     const restored = await m.rollbackSkill('a.com', 'test-slug', 'project');
     // Restored row's body should match v1's body
@@ -234,7 +246,13 @@ describe('domain-skills: rollback by version log', () => {
 
   it('rollback throws if only one version exists', async () => {
     const m = await freshImport();
-    await m.writeSkill({ host: 'a.com', body: '# v1', projectSlug: 'test-slug', source: 'agent', classifierScore: 0.1 });
+    await m.writeSkill({
+      host: 'a.com',
+      body: '# v1',
+      projectSlug: 'test-slug',
+      source: 'agent',
+      classifierScore: 0.1,
+    });
     await expect(m.rollbackSkill('a.com', 'test-slug', 'project')).rejects.toThrow(/fewer than 2 versions/);
   });
 });
@@ -242,7 +260,13 @@ describe('domain-skills: rollback by version log', () => {
 describe('domain-skills: deletion (tombstone)', () => {
   it('delete tombstones the skill; read returns null', async () => {
     const m = await freshImport();
-    await m.writeSkill({ host: 'doomed.com', body: '# x', projectSlug: 'test-slug', source: 'agent', classifierScore: 0.1 });
+    await m.writeSkill({
+      host: 'doomed.com',
+      body: '# x',
+      projectSlug: 'test-slug',
+      source: 'agent',
+      classifierScore: 0.1,
+    });
     for (let i = 0; i < 3; i++) await m.recordSkillUse('doomed.com', 'test-slug', false);
     expect((await m.readSkill('doomed.com', 'test-slug'))?.row.host).toBe('doomed.com');
     await m.deleteSkill('doomed.com', 'test-slug');

@@ -75,8 +75,7 @@ describe('applyStealth — context level', () => {
       // We do not assert exact contents — Chromium versions vary. We assert
       // that we did NOT replace plugins with the wintermute fake list.
       // The wintermute approach was: get: () => [1, 2, 3, 4, 5]
-      const isFake = plugins.length === 5
-        && plugins.every((name) => /^[12345]$/.test(String(name)));
+      const isFake = plugins.length === 5 && plugins.every((name) => /^[12345]$/.test(String(name)));
       expect(isFake).toBe(false);
     } finally {
       await page.close();
@@ -114,7 +113,7 @@ describe('applyStealth — persistent context (headed-mode parity)', () => {
     });
     try {
       await applyStealth(ctx);
-      const page = ctx.pages()[0] ?? await ctx.newPage();
+      const page = ctx.pages()[0] ?? (await ctx.newPage());
       const webdriver = await page.evaluate(() => (navigator as any).webdriver);
       expect(webdriver).toBe(false);
     } finally {

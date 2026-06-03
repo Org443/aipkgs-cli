@@ -21,12 +21,12 @@ import { spawnTerminalAgent } from './terminal-agent-control';
 
 const config = resolveConfig();
 const IS_WINDOWS = process.platform === 'win32';
-const MAX_START_WAIT = IS_WINDOWS ? 15000 : (process.env.CI ? 30000 : 8000); // Node+Chromium takes longer on Windows
+const MAX_START_WAIT = IS_WINDOWS ? 15000 : process.env.CI ? 30000 : 8000; // Node+Chromium takes longer on Windows
 
 export function resolveServerScript(
   env: Record<string, string | undefined> = process.env,
   metaDir: string = import.meta.dir,
-  execPath: string = process.execPath
+  execPath: string = process.execPath,
 ): string {
   if (env.BROWSE_SERVER_SCRIPT) {
     return env.BROWSE_SERVER_SCRIPT;
@@ -50,9 +50,7 @@ export function resolveServerScript(
     }
   }
 
-  throw new Error(
-    'Cannot find server.ts. Set BROWSE_SERVER_SCRIPT env or run from the browse source tree.'
-  );
+  throw new Error('Cannot find server.ts. Set BROWSE_SERVER_SCRIPT env or run from the browse source tree.');
 }
 
 const SERVER_SCRIPT = resolveServerScript();
@@ -63,7 +61,7 @@ const SERVER_SCRIPT = resolveServerScript();
  */
 export function resolveNodeServerScript(
   metaDir: string = import.meta.dir,
-  execPath: string = process.execPath
+  execPath: string = process.execPath,
 ): string | null {
   // Dev mode
   if (!metaDir.includes('$bunfs')) {
@@ -84,9 +82,7 @@ const NODE_SERVER_SCRIPT = IS_WINDOWS ? resolveNodeServerScript() : null;
 
 // On Windows, hard-fail if server-node.mjs is missing — the Bun path is known broken.
 if (IS_WINDOWS && !NODE_SERVER_SCRIPT) {
-  throw new Error(
-    'server-node.mjs not found. Run `bun run build` to generate the Windows server bundle.'
-  );
+  throw new Error('server-node.mjs not found. Run `bun run build` to generate the Windows server bundle.');
 }
 
 interface ServerState {
@@ -127,7 +123,7 @@ export async function isServerHealthy(port: number): Promise<boolean> {
       signal: AbortSignal.timeout(2000),
     });
     if (!resp.ok) return false;
-    const health = await resp.json() as any;
+    const health = (await resp.json()) as any;
     return health.status === 'healthy';
   } catch {
     return false;
@@ -141,10 +137,7 @@ async function killServer(pid: number): Promise<void> {
   if (IS_WINDOWS) {
     // taskkill /T /F kills the process tree (Node + Chromium)
     try {
-      Bun.spawnSync(
-        ['taskkill', '/PID', String(pid), '/T', '/F'],
-        { stdout: 'pipe', stderr: 'pipe', timeout: 5000 }
-      );
+      Bun.spawnSync(['taskkill', '/PID', String(pid), '/T', '/F'], { stdout: 'pipe', stderr: 'pipe', timeout: 5000 });
     } catch (err: any) {
       if (err?.code !== 'ENOENT') throw err;
     }
@@ -179,7 +172,7 @@ function cleanupLegacyState(): void {
   if (IS_WINDOWS) return;
 
   try {
-    const files = fs.readdirSync('/tmp').filter(f => f.startsWith('browse-server') && f.endsWith('.json'));
+    const files = fs.readdirSync('/tmp').filter((f) => f.startsWith('browse-server') && f.endsWith('.json'));
     for (const file of files) {
       const fullPath = `/tmp/${file}`;
       try {
@@ -187,7 +180,9 @@ function cleanupLegacyState(): void {
         if (data.pid && isProcessAlive(data.pid)) {
           // Verify this is actually a browse server before killing
           const check = Bun.spawnSync(['ps', '-p', String(data.pid), '-o', 'command='], {
-            stdout: 'pipe', stderr: 'pipe', timeout: 2000,
+            stdout: 'pipe',
+            stderr: 'pipe',
+            timeout: 2000,
           });
           const cmd = check.stdout.toString().trim();
           if (cmd.includes('bun') || cmd.includes('server.ts')) {
@@ -200,9 +195,9 @@ function cleanupLegacyState(): void {
       }
     }
     // Clean up legacy log files too
-    const logFiles = fs.readdirSync('/tmp').filter(f =>
-      f.startsWith('browse-console') || f.startsWith('browse-network') || f.startsWith('browse-dialog')
-    );
+    const logFiles = fs
+      .readdirSync('/tmp')
+      .filter((f) => f.startsWith('browse-console') || f.startsWith('browse-network') || f.startsWith('browse-dialog'));
     for (const file of logFiles) {
       safeUnlink(`/tmp/${file}`);
     }
@@ -232,7 +227,11 @@ async function startServer(extraEnv?: Record<string, string>): Promise<ServerSta
     // when the CLI exits, the server dies with it. Use Node's child_process.spawn
     // with { detached: true } instead, which is the gold standard for Windows
     // process independence. Credit: PR #191 by @fqueiro.
-    const extraEnvStr = JSON.stringify({ BROWSE_STATE_FILE: config.stateFile, BROWSE_PARENT_PID: parentPid, ...(extraEnv || {}) });
+    const extraEnvStr = JSON.stringify({
+      BROWSE_STATE_FILE: config.stateFile,
+      BROWSE_PARENT_PID: parentPid,
+      ...(extraEnv || {}),
+    });
     const launcherCode =
       `const{spawn}=require('child_process');` +
       `spawn(process.execPath,[${JSON.stringify(NODE_SERVER_SCRIPT)}],` +
@@ -264,7 +263,7 @@ async function startServer(extraEnv?: Record<string, string>): Promise<ServerSta
   const start = Date.now();
   while (Date.now() - start < MAX_START_WAIT) {
     const state = readState();
-    if (state && await isServerHealthy(state.port)) {
+    if (state && (await isServerHealthy(state.port))) {
       return state;
     }
     await Bun.sleep(100);
@@ -297,7 +296,9 @@ function acquireServerLock(): (() => void) | null {
     const fd = fs.openSync(lockPath, 'wx');
     fs.writeSync(fd, `${process.pid}\n`);
     fs.closeSync(fd);
-    return () => { safeUnlink(lockPath); };
+    return () => {
+      safeUnlink(lockPath);
+    };
   } catch {
     // Lock already held — check if the holder is still alive
     try {
@@ -325,7 +326,7 @@ async function ensureServer(flags?: GlobalFlags): Promise<ServerState> {
   // Health-check-first: HTTP is definitive proof the server is alive and responsive.
   // This replaces the PID-gated approach which breaks on Windows (Bun's process.kill
   // always throws ESRCH for Windows PIDs in compiled binaries).
-  if (state && await isServerHealthy(state.port)) {
+  if (state && (await isServerHealthy(state.port))) {
     // D2 daemon-mismatch check: existing daemon's configHash must match the
     // CLI's resolved hash. If --proxy or --headed are passed and the existing
     // daemon was started with different config, refuse with a `disconnect`
@@ -384,7 +385,7 @@ async function ensureServer(flags?: GlobalFlags): Promise<ServerState> {
     const start = Date.now();
     while (Date.now() - start < MAX_START_WAIT) {
       const freshState = readState();
-      if (freshState && await isServerHealthy(freshState.port)) return freshState;
+      if (freshState && (await isServerHealthy(freshState.port))) return freshState;
       await Bun.sleep(200);
     }
     throw new Error('Timed out waiting for another instance to start the server');
@@ -393,7 +394,7 @@ async function ensureServer(flags?: GlobalFlags): Promise<ServerState> {
   try {
     // Re-read state under lock in case another process just started the server
     const freshState = readState();
-    if (freshState && await isServerHealthy(freshState.port)) {
+    if (freshState && (await isServerHealthy(freshState.port))) {
       return freshState;
     }
 
@@ -402,7 +403,9 @@ async function ensureServer(flags?: GlobalFlags): Promise<ServerState> {
       await killServer(state.pid);
     }
     if (flags?.redactedProxyUrl && flags.redactedProxyUrl !== '<no proxy>') {
-      console.error(`[browse] Starting server with proxy ${flags.redactedProxyUrl}${flags.headed ? ' (headed)' : ''}...`);
+      console.error(
+        `[browse] Starting server with proxy ${flags.redactedProxyUrl}${flags.headed ? ' (headed)' : ''}...`,
+      );
     } else if (flags?.headed) {
       console.error('[browse] Starting server in headed mode...');
     } else {
@@ -452,7 +455,7 @@ async function sendCommand(state: ServerState, command: string, args: string[], 
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${state.token}`,
+        Authorization: `Bearer ${state.token}`,
       },
       body,
       signal: AbortSignal.timeout(30000),
@@ -690,10 +693,7 @@ export function extractGlobalFlags(rawArgs: string[], env: NodeJS.ProcessEnv): G
     if (arg === '--proxy') {
       const value = rawArgs[i + 1];
       if (!value) {
-        throw new ProxyConfigError(
-          'usage: --proxy <scheme://[user:pass@]host:port>',
-          '--proxy requires a URL value',
-        );
+        throw new ProxyConfigError('usage: --proxy <scheme://[user:pass@]host:port>', '--proxy requires a URL value');
       }
       proxyUrl = value;
       i++;
@@ -703,7 +703,10 @@ export function extractGlobalFlags(rawArgs: string[], env: NodeJS.ProcessEnv): G
       proxyUrl = arg.slice('--proxy='.length);
       continue;
     }
-    if (arg === '--headed') { headed = true; continue; }
+    if (arg === '--headed') {
+      headed = true;
+      continue;
+    }
     out.push(arg);
   }
 
@@ -734,7 +737,9 @@ export function extractGlobalFlags(rawArgs: string[], env: NodeJS.ProcessEnv): G
 
 async function handlePairAgent(state: ServerState, args: string[]): Promise<void> {
   const clientName = parseFlag(args, '--client') || `remote-${Date.now()}`;
-  const domains = parseFlag(args, '--domain')?.split(',').map(d => d.trim());
+  const domains = parseFlag(args, '--domain')
+    ?.split(',')
+    .map((d) => d.trim());
   const control = hasFlag(args, '--control') || hasFlag(args, '--admin');
   const restrict = parseFlag(args, '--restrict');
   const localHost = parseFlag(args, '--local');
@@ -746,13 +751,13 @@ async function handlePairAgent(state: ServerState, args: string[]): Promise<void
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${state.token}`,
+      Authorization: `Bearer ${state.token}`,
     },
     body: JSON.stringify({
       domains,
       clientId: clientName,
       control,
-      ...(restrict ? { scopes: restrict.split(',').map(s => s.trim()) } : {}),
+      ...(restrict ? { scopes: restrict.split(',').map((s) => s.trim()) } : {}),
     }),
     signal: AbortSignal.timeout(5000),
   });
@@ -763,7 +768,7 @@ async function handlePairAgent(state: ServerState, args: string[]): Promise<void
     process.exit(1);
   }
 
-  const pairData = await pairResp.json() as {
+  const pairData = (await pairResp.json()) as {
     setup_key: string;
     expires_at: string;
     scopes: string[];
@@ -802,10 +807,10 @@ async function handlePairAgent(state: ServerState, args: string[]): Promise<void
       try {
         const tunnelResp = await fetch(`http://127.0.0.1:${state.port}/tunnel/start`, {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${state.token}` },
+          headers: { Authorization: `Bearer ${state.token}` },
           signal: AbortSignal.timeout(15000),
         });
-        const tunnelData = await tunnelResp.json() as any;
+        const tunnelData = (await tunnelResp.json()) as any;
         if (tunnelResp.ok && tunnelData.url) {
           console.log(`[browse] Tunnel active: ${tunnelData.url}\n`);
           serverUrl = tunnelData.url;
@@ -823,7 +828,9 @@ async function handlePairAgent(state: ServerState, args: string[]): Promise<void
     } else {
       console.warn('[browse] No tunnel active and ngrok is not installed/configured.');
       console.warn('[browse] Instructions will use localhost (same-machine only).');
-      console.warn('[browse] For remote agents: install ngrok (https://ngrok.com) and run `ngrok config add-authtoken <TOKEN>`\n');
+      console.warn(
+        '[browse] For remote agents: install ngrok (https://ngrok.com) and run `ngrok config add-authtoken <TOKEN>`\n',
+      );
       serverUrl = pairData.server_url;
     }
   } else {
@@ -959,10 +966,10 @@ Refs:           After 'snapshot', use @e1, @e2... as selectors:
     // Kill ANY existing server (SIGTERM → wait 2s → SIGKILL)
     if (existingState && isProcessAlive(existingState.pid)) {
       safeKill(existingState.pid, 'SIGTERM');
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       if (isProcessAlive(existingState.pid)) {
         safeKill(existingState.pid, 'SIGKILL');
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
     }
 
@@ -976,10 +983,10 @@ Refs:           After 'snapshot', use @e1, @e2... as selectors:
       const orphanPid = parseInt(lockTarget.split('-').pop() || '', 10);
       if (orphanPid && isProcessAlive(orphanPid)) {
         safeKill(orphanPid, 'SIGTERM');
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         if (isProcessAlive(orphanPid)) {
           safeKill(orphanPid, 'SIGKILL');
-          await new Promise(resolve => setTimeout(resolve, 500));
+          await new Promise((resolve) => setTimeout(resolve, 500));
         }
       }
     } catch (err: any) {
@@ -1020,7 +1027,7 @@ Refs:           After 'snapshot', use @e1, @e2... as selectors:
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${newState.token}`,
+          Authorization: `Bearer ${newState.token}`,
         },
         body: JSON.stringify({ command: 'status', args: [] }),
         signal: AbortSignal.timeout(5000),
@@ -1073,8 +1080,7 @@ Refs:           After 'snapshot', use @e1, @e2... as selectors:
     // watchdog (T5) already covers the highest-frequency restart case;
     // Chromium-crash-respawn is documented as a follow-up so the
     // supervisor stays a tight, testable primitive.
-    const superviseRequested = commandArgs.includes('--supervise')
-      || process.env.BROWSE_SUPERVISE === '1';
+    const superviseRequested = commandArgs.includes('--supervise') || process.env.BROWSE_SUPERVISE === '1';
     if (!superviseRequested) {
       process.exit(0);
     }
@@ -1093,18 +1099,17 @@ Refs:           After 'snapshot', use @e1, @e2... as selectors:
     process.on('SIGINT', () => teardownAndExit('SIGINT'));
     process.on('SIGTERM', () => teardownAndExit('SIGTERM'));
 
-    const SUPERVISOR_TICK_MS = parseInt(
-      process.env.GSTACK_SUPERVISOR_TICK_MS || '30000',
-      10,
-    );
+    const SUPERVISOR_TICK_MS = parseInt(process.env.GSTACK_SUPERVISOR_TICK_MS || '30000', 10);
     const SUPERVISOR_GUARD_WINDOW_MS = 5 * 60_000;
     const SUPERVISOR_GUARD_MAX = 5;
     const SUPERVISOR_BACKOFF_MS = (process.env.GSTACK_SUPERVISOR_BACKOFF || '1000,2000,4000,8000,30000')
-      .split(',').map(s => parseInt(s.trim(), 10)).filter(n => Number.isFinite(n));
+      .split(',')
+      .map((s) => parseInt(s.trim(), 10))
+      .filter((n) => Number.isFinite(n));
     const respawns: number[] = [];
 
     while (!supervisorExiting) {
-      await new Promise(resolve => setTimeout(resolve, SUPERVISOR_TICK_MS));
+      await new Promise((resolve) => setTimeout(resolve, SUPERVISOR_TICK_MS));
       if (supervisorExiting) break;
       const state = readState();
       if (state?.pid && isProcessAlive(state.pid)) continue;
@@ -1122,8 +1127,10 @@ Refs:           After 'snapshot', use @e1, @e2... as selectors:
       const attempt = respawns.length;
       respawns.push(now);
       const backoff = SUPERVISOR_BACKOFF_MS[Math.min(attempt, SUPERVISOR_BACKOFF_MS.length - 1)] ?? 30_000;
-      console.warn(`[browse] Supervisor: server PID gone — respawning in ${backoff}ms (attempt ${attempt + 1}/${SUPERVISOR_GUARD_MAX})...`);
-      await new Promise(resolve => setTimeout(resolve, backoff));
+      console.warn(
+        `[browse] Supervisor: server PID gone — respawning in ${backoff}ms (attempt ${attempt + 1}/${SUPERVISOR_GUARD_MAX})...`,
+      );
+      await new Promise((resolve) => setTimeout(resolve, backoff));
       if (supervisorExiting) break;
       try {
         const respawned = await startServer(serverEnv);
@@ -1173,7 +1180,7 @@ Refs:           After 'snapshot', use @e1, @e2... as selectors:
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${existingState.token}`,
+            Authorization: `Bearer ${existingState.token}`,
           },
           body: JSON.stringify({ command: 'disconnect', args: [] }),
           signal: AbortSignal.timeout(3000),
@@ -1189,7 +1196,7 @@ Refs:           After 'snapshot', use @e1, @e2... as selectors:
     // Force kill + cleanup
     if (isProcessAlive(existingState.pid)) {
       safeKill(existingState.pid, 'SIGTERM');
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       if (isProcessAlive(existingState.pid)) {
         safeKill(existingState.pid, 'SIGKILL');
       }
@@ -1247,7 +1254,7 @@ Refs:           After 'snapshot', use @e1, @e2... as selectors:
       await connectProc.exited;
       // Re-read state after headed mode switch
       const newState = readState();
-      if (newState && await isServerHealthy(newState.port)) {
+      if (newState && (await isServerHealthy(newState.port))) {
         state = newState as ServerState;
       } else {
         console.warn('[browse] Could not switch to headed mode. Continuing headless.');

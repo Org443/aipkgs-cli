@@ -15,7 +15,15 @@
  *   restores state. Falls back to clean slate on any failure.
  */
 
-import { chromium, type Browser, type BrowserContext, type BrowserContextOptions, type Page, type Locator, type Cookie } from 'playwright';
+import {
+  chromium,
+  type Browser,
+  type BrowserContext,
+  type BrowserContextOptions,
+  type Page,
+  type Locator,
+  type Cookie,
+} from 'playwright';
 import { writeSecureFile, mkdirSecure } from './file-permissions';
 import { addConsoleEntry, addNetworkEntry, addDialogEntry, networkBuffer, type DialogEntry } from './buffers';
 import { emitActivity } from './activity';
@@ -252,10 +260,14 @@ export class BrowserManager {
   // pipeline so process supervisors (gbrowser's gbd) read the right signal.
   public onDisconnect: ((exitCode?: number) => void | Promise<void>) | null = null;
 
-  getConnectionMode(): 'launched' | 'headed' { return this.connectionMode; }
+  getConnectionMode(): 'launched' | 'headed' {
+    return this.connectionMode;
+  }
 
   // ─── Watch Mode Methods ─────────────────────────────────
-  isWatching(): boolean { return this.watching; }
+  isWatching(): boolean {
+    return this.watching;
+  }
 
   startWatch(): void {
     this.watching = true;
@@ -359,10 +371,7 @@ export class BrowserManager {
       // already bakes the extension in (e.g., GBrowser / GStack Browser.app).
       // Loading it twice causes a ServiceWorkerState::SetWorkerId DCHECK crash.
       if (!isCustomChromium()) {
-        launchArgs.push(
-          `--disable-extensions-except=${extensionsDir}`,
-          `--load-extension=${extensionsDir}`,
-        );
+        launchArgs.push(`--disable-extensions-except=${extensionsDir}`, `--load-extension=${extensionsDir}`);
       }
       launchArgs.push('--window-position=-9999,-9999', '--window-size=1,1');
       useHeadless = false; // extensions require headed mode; off-screen window simulates headless
@@ -504,16 +513,15 @@ export class BrowserManager {
       if (fs.existsSync(chromePlist)) {
         const plistContent = fs.readFileSync(chromePlist, 'utf-8');
         if (plistContent.includes('Google Chrome for Testing')) {
-          const patched = plistContent
-            .replace(/Google Chrome for Testing/g, 'GStack Browser');
+          const patched = plistContent.replace(/Google Chrome for Testing/g, 'GStack Browser');
           fs.writeFileSync(chromePlist, patched);
         }
         // Replace Chromium's Dock icon with ours (Chromium's process owns the Dock icon)
         const iconCandidates = [
-          path.join(__dirname, '..', '..', 'scripts', 'app', 'icon.icns'),       // repo dev mode
+          path.join(__dirname, '..', '..', 'scripts', 'app', 'icon.icns'), // repo dev mode
           path.join(process.env.HOME || '', '.claude', 'skills', 'gstack', 'scripts', 'app', 'icon.icns'), // global install
         ];
-        const iconSrc = iconCandidates.find(p => fs.existsSync(p));
+        const iconSrc = iconCandidates.find((p) => fs.existsSync(p));
         if (iconSrc) {
           const chromeResources = path.join(chromeContentsDir, 'Resources');
           // Read original icon name from plist
@@ -541,7 +549,9 @@ export class BrowserManager {
       const chromePath = executablePath || chromium.executablePath();
       try {
         const versionProc = Bun.spawnSync([chromePath, '--version'], {
-          stdout: 'pipe', stderr: 'pipe', timeout: 5000,
+          stdout: 'pipe',
+          stderr: 'pipe',
+          timeout: 5000,
         });
         const versionOutput = versionProc.stdout.toString().trim();
         // Output like: "Google Chrome for Testing 145.0.6422.0" or "Chromium 145.0.6422.0"
@@ -550,7 +560,8 @@ export class BrowserManager {
         customUA = `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVersion} Safari/537.36 GStackBrowser`;
       } catch {
         // Fallback: generic modern Chrome UA
-        customUA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 GStackBrowser';
+        customUA =
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 GStackBrowser';
       }
     }
 
@@ -561,15 +572,12 @@ export class BrowserManager {
       // sees Chromium's "unsupported command-line flag" yellow infobar.
       chromiumSandbox: shouldEnableChromiumSandbox(),
       args: launchArgs,
-      viewport: null,  // Use browser's default viewport (real window size)
+      viewport: null, // Use browser's default viewport (real window size)
       userAgent: this.customUserAgent || customUA,
       ...(executablePath ? { executablePath } : {}),
       ...(this.proxyConfig ? { proxy: this.proxyConfig } : {}),
       // Playwright adds flags that block extension loading
-      ignoreDefaultArgs: [
-        '--disable-extensions',
-        '--disable-component-extensions-with-background-pages',
-      ],
+      ignoreDefaultArgs: ['--disable-extensions', '--disable-component-extensions-with-background-pages'],
     });
     this.browser = this.context.browser();
     this.connectionMode = 'headed';
@@ -731,7 +739,7 @@ export class BrowserManager {
     }
 
     // Headed mode defaults
-    this.dialogAutoAccept = false;  // Don't dismiss user's real dialogs
+    this.dialogAutoAccept = false; // Don't dismiss user's real dialogs
     this.isHeaded = true;
     this.consecutiveFailures = 0;
   }
@@ -744,15 +752,12 @@ export class BrowserManager {
         if (this.browser) this.browser.removeAllListeners('disconnected');
         await Promise.race([
           this.context ? this.context.close() : Promise.resolve(),
-          new Promise(resolve => setTimeout(resolve, 5000)),
+          new Promise((resolve) => setTimeout(resolve, 5000)),
         ]).catch(() => {});
       } else {
         // Launched mode: close the browser we spawned
         this.browser.removeAllListeners('disconnected');
-        await Promise.race([
-          this.browser.close(),
-          new Promise(resolve => setTimeout(resolve, 5000)),
-        ]).catch(() => {});
+        await Promise.race([this.browser.close(), new Promise((resolve) => setTimeout(resolve, 5000))]).catch(() => {});
       }
       this.browser = null;
     }
@@ -992,15 +997,26 @@ export class BrowserManager {
     // Wait for any held global lock first (cross-tier serialization).
     const tail = Promise.all([existing, this.globalCdpLockTail]).then(() => undefined);
     let release!: () => void;
-    const next = new Promise<void>((resolve) => { release = resolve; });
-    this.tabLocks.set(tabId, tail.then(() => next));
+    const next = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    this.tabLocks.set(
+      tabId,
+      tail.then(() => next),
+    );
 
     const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error(
-        `CDPMutexAcquireTimeout: tab ${tabId} lock not acquired within ${timeoutMs}ms.\n` +
-        'Cause: a prior CDP or browser-scoped operation has held the lock too long.\n' +
-        'Action: retry; if this repeats, the prior operation may be hung — file a bug.'
-      )), timeoutMs),
+      setTimeout(
+        () =>
+          reject(
+            new Error(
+              `CDPMutexAcquireTimeout: tab ${tabId} lock not acquired within ${timeoutMs}ms.\n` +
+                'Cause: a prior CDP or browser-scoped operation has held the lock too long.\n' +
+                'Action: retry; if this repeats, the prior operation may be hung — file a bug.',
+            ),
+          ),
+        timeoutMs,
+      ),
     );
     try {
       await Promise.race([tail, timeoutPromise]);
@@ -1021,15 +1037,23 @@ export class BrowserManager {
     const priorGlobal = this.globalCdpLockTail;
     const allPrior = Promise.all([priorGlobal, ...allTabTails]).then(() => undefined);
     let release!: () => void;
-    const next = new Promise<void>((resolve) => { release = resolve; });
+    const next = new Promise<void>((resolve) => {
+      release = resolve;
+    });
     this.globalCdpLockTail = allPrior.then(() => next);
 
     const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error(
-        `CDPMutexAcquireTimeout: global CDP lock not acquired within ${timeoutMs}ms.\n` +
-        'Cause: in-flight tab operations have not completed.\n' +
-        'Action: retry; if this repeats, file a bug — a tab op may be hung.'
-      )), timeoutMs),
+      setTimeout(
+        () =>
+          reject(
+            new Error(
+              `CDPMutexAcquireTimeout: global CDP lock not acquired within ${timeoutMs}ms.\n` +
+                'Cause: in-flight tab operations have not completed.\n' +
+                'Action: retry; if this repeats, file a bug — a tab op may be hung.',
+            ),
+          ),
+        timeoutMs,
+      ),
     );
     try {
       await Promise.race([allPrior, timeoutPromise]);
@@ -1079,12 +1103,18 @@ export class BrowserManager {
     const tabs: MemoryTabSnapshot[] = [];
     for (const [id, page] of this.pages) {
       try {
-        const url = (() => { try { return page.url(); } catch { return ''; } })();
+        const url = (() => {
+          try {
+            return page.url();
+          } catch {
+            return '';
+          }
+        })();
         const title = await page.title().catch(() => '');
         const metrics = await withCdpSession(page, async (session) => {
           await session.send('Performance.enable').catch(() => undefined);
           const result = await session.send('Performance.getMetrics');
-          return ((result as { metrics?: Array<{ name: string; value: number }> }).metrics) ?? [];
+          return (result as { metrics?: Array<{ name: string; value: number }> }).metrics ?? [];
         });
         const mm: Record<string, number> = {};
         for (const m of metrics) mm[m.name] = m.value;
@@ -1133,7 +1163,7 @@ export class BrowserManager {
             }));
             notes.push(
               'Per-Chromium-process RSS not collected — SystemInfo.getProcessInfo exposes PID+type+CPU only. ' +
-              'See follow-up TODO "native/GPU memory breakdown" for the deferred fix.',
+                'See follow-up TODO "native/GPU memory breakdown" for the deferred fix.',
             );
           } finally {
             await browserSession.detach().catch(() => undefined);
@@ -1488,7 +1518,9 @@ export class BrowserManager {
       throw new Error(`viewport --scale: value must be between 1 and 3 (gstack policy cap), got ${scale}`);
     }
     if (this.connectionMode === 'headed') {
-      throw new Error('viewport --scale is not supported in headed mode — scale is controlled by the real browser window.');
+      throw new Error(
+        'viewport --scale is not supported in headed mode — scale is controlled by the real browser window.',
+      );
     }
 
     const prevScale = this.deviceScaleFactor;
@@ -1579,10 +1611,7 @@ export class BrowserManager {
         args: launchArgs,
         viewport: null,
         ...(this.proxyConfig ? { proxy: this.proxyConfig } : {}),
-        ignoreDefaultArgs: [
-          '--disable-extensions',
-          '--disable-component-extensions-with-background-pages',
-        ],
+        ignoreDefaultArgs: ['--disable-extensions', '--disable-component-extensions-with-background-pages'],
         timeout: 15000,
       });
     } catch (err: unknown) {
@@ -1618,7 +1647,7 @@ export class BrowserManager {
 
       await this.restoreState(state);
       this.isHeaded = true;
-      this.dialogAutoAccept = false;  // User controls dialogs in headed mode
+      this.dialogAutoAccept = false; // User controls dialogs in headed mode
 
       // 4. Close old headless browser (fire-and-forget)
       oldBrowser.removeAllListeners('disconnected');

@@ -197,7 +197,7 @@ describe('generateInstructionBlock', () => {
     expect(block).toContain('snapshot');
     expect(block).toContain('@e1');
     expect(block).toContain('@e2');
-    expect(block).toContain("Always snapshot first");
+    expect(block).toContain('Always snapshot first');
     expect(block).toContain("Don't guess selectors");
   });
 
@@ -242,8 +242,8 @@ describe('pair-agent CLI behavior', () => {
 
   it('auto-switches to headed mode unless --headless', () => {
     expect(pairBlock).toContain("state.mode !== 'headed'");
-    expect(pairBlock).toContain("--headless");
-    expect(pairBlock).toContain("connect");
+    expect(pairBlock).toContain('--headless');
+    expect(pairBlock).toContain('connect');
   });
 
   it('uses process.execPath for binary path (not argv[1] which is virtual in compiled)', () => {
@@ -255,7 +255,7 @@ describe('pair-agent CLI behavior', () => {
   it('isNgrokAvailable checks gstack env, NGROK_AUTHTOKEN, and native config', () => {
     const ngrokBlock = CLI_SRC.slice(
       CLI_SRC.indexOf('function isNgrokAvailable'),
-      CLI_SRC.indexOf('// ─── Pair-Agent DX')
+      CLI_SRC.indexOf('// ─── Pair-Agent DX'),
     );
     // Three sources checked (paths are in path.join() calls, check the string literals)
     expect(ngrokBlock).toContain("'ngrok.env'");
@@ -270,11 +270,11 @@ describe('pair-agent CLI behavior', () => {
   it('calls POST /tunnel/start when ngrok is available (not restart)', () => {
     const handleBlock = CLI_SRC.slice(
       CLI_SRC.indexOf('async function handlePairAgent'),
-      CLI_SRC.indexOf('function main()')
+      CLI_SRC.indexOf('function main()'),
     );
     expect(handleBlock).toContain('/tunnel/start');
     // Must NOT contain server restart logic
-    expect(handleBlock).not.toContain('Bun.spawn([\'bun\', \'run\'');
+    expect(handleBlock).not.toContain("Bun.spawn(['bun', 'run'");
     expect(handleBlock).not.toContain('BROWSE_TUNNEL');
   });
 });

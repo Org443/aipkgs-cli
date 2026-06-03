@@ -28,7 +28,7 @@ export interface CapturedResponse {
 }
 
 const MAX_BUFFER_SIZE = 50 * 1024 * 1024; // 50MB total
-const MAX_ENTRY_SIZE = 5 * 1024 * 1024;   // 5MB per response body
+const MAX_ENTRY_SIZE = 5 * 1024 * 1024; // 5MB per response body
 
 export class SizeCappedBuffer {
   private entries: CapturedResponse[] = [];
@@ -68,7 +68,7 @@ export class SizeCappedBuffer {
 
   /** Export to JSONL file. */
   exportToFile(filePath: string): number {
-    const lines = this.entries.map(e => JSON.stringify(e));
+    const lines = this.entries.map((e) => JSON.stringify(e));
     fs.writeFileSync(filePath, lines.join('\n') + '\n');
     return this.entries.length;
   }
@@ -76,8 +76,9 @@ export class SizeCappedBuffer {
   /** Summary of captured responses (URL, status, size). */
   summary(): string {
     if (this.entries.length === 0) return 'No captured responses.';
-    const lines = this.entries.map((e, i) =>
-      `  [${i + 1}] ${e.status} ${e.url.slice(0, 100)} (${Math.round(e.size / 1024)}KB${e.bodyTruncated ? ', truncated' : ''})`
+    const lines = this.entries.map(
+      (e, i) =>
+        `  [${i + 1}] ${e.status} ${e.url.slice(0, 100)} (${Math.round(e.size / 1024)}KB${e.bodyTruncated ? ', truncated' : ''})`,
     );
     return `${this.entries.length} responses (${Math.round(this.totalSize / 1024)}KB total):\n${lines.join('\n')}`;
   }
@@ -119,7 +120,12 @@ function createResponseListener(filter: RegExp | null): (response: PlaywrightRes
       if (bodySize > MAX_ENTRY_SIZE) {
         truncated = true;
         body = '';
-      } else if (contentType.includes('json') || contentType.includes('text') || contentType.includes('xml') || contentType.includes('html')) {
+      } else if (
+        contentType.includes('json') ||
+        contentType.includes('text') ||
+        contentType.includes('xml') ||
+        contentType.includes('html')
+      ) {
         body = rawBody.toString('utf-8');
       } else {
         body = rawBody.toString('base64');

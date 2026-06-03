@@ -46,7 +46,10 @@ export function datamarkContent(content: string): string {
   // Insert marker as a Unicode tag sequence between sentences (after periods followed by space)
   // This is subtle enough to not corrupt output but detectable if exfiltrated
   const zwsp = '\u200B'; // zero-width space
-  const taggedMarker = marker.split('').map(c => zwsp + c).join('');
+  const taggedMarker = marker
+    .split('')
+    .map((c) => zwsp + c)
+    .join('');
   // Insert after every 3rd sentence-ending period
   let count = 0;
   return content.replace(/(\. )/g, (match) => {
@@ -86,81 +89,89 @@ const ARIA_INJECTION_PATTERNS = [
  *   - ARIA labels with injection patterns
  */
 export async function markHiddenElements(page: Page | Frame): Promise<string[]> {
-  return page.evaluate((ariaPatterns: string[]) => {
-    const found: string[] = [];
-    const elements = document.querySelectorAll('body *');
+  return page.evaluate(
+    (ariaPatterns: string[]) => {
+      const found: string[] = [];
+      const elements = document.querySelectorAll('body *');
 
-    for (const el of elements) {
-      if (el instanceof HTMLElement) {
-        const style = window.getComputedStyle(el);
-        const text = el.textContent?.trim() || '';
-        if (!text) continue; // skip empty elements
+      for (const el of elements) {
+        if (el instanceof HTMLElement) {
+          const style = window.getComputedStyle(el);
+          const text = el.textContent?.trim() || '';
+          if (!text) continue; // skip empty elements
 
-        let isHidden = false;
-        let reason = '';
+          let isHidden = false;
+          let reason = '';
 
-        // Check opacity
-        if (parseFloat(style.opacity) < 0.1) {
-          isHidden = true;
-          reason = 'opacity < 0.1';
-        }
-        // Check font-size
-        else if (parseFloat(style.fontSize) < 1) {
-          isHidden = true;
-          reason = 'font-size < 1px';
-        }
-        // Check off-screen positioning
-        else if (style.position === 'absolute' || style.position === 'fixed') {
-          const rect = el.getBoundingClientRect();
-          if (rect.right < -100 || rect.bottom < -100 || rect.left > window.innerWidth + 100 || rect.top > window.innerHeight + 100) {
+          // Check opacity
+          if (parseFloat(style.opacity) < 0.1) {
             isHidden = true;
-            reason = 'off-screen';
+            reason = 'opacity < 0.1';
           }
-        }
-        // Check same fg/bg color (text hiding)
-        else if (style.color === style.backgroundColor && text.length > 10) {
-          isHidden = true;
-          reason = 'same fg/bg color';
-        }
-        // Check clip-path hiding
-        else if (style.clipPath === 'inset(100%)' || style.clip === 'rect(0px, 0px, 0px, 0px)') {
-          isHidden = true;
-          reason = 'clip hiding';
-        }
-        // Check visibility: hidden
-        else if (style.visibility === 'hidden') {
-          isHidden = true;
-          reason = 'visibility hidden';
-        }
+          // Check font-size
+          else if (parseFloat(style.fontSize) < 1) {
+            isHidden = true;
+            reason = 'font-size < 1px';
+          }
+          // Check off-screen positioning
+          else if (style.position === 'absolute' || style.position === 'fixed') {
+            const rect = el.getBoundingClientRect();
+            if (
+              rect.right < -100 ||
+              rect.bottom < -100 ||
+              rect.left > window.innerWidth + 100 ||
+              rect.top > window.innerHeight + 100
+            ) {
+              isHidden = true;
+              reason = 'off-screen';
+            }
+          }
+          // Check same fg/bg color (text hiding)
+          else if (style.color === style.backgroundColor && text.length > 10) {
+            isHidden = true;
+            reason = 'same fg/bg color';
+          }
+          // Check clip-path hiding
+          else if (style.clipPath === 'inset(100%)' || style.clip === 'rect(0px, 0px, 0px, 0px)') {
+            isHidden = true;
+            reason = 'clip hiding';
+          }
+          // Check visibility: hidden
+          else if (style.visibility === 'hidden') {
+            isHidden = true;
+            reason = 'visibility hidden';
+          }
 
-        if (isHidden) {
-          el.setAttribute('data-gstack-hidden', 'true');
-          found.push(`[${el.tagName.toLowerCase()}] ${reason}: "${text.slice(0, 60)}..."`);
-        }
+          if (isHidden) {
+            el.setAttribute('data-gstack-hidden', 'true');
+            found.push(`[${el.tagName.toLowerCase()}] ${reason}: "${text.slice(0, 60)}..."`);
+          }
 
-        // Check ARIA labels for injection patterns
-        const ariaLabel = el.getAttribute('aria-label') || '';
-        const ariaLabelledBy = el.getAttribute('aria-labelledby');
-        let labelText = ariaLabel;
-        if (ariaLabelledBy) {
-          const labelEl = document.getElementById(ariaLabelledBy);
-          if (labelEl) labelText += ' ' + (labelEl.textContent || '');
-        }
+          // Check ARIA labels for injection patterns
+          const ariaLabel = el.getAttribute('aria-label') || '';
+          const ariaLabelledBy = el.getAttribute('aria-labelledby');
+          let labelText = ariaLabel;
+          if (ariaLabelledBy) {
+            const labelEl = document.getElementById(ariaLabelledBy);
+            if (labelEl) labelText += ' ' + (labelEl.textContent || '');
+          }
 
-        if (labelText) {
-          for (const pattern of ariaPatterns) {
-            if (new RegExp(pattern, 'i').test(labelText)) {
-              el.setAttribute('data-gstack-hidden', 'true');
-              found.push(`[${el.tagName.toLowerCase()}] ARIA injection: "${labelText.slice(0, 60)}..."`);
-              break;
+          if (labelText) {
+            for (const pattern of ariaPatterns) {
+              if (new RegExp(pattern, 'i').test(labelText)) {
+                el.setAttribute('data-gstack-hidden', 'true');
+                found.push(`[${el.tagName.toLowerCase()}] ARIA injection: "${labelText.slice(0, 60)}..."`);
+                break;
+              }
             }
           }
         }
       }
-    }
 
-    return found;
-  }, ARIA_INJECTION_PATTERNS.map(p => p.source));
+      return found;
+    },
+    ARIA_INJECTION_PATTERNS.map((p) => p.source),
+  );
 }
 
 /**
@@ -173,13 +184,13 @@ export async function getCleanTextWithStripping(page: Page | Frame): Promise<str
     if (!body) return '';
     const clone = body.cloneNode(true) as HTMLElement;
     // Remove standard noise elements
-    clone.querySelectorAll('script, style, noscript, svg').forEach(el => el.remove());
+    clone.querySelectorAll('script, style, noscript, svg').forEach((el) => el.remove());
     // Remove hidden-marked elements
-    clone.querySelectorAll('[data-gstack-hidden]').forEach(el => el.remove());
+    clone.querySelectorAll('[data-gstack-hidden]').forEach((el) => el.remove());
     return clone.innerText
       .split('\n')
-      .map(line => line.trim())
-      .filter(line => line.length > 0)
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0)
       .join('\n');
   });
   return stripLoneSurrogates(raw);
@@ -191,7 +202,7 @@ export async function getCleanTextWithStripping(page: Page | Frame): Promise<str
  */
 export async function cleanupHiddenMarkers(page: Page | Frame): Promise<void> {
   await page.evaluate(() => {
-    document.querySelectorAll('[data-gstack-hidden]').forEach(el => {
+    document.querySelectorAll('[data-gstack-hidden]').forEach((el) => {
       el.removeAttribute('data-gstack-hidden');
     });
   });
@@ -225,11 +236,7 @@ export function escapeEnvelopeSentinels(content: string): string {
  * Wrap page content in a trust boundary envelope for scoped tokens.
  * Escapes envelope markers in content to prevent boundary escape attacks.
  */
-export function wrapUntrustedPageContent(
-  content: string,
-  command: string,
-  filterWarnings?: string[],
-): string {
+export function wrapUntrustedPageContent(content: string, command: string, filterWarnings?: string[]): string {
   const safeContent = escapeEnvelopeSentinels(content);
 
   const parts: string[] = [];
@@ -254,11 +261,7 @@ export interface ContentFilterResult {
   message?: string;
 }
 
-export type ContentFilter = (
-  content: string,
-  url: string,
-  command: string,
-) => ContentFilterResult;
+export type ContentFilter = (content: string, url: string, command: string) => ContentFilterResult;
 
 const registeredFilters: ContentFilter[] = [];
 
@@ -281,11 +284,7 @@ export function getFilterMode(): 'off' | 'warn' | 'block' {
  * Run all registered content filters against content.
  * Returns aggregated result with all warnings.
  */
-export function runContentFilters(
-  content: string,
-  url: string,
-  command: string,
-): ContentFilterResult {
+export function runContentFilters(content: string, url: string, command: string): ContentFilterResult {
   const mode = getFilterMode();
   if (mode === 'off') {
     return { safe: true, warnings: [] };

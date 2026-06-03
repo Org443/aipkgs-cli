@@ -8,8 +8,8 @@
 // HF's seek-driven model produces deterministic frames from a single time
 // value — there's no per-frame React render cycle to update state on.
 
-import React, { useState } from "react";
-import { AbsoluteFill, useCurrentFrame } from "remotion";
+import React, { useState } from 'react';
+import { AbsoluteFill, useCurrentFrame } from 'remotion';
 
 export const StateDriven: React.FC = () => {
   const frame = useCurrentFrame();

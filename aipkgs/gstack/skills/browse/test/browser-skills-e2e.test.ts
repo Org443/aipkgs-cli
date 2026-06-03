@@ -37,7 +37,7 @@ describe('browser-skills E2E — bundled hackernews-frontpage', () => {
 
   test('listBrowserSkills() returns hackernews-frontpage at bundled tier', () => {
     const skills = listBrowserSkills();
-    const hn = skills.find(s => s.name === 'hackernews-frontpage');
+    const hn = skills.find((s) => s.name === 'hackernews-frontpage');
     expect(hn).toBeTruthy();
     expect(hn!.tier).toBe('bundled');
     expect(hn!.frontmatter.host).toBe('news.ycombinator.com');
@@ -61,8 +61,9 @@ describe('browser-skills E2E — bundled hackernews-frontpage', () => {
   });
 
   test('$B skill show <missing> errors clearly', async () => {
-    await expect(handleSkillCommand(['show', 'nonexistent-skill-xyz'], { port: 0 }))
-      .rejects.toThrow(/not found in any tier/);
+    await expect(handleSkillCommand(['show', 'nonexistent-skill-xyz'], { port: 0 })).rejects.toThrow(
+      /not found in any tier/,
+    );
   });
 
   test('$B skill help prints usage', async () => {
@@ -77,8 +78,9 @@ describe('browser-skills E2E — bundled hackernews-frontpage', () => {
     // The bundled hackernews-frontpage skill is shipped read-only; rm targets
     // user tiers (project default, --global). Attempting rm on a name that
     // only exists in bundled should error with "not found".
-    await expect(handleSkillCommand(['rm', 'hackernews-frontpage', '--global'], { port: 0 }))
-      .rejects.toThrow(/not found/);
+    await expect(handleSkillCommand(['rm', 'hackernews-frontpage', '--global'], { port: 0 })).rejects.toThrow(
+      /not found/,
+    );
   });
 
   // The `test` subcommand spawns `bun test script.test.ts` in the skill dir.

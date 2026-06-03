@@ -78,7 +78,7 @@ process.on('unhandledRejection', (reason) => {
 });
 
 export interface PtySession {
-  proc: any | null;        // Bun.Subprocess once spawned
+  proc: any | null; // Bun.Subprocess once spawned
   cols: number;
   rows: number;
   cookie: string;
@@ -144,10 +144,7 @@ export interface PtySession {
  * can compress idle-window assertions to <1s without waiting half a
  * minute per assertion.
  */
-const KEEPALIVE_INTERVAL_MS = parseInt(
-  process.env.GSTACK_PTY_KEEPALIVE_INTERVAL_MS || '25000',
-  10,
-);
+const KEEPALIVE_INTERVAL_MS = parseInt(process.env.GSTACK_PTY_KEEPALIVE_INTERVAL_MS || '25000', 10);
 
 /**
  * Commit 3 scrollback ring buffer cap. 1 MB is enough for a full screen
@@ -156,10 +153,7 @@ const KEEPALIVE_INTERVAL_MS = parseInt(
  * Env-overridable so e2e tests can verify eviction without writing 1 MB
  * of fixture data per assertion.
  */
-const RING_BUFFER_MAX_BYTES = parseInt(
-  process.env.GSTACK_PTY_RING_BUFFER_BYTES || `${1024 * 1024}`,
-  10,
-);
+const RING_BUFFER_MAX_BYTES = parseInt(process.env.GSTACK_PTY_RING_BUFFER_BYTES || `${1024 * 1024}`, 10);
 
 /**
  * Commit 3 detach window — how long to keep a session alive after WS
@@ -169,10 +163,7 @@ const RING_BUFFER_MAX_BYTES = parseInt(
  * laptop sleep; short enough that genuinely-closed sessions don't
  * stack up unbounded.
  */
-const DETACH_WINDOW_MS = parseInt(
-  process.env.GSTACK_PTY_DETACH_WINDOW_MS || '60000',
-  10,
-);
+const DETACH_WINDOW_MS = parseInt(process.env.GSTACK_PTY_DETACH_WINDOW_MS || '60000', 10);
 
 /**
  * Append a frame to a session's ring buffer, evicting oldest frames if
@@ -249,7 +240,10 @@ function findClaude(): string | null {
     `${process.env.HOME}/.npm-global/bin/claude`,
   ];
   for (const c of candidates) {
-    try { fs.accessSync(c, fs.constants.X_OK); return c; } catch {}
+    try {
+      fs.accessSync(c, fs.constants.X_OK);
+      return c;
+    } catch {}
   }
   return null;
 }
@@ -257,7 +251,9 @@ function findClaude(): string | null {
 /** Probe + persist claude availability for the bootstrap card. */
 function writeClaudeAvailable(): void {
   const stateDir = path.dirname(STATE_FILE);
-  try { mkdirSecure(stateDir); } catch {}
+  try {
+    mkdirSecure(stateDir);
+  } catch {}
   const found = findClaude();
   const status = {
     available: !!found,
@@ -292,7 +288,7 @@ function buildTabAwarenessHint(stateDir: string): string {
   const tabsFile = path.join(stateDir, 'tabs.json');
   const activeFile = path.join(stateDir, 'active-tab.json');
   return [
-    'You are running inside the gstack browser sidebar with live access to the user\'s browser tabs.',
+    "You are running inside the gstack browser sidebar with live access to the user's browser tabs.",
     '',
     'Tab state files (kept fresh automatically by the extension):',
     `  ${tabsFile}        — all open tabs (id, url, title, active, pinned)`,
@@ -308,9 +304,9 @@ function buildTabAwarenessHint(stateDir: string): string {
     'When the user asks for multi-tab work, prefer $B tab-each. Examples:',
     '  $B tab-each snapshot -i     — grab a snapshot from every tab',
     '  $B tab-each text            — pull clean text from every tab',
-    '  $B tab-each title           — list every tab\'s title',
+    "  $B tab-each title           — list every tab's title",
     '',
-    'You\'re in a real terminal with a real PTY — slash commands, /resume, ANSI colors all work as in a normal claude session.',
+    "You're in a real terminal with a real PTY — slash commands, /resume, ANSI colors all work as in a normal claude session.",
   ].join('\n');
 }
 
@@ -324,7 +320,7 @@ function spawnClaude(cols: number, rows: number, onData: (chunk: Buffer) => void
   // headed-mode browser; BROWSE_NO_AUTOSTART prevents claude's gstack
   // tooling from racing to spawn another server.
   const env: Record<string, string> = {
-    ...process.env as any,
+    ...(process.env as any),
     BROWSE_PORT: String(BROWSE_SERVER_PORT),
     BROWSE_STATE_FILE: STATE_FILE,
     BROWSE_NO_AUTOSTART: '1',
@@ -345,7 +341,9 @@ function spawnClaude(cols: number, rows: number, onData: (chunk: Buffer) => void
     terminal: {
       rows,
       cols,
-      data(_terminal: any, chunk: Buffer) { onData(chunk); },
+      data(_terminal: any, chunk: Buffer) {
+        onData(chunk);
+      },
     },
     env,
   });
@@ -354,9 +352,13 @@ function spawnClaude(cols: number, rows: number, onData: (chunk: Buffer) => void
 
 /** Cleanup a PTY session: SIGINT, then SIGKILL after 3s. */
 function disposeSession(session: PtySession): void {
-  try { session.proc?.terminal?.close?.(); } catch {}
+  try {
+    session.proc?.terminal?.close?.();
+  } catch {}
   if (session.proc?.pid) {
-    try { session.proc.kill?.('SIGINT'); } catch {}
+    try {
+      session.proc.kill?.('SIGINT');
+    } catch {}
     setTimeout(() => {
       try {
         if (session.proc && !session.proc.killed) session.proc.kill?.('SIGKILL');
@@ -448,10 +450,13 @@ function maybeSpawnPty(ws: any, session: PtySession): boolean {
     let safeEnd = combined.length;
     for (let i = combined.length - 1; i >= Math.max(0, combined.length - 3); i--) {
       const b = combined[i];
-      if ((b & 0x80) === 0) { safeEnd = i + 1; break; }
-      if ((b & 0xC0) === 0x80) continue;
-      const expected = (b & 0xE0) === 0xC0 ? 2 : (b & 0xF0) === 0xE0 ? 3 : 4;
-      safeEnd = (combined.length - i >= expected) ? combined.length : i;
+      if ((b & 0x80) === 0) {
+        safeEnd = i + 1;
+        break;
+      }
+      if ((b & 0xc0) === 0x80) continue;
+      const expected = (b & 0xe0) === 0xc0 ? 2 : (b & 0xf0) === 0xe0 ? 3 : 4;
+      safeEnd = combined.length - i >= expected ? combined.length : i;
       break;
     }
     const flush = combined.slice(0, safeEnd);
@@ -464,24 +469,30 @@ function maybeSpawnPty(ws: any, session: PtySession): boolean {
       // detached and liveWs is null).
       appendToRingBuffer(session, flush);
       if (session.liveWs) {
-        try { session.liveWs.sendBinary(flush); } catch {}
+        try {
+          session.liveWs.sendBinary(flush);
+        } catch {}
       }
     }
   });
   if (!proc) {
     try {
-      ws.send(JSON.stringify({
-        type: 'error',
-        code: 'CLAUDE_NOT_FOUND',
-        message: 'claude CLI not on PATH. Install: https://docs.anthropic.com/en/docs/claude-code',
-      }));
+      ws.send(
+        JSON.stringify({
+          type: 'error',
+          code: 'CLAUDE_NOT_FOUND',
+          message: 'claude CLI not on PATH. Install: https://docs.anthropic.com/en/docs/claude-code',
+        }),
+      );
       ws.close(4404, 'claude not found');
     } catch {}
     return false;
   }
   session.proc = proc;
   proc.exited?.then?.(() => {
-    try { session.liveWs?.close(1000, 'pty exited'); } catch {}
+    try {
+      session.liveWs?.close(1000, 'pty exited');
+    } catch {}
   });
   return true;
 }
@@ -504,9 +515,7 @@ function buildServer() {
       if (url.pathname === '/internal/grant' && req.method === 'POST') {
         return internalHandler(req, (body) => {
           if (typeof body?.token === 'string' && body.token.length > 16) {
-            const sid = typeof body?.sessionId === 'string' && body.sessionId.length > 0
-              ? body.sessionId
-              : null;
+            const sid = typeof body?.sessionId === 'string' && body.sessionId.length > 0 ? body.sessionId : null;
             validTokens.set(body.token, sid);
           }
         });
@@ -551,11 +560,14 @@ function buildServer() {
       if (url.pathname === '/internal/healthz' && req.method === 'GET') {
         const denied = checkInternalAuth(req);
         if (denied) return denied;
-        return new Response(JSON.stringify({
-          pid: process.pid,
-          gen: CURRENT_GEN,
-          sessions: validTokens.size,
-        }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+        return new Response(
+          JSON.stringify({
+            pid: process.pid,
+            gen: CURRENT_GEN,
+            sessions: validTokens.size,
+          }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        );
       }
 
       // /claude-available — bootstrap card hits this when user clicks "I installed it".
@@ -599,7 +611,10 @@ function buildServer() {
         const protoHeader = req.headers.get('sec-websocket-protocol') || '';
         let token: string | null = null;
         let acceptedProtocol: string | null = null;
-        for (const raw of protoHeader.split(',').map(s => s.trim()).filter(Boolean)) {
+        for (const raw of protoHeader
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean)) {
           const candidate = raw.startsWith('gstack-pty.') ? raw.slice('gstack-pty.'.length) : raw;
           if (validTokens.has(candidate)) {
             token = candidate;
@@ -679,13 +694,19 @@ function buildServer() {
             // Restart keepalive on the new ws.
             if (existing.pingInterval) clearInterval(existing.pingInterval);
             existing.pingInterval = setInterval(() => {
-              try { ws.send(JSON.stringify({ type: 'ping', ts: Date.now() })); } catch {}
+              try {
+                ws.send(JSON.stringify({ type: 'ping', ts: Date.now() }));
+              } catch {}
             }, KEEPALIVE_INTERVAL_MS);
             // Tell the client to prep its xterm (write RIS) before the
             // replay binary arrives. Order matters — the binary frame
             // immediately after this text frame IS the replay.
-            try { ws.send(JSON.stringify({ type: 'reattach-begin', sessionId })); } catch {}
-            try { ws.sendBinary(buildReplayPayload(existing)); } catch {}
+            try {
+              ws.send(JSON.stringify({ type: 'reattach-begin', sessionId }));
+            } catch {}
+            try {
+              ws.sendBinary(buildReplayPayload(existing));
+            } catch {}
             return;
           }
         }
@@ -748,13 +769,19 @@ function buildServer() {
         // Binary frames are raw input bytes destined for the PTY stdin.
         if (typeof raw === 'string') {
           let msg: any;
-          try { msg = JSON.parse(raw); } catch { return; }
+          try {
+            msg = JSON.parse(raw);
+          } catch {
+            return;
+          }
           if (msg?.type === 'resize') {
             const cols = Math.max(2, Math.floor(Number(msg.cols) || 80));
             const rows = Math.max(2, Math.floor(Number(msg.rows) || 24));
             session.cols = cols;
             session.rows = rows;
-            try { session.proc?.terminal?.resize?.(cols, rows); } catch {}
+            try {
+              session.proc?.terminal?.resize?.(cols, rows);
+            } catch {}
             return;
           }
           if (msg?.type === 'tabSwitch') {
@@ -862,18 +889,28 @@ function buildServer() {
  */
 function handleTabState(msg: {
   active?: { tabId?: number; url?: string; title?: string } | null;
-  tabs?: Array<{ tabId?: number; url?: string; title?: string; active?: boolean; windowId?: number; pinned?: boolean; audible?: boolean }>;
+  tabs?: Array<{
+    tabId?: number;
+    url?: string;
+    title?: string;
+    active?: boolean;
+    windowId?: number;
+    pinned?: boolean;
+    audible?: boolean;
+  }>;
   reason?: string;
 }): void {
   const stateDir = path.dirname(STATE_FILE);
-  try { mkdirSecure(stateDir); } catch {}
+  try {
+    mkdirSecure(stateDir);
+  } catch {}
 
   // tabs.json — full list
   if (Array.isArray(msg.tabs)) {
     const payload = {
       updatedAt: new Date().toISOString(),
       reason: msg.reason || 'unknown',
-      tabs: msg.tabs.map(t => ({
+      tabs: msg.tabs.map((t) => ({
         tabId: t.tabId ?? null,
         url: t.url || '',
         title: t.title || '',
@@ -901,11 +938,14 @@ function handleTabState(msg: {
     const ctxFile = path.join(stateDir, 'active-tab.json');
     const tmp = path.join(stateDir, `.tmp-tab-${process.pid}`);
     try {
-      writeSecureFile(tmp, JSON.stringify({
-        tabId: active.tabId ?? null,
-        url: active.url,
-        title: active.title ?? '',
-      }));
+      writeSecureFile(
+        tmp,
+        JSON.stringify({
+          tabId: active.tabId ?? null,
+          url: active.url,
+          title: active.title ?? '',
+        }),
+      );
       fs.renameSync(tmp, ctxFile);
     } catch {
       safeUnlink(tmp);
@@ -921,11 +961,14 @@ function handleTabSwitch(msg: { tabId?: number; url?: string; title?: string }):
   const ctxFile = path.join(stateDir, 'active-tab.json');
   const tmp = path.join(stateDir, `.tmp-tab-${process.pid}`);
   try {
-    writeSecureFile(tmp, JSON.stringify({
-      tabId: msg.tabId ?? null,
-      url,
-      title: msg.title ?? '',
-    }));
+    writeSecureFile(
+      tmp,
+      JSON.stringify({
+        tabId: msg.tabId ?? null,
+        url,
+        title: msg.title ?? '',
+      }),
+    );
     fs.renameSync(tmp, ctxFile);
   } catch {
     safeUnlink(tmp);
@@ -938,7 +981,7 @@ function handleTabSwitch(msg: { tabId?: number; url?: string; title?: string }):
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${readBrowseToken()}`,
+        Authorization: `Bearer ${readBrowseToken()}`,
       },
       body: JSON.stringify({
         command: 'tab',
@@ -953,7 +996,9 @@ function readBrowseToken(): string {
     const raw = fs.readFileSync(STATE_FILE, 'utf-8');
     const j = JSON.parse(raw);
     return j.token || '';
-  } catch { return ''; }
+  } catch {
+    return '';
+  }
 }
 
 // Boot.
@@ -968,7 +1013,9 @@ function main() {
 
   // Write port file atomically so the parent server can pick it up.
   const dir = path.dirname(PORT_FILE);
-  try { mkdirSecure(dir); } catch {}
+  try {
+    mkdirSecure(dir);
+  } catch {}
   const tmp = `${PORT_FILE}.tmp-${process.pid}`;
   writeSecureFile(tmp, String(port));
   fs.renameSync(tmp, PORT_FILE);

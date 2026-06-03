@@ -15,14 +15,8 @@ import { describe, test, expect } from 'bun:test';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const AGENT_SRC = fs.readFileSync(
-  path.join(import.meta.dir, '../src/sidebar-agent.ts'),
-  'utf-8',
-);
-const SERVER_SRC = fs.readFileSync(
-  path.join(import.meta.dir, '../src/server.ts'),
-  'utf-8',
-);
+const AGENT_SRC = fs.readFileSync(path.join(import.meta.dir, '../src/sidebar-agent.ts'), 'utf-8');
+const SERVER_SRC = fs.readFileSync(path.join(import.meta.dir, '../src/server.ts'), 'utf-8');
 
 describe('detectCanaryLeak — channel coverage (source)', () => {
   test('covers assistant_text channel', () => {

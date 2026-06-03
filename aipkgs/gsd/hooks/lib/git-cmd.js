@@ -28,12 +28,12 @@ const path = require('path');
  * These must be consumed as (option, argument) pairs when walking tokens.
  */
 const ARGUMENT_TAKING_FLAGS = new Set([
-  '-C',                // working directory
-  '--git-dir',         // path to git repository
-  '--work-tree',       // path to working tree
-  '--namespace',       // git namespace
-  '--super-prefix',    // superproject-relative prefix
-  '--exec-path',       // path to core git programs (when given an arg)
+  '-C', // working directory
+  '--git-dir', // path to git repository
+  '--work-tree', // path to working tree
+  '--namespace', // git namespace
+  '--super-prefix', // superproject-relative prefix
+  '--exec-path', // path to core git programs (when given an arg)
   '--html-path',
   '--man-path',
   '--info-path',
@@ -44,12 +44,20 @@ const ARGUMENT_TAKING_FLAGS = new Set([
  * Git global flags that consume no extra argument.
  */
 const BOOLEAN_FLAGS = new Set([
-  '-p', '--paginate', '--no-pager',
-  '--no-replace-objects', '--bare',
-  '--literal-pathspecs', '--glob-pathspecs', '--noglob-pathspecs',
-  '--icase-pathspecs', '--no-optional-locks',
-  '-P', '--no-lazy-fetch',
-  '--version', '--help',
+  '-p',
+  '--paginate',
+  '--no-pager',
+  '--no-replace-objects',
+  '--bare',
+  '--literal-pathspecs',
+  '--glob-pathspecs',
+  '--noglob-pathspecs',
+  '--icase-pathspecs',
+  '--no-optional-locks',
+  '-P',
+  '--no-lazy-fetch',
+  '--version',
+  '--help',
 ]);
 
 /**

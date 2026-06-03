@@ -30,7 +30,7 @@ describe('terminal-agent internalHandler refactor (v1.44+)', () => {
     const block = sliceBetween(src, "url.pathname === '/internal/grant'", "url.pathname === '/internal/revoke'");
     expect(block).toContain('internalHandler(req');
     // Must NOT have the old inline pattern (would be a regression).
-    expect(block).not.toContain('req.headers.get(\'authorization\')');
+    expect(block).not.toContain("req.headers.get('authorization')");
     expect(block).not.toContain('req.json().then(');
   });
 

@@ -42,8 +42,8 @@ final class AppState {
     const specs = parseSwift(src);
     expect(specs).toHaveLength(1);
     expect(specs[0]!.className).toBe('AppState');
-    expect(specs[0]!.fields.map(f => f.name)).toEqual(['isLoggedIn', 'username']);
-    expect(specs[0]!.fields.find(f => f.name === 'isLoggedIn')!.typeText).toBe('Bool');
+    expect(specs[0]!.fields.map((f) => f.name)).toEqual(['isLoggedIn', 'username']);
+    expect(specs[0]!.fields.find((f) => f.name === 'isLoggedIn')!.typeText).toBe('Bool');
   });
 
   test('handles @Snapshotable on multi-line type signatures', () => {
@@ -111,7 +111,7 @@ class B {
 `;
     const specs = parseSwift(src);
     expect(specs).toHaveLength(2);
-    expect(specs.map(s => s.className).sort()).toEqual(['A', 'B']);
+    expect(specs.map((s) => s.className).sort()).toEqual(['A', 'B']);
   });
 
   test('skips fields with computed body braces', () => {
@@ -129,7 +129,7 @@ class M {
 `;
     const specs = parseSwift(src);
     expect(specs).toHaveLength(1);
-    expect(specs[0]!.fields.map(f => f.name)).toEqual(['snapshotted']);
+    expect(specs[0]!.fields.map((f) => f.name)).toEqual(['snapshotted']);
   });
 });
 
@@ -250,12 +250,15 @@ describe('generate', () => {
   test('first run writes StateAccessor.swift and populates cache', () => {
     const inputDir = join(workDir, 'src');
     mkdirSync(inputDir);
-    writeFileSync(join(inputDir, 'state.swift'), `
+    writeFileSync(
+      join(inputDir, 'state.swift'),
+      `
 @Observable
 class AppState {
   @Snapshotable var x: Int = 0
 }
-`);
+`,
+    );
     const cacheRoot = join(workDir, 'cache');
     const r = generate({
       inputDir,
@@ -327,10 +330,15 @@ describe('pruneCache', () => {
 
 describe('render', () => {
   test('emits valid-looking Swift for one class with two fields', () => {
-    const specs: AccessorSpec[] = [{
-      className: 'AppState',
-      fields: [{ name: 'a', typeText: 'Int' }, { name: 'b', typeText: 'String' }],
-    }];
+    const specs: AccessorSpec[] = [
+      {
+        className: 'AppState',
+        fields: [
+          { name: 'a', typeText: 'Int' },
+          { name: 'b', typeText: 'String' },
+        ],
+      },
+    ];
     const out = render(specs, 'build-1.2.3', 'hash-abc');
     expect(out).toContain('public enum AppStateAccessor');
     expect(out).toContain('key: "a"');

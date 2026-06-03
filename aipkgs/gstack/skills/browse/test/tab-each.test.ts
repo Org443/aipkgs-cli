@@ -67,15 +67,18 @@ describe('tab-each: source-level guards', () => {
 
 describe('tab-each: behavior', () => {
   function mockBm(tabs: Array<{ id: number; url: string; title: string; active: boolean }>) {
-    let activeId = tabs.find(t => t.active)?.id ?? tabs[0]?.id ?? 0;
+    let activeId = tabs.find((t) => t.active)?.id ?? tabs[0]?.id ?? 0;
     const switched: number[] = [];
     return {
       __switched: switched,
       __activeId: () => activeId,
       getActiveSession: () => ({}),
       getActiveTabId: () => activeId,
-      getTabListWithTitles: async () => tabs.map(t => ({ ...t })),
-      switchTab: (id: number, _opts?: any) => { switched.push(id); activeId = id; },
+      getTabListWithTitles: async () => tabs.map((t) => ({ ...t })),
+      switchTab: (id: number, _opts?: any) => {
+        switched.push(id);
+        activeId = id;
+      },
     } as any;
   }
 
@@ -87,19 +90,12 @@ describe('tab-each: behavior', () => {
     ];
     const bm = mockBm(tabs);
     const calls: Array<{ command: string; args?: string[]; tabId?: number }> = [];
-    const out = await handleMetaCommand(
-      'tab-each',
-      ['snapshot', '-i'],
-      bm,
-      async () => {},
-      null,
-      {
-        executeCommand: async (body) => {
-          calls.push(body);
-          return { status: 200, result: `snap-of-${body.tabId}` };
-        },
+    const out = await handleMetaCommand('tab-each', ['snapshot', '-i'], bm, async () => {}, null, {
+      executeCommand: async (body) => {
+        calls.push(body);
+        return { status: 200, result: `snap-of-${body.tabId}` };
       },
-    );
+    });
 
     const parsed = JSON.parse(out);
     expect(parsed.command).toBe('snapshot');
@@ -111,8 +107,8 @@ describe('tab-each: behavior', () => {
 
     // Inner command was dispatched 3 times, once per tab, with the right tabId.
     expect(calls).toHaveLength(3);
-    expect(calls.map(c => c.tabId)).toEqual([1, 2, 3]);
-    expect(calls.every(c => c.command === 'snapshot')).toBe(true);
+    expect(calls.map((c) => c.tabId)).toEqual([1, 2, 3]);
+    expect(calls.every((c) => c.command === 'snapshot')).toBe(true);
   });
 
   test('skips chrome:// pages with status=0 + "skipped" output', async () => {
@@ -123,19 +119,12 @@ describe('tab-each: behavior', () => {
     ];
     const bm = mockBm(tabs);
     const calls: any[] = [];
-    const out = await handleMetaCommand(
-      'tab-each',
-      ['text'],
-      bm,
-      async () => {},
-      null,
-      {
-        executeCommand: async (body) => {
-          calls.push(body);
-          return { status: 200, result: `text-of-${body.tabId}` };
-        },
+    const out = await handleMetaCommand('tab-each', ['text'], bm, async () => {}, null, {
+      executeCommand: async (body) => {
+        calls.push(body);
+        return { status: 200, result: `text-of-${body.tabId}` };
       },
-    );
+    });
 
     const parsed = JSON.parse(out);
     expect(parsed.total).toBe(3);
@@ -156,22 +145,15 @@ describe('tab-each: behavior', () => {
     ];
     const bm = mockBm(tabs);
     let calls = 0;
-    const out = await handleMetaCommand(
-      'tab-each',
-      ['text'],
-      bm,
-      async () => {},
-      null,
-      {
-        executeCommand: async (body) => {
-          calls++;
-          if (body.tabId === 20) {
-            return { status: 500, result: JSON.stringify({ error: 'boom' }) };
-          }
-          return { status: 200, result: `ok-${body.tabId}` };
-        },
+    const out = await handleMetaCommand('tab-each', ['text'], bm, async () => {}, null, {
+      executeCommand: async (body) => {
+        calls++;
+        if (body.tabId === 20) {
+          return { status: 500, result: JSON.stringify({ error: 'boom' }) };
+        }
+        return { status: 200, result: `ok-${body.tabId}` };
       },
-    );
+    });
 
     const parsed = JSON.parse(out);
     expect(parsed.results.find((r: any) => r.tabId === 20).status).toBe(500);
@@ -184,13 +166,10 @@ describe('tab-each: behavior', () => {
 
   test('throws on empty args (no inner command)', async () => {
     const bm = mockBm([{ id: 1, url: 'https://x.example', title: 'X', active: true }]);
-    await expect(handleMetaCommand(
-      'tab-each',
-      [],
-      bm,
-      async () => {},
-      null,
-      { executeCommand: async () => ({ status: 200, result: '' }) },
-    )).rejects.toThrow(/Usage/);
+    await expect(
+      handleMetaCommand('tab-each', [], bm, async () => {}, null, {
+        executeCommand: async () => ({ status: 200, result: '' }),
+      }),
+    ).rejects.toThrow(/Usage/);
   });
 });

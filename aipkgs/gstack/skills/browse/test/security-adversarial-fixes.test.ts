@@ -49,7 +49,7 @@ describe('tool-output ensemble rule (single-layer BLOCK)', () => {
   test('tool-output context still respects ensemble path when 2 agree', () => {
     const result = combineVerdict(
       [
-        { layer: 'testsavant_content', confidence: 0.80 },
+        { layer: 'testsavant_content', confidence: 0.8 },
         { layer: 'transcript_classifier', confidence: 0.75, meta: { verdict: 'block' } },
       ],
       { toolOutput: true },
@@ -59,20 +59,14 @@ describe('tool-output ensemble rule (single-layer BLOCK)', () => {
   });
 
   test('tool-output context: below BLOCK threshold still WARN, not BLOCK', () => {
-    const result = combineVerdict(
-      [{ layer: 'testsavant_content', confidence: THRESHOLDS.WARN }],
-      { toolOutput: true },
-    );
+    const result = combineVerdict([{ layer: 'testsavant_content', confidence: THRESHOLDS.WARN }], { toolOutput: true });
     expect(result.verdict).toBe('warn');
   });
 });
 
 describe('sidepanel escapeHtml quote escaping', () => {
   test('escapeHtml helper replaces double + single quotes', () => {
-    const src = fs.readFileSync(
-      path.join(REPO_ROOT, 'extension', 'sidepanel.js'),
-      'utf-8',
-    );
+    const src = fs.readFileSync(path.join(REPO_ROOT, 'extension', 'sidepanel.js'), 'utf-8');
     expect(src).toContain(".replace(/\"/g, '&quot;')");
     expect(src).toContain(".replace(/'/g, '&#39;')");
   });
@@ -86,10 +80,7 @@ describe('snapshot in PAGE_CONTENT_COMMANDS', () => {
 
 describe('transcript classifier tool_output parameter', () => {
   test('checkTranscript accepts optional tool_output', () => {
-    const src = fs.readFileSync(
-      path.join(REPO_ROOT, 'browse', 'src', 'security-classifier.ts'),
-      'utf-8',
-    );
+    const src = fs.readFileSync(path.join(REPO_ROOT, 'browse', 'src', 'security-classifier.ts'), 'utf-8');
     expect(src).toContain('tool_output?: string');
     expect(src).toContain('tool_output');
     // Haiku prompt mentions tool_output
@@ -104,10 +95,7 @@ describe('transcript classifier tool_output parameter', () => {
 
 describe('GSTACK_SECURITY_OFF kill switch', () => {
   test('loadTestsavant honors env var early', () => {
-    const src = fs.readFileSync(
-      path.join(REPO_ROOT, 'browse', 'src', 'security-classifier.ts'),
-      'utf-8',
-    );
+    const src = fs.readFileSync(path.join(REPO_ROOT, 'browse', 'src', 'security-classifier.ts'), 'utf-8');
     expect(src).toContain("process.env.GSTACK_SECURITY_OFF === '1'");
   });
 });

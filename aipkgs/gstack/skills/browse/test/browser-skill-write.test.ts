@@ -20,12 +20,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import {
-  stageSkill,
-  commitSkill,
-  discardStaged,
-  validateSkillName,
-} from '../src/browser-skill-write';
+import { stageSkill, commitSkill, discardStaged, validateSkillName } from '../src/browser-skill-write';
 import type { TierPaths } from '../src/browser-skills';
 
 let tmpRoot: string;
@@ -53,22 +48,22 @@ function sampleFiles(): Map<string, string | Buffer> {
     ['script.ts', 'console.log("hi");\n'],
     ['_lib/browse-client.ts', '// fake SDK\n'],
     ['fixtures/example-com-2026-04-27.html', '<html></html>\n'],
-    ['script.test.ts', 'import { describe, it, expect } from "bun:test"; describe("x", () => { it("y", () => expect(1).toBe(1)); });\n'],
+    [
+      'script.test.ts',
+      'import { describe, it, expect } from "bun:test"; describe("x", () => { it("y", () => expect(1).toBe(1)); });\n',
+    ],
   ]);
 }
 
 // ─── validateSkillName ──────────────────────────────────────────
 
 describe('validateSkillName', () => {
-  it.each([
-    ['hackernews-frontpage'],
-    ['scrape'],
-    ['lobsters-frontpage-v2'],
-    ['a'],
-    ['a1'],
-  ])('accepts valid name: %s', (name) => {
-    expect(() => validateSkillName(name)).not.toThrow();
-  });
+  it.each([['hackernews-frontpage'], ['scrape'], ['lobsters-frontpage-v2'], ['a'], ['a1']])(
+    'accepts valid name: %s',
+    (name) => {
+      expect(() => validateSkillName(name)).not.toThrow();
+    },
+  );
 
   it.each([
     [''],
@@ -117,7 +112,7 @@ describe('stageSkill', () => {
     const wrapperDir = path.dirname(stagedDir);
     const stat = fs.statSync(wrapperDir);
     // 0o700 = owner-only; mode mask off everything else.
-    expect((stat.mode & 0o077)).toBe(0);
+    expect(stat.mode & 0o077).toBe(0);
   });
 
   it('rejects empty file maps', () => {
@@ -203,9 +198,7 @@ describe('commitSkill', () => {
       tmpRoot: stagingTmpRoot,
     });
 
-    expect(() =>
-      commitSkill({ name: 'collide-skill', tier: 'global', stagedDir, tiers }),
-    ).toThrow(/already exists/);
+    expect(() => commitSkill({ name: 'collide-skill', tier: 'global', stagedDir, tiers })).toThrow(/already exists/);
 
     // Existing skill is untouched.
     expect(fs.readFileSync(path.join(tiers.global, 'collide-skill', 'marker.txt'), 'utf-8')).toBe('existing\n');
@@ -220,9 +213,7 @@ describe('commitSkill', () => {
     const symlink = path.join(tmpRoot, 'symlinked-staging');
     fs.symlinkSync(realDir, symlink);
 
-    expect(() =>
-      commitSkill({ name: 'sym-skill', tier: 'global', stagedDir: symlink, tiers }),
-    ).toThrow(/symlink/);
+    expect(() => commitSkill({ name: 'sym-skill', tier: 'global', stagedDir: symlink, tiers })).toThrow(/symlink/);
   });
 
   it('throws when project tier is unresolved', () => {
@@ -234,9 +225,9 @@ describe('commitSkill', () => {
     });
 
     const tiersNoProject: TierPaths = { project: null, global: tiers.global, bundled: tiers.bundled };
-    expect(() =>
-      commitSkill({ name: 'test-skill', tier: 'project', stagedDir, tiers: tiersNoProject }),
-    ).toThrow(/has no resolved path/);
+    expect(() => commitSkill({ name: 'test-skill', tier: 'project', stagedDir, tiers: tiersNoProject })).toThrow(
+      /has no resolved path/,
+    );
   });
 
   it('rejects invalid skill names at commit time too', () => {
@@ -247,9 +238,7 @@ describe('commitSkill', () => {
       spawnId: 'commit-4',
       tmpRoot: stagingTmpRoot,
     });
-    expect(() =>
-      commitSkill({ name: 'BAD/NAME', tier: 'global', stagedDir, tiers }),
-    ).toThrow(/Invalid skill name/);
+    expect(() => commitSkill({ name: 'BAD/NAME', tier: 'global', stagedDir, tiers })).toThrow(/Invalid skill name/);
   });
 });
 

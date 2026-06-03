@@ -8,9 +8,9 @@
 // Tests that the linter aggregates findings correctly and does not stop at
 // the first blocker.
 
-import React, { useState, useEffect, useCallback } from "react";
-import { AbsoluteFill, useCurrentFrame } from "remotion";
-import { Card } from "@chakra-ui/react";
+import React, { useState, useEffect, useCallback } from 'react';
+import { AbsoluteFill, useCurrentFrame } from 'remotion';
+import { Card } from '@chakra-ui/react';
 
 interface Item {
   id: string;
@@ -22,13 +22,13 @@ export const MixedBlockers: React.FC = () => {
   const [items, setItems] = useState<Item[]>([]);
 
   useEffect(() => {
-    fetch("/api/items")
+    fetch('/api/items')
       .then((r) => r.json())
       .then(setItems);
   }, [frame]);
 
   const onClick = useCallback(() => {
-    setItems((prev) => [...prev, { id: String(prev.length), label: "new" }]);
+    setItems((prev) => [...prev, { id: String(prev.length), label: 'new' }]);
   }, []);
 
   return (

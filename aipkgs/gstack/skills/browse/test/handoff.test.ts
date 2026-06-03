@@ -27,7 +27,9 @@ beforeAll(async () => {
 });
 
 afterAll(() => {
-  try { testServer.server.stop(); } catch {}
+  try {
+    testServer.server.stop();
+  } catch {}
   setTimeout(() => process.exit(0), 500);
 });
 
@@ -87,9 +89,9 @@ describe('saveState', () => {
     const state = await bm.saveState();
 
     expect(state.cookies.length).toBeGreaterThan(0);
-    expect(state.cookies.some(c => c.name === 'testcookie')).toBe(true);
+    expect(state.cookies.some((c) => c.name === 'testcookie')).toBe(true);
     expect(state.pages.length).toBeGreaterThanOrEqual(1);
-    expect(state.pages.some(p => p.url.includes('/basic.html'))).toBe(true);
+    expect(state.pages.some((p) => p.url.includes('/basic.html'))).toBe(true);
   }, 15000);
 
   test('captures localStorage and sessionStorage', async () => {
@@ -101,7 +103,7 @@ describe('saveState', () => {
     });
 
     const state = await bm.saveState();
-    const activePage = state.pages.find(p => p.isActive);
+    const activePage = state.pages.find((p) => p.isActive);
 
     expect(activePage).toBeDefined();
     expect(activePage!.storage).not.toBeNull();
@@ -118,7 +120,7 @@ describe('saveState', () => {
 
     const state = await bm.saveState();
     expect(state.pages.length).toBe(2);
-    const activePage = state.pages.find(p => p.isActive);
+    const activePage = state.pages.find((p) => p.isActive);
     expect(activePage).toBeDefined();
     expect(activePage!.url).toContain('/form.html');
 
@@ -132,12 +134,12 @@ describe('restoreState', () => {
     await handleWriteCommand('cookie', ['restored=yes'], bm);
 
     const stateBefore = await bm.saveState();
-    expect(stateBefore.cookies.some(c => c.name === 'restored')).toBe(true);
+    expect(stateBefore.cookies.some((c) => c.name === 'restored')).toBe(true);
 
     await bm.recreateContext();
 
     const stateAfter = await bm.saveState();
-    expect(stateAfter.cookies.some(c => c.name === 'restored')).toBe(true);
+    expect(stateAfter.cookies.some((c) => c.name === 'restored')).toBe(true);
     expect(stateAfter.pages.length).toBeGreaterThanOrEqual(1);
   }, 30000);
 });

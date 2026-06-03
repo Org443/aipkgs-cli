@@ -65,10 +65,7 @@ export interface SseEndpointConfig<T> {
  *   - req.signal abort → cleanup
  *   - cleanup is idempotent (clearInterval + unsubscribe + try close)
  */
-export function createSseEndpoint<T>(
-  req: Request,
-  config: SseEndpointConfig<T>,
-): Response {
+export function createSseEndpoint<T>(req: Request, config: SseEndpointConfig<T>): Response {
   const heartbeatMs = config.heartbeatMs ?? 15000;
   const encoder = new TextEncoder();
 
@@ -99,11 +96,7 @@ export function createSseEndpoint<T>(
       const send: SseSender = (event, data) => {
         if (cleanedUp) return;
         try {
-          controller.enqueue(
-            encoder.encode(
-              `event: ${event}\ndata: ${JSON.stringify(data, sanitizeReplacer)}\n\n`,
-            ),
-          );
+          controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data, sanitizeReplacer)}\n\n`));
         } catch {
           // Consumer disconnected mid-write. Tear down so this subscriber
           // doesn't sit in the set forever.
@@ -148,7 +141,7 @@ export function createSseEndpoint<T>(
     headers: {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
+      Connection: 'keep-alive',
     },
   });
 }

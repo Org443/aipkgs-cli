@@ -5,7 +5,14 @@
 import type { BrowserManager } from './browser-manager';
 import { handleSnapshot } from './snapshot';
 import { getCleanText } from './read-commands';
-import { READ_COMMANDS, WRITE_COMMANDS, META_COMMANDS, PAGE_CONTENT_COMMANDS, wrapUntrustedContent, canonicalizeCommand } from './commands';
+import {
+  READ_COMMANDS,
+  WRITE_COMMANDS,
+  META_COMMANDS,
+  PAGE_CONTENT_COMMANDS,
+  wrapUntrustedContent,
+  canonicalizeCommand,
+} from './commands';
 import { handleDomainSkillCommand } from './domain-skill-commands';
 import { handleSkillCommand } from './browser-skill-commands';
 import { validateNavigationUrl } from './url-validation';
@@ -32,7 +39,10 @@ function tokenizePipeSegment(segment: string): string[] {
     if (ch === '"') {
       inQuote = !inQuote;
     } else if (ch === ' ' && !inQuote) {
-      if (current) { tokens.push(current); current = ''; }
+      if (current) {
+        tokens.push(current);
+        current = '';
+      }
     } else {
       current += ch;
     }
@@ -97,25 +107,45 @@ function parsePdfArgs(args: string[]): ParsedPdfArgs {
 
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
-    if (a === '--format') { result.format = requireValue(args, ++i, 'format'); }
-    else if (a === '--page-size') { result.format = requireValue(args, ++i, 'page-size'); }
-    else if (a === '--width') { result.width = requireValue(args, ++i, 'width'); }
-    else if (a === '--height') { result.height = requireValue(args, ++i, 'height'); }
-    else if (a === '--margins') { margins = requireValue(args, ++i, 'margins'); }
-    else if (a === '--margin-top') { result.marginTop = requireValue(args, ++i, 'margin-top'); }
-    else if (a === '--margin-right') { result.marginRight = requireValue(args, ++i, 'margin-right'); }
-    else if (a === '--margin-bottom') { result.marginBottom = requireValue(args, ++i, 'margin-bottom'); }
-    else if (a === '--margin-left') { result.marginLeft = requireValue(args, ++i, 'margin-left'); }
-    else if (a === '--header-template') { result.headerTemplate = requireValue(args, ++i, 'header-template'); }
-    else if (a === '--footer-template') { result.footerTemplate = requireValue(args, ++i, 'footer-template'); }
-    else if (a === '--page-numbers') { result.pageNumbers = true; }
-    else if (a === '--tagged') { result.tagged = true; }
-    else if (a === '--outline') { result.outline = true; }
-    else if (a === '--print-background') { result.printBackground = true; }
-    else if (a === '--prefer-css-page-size') { result.preferCSSPageSize = true; }
-    else if (a === '--toc') { result.toc = true; }
-    else if (a.startsWith('--')) { throw new Error(`Unknown pdf flag: ${a}`); }
-    else { positional.push(a); }
+    if (a === '--format') {
+      result.format = requireValue(args, ++i, 'format');
+    } else if (a === '--page-size') {
+      result.format = requireValue(args, ++i, 'page-size');
+    } else if (a === '--width') {
+      result.width = requireValue(args, ++i, 'width');
+    } else if (a === '--height') {
+      result.height = requireValue(args, ++i, 'height');
+    } else if (a === '--margins') {
+      margins = requireValue(args, ++i, 'margins');
+    } else if (a === '--margin-top') {
+      result.marginTop = requireValue(args, ++i, 'margin-top');
+    } else if (a === '--margin-right') {
+      result.marginRight = requireValue(args, ++i, 'margin-right');
+    } else if (a === '--margin-bottom') {
+      result.marginBottom = requireValue(args, ++i, 'margin-bottom');
+    } else if (a === '--margin-left') {
+      result.marginLeft = requireValue(args, ++i, 'margin-left');
+    } else if (a === '--header-template') {
+      result.headerTemplate = requireValue(args, ++i, 'header-template');
+    } else if (a === '--footer-template') {
+      result.footerTemplate = requireValue(args, ++i, 'footer-template');
+    } else if (a === '--page-numbers') {
+      result.pageNumbers = true;
+    } else if (a === '--tagged') {
+      result.tagged = true;
+    } else if (a === '--outline') {
+      result.outline = true;
+    } else if (a === '--print-background') {
+      result.printBackground = true;
+    } else if (a === '--prefer-css-page-size') {
+      result.preferCSSPageSize = true;
+    } else if (a === '--toc') {
+      result.toc = true;
+    } else if (a.startsWith('--')) {
+      throw new Error(`Unknown pdf flag: ${a}`);
+    } else {
+      positional.push(a);
+    }
   }
 
   if (positional.length > 0) result.output = positional[0];
@@ -146,7 +176,7 @@ export function parsePdfFromFile(payloadPath: string): ParsedPdfArgs {
     validateReadPath(path.resolve(payloadPath));
   } catch {
     throw new Error(
-      `pdf: --from-file ${payloadPath} must be under ${SAFE_DIRECTORIES.join(' or ')} (security policy). Copy the payload into the project tree or /tmp first.`
+      `pdf: --from-file ${payloadPath} must be under ${SAFE_DIRECTORIES.join(' or ')} (security policy). Copy the payload into the project tree or /tmp first.`,
     );
   }
   const raw = fs.readFileSync(payloadPath, 'utf8');
@@ -158,7 +188,9 @@ export function parsePdfFromFile(payloadPath: string): ParsedPdfArgs {
     throw new Error(`pdf: --from-file ${payloadPath} is not valid JSON (${msg}).`);
   }
   if (json === null || typeof json !== 'object' || Array.isArray(json)) {
-    throw new Error(`pdf: --from-file ${payloadPath} must be a JSON object, got ${Array.isArray(json) ? 'array' : typeof json}.`);
+    throw new Error(
+      `pdf: --from-file ${payloadPath} must be a JSON object, got ${Array.isArray(json) ? 'array' : typeof json}.`,
+    );
   }
   const out: ParsedPdfArgs = {
     output: json.output || `${TEMP_DIR}/browse-page.pdf`,
@@ -211,8 +243,7 @@ function buildPdfOptions(parsed: ParsedPdfArgs): Record<string, unknown> {
   if (Object.keys(margin).length > 0) opts.margin = margin;
 
   // Header/footer
-  const displayHeaderFooter =
-    !!parsed.headerTemplate || !!parsed.footerTemplate || parsed.pageNumbers === true;
+  const displayHeaderFooter = !!parsed.headerTemplate || !!parsed.footerTemplate || parsed.pageNumbers === true;
   if (displayHeaderFooter) {
     opts.displayHeaderFooter = true;
     // Provide minimum empty templates when only one is set, otherwise Chromium
@@ -246,7 +277,10 @@ function buildPdfOptions(parsed: ParsedPdfArgs): Record<string, unknown> {
 export interface MetaCommandOpts {
   chainDepth?: number;
   /** Callback to route subcommands through the full security pipeline (handleCommandInternal) */
-  executeCommand?: (body: { command: string; args?: string[]; tabId?: number }, tokenInfo?: TokenInfo | null) => Promise<{ status: number; result: string; json?: boolean }>;
+  executeCommand?: (
+    body: { command: string; args?: string[]; tabId?: number },
+    tokenInfo?: TokenInfo | null,
+  ) => Promise<{ status: number; result: string; json?: boolean }>;
   /** The port the daemon is listening on (needed by `$B skill run` to point spawned scripts at the daemon). */
   daemonPort?: number;
 }
@@ -266,9 +300,7 @@ export async function handleMetaCommand(
     // ─── Tabs ──────────────────────────────────────────
     case 'tabs': {
       const tabs = await bm.getTabListWithTitles();
-      return tabs.map(t =>
-        `${t.active ? '→ ' : '  '}[${t.id}] ${t.title || '(untitled)'} — ${t.url}`
-      ).join('\n');
+      return tabs.map((t) => `${t.active ? '→ ' : '  '}[${t.id}] ${t.title || '(untitled)'} — ${t.url}`).join('\n');
     }
 
     case 'tab': {
@@ -284,8 +316,11 @@ export async function handleMetaCommand(
       let url: string | undefined;
       let jsonMode = false;
       for (const a of args) {
-        if (a === '--json') { jsonMode = true; }
-        else if (!url) { url = a; }
+        if (a === '--json') {
+          jsonMode = true;
+        } else if (!url) {
+          url = a;
+        }
       }
       const id = await bm.newTab(url);
       if (jsonMode) {
@@ -311,10 +346,7 @@ export async function handleMetaCommand(
       //   $B tab-each text             → grab clean text from every tab
       //   $B tab-each goto https://x.y → load the same URL in every tab
       if (args.length === 0) {
-        throw new Error(
-          'Usage: browse tab-each <command> [args...]\n' +
-          'Example: browse tab-each snapshot -i'
-        );
+        throw new Error('Usage: browse tab-each <command> [args...]\n' + 'Example: browse tab-each snapshot -i');
       }
 
       const innerRaw = args[0];
@@ -326,12 +358,12 @@ export async function handleMetaCommand(
       // mutating tabs.
       if (tokenInfo && tokenInfo.clientId !== 'root' && !checkScope(tokenInfo, innerName)) {
         throw new Error(
-          `tab-each rejected: subcommand "${innerRaw}" not allowed by your token scope (${tokenInfo.scopes.join(', ')}).`
+          `tab-each rejected: subcommand "${innerRaw}" not allowed by your token scope (${tokenInfo.scopes.join(', ')}).`,
         );
       }
 
       const tabs = await bm.getTabListWithTitles();
-      const originalActive = tabs.find(t => t.active)?.id ?? bm.getActiveTabId();
+      const originalActive = tabs.find((t) => t.active)?.id ?? bm.getActiveTabId();
 
       const executeCmd = opts?.executeCommand;
       const results: Array<{
@@ -363,14 +395,15 @@ export async function handleMetaCommand(
           let status = 0;
           let output = '';
           if (executeCmd) {
-            const r = await executeCmd(
-              { command: innerName, args: innerArgs, tabId: tab.id },
-              tokenInfo,
-            );
+            const r = await executeCmd({ command: innerName, args: innerArgs, tabId: tab.id }, tokenInfo);
             status = r.status;
             output = r.result;
             if (status !== 200) {
-              try { output = JSON.parse(output).error || output; } catch (err: any) { if (!(err instanceof SyntaxError)) throw err; }
+              try {
+                output = JSON.parse(output).error || output;
+              } catch (err: any) {
+                if (!(err instanceof SyntaxError)) throw err;
+              }
             }
           } else {
             // Fallback path (CLI / test harness without a server context).
@@ -391,15 +424,21 @@ export async function handleMetaCommand(
         }
       } finally {
         // Restore the original active tab so the user's view is unchanged.
-        try { bm.switchTab(originalActive, { bringToFront: false }); } catch {}
+        try {
+          bm.switchTab(originalActive, { bringToFront: false });
+        } catch {}
       }
 
-      return JSON.stringify({
-        command: innerName,
-        args: innerArgs,
-        total: results.length,
-        results,
-      }, null, 2);
+      return JSON.stringify(
+        {
+          command: innerName,
+          args: innerArgs,
+          total: results.length,
+          results,
+        },
+        null,
+        2,
+      );
     }
 
     // ─── Server Control ────────────────────────────────
@@ -407,13 +446,9 @@ export async function handleMetaCommand(
       const page = bm.getPage();
       const tabs = bm.getTabCount();
       const mode = bm.getConnectionMode();
-      return [
-        `Status: healthy`,
-        `Mode: ${mode}`,
-        `URL: ${page.url()}`,
-        `Tabs: ${tabs}`,
-        `PID: ${process.pid}`,
-      ].join('\n');
+      return [`Status: healthy`, `Mode: ${mode}`, `URL: ${page.url()}`, `Tabs: ${tabs}`, `PID: ${process.pid}`].join(
+        '\n',
+      );
     }
 
     case 'url': {
@@ -472,7 +507,13 @@ export async function handleMetaCommand(
         const isFilePath = arg.includes('/') && /\.(png|jpe?g|webp|pdf)$/i.test(arg);
         if (isFilePath) {
           outputPath = arg;
-        } else if (arg.startsWith('@e') || arg.startsWith('@c') || arg.startsWith('.') || arg.startsWith('#') || arg.includes('[')) {
+        } else if (
+          arg.startsWith('@e') ||
+          arg.startsWith('@c') ||
+          arg.startsWith('.') ||
+          arg.startsWith('#') ||
+          arg.includes('[')
+        ) {
           targetSelector = arg;
         } else {
           outputPath = arg;
@@ -551,9 +592,11 @@ export async function handleMetaCommand(
         while (Date.now() < deadline) {
           try {
             ready = await page.evaluate('!!window.__pagedjsAfterFired');
-          } catch { /* tab may still be hydrating */ }
+          } catch {
+            /* tab may still be hydrating */
+          }
           if (ready) break;
-          await new Promise(r => setTimeout(r, 150));
+          await new Promise((r) => setTimeout(r, 150));
         }
         // Intentionally non-fatal. Paged.js is optional in v1.
       }
@@ -598,10 +641,11 @@ export async function handleMetaCommand(
     case 'chain': {
       // Read JSON array from args[0] (if provided) or expect it was passed as body
       const jsonStr = args[0];
-      if (!jsonStr) throw new Error(
-        'Usage: echo \'[["goto","url"],["text"]]\' | browse chain\n' +
-        '   or: browse chain \'goto url | click @e5 | snapshot -ic\''
-      );
+      if (!jsonStr)
+        throw new Error(
+          'Usage: echo \'[["goto","url"],["text"]]\' | browse chain\n' +
+            "   or: browse chain 'goto url | click @e5 | snapshot -ic'",
+        );
 
       let rawCommands: string[][];
       try {
@@ -610,9 +654,10 @@ export async function handleMetaCommand(
       } catch (err: any) {
         // Fallback: pipe-delimited format "goto url | click @e5 | snapshot -ic"
         if (!(err instanceof SyntaxError) && err?.message !== 'not array') throw err;
-        rawCommands = jsonStr.split(' | ')
-          .filter(seg => seg.trim().length > 0)
-          .map(seg => tokenizePipeSegment(seg.trim()));
+        rawCommands = jsonStr
+          .split(' | ')
+          .filter((seg) => seg.trim().length > 0)
+          .map((seg) => tokenizePipeSegment(seg.trim()));
       }
 
       // Canonicalize aliases across the whole chain. Pair canonical name with the raw
@@ -620,7 +665,7 @@ export async function handleMetaCommand(
       // dispatch path (scope check, WRITE_COMMANDS.has, watch blocking, handler lookup)
       // uses the canonical name. Otherwise `chain '[["setcontent","/tmp/x.html"]]'`
       // bypasses prevalidation or runs under the wrong command set.
-      const commands = rawCommands.map(cmd => {
+      const commands = rawCommands.map((cmd) => {
         const [rawName, ...cmdArgs] = cmd;
         const name = canonicalizeCommand(rawName);
         return { rawName, name, args: cmdArgs };
@@ -633,7 +678,7 @@ export async function handleMetaCommand(
           if (!checkScope(tokenInfo, c.name)) {
             throw new Error(
               `Chain rejected: subcommand "${c.rawName}" not allowed by your token scope (${tokenInfo.scopes.join(', ')}). ` +
-              `All subcommands must be within scope.`
+                `All subcommands must be within scope.`,
             );
           }
         }
@@ -651,17 +696,18 @@ export async function handleMetaCommand(
         // Full security pipeline via handleCommandInternal.
         // Pass rawName so the server's own canonicalization is a no-op (already canonical).
         for (const c of commands) {
-          const cr = await executeCmd(
-            { command: c.name, args: c.args },
-            tokenInfo,
-          );
+          const cr = await executeCmd({ command: c.name, args: c.args }, tokenInfo);
           const label = c.rawName === c.name ? c.name : `${c.rawName}→${c.name}`;
           if (cr.status === 200) {
             results.push(`[${label}] ${cr.result}`);
           } else {
             // Parse error from JSON result
             let errMsg = cr.result;
-            try { errMsg = JSON.parse(cr.result).error || cr.result; } catch (err: any) { if (!(err instanceof SyntaxError)) throw err; }
+            try {
+              errMsg = JSON.parse(cr.result).error || cr.result;
+            } catch (err: any) {
+              if (!(err instanceof SyntaxError)) throw err;
+            }
             results.push(`[${label}] ERROR: ${errMsg}`);
           }
           lastWasWrite = WRITE_COMMANDS.has(c.name);
@@ -705,7 +751,10 @@ export async function handleMetaCommand(
 
       // Wait for network to settle after write commands before returning
       if (lastWasWrite) {
-        await bm.getPage().waitForLoadState('networkidle', { timeout: 2000 }).catch(() => {});
+        await bm
+          .getPage()
+          .waitForLoadState('networkidle', { timeout: 2000 })
+          .catch(() => {});
       }
 
       return results.join('\n\n');
@@ -730,7 +779,7 @@ export async function handleMetaCommand(
 
       for (const part of changes) {
         const prefix = part.added ? '+' : part.removed ? '-' : ' ';
-        const lines = part.value.split('\n').filter(l => l.length > 0);
+        const lines = part.value.split('\n').filter((l) => l.length > 0);
         for (const line of lines) {
           output.push(`${prefix} ${line}`);
         }
@@ -823,7 +872,13 @@ export async function handleMetaCommand(
             }
           } catch (err: any) {
             // Ref not found or element gone — still activated the browser
-            if (!err?.message?.includes('not found') && !err?.message?.includes('closed') && !err?.message?.includes('Target') && !err?.message?.includes('timeout')) throw err;
+            if (
+              !err?.message?.includes('not found') &&
+              !err?.message?.includes('closed') &&
+              !err?.message?.includes('Target') &&
+              !err?.message?.includes('timeout')
+            )
+              throw err;
           }
         }
 
@@ -839,9 +894,10 @@ export async function handleMetaCommand(
         if (!bm.isWatching()) return 'Not currently watching.';
         const result = bm.stopWatch();
         const durationSec = Math.round(result.duration / 1000);
-        const lastSnapshot = result.snapshots.length > 0
-          ? wrapUntrustedContent(result.snapshots[result.snapshots.length - 1], bm.getCurrentUrl())
-          : '(none)';
+        const lastSnapshot =
+          result.snapshots.length > 0
+            ? wrapUntrustedContent(result.snapshots[result.snapshots.length - 1], bm.getCurrentUrl())
+            : '(none)';
         return [
           `WATCH STOPPED (${durationSec}s, ${result.snapshots.length} snapshots)`,
           '',
@@ -864,7 +920,10 @@ export async function handleMetaCommand(
       const { execSync } = await import('child_process');
       let gitRoot: string;
       try {
-        gitRoot = execSync('git rev-parse --show-toplevel', { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+        gitRoot = execSync('git rev-parse --show-toplevel', {
+          encoding: 'utf-8',
+          stdio: ['pipe', 'pipe', 'pipe'],
+        }).trim();
       } catch (err: any) {
         // execSync throws with exit status on non-git directories
         if (err?.status === undefined && !err?.message?.includes('Command failed')) throw err;
@@ -874,8 +933,9 @@ export async function handleMetaCommand(
       const inboxDir = path.join(gitRoot, '.context', 'sidebar-inbox');
       if (!fs.existsSync(inboxDir)) return 'Inbox empty.';
 
-      const files = fs.readdirSync(inboxDir)
-        .filter(f => f.endsWith('.json') && !f.startsWith('.'))
+      const files = fs
+        .readdirSync(inboxDir)
+        .filter((f) => f.endsWith('.json') && !f.startsWith('.'))
         .sort()
         .reverse(); // newest first
 
@@ -914,7 +974,11 @@ export async function handleMetaCommand(
       // Handle --clear flag
       if (args.includes('--clear')) {
         for (const file of files) {
-          try { fs.unlinkSync(path.join(inboxDir, file)); } catch (err: any) { if (err?.code !== 'ENOENT') throw err; }
+          try {
+            fs.unlinkSync(path.join(inboxDir, file));
+          } catch (err: any) {
+            if (err?.code !== 'ENOENT') throw err;
+          }
         }
         lines.push(`Cleared ${files.length} message${files.length === 1 ? '' : 's'}.`);
       }
@@ -944,7 +1008,7 @@ export async function handleMetaCommand(
           version: 1,
           savedAt: new Date().toISOString(),
           cookies: state.cookies,
-          pages: state.pages.map(p => ({ url: p.url, isActive: p.isActive })),
+          pages: state.pages.map((p) => ({ url: p.url, isActive: p.isActive })),
         };
         writeSecureFile(statePath, JSON.stringify(saveData, null, 2));
         return `State saved: ${statePath} (${state.cookies.length} cookies, ${state.pages.length} pages)\n⚠️  Cookies stored in plaintext. Delete when no longer needed.`;
@@ -966,14 +1030,18 @@ export async function handleMetaCommand(
           return true;
         });
         if (validatedCookies.length < data.cookies.length) {
-          console.warn(`[browse] Filtered ${data.cookies.length - validatedCookies.length} invalid cookies from state file`);
+          console.warn(
+            `[browse] Filtered ${data.cookies.length - validatedCookies.length} invalid cookies from state file`,
+          );
         }
         // Warn on state files older than 7 days
         if (data.savedAt) {
           const ageMs = Date.now() - new Date(data.savedAt).getTime();
           const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
           if (ageMs > SEVEN_DAYS) {
-            console.warn(`[browse] Warning: State file is ${Math.round(ageMs / 86400000)} days old. Consider re-saving.`);
+            console.warn(
+              `[browse] Warning: State file is ${Math.round(ageMs / 86400000)} days old. Consider re-saving.`,
+            );
           }
         }
         // Close existing pages, then restore (replace, not merge)
@@ -1022,7 +1090,7 @@ export async function handleMetaCommand(
         const resolved = await bm.resolveRef(target);
         const locator = 'locator' in resolved ? resolved.locator : page.locator(resolved.selector);
         const elementHandle = await locator.elementHandle({ timeout: 5000 });
-        frame = await elementHandle?.contentFrame() ?? null;
+        frame = (await elementHandle?.contentFrame()) ?? null;
         await elementHandle?.dispose();
       }
 
@@ -1045,20 +1113,26 @@ export async function handleMetaCommand(
         const TEXT_BLOCK_CAP = 50;
 
         // Site ID: logo or brand element
-        const logoEl = document.querySelector('[class*="logo"], [id*="logo"], header img, [aria-label*="home"], a[href="/"]');
-        const siteId = logoEl ? {
-          found: true,
-          text: (logoEl.textContent || '').trim().slice(0, 100),
-          tag: logoEl.tagName,
-          alt: (logoEl as HTMLImageElement).alt || null,
-        } : { found: false, text: null, tag: null, alt: null };
+        const logoEl = document.querySelector(
+          '[class*="logo"], [id*="logo"], header img, [aria-label*="home"], a[href="/"]',
+        );
+        const siteId = logoEl
+          ? {
+              found: true,
+              text: (logoEl.textContent || '').trim().slice(0, 100),
+              tag: logoEl.tagName,
+              alt: (logoEl as HTMLImageElement).alt || null,
+            }
+          : { found: false, text: null, tag: null, alt: null };
 
         // Page name: main heading
         const h1 = document.querySelector('h1');
-        const pageName = h1 ? {
-          found: true,
-          text: h1.textContent?.trim().slice(0, 200) || '',
-        } : { found: false, text: null };
+        const pageName = h1
+          ? {
+              found: true,
+              text: h1.textContent?.trim().slice(0, 200) || '',
+            }
+          : { found: false, text: null };
 
         // Navigation: primary nav elements
         const navEls = document.querySelectorAll('nav, [role="navigation"]');
@@ -1074,50 +1148,74 @@ export async function handleMetaCommand(
 
         // "You are here" indicator: current/active nav items
         // Scoped to nav containers to avoid false positives from animation classes
-        const activeNavItems = document.querySelectorAll('nav [aria-current], nav .active, nav .current, [role="navigation"] [aria-current], [role="navigation"] .active, [role="navigation"] .current');
-        const youAreHere = Array.from(activeNavItems).slice(0, 5).map(el => ({
-          text: (el.textContent || '').trim().slice(0, 50),
-          tag: el.tagName,
-        }));
+        const activeNavItems = document.querySelectorAll(
+          'nav [aria-current], nav .active, nav .current, [role="navigation"] [aria-current], [role="navigation"] .active, [role="navigation"] .current',
+        );
+        const youAreHere = Array.from(activeNavItems)
+          .slice(0, 5)
+          .map((el) => ({
+            text: (el.textContent || '').trim().slice(0, 50),
+            tag: el.tagName,
+          }));
 
         // Search: search box presence
-        const searchEl = document.querySelector('input[type="search"], [role="search"], input[name*="search"], input[placeholder*="search" i], input[aria-label*="search" i]');
+        const searchEl = document.querySelector(
+          'input[type="search"], [role="search"], input[name*="search"], input[placeholder*="search" i], input[aria-label*="search" i]',
+        );
         const search = { found: !!searchEl };
 
         // Breadcrumbs
-        const breadcrumbEl = document.querySelector('[aria-label*="breadcrumb" i], .breadcrumb, .breadcrumbs, [class*="breadcrumb"]');
-        const breadcrumbs = breadcrumbEl ? {
-          found: true,
-          items: Array.from(breadcrumbEl.querySelectorAll('a, span, li')).slice(0, 10).map(el => (el.textContent || '').trim().slice(0, 30)),
-        } : { found: false, items: [] };
+        const breadcrumbEl = document.querySelector(
+          '[aria-label*="breadcrumb" i], .breadcrumb, .breadcrumbs, [class*="breadcrumb"]',
+        );
+        const breadcrumbs = breadcrumbEl
+          ? {
+              found: true,
+              items: Array.from(breadcrumbEl.querySelectorAll('a, span, li'))
+                .slice(0, 10)
+                .map((el) => (el.textContent || '').trim().slice(0, 30)),
+            }
+          : { found: false, items: [] };
 
         // Headings: heading hierarchy
-        const headings = Array.from(document.querySelectorAll('h1,h2,h3,h4,h5,h6')).slice(0, HEADING_CAP).map(h => ({
-          tag: h.tagName,
-          text: (h.textContent || '').trim().slice(0, 80),
-          size: getComputedStyle(h).fontSize,
-        }));
+        const headings = Array.from(document.querySelectorAll('h1,h2,h3,h4,h5,h6'))
+          .slice(0, HEADING_CAP)
+          .map((h) => ({
+            tag: h.tagName,
+            text: (h.textContent || '').trim().slice(0, 80),
+            size: getComputedStyle(h).fontSize,
+          }));
 
         // Interactive elements: buttons, links, inputs
-        const interactiveEls = Array.from(document.querySelectorAll('a, button, input, select, textarea, [role="button"], [tabindex]')).slice(0, INTERACTIVE_CAP);
-        const interactive = interactiveEls.map(el => {
-          const rect = el.getBoundingClientRect();
-          return {
-            tag: el.tagName,
-            text: (el.textContent || (el as HTMLInputElement).placeholder || '').trim().slice(0, 50),
-            type: (el as HTMLInputElement).type || null,
-            role: el.getAttribute('role'),
-            w: Math.round(rect.width),
-            h: Math.round(rect.height),
-            visible: rect.width > 0 && rect.height > 0,
-          };
-        }).filter(el => el.visible);
+        const interactiveEls = Array.from(
+          document.querySelectorAll('a, button, input, select, textarea, [role="button"], [tabindex]'),
+        ).slice(0, INTERACTIVE_CAP);
+        const interactive = interactiveEls
+          .map((el) => {
+            const rect = el.getBoundingClientRect();
+            return {
+              tag: el.tagName,
+              text: (el.textContent || (el as HTMLInputElement).placeholder || '').trim().slice(0, 50),
+              type: (el as HTMLInputElement).type || null,
+              role: el.getAttribute('role'),
+              w: Math.round(rect.width),
+              h: Math.round(rect.height),
+              visible: rect.width > 0 && rect.height > 0,
+            };
+          })
+          .filter((el) => el.visible);
 
         // Text blocks: paragraphs and large text areas
-        const textBlocks = Array.from(document.querySelectorAll('p, [class*="description"], [class*="intro"], [class*="welcome"], [class*="hero"] p, main p')).slice(0, TEXT_BLOCK_CAP).map(el => ({
-          text: (el.textContent || '').trim().slice(0, 200),
-          wordCount: (el.textContent || '').trim().split(/\s+/).filter(Boolean).length,
-        }));
+        const textBlocks = Array.from(
+          document.querySelectorAll(
+            'p, [class*="description"], [class*="intro"], [class*="welcome"], [class*="hero"] p, main p',
+          ),
+        )
+          .slice(0, TEXT_BLOCK_CAP)
+          .map((el) => ({
+            text: (el.textContent || '').trim().slice(0, 200),
+            wordCount: (el.textContent || '').trim().split(/\s+/).filter(Boolean).length,
+          }));
 
         // Total visible text word count (textContent avoids layout computation)
         const bodyText = (document.body?.textContent || '').trim();

@@ -10,8 +10,8 @@
 // an empty-deps useEffect (mount-once side effect), which doesn't trip the
 // use-effect-deps blocker.
 
-import React, { useCallback, useMemo } from "react";
-import { AbsoluteFill, delayRender, continueRender, useCurrentFrame, interpolate } from "remotion";
+import React, { useCallback, useMemo } from 'react';
+import { AbsoluteFill, delayRender, continueRender, useCurrentFrame, interpolate } from 'remotion';
 
 const handle = delayRender();
 // Resolve the handle once at module load — no per-frame side effects.
@@ -22,10 +22,7 @@ export const WarningsOnly: React.FC = () => {
 
   // useCallback / useMemo — decorative for render-perf in React, no equivalent
   // needed in the seek-driven HF model.
-  const opacity = useMemo(
-    () => interpolate(frame, [0, 30], [0, 1], { extrapolateRight: "clamp" }),
-    [frame],
-  );
+  const opacity = useMemo(() => interpolate(frame, [0, 30], [0, 1], { extrapolateRight: 'clamp' }), [frame]);
   const onMount = useCallback(() => {}, []);
 
   return (

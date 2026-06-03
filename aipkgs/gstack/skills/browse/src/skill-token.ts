@@ -76,8 +76,8 @@ export function mintSkillToken(opts: MintSkillTokenOptions): TokenInfo {
   return createToken({
     clientId,
     scopes: opts.scopes ?? DEFAULT_SKILL_SCOPES,
-    tabPolicy: 'shared',          // skill scripts may switch tabs as needed
-    rateLimit: 0,                  // skill scripts can run as fast as the daemon allows
+    tabPolicy: 'shared', // skill scripts may switch tabs as needed
+    rateLimit: 0, // skill scripts can run as fast as the daemon allows
     expiresSeconds: opts.spawnTimeoutSeconds + TOKEN_TTL_SLACK,
   });
 }

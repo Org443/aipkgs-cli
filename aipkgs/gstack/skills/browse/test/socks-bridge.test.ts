@@ -34,14 +34,19 @@ async function startMockUpstream(opts: MockUpstreamOpts = {}): Promise<MockUpstr
     sock.once('data', (greeting) => {
       // Greeting: VER NMETHODS METHODS...
       const ver = greeting[0];
-      if (ver !== 0x05) { sock.destroy(); return; }
+      if (ver !== 0x05) {
+        sock.destroy();
+        return;
+      }
       const methods = greeting.subarray(2, 2 + greeting[1]);
       const supportsUserPass = methods.includes(0x02);
       const supportsNoAuth = methods.includes(0x00);
 
       if (requireAuth) {
         if (!supportsUserPass) {
-          sock.write(Buffer.from([0x05, 0xFF])); sock.destroy(); return;
+          sock.write(Buffer.from([0x05, 0xff]));
+          sock.destroy();
+          return;
         }
         sock.write(Buffer.from([0x05, 0x02]));
         sock.once('data', (auth) => {
@@ -51,13 +56,19 @@ async function startMockUpstream(opts: MockUpstreamOpts = {}): Promise<MockUpstr
           const plen = auth[2 + ulen];
           const passwd = auth.subarray(3 + ulen, 3 + ulen + plen).toString();
           if (uname !== expectedUser || passwd !== expectedPass) {
-            sock.write(Buffer.from([0x01, 0x01])); sock.destroy(); return;
+            sock.write(Buffer.from([0x01, 0x01]));
+            sock.destroy();
+            return;
           }
           sock.write(Buffer.from([0x01, 0x00]));
           handleConnect(sock);
         });
       } else {
-        if (!supportsNoAuth) { sock.write(Buffer.from([0x05, 0xFF])); sock.destroy(); return; }
+        if (!supportsNoAuth) {
+          sock.write(Buffer.from([0x05, 0xff]));
+          sock.destroy();
+          return;
+        }
         sock.write(Buffer.from([0x05, 0x00]));
         handleConnect(sock);
       }
@@ -76,7 +87,8 @@ async function startMockUpstream(opts: MockUpstreamOpts = {}): Promise<MockUpstr
       }
       // Parse destination, then connect to it.
       const atyp = req[3];
-      let host: string; let port: number;
+      let host: string;
+      let port: number;
       if (atyp === 0x01) {
         host = `${req[4]}.${req[5]}.${req[6]}.${req[7]}`;
         port = req.readUInt16BE(8);
@@ -86,7 +98,8 @@ async function startMockUpstream(opts: MockUpstreamOpts = {}): Promise<MockUpstr
         port = req.readUInt16BE(5 + len);
       } else {
         sock.write(Buffer.from([0x05, 0x08, 0x00, 0x01, 0, 0, 0, 0, 0, 0]));
-        sock.destroy(); return;
+        sock.destroy();
+        return;
       }
 
       const dest = net.createConnection({ host, port }, () => {
@@ -109,7 +122,9 @@ async function startMockUpstream(opts: MockUpstreamOpts = {}): Promise<MockUpstr
         dest.on('close', () => sock.destroy());
       });
       dest.on('error', () => {
-        try { sock.write(Buffer.from([0x05, 0x04, 0x00, 0x01, 0, 0, 0, 0, 0, 0])); } catch {}
+        try {
+          sock.write(Buffer.from([0x05, 0x04, 0x00, 0x01, 0, 0, 0, 0, 0, 0]));
+        } catch {}
         sock.destroy();
       });
     });
@@ -126,7 +141,9 @@ async function startMockUpstream(opts: MockUpstreamOpts = {}): Promise<MockUpstr
     port: addr.port,
     close: () => new Promise((r) => server.close(() => r())),
     attempts: () => attempts,
-    reset: () => { attempts = 0; },
+    reset: () => {
+      attempts = 0;
+    },
   };
 }
 
@@ -137,7 +154,13 @@ async function startMockUpstream(opts: MockUpstreamOpts = {}): Promise<MockUpstr
  */
 async function startEcho(): Promise<{ host: string; port: number; close: () => Promise<void> }> {
   const server = net.createServer((sock) => {
-    sock.on('data', (chunk) => { try { sock.write(chunk); } catch { sock.destroy(); } });
+    sock.on('data', (chunk) => {
+      try {
+        sock.write(chunk);
+      } catch {
+        sock.destroy();
+      }
+    });
     sock.on('error', () => sock.destroy());
   });
   await new Promise<void>((resolve, reject) => {
@@ -158,11 +181,7 @@ async function startEcho(): Promise<{ host: string; port: number; close: () => P
  * Connect through a no-auth SOCKS5 listener (the bridge), CONNECT to a
  * destination, and return the wired-up socket.
  */
-function socks5NoAuthConnect(
-  bridgePort: number,
-  destHost: string,
-  destPort: number,
-): Promise<net.Socket> {
+function socks5NoAuthConnect(bridgePort: number, destHost: string, destPort: number): Promise<net.Socket> {
   return new Promise((resolve, reject) => {
     const sock = net.createConnection({ host: '127.0.0.1', port: bridgePort });
     sock.once('error', reject);
@@ -170,11 +189,16 @@ function socks5NoAuthConnect(
       sock.write(Buffer.from([0x05, 0x01, 0x00])); // VER, NMETHODS=1, NO AUTH
       sock.once('data', (greetReply) => {
         if (greetReply[0] !== 0x05 || greetReply[1] !== 0x00) {
-          reject(new Error('bridge rejected no-auth')); sock.destroy(); return;
+          reject(new Error('bridge rejected no-auth'));
+          sock.destroy();
+          return;
         }
         const hostBuf = Buffer.from(destHost);
         const req = Buffer.alloc(7 + hostBuf.length);
-        req[0] = 0x05; req[1] = 0x01; req[2] = 0x00; req[3] = 0x03;
+        req[0] = 0x05;
+        req[1] = 0x01;
+        req[2] = 0x00;
+        req[3] = 0x03;
         req[4] = hostBuf.length;
         hostBuf.copy(req, 5);
         req.writeUInt16BE(destPort, 5 + hostBuf.length);
@@ -182,7 +206,8 @@ function socks5NoAuthConnect(
         sock.once('data', (connectReply) => {
           if (connectReply[0] !== 0x05 || connectReply[1] !== 0x00) {
             reject(new Error(`bridge connect failed: rep=${connectReply[1]}`));
-            sock.destroy(); return;
+            sock.destroy();
+            return;
           }
           resolve(sock);
         });
@@ -260,7 +285,9 @@ describe('startSocksBridge', () => {
     // Mock upstream drops the dest connection after 4 bytes — simulates
     // mid-stream interruption.
     const upstream = await startMockUpstream({
-      expectedUser: 'u', expectedPass: 'p', dropAfterBytes: 4,
+      expectedUser: 'u',
+      expectedPass: 'p',
+      dropAfterBytes: 4,
     });
     const bridge = await startSocksBridge({
       upstream: { host: '127.0.0.1', port: upstream.port, userId: 'u', password: 'p' },
@@ -300,7 +327,10 @@ describe('startSocksBridge', () => {
       const greeting = Buffer.from([0x05, 0x01, 0x00]);
       const hostBuf = Buffer.from(echo.host);
       const connect = Buffer.alloc(7 + hostBuf.length);
-      connect[0] = 0x05; connect[1] = 0x01; connect[2] = 0x00; connect[3] = 0x03;
+      connect[0] = 0x05;
+      connect[1] = 0x01;
+      connect[2] = 0x00;
+      connect[3] = 0x03;
       connect[4] = hostBuf.length;
       hostBuf.copy(connect, 5);
       connect.writeUInt16BE(echo.port, 5 + hostBuf.length);
@@ -374,9 +404,17 @@ describe('startSocksBridge', () => {
     await new Promise<void>((resolve) => {
       const probe = net.createConnection({ host: '127.0.0.1', port: bridge.port });
       probe.on('error', () => resolve());
-      probe.on('connect', () => { probe.destroy(); resolve(); });
+      probe.on('connect', () => {
+        probe.destroy();
+        resolve();
+      });
       // Some platforms accept then immediately RST — either is acceptable.
-      setTimeout(() => { try { probe.destroy(); } catch {} resolve(); }, 200);
+      setTimeout(() => {
+        try {
+          probe.destroy();
+        } catch {}
+        resolve();
+      }, 200);
     });
     await upstream.close();
   });
@@ -408,14 +446,16 @@ describe('testUpstream', () => {
   test('exhausts retries and throws on bad creds', async () => {
     const upstream = await startMockUpstream({ expectedUser: 'realuser', expectedPass: 'realpass' });
     try {
-      await expect(testUpstream({
-        upstream: { host: '127.0.0.1', port: upstream.port, userId: 'wrong', password: 'wrong' },
-        testHost: '127.0.0.1',
-        testPort: 1, // unreachable port; whatever, auth fails first
-        budgetMs: 3000,
-        retries: 3,
-        backoffMs: 100,
-      })).rejects.toThrow(/SOCKS5 upstream rejected or unreachable after 3 attempts/);
+      await expect(
+        testUpstream({
+          upstream: { host: '127.0.0.1', port: upstream.port, userId: 'wrong', password: 'wrong' },
+          testHost: '127.0.0.1',
+          testPort: 1, // unreachable port; whatever, auth fails first
+          budgetMs: 3000,
+          retries: 3,
+          backoffMs: 100,
+        }),
+      ).rejects.toThrow(/SOCKS5 upstream rejected or unreachable after 3 attempts/);
     } finally {
       await upstream.close();
     }
@@ -425,7 +465,9 @@ describe('testUpstream', () => {
     // Mock upstream rejects connect attempt #1 and #2, accepts #3.
     const echo = await startEcho();
     const upstream = await startMockUpstream({
-      expectedUser: 'u', expectedPass: 'p', rejectNthConnect: 1,
+      expectedUser: 'u',
+      expectedPass: 'p',
+      rejectNthConnect: 1,
     });
     // Reset between attempts isn't possible with a single counter — instead
     // we use a different trick: rejectNthConnect=1 means only the first

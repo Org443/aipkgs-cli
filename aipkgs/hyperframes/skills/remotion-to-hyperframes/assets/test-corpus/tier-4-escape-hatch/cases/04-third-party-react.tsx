@@ -10,16 +10,16 @@
 // translation skill. Use the runtime interop pattern from PR #214 to keep
 // these components rendering through Remotion's React tree.
 
-import React from "react";
-import { Button } from "@mui/material";
-import { AbsoluteFill, useCurrentFrame, interpolate } from "remotion";
+import React from 'react';
+import { Button } from '@mui/material';
+import { AbsoluteFill, useCurrentFrame, interpolate } from 'remotion';
 
 export const MuiDriven: React.FC = () => {
   const frame = useCurrentFrame();
-  const opacity = interpolate(frame, [0, 30], [0, 1], { extrapolateRight: "clamp" });
+  const opacity = interpolate(frame, [0, 30], [0, 1], { extrapolateRight: 'clamp' });
 
   return (
-    <AbsoluteFill style={{ alignItems: "center", justifyContent: "center" }}>
+    <AbsoluteFill style={{ alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ opacity }}>
         <Button variant="contained" color="primary">
           Click me · frame {frame}

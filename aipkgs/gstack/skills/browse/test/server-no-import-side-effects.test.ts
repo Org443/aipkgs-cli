@@ -82,7 +82,11 @@ process.exit(0);
     await proc.exited;
 
     // The last JSON line in stdout is our snapshot.
-    const jsonLine = stdout.trim().split('\n').filter(l => l.startsWith('{')).pop();
+    const jsonLine = stdout
+      .trim()
+      .split('\n')
+      .filter((l) => l.startsWith('{'))
+      .pop();
     expect(jsonLine, `child stderr: ${stderr}`).toBeDefined();
 
     const snapshot = JSON.parse(jsonLine!);
@@ -101,6 +105,10 @@ process.exit(0);
     expect(snapshot.gstackPopulated).toBe(false);
 
     // Cleanup
-    try { fs.rmSync(tmpHome, { recursive: true, force: true }); } catch { /* best effort */ }
+    try {
+      fs.rmSync(tmpHome, { recursive: true, force: true });
+    } catch {
+      /* best effort */
+    }
   }, 30_000);
 });

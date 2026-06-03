@@ -12,7 +12,14 @@ import * as path from 'path';
 // or stops accepting the protocol frames.
 
 const AGENT_TS = path.resolve(new URL(import.meta.url).pathname, '..', '..', 'src', 'terminal-agent.ts');
-const CLIENT_JS = path.resolve(new URL(import.meta.url).pathname, '..', '..', '..', 'extension', 'sidepanel-terminal.js');
+const CLIENT_JS = path.resolve(
+  new URL(import.meta.url).pathname,
+  '..',
+  '..',
+  '..',
+  'extension',
+  'sidepanel-terminal.js',
+);
 
 describe('terminal-agent WS keepalive (v1.44+)', () => {
   test('1. agent has a KEEPALIVE_INTERVAL_MS env knob, default 25000', () => {

@@ -7,8 +7,8 @@
 // rendered tree, timers) don't translate to a seek-driven model. HF assumes
 // the page is fully rendered and pure between seeks.
 
-import React, { useEffect, useRef } from "react";
-import { AbsoluteFill, useCurrentFrame } from "remotion";
+import React, { useEffect, useRef } from 'react';
+import { AbsoluteFill, useCurrentFrame } from 'remotion';
 
 export const SideEffectDriven: React.FC = () => {
   const frame = useCurrentFrame();
@@ -17,7 +17,7 @@ export const SideEffectDriven: React.FC = () => {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
     ctx?.fillRect(frame, frame, 10, 10);
   }, [frame]);
 

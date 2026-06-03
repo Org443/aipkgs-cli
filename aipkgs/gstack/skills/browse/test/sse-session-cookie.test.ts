@@ -11,14 +11,16 @@ import { describe, test, expect, beforeEach } from 'bun:test';
 import * as fs from 'fs';
 import * as path from 'path';
 import {
-  mintSseSessionToken, validateSseSessionToken, extractSseCookie,
-  buildSseSetCookie, buildSseClearCookie, SSE_COOKIE_NAME,
+  mintSseSessionToken,
+  validateSseSessionToken,
+  extractSseCookie,
+  buildSseSetCookie,
+  buildSseClearCookie,
+  SSE_COOKIE_NAME,
   __resetSseSessions,
 } from '../src/sse-session-cookie';
 
-const MODULE_SRC = fs.readFileSync(
-  path.join(import.meta.dir, '../src/sse-session-cookie.ts'), 'utf-8'
-);
+const MODULE_SRC = fs.readFileSync(path.join(import.meta.dir, '../src/sse-session-cookie.ts'), 'utf-8');
 
 beforeEach(() => __resetSseSessions());
 

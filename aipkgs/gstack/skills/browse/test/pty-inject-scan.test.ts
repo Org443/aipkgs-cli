@@ -14,16 +14,11 @@ import { describe, test, expect } from 'bun:test';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
-const SERVER_SRC = readFileSync(
-  join(import.meta.dir, '..', 'src', 'server.ts'),
-  'utf-8',
-);
+const SERVER_SRC = readFileSync(join(import.meta.dir, '..', 'src', 'server.ts'), 'utf-8');
 
 describe('/pty-inject-scan — server.ts static invariants', () => {
   test('endpoint is defined as a POST handler', () => {
-    expect(SERVER_SRC).toContain(
-      "url.pathname === '/pty-inject-scan' && req.method === 'POST'",
-    );
+    expect(SERVER_SRC).toContain("url.pathname === '/pty-inject-scan' && req.method === 'POST'");
   });
 
   test('endpoint requires auth (validateAuth gate)', () => {
@@ -31,7 +26,7 @@ describe('/pty-inject-scan — server.ts static invariants', () => {
     // any work.
     const start = SERVER_SRC.indexOf("'/pty-inject-scan'");
     expect(start).toBeGreaterThan(-1);
-    const blockEnd = SERVER_SRC.indexOf("\n      // ─", start);
+    const blockEnd = SERVER_SRC.indexOf('\n      // ─', start);
     const block = SERVER_SRC.slice(start, blockEnd > start ? blockEnd : start + 5000);
     expect(block).toContain('validateAuth(req)');
     expect(block).toContain('401');

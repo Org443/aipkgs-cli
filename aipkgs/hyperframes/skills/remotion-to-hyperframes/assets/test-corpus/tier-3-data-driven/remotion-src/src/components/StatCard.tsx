@@ -1,5 +1,5 @@
-import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { AnimatedNumber } from "./AnimatedNumber";
+import { interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
+import { AnimatedNumber } from './AnimatedNumber';
 
 interface Props {
   label: string;
@@ -19,8 +19,8 @@ export const StatCard: React.FC<Props> = ({ label, value, color, delayInFrames }
     config: { damping: 14, stiffness: 90, mass: 1 },
   });
   const opacity = interpolate(local, [0, 12], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
   });
 
   return (
@@ -28,13 +28,13 @@ export const StatCard: React.FC<Props> = ({ label, value, color, delayInFrames }
       style={{
         width: 280,
         height: 220,
-        background: "#1a1a1a",
+        background: '#1a1a1a',
         borderRadius: 16,
         border: `2px solid ${color}`,
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
         opacity,
         transform: `scale(${scale})`,
       }}
@@ -46,10 +46,10 @@ export const StatCard: React.FC<Props> = ({ label, value, color, delayInFrames }
         style={{
           fontSize: 24,
           fontWeight: 500,
-          color: "#9ca3af",
+          color: '#9ca3af',
           marginTop: 16,
-          textTransform: "uppercase",
-          letterSpacing: "0.1em",
+          textTransform: 'uppercase',
+          letterSpacing: '0.1em',
         }}
       >
         {label}

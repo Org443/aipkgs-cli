@@ -13,9 +13,7 @@ export class SessionTokenStore {
   private tokens = new Map<string, SessionToken>();
   private mintsPerIdentity = new Map<string, number[]>(); // ts (ms) for rate limiting
 
-  constructor(
-    private now: () => number = () => Date.now(),
-  ) {}
+  constructor(private now: () => number = () => Date.now()) {}
 
   /**
    * Mint a session token. Returns null on rate limit.
@@ -49,7 +47,10 @@ export class SessionTokenStore {
    * Validate a token. Returns the session if valid (token exists, not
    * expired). Otherwise returns null with a reason for the audit log.
    */
-  validate(token: string | null | undefined, need: Capability):
+  validate(
+    token: string | null | undefined,
+    need: Capability,
+  ):
     | { ok: true; session: SessionToken }
     | { ok: false; reason: 'no_token' | 'invalid_token' | 'expired_token' | 'capability_insufficient' } {
     if (!token) return { ok: false, reason: 'no_token' };
@@ -114,7 +115,7 @@ export class SessionTokenStore {
     const window = 60_000;
     const limit = 10;
     const hits = this.mintsPerIdentity.get(identity) ?? [];
-    const recent = hits.filter(t => now - t < window);
+    const recent = hits.filter((t) => now - t < window);
     if (recent.length >= limit) {
       this.mintsPerIdentity.set(identity, recent);
       return false;

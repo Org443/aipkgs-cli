@@ -50,33 +50,36 @@ export async function probeTailscale(socketPath: string = '/var/run/tailscale.so
  */
 export async function whoIs(addr: string, socketPath: string = '/var/run/tailscale.sock'): Promise<WhoIsResult> {
   return new Promise((resolve, reject) => {
-    const req = httpRequest({
-      socketPath,
-      path: `/localapi/v0/whois?addr=${encodeURIComponent(addr)}`,
-      method: 'GET',
-      headers: { Host: 'local-tailscaled.sock' },
-    }, (res) => {
-      const chunks: Buffer[] = [];
-      res.on('data', (c) => chunks.push(c));
-      res.on('end', () => {
-        if (res.statusCode !== 200) {
-          reject(new Error(`whois http ${res.statusCode}`));
-          return;
-        }
-        try {
-          const raw = Buffer.concat(chunks).toString('utf-8');
-          const obj = JSON.parse(raw) as Record<string, unknown>;
-          const identity = canonicalize(obj);
-          if (!identity) {
-            reject(new Error('whois response unparseable'));
+    const req = httpRequest(
+      {
+        socketPath,
+        path: `/localapi/v0/whois?addr=${encodeURIComponent(addr)}`,
+        method: 'GET',
+        headers: { Host: 'local-tailscaled.sock' },
+      },
+      (res) => {
+        const chunks: Buffer[] = [];
+        res.on('data', (c) => chunks.push(c));
+        res.on('end', () => {
+          if (res.statusCode !== 200) {
+            reject(new Error(`whois http ${res.statusCode}`));
             return;
           }
-          resolve({ identity, raw: obj });
-        } catch (e) {
-          reject(new Error(`whois response unparseable: ${(e as Error).message}`));
-        }
-      });
-    });
+          try {
+            const raw = Buffer.concat(chunks).toString('utf-8');
+            const obj = JSON.parse(raw) as Record<string, unknown>;
+            const identity = canonicalize(obj);
+            if (!identity) {
+              reject(new Error('whois response unparseable'));
+              return;
+            }
+            resolve({ identity, raw: obj });
+          } catch (e) {
+            reject(new Error(`whois response unparseable: ${(e as Error).message}`));
+          }
+        });
+      },
+    );
     req.on('error', reject);
     req.end();
   });

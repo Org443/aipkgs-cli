@@ -44,7 +44,9 @@ describe('validateNavigationUrl', () => {
   });
 
   it('rejects unsupported file URL host (UNC/network paths)', async () => {
-    await expect(validateNavigationUrl('file://host.example.com/foo.html')).rejects.toThrow(/Unsupported file URL host/i);
+    await expect(validateNavigationUrl('file://host.example.com/foo.html')).rejects.toThrow(
+      /Unsupported file URL host/i,
+    );
   });
 
   it('blocks javascript: scheme', async () => {
@@ -60,15 +62,21 @@ describe('validateNavigationUrl', () => {
   });
 
   it('blocks GCP metadata hostname', async () => {
-    await expect(validateNavigationUrl('http://metadata.google.internal/computeMetadata/v1/')).rejects.toThrow(/cloud metadata/i);
+    await expect(validateNavigationUrl('http://metadata.google.internal/computeMetadata/v1/')).rejects.toThrow(
+      /cloud metadata/i,
+    );
   });
 
   it('blocks Azure metadata hostname', async () => {
-    await expect(validateNavigationUrl('http://metadata.azure.internal/metadata/instance')).rejects.toThrow(/cloud metadata/i);
+    await expect(validateNavigationUrl('http://metadata.azure.internal/metadata/instance')).rejects.toThrow(
+      /cloud metadata/i,
+    );
   });
 
   it('blocks metadata hostname with trailing dot', async () => {
-    await expect(validateNavigationUrl('http://metadata.google.internal./computeMetadata/v1/')).rejects.toThrow(/cloud metadata/i);
+    await expect(validateNavigationUrl('http://metadata.google.internal./computeMetadata/v1/')).rejects.toThrow(
+      /cloud metadata/i,
+    );
   });
 
   it('blocks metadata IP in hex form', async () => {
@@ -220,9 +228,9 @@ describe('validateNavigationUrl — file:// URL-encoding', () => {
   it('rejects path traversal via encoded slash (file:///tmp/safe%2F..%2Fetc/passwd)', async () => {
     // Node's fileURLToPath rejects encoded slashes outright with a clear error.
     // Either "encoded /" rejection OR "Path must be within" safe-dirs rejection is acceptable.
-    await expect(
-      validateNavigationUrl('file:///tmp/safe%2F..%2Fetc/passwd')
-    ).rejects.toThrow(/encoded \/|Path must be within/i);
+    await expect(validateNavigationUrl('file:///tmp/safe%2F..%2Fetc/passwd')).rejects.toThrow(
+      /encoded \/|Path must be within/i,
+    );
   });
 });
 
@@ -244,10 +252,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 
 describe('download + scrape SSRF gate', () => {
-  const WRITE_COMMANDS_SRC = readFileSync(
-    join(import.meta.dir, '..', 'src', 'write-commands.ts'),
-    'utf-8',
-  );
+  const WRITE_COMMANDS_SRC = readFileSync(join(import.meta.dir, '..', 'src', 'write-commands.ts'), 'utf-8');
 
   function callsitesOf(needle: string): number[] {
     const idxs: number[] = [];
@@ -287,9 +292,7 @@ describe('download + scrape SSRF gate', () => {
   });
 
   it('scrape command validates each URL before fetch in the loop', () => {
-    const block = WRITE_COMMANDS_SRC.slice(
-      WRITE_COMMANDS_SRC.indexOf("case 'scrape'"),
-    );
+    const block = WRITE_COMMANDS_SRC.slice(WRITE_COMMANDS_SRC.indexOf("case 'scrape'"));
     // find the first actual `await page.request.fetch(` call site in scrape
     // and the nearest preceding validateNavigationUrl
     const fIdx = block.indexOf('await page.request.fetch(');

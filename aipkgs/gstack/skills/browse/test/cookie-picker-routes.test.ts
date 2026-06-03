@@ -18,8 +18,12 @@ function mockBrowserManager() {
     bm: {
       getPage: () => ({
         context: () => ({
-          addCookies: (cookies: any[]) => { addedCookies.push(...cookies); },
-          clearCookies: (opts: { domain: string }) => { clearedDomains.push(opts.domain); },
+          addCookies: (cookies: any[]) => {
+            addedCookies.push(...cookies);
+          },
+          clearCookies: (opts: { domain: string }) => {
+            clearedDomains.push(opts.domain);
+          },
         }),
       }),
     } as any,
@@ -75,7 +79,7 @@ describe('cookie-picker-routes', () => {
       const url = makeUrl('/cookie-picker/browsers', 9450);
       const req = new Request('http://127.0.0.1:9450', {
         method: 'GET',
-        headers: { 'Authorization': 'Bearer test-token' },
+        headers: { Authorization: 'Bearer test-token' },
       });
 
       const res = await handleCookiePickerRoute(url, req, bm, 'test-token');
@@ -90,7 +94,7 @@ describe('cookie-picker-routes', () => {
       const url = makeUrl('/cookie-picker/browsers');
       const req = new Request('http://127.0.0.1:9470', {
         method: 'GET',
-        headers: { 'Authorization': 'Bearer test-token' },
+        headers: { Authorization: 'Bearer test-token' },
       });
 
       const res = await handleCookiePickerRoute(url, req, bm, 'test-token');
@@ -107,7 +111,7 @@ describe('cookie-picker-routes', () => {
       const url = makeUrl('/cookie-picker/domains');
       const req = new Request('http://127.0.0.1:9470', {
         method: 'GET',
-        headers: { 'Authorization': 'Bearer test-token' },
+        headers: { Authorization: 'Bearer test-token' },
       });
 
       const res = await handleCookiePickerRoute(url, req, bm, 'test-token');
@@ -127,7 +131,7 @@ describe('cookie-picker-routes', () => {
         body: 'not json',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer test-token',
+          Authorization: 'Bearer test-token',
         },
       });
 
@@ -142,7 +146,7 @@ describe('cookie-picker-routes', () => {
     test('POST /cookie-picker/import missing browser field returns JSON error', async () => {
       const { bm } = mockBrowserManager();
       const url = makeUrl('/cookie-picker/import');
-      const req = makeReq('POST', { domains: ['.example.com'] }, { 'Authorization': 'Bearer test-token' });
+      const req = makeReq('POST', { domains: ['.example.com'] }, { Authorization: 'Bearer test-token' });
 
       const res = await handleCookiePickerRoute(url, req, bm, 'test-token');
 
@@ -154,7 +158,7 @@ describe('cookie-picker-routes', () => {
     test('POST /cookie-picker/import missing domains returns JSON error', async () => {
       const { bm } = mockBrowserManager();
       const url = makeUrl('/cookie-picker/import');
-      const req = makeReq('POST', { browser: 'Chrome' }, { 'Authorization': 'Bearer test-token' });
+      const req = makeReq('POST', { browser: 'Chrome' }, { Authorization: 'Bearer test-token' });
 
       const res = await handleCookiePickerRoute(url, req, bm, 'test-token');
 
@@ -171,7 +175,7 @@ describe('cookie-picker-routes', () => {
         body: '{bad',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer test-token',
+          Authorization: 'Bearer test-token',
         },
       });
 
@@ -184,7 +188,7 @@ describe('cookie-picker-routes', () => {
     test('POST /cookie-picker/remove missing domains returns JSON error', async () => {
       const { bm } = mockBrowserManager();
       const url = makeUrl('/cookie-picker/remove');
-      const req = makeReq('POST', {}, { 'Authorization': 'Bearer test-token' });
+      const req = makeReq('POST', {}, { Authorization: 'Bearer test-token' });
 
       const res = await handleCookiePickerRoute(url, req, bm, 'test-token');
 
@@ -198,7 +202,7 @@ describe('cookie-picker-routes', () => {
       const url = makeUrl('/cookie-picker/imported');
       const req = new Request('http://127.0.0.1:9470', {
         method: 'GET',
-        headers: { 'Authorization': 'Bearer test-token' },
+        headers: { Authorization: 'Bearer test-token' },
       });
 
       const res = await handleCookiePickerRoute(url, req, bm, 'test-token');
@@ -218,7 +222,7 @@ describe('cookie-picker-routes', () => {
       const url = makeUrl('/cookie-picker/nonexistent');
       const req = new Request('http://127.0.0.1:9470', {
         method: 'GET',
-        headers: { 'Authorization': 'Bearer test-token' },
+        headers: { Authorization: 'Bearer test-token' },
       });
 
       const res = await handleCookiePickerRoute(url, req, bm, 'test-token');
@@ -321,7 +325,7 @@ describe('cookie-picker-routes', () => {
           makeUrl('/cookie-picker'),
           new Request('http://127.0.0.1:9470', {
             method: 'GET',
-            headers: { 'Cookie': `gstack_picker=${session}` },
+            headers: { Cookie: `gstack_picker=${session}` },
           }),
           bm,
           'test-token',
@@ -343,7 +347,7 @@ describe('cookie-picker-routes', () => {
       const url = makeUrl('/cookie-picker');
       const req = new Request('http://127.0.0.1:9470', {
         method: 'GET',
-        headers: { 'Cookie': `gstack_picker=${session}` },
+        headers: { Cookie: `gstack_picker=${session}` },
       });
 
       const res = await handleCookiePickerRoute(url, req, bm, 'test-token');
@@ -360,7 +364,7 @@ describe('cookie-picker-routes', () => {
       const url = makeUrl('/cookie-picker');
       const req = new Request('http://127.0.0.1:9470', {
         method: 'GET',
-        headers: { 'Cookie': `gstack_picker=${session}` },
+        headers: { Cookie: `gstack_picker=${session}` },
       });
 
       const res = await handleCookiePickerRoute(url, req, bm, authToken);
@@ -377,7 +381,7 @@ describe('cookie-picker-routes', () => {
       const url = makeUrl('/cookie-picker/browsers');
       const req = new Request('http://127.0.0.1:9470', {
         method: 'GET',
-        headers: { 'Cookie': `gstack_picker=${session}` },
+        headers: { Cookie: `gstack_picker=${session}` },
       });
 
       const res = await handleCookiePickerRoute(url, req, bm, 'test-token');
@@ -393,7 +397,7 @@ describe('cookie-picker-routes', () => {
       const url = makeUrl('/cookie-picker');
       const req = new Request('http://127.0.0.1:9470', {
         method: 'GET',
-        headers: { 'Cookie': 'gstack_picker=fake-session' },
+        headers: { Cookie: 'gstack_picker=fake-session' },
       });
 
       const res = await handleCookiePickerRoute(url, req, bm, 'test-token');
@@ -432,7 +436,7 @@ describe('cookie-picker-routes', () => {
       const url = makeUrl('/cookie-picker/browsers');
       const req = new Request('http://127.0.0.1:9470', {
         method: 'GET',
-        headers: { 'Authorization': 'Bearer test-secret-token' },
+        headers: { Authorization: 'Bearer test-secret-token' },
       });
 
       const res = await handleCookiePickerRoute(url, req, bm, 'test-secret-token');

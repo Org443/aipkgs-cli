@@ -33,7 +33,11 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch { /* best-effort */ }
+  try {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  } catch {
+    /* best-effort */
+  }
 });
 
 describe('restrictFilePermissions', () => {

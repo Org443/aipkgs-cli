@@ -32,7 +32,9 @@ beforeEach(() => {
 
 afterEach(() => {
   process.env.HOME = ORIG_HOME;
-  try { fs.rmSync(tmpHome, { recursive: true, force: true }); } catch {}
+  try {
+    fs.rmSync(tmpHome, { recursive: true, force: true });
+  } catch {}
 });
 
 describe('security decision file handshake', () => {

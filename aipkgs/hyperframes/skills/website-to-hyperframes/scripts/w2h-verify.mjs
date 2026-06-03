@@ -17,11 +17,11 @@
 //   1 = one or more gates failed
 //   2 = script error (project-dir missing, etc.)
 
-import { readFile, readdir } from "node:fs/promises";
-import { join, resolve } from "node:path";
-import { existsSync } from "node:fs";
+import { readFile, readdir } from 'node:fs/promises';
+import { join, resolve } from 'node:path';
+import { existsSync } from 'node:fs';
 
-const PROJECT_DIR = resolve(process.argv[2] || ".");
+const PROJECT_DIR = resolve(process.argv[2] || '.');
 
 // Thresholds — change here, not by interpretation.
 const HEADLINE_MIN_PX = 80; // 80px floor for primary headline at 1920×1080
@@ -30,21 +30,21 @@ const SFX_DRIFT_TOLERANCE_S = 0.1; // 3 frames at 30fps; matches step-5 evidence
 const BEAT_DURATION_DRIFT_TOLERANCE_S = 0.5;
 
 const SHADER_NAMES = [
-  "cross-warp-morph",
-  "cross-warp",
-  "cinematic-zoom",
-  "gravitational-lens",
-  "glitch",
-  "light-leak",
-  "flash-through-white",
-  "whip-pan",
-  "domain-warp",
-  "thermal-bloom",
-  "swirl",
-  "ridged-noise",
-  "sdf-reveal",
-  "chromatic-aberration",
-  "ripple",
+  'cross-warp-morph',
+  'cross-warp',
+  'cinematic-zoom',
+  'gravitational-lens',
+  'glitch',
+  'light-leak',
+  'flash-through-white',
+  'whip-pan',
+  'domain-warp',
+  'thermal-bloom',
+  'swirl',
+  'ridged-noise',
+  'sdf-reveal',
+  'chromatic-aberration',
+  'ripple',
 ];
 
 // ─── Main ────────────────────────────────────────────────────────────────────
@@ -67,22 +67,22 @@ async function main() {
 
   printReport(results);
 
-  const anyFail = results.some((r) => r.status === "FAIL");
+  const anyFail = results.some((r) => r.status === 'FAIL');
   process.exit(anyFail ? 1 : 0);
 }
 
 // ─── Checks ──────────────────────────────────────────────────────────────────
 
 async function checkRequiredArtifacts() {
-  const required = ["STORYBOARD.md", "DESIGN.md", "SCRIPT.md", "index.html"];
+  const required = ['STORYBOARD.md', 'DESIGN.md', 'SCRIPT.md', 'index.html'];
   const missing = required.filter((f) => !existsSync(join(PROJECT_DIR, f)));
   if (missing.length === 0) {
-    return { name: "Required artifacts", status: "PASS", detail: required.join(", ") };
+    return { name: 'Required artifacts', status: 'PASS', detail: required.join(', ') };
   }
   return {
-    name: "Required artifacts",
-    status: "FAIL",
-    detail: `missing: ${missing.join(", ")}`,
+    name: 'Required artifacts',
+    status: 'FAIL',
+    detail: `missing: ${missing.join(', ')}`,
   };
 }
 
@@ -91,7 +91,7 @@ async function checkRequiredArtifacts() {
 async function checkBrandVisualsUsed() {
   const compositions = await readBeatCompositions();
   if (compositions.length === 0) {
-    return { name: "Brand visuals used", status: "INFO", detail: "no beat compositions found" };
+    return { name: 'Brand visuals used', status: 'INFO', detail: 'no beat compositions found' };
   }
 
   // A "brand visual" is anything captured under capture/assets/ that ISN'T:
@@ -112,8 +112,8 @@ async function checkBrandVisualsUsed() {
   const pass = beatsUsingBrand.length >= 1;
   if (pass) {
     return {
-      name: "Brand visuals used",
-      status: "PASS",
+      name: 'Brand visuals used',
+      status: 'PASS',
       detail: `${beatsUsingBrand.length}/${compositions.length} beats reference a hero/image/svg captured asset`,
       extra:
         beatsUsingBrand.length === 1
@@ -122,8 +122,8 @@ async function checkBrandVisualsUsed() {
     };
   }
   return {
-    name: "Brand visuals used",
-    status: "FAIL",
+    name: 'Brand visuals used',
+    status: 'FAIL',
     detail: `0/${compositions.length} beats reference any hero-*/image-*/svgs/ captured asset (logo doesn't count)`,
     extra:
       "Open capture/assets/contact-sheet-*.jpg and capture/assets/svgs/contact-sheet-*.jpg. The brand's actual visuals are sitting there. Rebuilding them in CSS erases what makes the brand recognizable.",
@@ -135,7 +135,7 @@ async function checkBrandVisualsUsed() {
 async function checkPerBeatHeadlineSize() {
   const compositions = await readBeatCompositions();
   if (compositions.length === 0) {
-    return { name: "Headline font-size", status: "INFO", detail: "no beat compositions found" };
+    return { name: 'Headline font-size', status: 'INFO', detail: 'no beat compositions found' };
   }
 
   // Only flag beats where the LARGEST font-size is in the "aspiring headline
@@ -147,11 +147,9 @@ async function checkPerBeatHeadlineSize() {
   const offenders = [];
   const skipped = [];
   for (const beat of compositions) {
-    const sizes = [...beat.content.matchAll(/font-size:\s*(\d+(?:\.\d+)?)px/g)].map((m) =>
-      parseFloat(m[1]),
-    );
+    const sizes = [...beat.content.matchAll(/font-size:\s*(\d+(?:\.\d+)?)px/g)].map((m) => parseFloat(m[1]));
     if (sizes.length === 0) {
-      skipped.push({ beat: beat.name, reason: "no font-size declared" });
+      skipped.push({ beat: beat.name, reason: 'no font-size declared' });
       continue;
     }
     const max = Math.max(...sizes);
@@ -167,8 +165,8 @@ async function checkPerBeatHeadlineSize() {
   const pass = offenders.length === 0;
   const checked = compositions.length - skipped.length;
   return {
-    name: "Headline font-size",
-    status: pass ? "PASS" : "FAIL",
+    name: 'Headline font-size',
+    status: pass ? 'PASS' : 'FAIL',
     detail: pass
       ? `${checked}/${compositions.length} beats with a headline-sized text element, all ≥${HEADLINE_MIN_PX}px`
       : `${offenders.length} beat(s) with headline-sized text below ${HEADLINE_MIN_PX}px floor`,
@@ -178,10 +176,10 @@ async function checkPerBeatHeadlineSize() {
           ...offenders.map((o) => `${o.beat}: largest font-size is ${o.maxSize}px`),
           ...(skipped.length > 0
             ? [
-                `(skipped ${skipped.length} beat(s) with no headline-sized text: ${skipped.map((s) => s.beat).join(", ")})`,
+                `(skipped ${skipped.length} beat(s) with no headline-sized text: ${skipped.map((s) => s.beat).join(', ')})`,
               ]
             : []),
-        ].join("\n  "),
+        ].join('\n  '),
   };
 }
 
@@ -191,7 +189,7 @@ async function checkPerBeatTimelineCoverage() {
   const compositions = await readBeatCompositions();
   const beatDurations = await readBeatDurationsFromIndex();
   if (compositions.length === 0) {
-    return { name: "Timeline coverage", status: "INFO", detail: "no beat compositions found" };
+    return { name: 'Timeline coverage', status: 'INFO', detail: 'no beat compositions found' };
   }
 
   const offenders = [];
@@ -203,20 +201,20 @@ async function checkPerBeatTimelineCoverage() {
   // — it only oscillates one element, not the whole beat.
   const dynamicPatterns = [
     {
-      name: "forEach with tweens",
+      name: 'forEach with tweens',
       re: /\.forEach\s*\([^{]*\{[\s\S]{0,2000}?\btl\.(?:to|set|fromTo|from)\(/,
     },
     {
-      name: "for-loop with tweens",
+      name: 'for-loop with tweens',
       re: /\bfor\s*\([^)]*\)\s*\{[\s\S]{0,2000}?\btl\.(?:to|set|fromTo|from)\(/,
     },
   ];
 
   for (const beat of compositions) {
-    const beatId = beat.name.replace(/\.html$/, "");
+    const beatId = beat.name.replace(/\.html$/, '');
     const dur = beatDurations[beatId] ?? beatDurations[beat.name];
     if (!dur) {
-      skipped.push({ beat: beat.name, reason: "no data-duration in index.html" });
+      skipped.push({ beat: beat.name, reason: 'no data-duration in index.html' });
       continue;
     }
 
@@ -260,7 +258,7 @@ async function checkPerBeatTimelineCoverage() {
     // inside option objects don't false-match.
     const positions = extractTopLevelPositionArgs(beat.content);
     if (positions.length === 0) {
-      offenders.push({ beat: beat.name, reason: "no GSAP events with explicit position found" });
+      offenders.push({ beat: beat.name, reason: 'no GSAP events with explicit position found' });
       continue;
     }
 
@@ -277,8 +275,8 @@ async function checkPerBeatTimelineCoverage() {
   const pass = offenders.length === 0;
   const checked = compositions.length - skipped.length;
   return {
-    name: "Timeline coverage",
-    status: pass ? "PASS" : "FAIL",
+    name: 'Timeline coverage',
+    status: pass ? 'PASS' : 'FAIL',
     detail: pass
       ? `${checked}/${compositions.length} statically-measurable beats span ≥${Math.round(TIMELINE_COVERAGE_MIN * 100)}% of duration`
       : `${offenders.length} beat(s) below ${Math.round(TIMELINE_COVERAGE_MIN * 100)}% static coverage — likely "webpage not shot" failures`,
@@ -286,28 +284,28 @@ async function checkPerBeatTimelineCoverage() {
       [
         ...offenders.map((o) => `${o.beat}: ${o.reason}`),
         ...(skipped.length > 0 ? skipped.map((s) => `(skipped ${s.beat}: ${s.reason})`) : []),
-      ].join("\n  ") || null,
+      ].join('\n  ') || null,
   };
 }
 
 async function checkShaderTransitionsConsistency() {
-  const storyboardPath = join(PROJECT_DIR, "STORYBOARD.md");
-  const indexPath = join(PROJECT_DIR, "index.html");
+  const storyboardPath = join(PROJECT_DIR, 'STORYBOARD.md');
+  const indexPath = join(PROJECT_DIR, 'index.html');
   if (!existsSync(storyboardPath) || !existsSync(indexPath)) {
     return {
-      name: "Shader transitions",
-      status: "INFO",
-      detail: "STORYBOARD.md or index.html missing — cannot check",
+      name: 'Shader transitions',
+      status: 'INFO',
+      detail: 'STORYBOARD.md or index.html missing — cannot check',
     };
   }
 
-  const storyboard = await readFile(storyboardPath, "utf-8");
-  const index = await readFile(indexPath, "utf-8");
+  const storyboard = await readFile(storyboardPath, 'utf-8');
+  const index = await readFile(indexPath, 'utf-8');
 
   // For each shader name, count it as "declared" only if it appears in a
   // transition-use context — NOT in an inventory list (3+ names on one line)
   // and NOT exclusively as part of an SFX filename (sfx/glitch-1.mp3).
-  const sbLines = storyboard.split("\n");
+  const sbLines = storyboard.split('\n');
   // Longest-name matching to avoid substring double-counting.
   const sortedNames = [...SHADER_NAMES].sort((a, b) => b.length - a.length);
   const seen = new Set();
@@ -335,16 +333,16 @@ async function checkShaderTransitionsConsistency() {
   }
   if (declared.length === 0) {
     return {
-      name: "Shader transitions",
-      status: "PASS",
-      detail: "STORYBOARD declared none — no shader transitions expected",
+      name: 'Shader transitions',
+      status: 'PASS',
+      detail: 'STORYBOARD declared none — no shader transitions expected',
     };
   }
 
   // A shader is "present" only if HyperShader runtime is in index.html AND the
   // shader name appears in a line that is NOT an SFX reference.
   const hasHyperShader = /HyperShader\s*[(.]/.test(index);
-  const indexLines = index.split("\n");
+  const indexLines = index.split('\n');
   const present = !hasHyperShader
     ? []
     : declared.filter((name) =>
@@ -358,31 +356,31 @@ async function checkShaderTransitionsConsistency() {
   const pass = missing.length === 0;
 
   return {
-    name: "Shader transitions",
-    status: pass ? "PASS" : "FAIL",
+    name: 'Shader transitions',
+    status: pass ? 'PASS' : 'FAIL',
     detail: `STORYBOARD declared ${declared.length}, ${present.length} present in index.html, ${missing.length} missing`,
     extra: pass
       ? null
-      : `Missing from build: ${missing.join(", ")}. STORYBOARD.md and index.html disagree — either re-add the transitions or update STORYBOARD.md.`,
+      : `Missing from build: ${missing.join(', ')}. STORYBOARD.md and index.html disagree — either re-add the transitions or update STORYBOARD.md.`,
   };
 }
 
 async function checkSfxTimestampConsistency() {
-  const storyboardPath = join(PROJECT_DIR, "STORYBOARD.md");
-  const indexPath = join(PROJECT_DIR, "index.html");
+  const storyboardPath = join(PROJECT_DIR, 'STORYBOARD.md');
+  const indexPath = join(PROJECT_DIR, 'index.html');
   if (!existsSync(storyboardPath) || !existsSync(indexPath)) {
     return {
-      name: "SFX timestamps",
-      status: "INFO",
-      detail: "STORYBOARD.md or index.html missing",
+      name: 'SFX timestamps',
+      status: 'INFO',
+      detail: 'STORYBOARD.md or index.html missing',
     };
   }
 
-  const storyboard = await readFile(storyboardPath, "utf-8");
-  const index = await readFile(indexPath, "utf-8");
+  const storyboard = await readFile(storyboardPath, 'utf-8');
+  const index = await readFile(indexPath, 'utf-8');
 
   const sfxRefs = [];
-  for (const line of storyboard.split("\n")) {
+  for (const line of storyboard.split('\n')) {
     const fileMatch = line.match(/sfx\/([\w-]+\.mp3)/);
     // Require trailing `s` so we capture the time column, not the volume column.
     const timeMatch = line.match(/\|\s*(\d+(?:\.\d+)?)s\b/);
@@ -393,9 +391,9 @@ async function checkSfxTimestampConsistency() {
 
   if (sfxRefs.length === 0) {
     return {
-      name: "SFX timestamps",
-      status: "INFO",
-      detail: "No SFX entries detected in STORYBOARD.md",
+      name: 'SFX timestamps',
+      status: 'INFO',
+      detail: 'No SFX entries detected in STORYBOARD.md',
     };
   }
 
@@ -438,8 +436,8 @@ async function checkSfxTimestampConsistency() {
   const indexCount = [...indexSfx.values()].reduce((sum, arr) => sum + arr.length, 0);
   const pass = missing.length === 0 && drifts.length === 0;
   return {
-    name: "SFX timestamps",
-    status: pass ? "PASS" : "FAIL",
+    name: 'SFX timestamps',
+    status: pass ? 'PASS' : 'FAIL',
     detail: `${sfxRefs.length} SFX in STORYBOARD · ${indexCount} in index.html · ${missing.length} missing · ${drifts.length} drifted >${SFX_DRIFT_TOLERANCE_S}s`,
     extra: pass
       ? null
@@ -449,28 +447,28 @@ async function checkSfxTimestampConsistency() {
             (d) =>
               `DRIFT: ${d.file} storyboard=${d.storyboardT}s closest index=${d.indexT}s drift=${d.drift.toFixed(2)}s`,
           ),
-        ].join("\n  "),
+        ].join('\n  '),
   };
 }
 
 // Catches storyboard staleness on beat timings — agent shipped with different
 // beat durations than the storyboard documented, leaving the spec lying.
 async function checkBeatDurationConsistency() {
-  const storyboardPath = join(PROJECT_DIR, "STORYBOARD.md");
+  const storyboardPath = join(PROJECT_DIR, 'STORYBOARD.md');
   if (!existsSync(storyboardPath)) {
-    return { name: "Beat durations", status: "INFO", detail: "STORYBOARD.md missing" };
+    return { name: 'Beat durations', status: 'INFO', detail: 'STORYBOARD.md missing' };
   }
 
-  const storyboard = await readFile(storyboardPath, "utf-8");
+  const storyboard = await readFile(storyboardPath, 'utf-8');
   const indexDurations = await readBeatDurationsFromIndex();
   // Filter to only numbered beats (beat-1, beat-2, ...). Skip "main" / root
   // composition and any non-numbered placeholders.
   const buildBeatIds = Object.keys(indexDurations).filter((id) => /^beat-\d+/i.test(id));
   if (buildBeatIds.length === 0) {
     return {
-      name: "Beat durations",
-      status: "INFO",
-      detail: "no numbered beat data-duration in index.html",
+      name: 'Beat durations',
+      status: 'INFO',
+      detail: 'no numbered beat data-duration in index.html',
     };
   }
 
@@ -491,7 +489,7 @@ async function checkBeatDurationConsistency() {
     // doesn't false-match for B3.
     const rangeRe = new RegExp(
       `\\bB${num}(?![\\.\\d])[^\\n|]*\\|\\s*(\\d+(?:\\.\\d+)?)s?\\s*[–-]\\s*(\\d+(?:\\.\\d+)?)s`,
-      "i",
+      'i',
     );
     const rm = storyboard.match(rangeRe);
     if (rm) {
@@ -502,7 +500,7 @@ async function checkBeatDurationConsistency() {
       // of having a standalone row.
       const subRe = new RegExp(
         `\\bB${num}\\.\\d+\\b[^\\n|]*\\|\\s*(\\d+(?:\\.\\d+)?)s?\\s*[–-]\\s*(\\d+(?:\\.\\d+)?)s`,
-        "gi",
+        'gi',
       );
       let sum = 0;
       let count = 0;
@@ -522,7 +520,7 @@ async function checkBeatDurationConsistency() {
       // Allow optional leading `>` (blockquote) before the pipe.
       const tableRe = new RegExp(
         `^\\s*>?\\s*\\|\\s*${num}\\s*\\|\\s*(\\d+(?:\\.\\d+)?)s?\\s*\\|\\s*(\\d+(?:\\.\\d+)?)s`,
-        "im",
+        'im',
       );
       const tm = storyboard.match(tableRe);
       if (tm) {
@@ -551,18 +549,18 @@ async function checkBeatDurationConsistency() {
   const parseable = buildBeatIds.length - unparseable.length;
   if (drifts.length === 0) {
     return {
-      name: "Beat durations",
-      status: "PASS",
+      name: 'Beat durations',
+      status: 'PASS',
       detail: `${parseable}/${buildBeatIds.length} beats parseable, storyboard durations match within ±${BEAT_DURATION_DRIFT_TOLERANCE_S}s`,
       extra:
         unparseable.length > 0
-          ? `(skipped: ${unparseable.join(", ")} — could not find duration in STORYBOARD.md)`
+          ? `(skipped: ${unparseable.join(', ')} — could not find duration in STORYBOARD.md)`
           : null,
     };
   }
   return {
-    name: "Beat durations",
-    status: "FAIL",
+    name: 'Beat durations',
+    status: 'FAIL',
     detail: `${drifts.length} beat(s) drift between STORYBOARD.md and index.html > ${BEAT_DURATION_DRIFT_TOLERANCE_S}s`,
     extra: [
       ...drifts.map(
@@ -570,23 +568,23 @@ async function checkBeatDurationConsistency() {
           `${d.beat}: storyboard=${d.storyboardDuration.toFixed(2)}s build=${d.buildDuration}s drift=${d.drift.toFixed(2)}s`,
       ),
       ...(unparseable.length > 0
-        ? [`(skipped: ${unparseable.join(", ")} — could not find duration in STORYBOARD.md)`]
+        ? [`(skipped: ${unparseable.join(', ')} — could not find duration in STORYBOARD.md)`]
         : []),
-    ].join("\n  "),
+    ].join('\n  '),
   };
 }
 
 async function checkMp4Exists() {
-  const candidates = [PROJECT_DIR, join(PROJECT_DIR, "output"), join(PROJECT_DIR, "renders")];
+  const candidates = [PROJECT_DIR, join(PROJECT_DIR, 'output'), join(PROJECT_DIR, 'renders')];
   for (const dir of candidates) {
     if (!existsSync(dir)) continue;
     try {
       const files = await readdir(dir);
-      if (files.some((f) => f.endsWith(".mp4"))) {
+      if (files.some((f) => f.endsWith('.mp4'))) {
         return {
-          name: "Rendered MP4",
-          status: "PASS",
-          detail: `found .mp4 in ${dir.replace(PROJECT_DIR, ".")}`,
+          name: 'Rendered MP4',
+          status: 'PASS',
+          detail: `found .mp4 in ${dir.replace(PROJECT_DIR, '.')}`,
         };
       }
     } catch {
@@ -594,10 +592,10 @@ async function checkMp4Exists() {
     }
   }
   return {
-    name: "Rendered MP4",
-    status: "INFO",
+    name: 'Rendered MP4',
+    status: 'INFO',
     detail:
-      "no .mp4 found — preview-only delivery; if claiming verified motion, render is required (Path 2 of audio+motion verification)",
+      'no .mp4 found — preview-only delivery; if claiming verified motion, render is required (Path 2 of audio+motion verification)',
   };
 }
 
@@ -608,16 +606,16 @@ async function checkMp4Exists() {
 let _compositionsCache = null;
 async function readBeatCompositions() {
   if (_compositionsCache) return _compositionsCache;
-  const dir = join(PROJECT_DIR, "compositions");
+  const dir = join(PROJECT_DIR, 'compositions');
   if (!existsSync(dir)) {
     _compositionsCache = [];
     return _compositionsCache;
   }
   const files = await readdir(dir);
-  const beats = files.filter((f) => /^beat-/i.test(f) && f.endsWith(".html"));
+  const beats = files.filter((f) => /^beat-/i.test(f) && f.endsWith('.html'));
   const out = [];
   for (const f of beats) {
-    const content = await readFile(join(dir, f), "utf-8");
+    const content = await readFile(join(dir, f), 'utf-8');
     out.push({ name: f, content });
   }
   _compositionsCache = out;
@@ -640,7 +638,7 @@ function extractTopLevelPositionArgs(content) {
     while (i < content.length && depth > 0) {
       const c = content[i];
       if (inString) {
-        if (c === "\\") {
+        if (c === '\\') {
           i += 2;
           continue;
         }
@@ -648,17 +646,17 @@ function extractTopLevelPositionArgs(content) {
         i++;
         continue;
       }
-      if (c === '"' || c === "'" || c === "`") {
+      if (c === '"' || c === "'" || c === '`') {
         inString = true;
         stringChar = c;
         i++;
         continue;
       }
-      if (c === "(" || c === "{" || c === "[") depth++;
-      else if (c === ")" || c === "}" || c === "]") {
+      if (c === '(' || c === '{' || c === '[') depth++;
+      else if (c === ')' || c === '}' || c === ']') {
         depth--;
         if (depth === 0) break;
-      } else if (c === "," && depth === 1) lastTopLevelCommaIdx = i;
+      } else if (c === ',' && depth === 1) lastTopLevelCommaIdx = i;
       i++;
     }
     if (depth === 0 && lastTopLevelCommaIdx > 0) {
@@ -675,12 +673,12 @@ function extractTopLevelPositionArgs(content) {
 let _beatDurationsCache = null;
 async function readBeatDurationsFromIndex() {
   if (_beatDurationsCache) return _beatDurationsCache;
-  const indexPath = join(PROJECT_DIR, "index.html");
+  const indexPath = join(PROJECT_DIR, 'index.html');
   if (!existsSync(indexPath)) {
     _beatDurationsCache = {};
     return _beatDurationsCache;
   }
-  const content = await readFile(indexPath, "utf-8");
+  const content = await readFile(indexPath, 'utf-8');
   const map = {};
 
   // Pattern: <div data-composition-id="beat-N-name" ... data-duration="5.5" ...>
@@ -705,55 +703,45 @@ async function readBeatDurationsFromIndex() {
 
 function printReport(results) {
   const cols = { name: 26, status: 8, detail: 60 };
-  const line = "─".repeat(cols.name + cols.status + cols.detail + 6);
+  const line = '─'.repeat(cols.name + cols.status + cols.detail + 6);
 
-  console.log("");
+  console.log('');
   console.log(`w2h-verify · ${PROJECT_DIR}`);
   console.log(line);
-  console.log("Check".padEnd(cols.name) + " │ " + "Status".padEnd(cols.status) + " │ " + "Detail");
+  console.log('Check'.padEnd(cols.name) + ' │ ' + 'Status'.padEnd(cols.status) + ' │ ' + 'Detail');
   console.log(line);
 
   for (const r of results) {
-    const symbol = r.status === "PASS" ? "✓" : r.status === "FAIL" ? "✗" : "·";
+    const symbol = r.status === 'PASS' ? '✓' : r.status === 'FAIL' ? '✗' : '·';
     console.log(
-      r.name.padEnd(cols.name) +
-        " │ " +
-        `${symbol} ${r.status}`.padEnd(cols.status) +
-        " │ " +
-        (r.detail || ""),
+      r.name.padEnd(cols.name) + ' │ ' + `${symbol} ${r.status}`.padEnd(cols.status) + ' │ ' + (r.detail || ''),
     );
     if (r.extra) {
-      const indent = " ".repeat(cols.name + cols.status + 6 + 4);
+      const indent = ' '.repeat(cols.name + cols.status + 6 + 4);
       console.log(
-        "".padEnd(cols.name) +
-          " │ " +
-          "".padEnd(cols.status) +
-          " │   " +
-          r.extra.split("\n").join("\n" + indent),
+        ''.padEnd(cols.name) + ' │ ' + ''.padEnd(cols.status) + ' │   ' + r.extra.split('\n').join('\n' + indent),
       );
     }
   }
 
   console.log(line);
-  const pass = results.filter((r) => r.status === "PASS").length;
-  const fail = results.filter((r) => r.status === "FAIL").length;
-  const info = results.filter((r) => r.status === "INFO").length;
+  const pass = results.filter((r) => r.status === 'PASS').length;
+  const fail = results.filter((r) => r.status === 'FAIL').length;
+  const info = results.filter((r) => r.status === 'INFO').length;
   console.log(`SUMMARY: ${pass} PASS · ${fail} FAIL · ${info} INFO`);
 
   if (fail > 0) {
-    console.log("");
-    console.log("Step 6 NOT done. Fix FAIL items, OR include this report verbatim in your final");
-    console.log("summary's \"What I did NOT verify\" section so the user knows what's broken.");
+    console.log('');
+    console.log('Step 6 NOT done. Fix FAIL items, OR include this report verbatim in your final');
+    console.log('summary\'s "What I did NOT verify" section so the user knows what\'s broken.');
   } else {
-    console.log("");
-    console.log(
-      "All gates pass. Paste this report into your final user-facing summary as evidence.",
-    );
+    console.log('');
+    console.log('All gates pass. Paste this report into your final user-facing summary as evidence.');
   }
-  console.log("");
+  console.log('');
 }
 
 main().catch((e) => {
-  console.error("w2h-verify script error:", e);
+  console.error('w2h-verify script error:', e);
   process.exit(2);
 });

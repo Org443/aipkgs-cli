@@ -102,7 +102,9 @@ function isExcludedPath(filePath) {
 let inputBuf = '';
 const stdinTimeout = setTimeout(() => process.exit(0), 5000);
 process.stdin.setEncoding('utf8');
-process.stdin.on('data', chunk => { inputBuf += chunk; });
+process.stdin.on('data', (chunk) => {
+  inputBuf += chunk;
+});
 process.stdin.on('end', () => {
   clearTimeout(stdinTimeout);
   try {
@@ -129,7 +131,7 @@ process.stdin.on('end', () => {
     } else if (resp && typeof resp === 'object') {
       const c = resp.content;
       if (Array.isArray(c)) {
-        content = c.map(b => (typeof b === 'string' ? b : b.text || '')).join('\n');
+        content = c.map((b) => (typeof b === 'string' ? b : b.text || '')).join('\n');
       } else if (c != null) {
         content = String(c);
       }
@@ -144,7 +146,12 @@ process.stdin.on('end', () => {
     for (const pattern of ALL_PATTERNS) {
       if (pattern.test(content)) {
         // Trim pattern source for readable output
-        findings.push(pattern.source.replace(/\\s\+/g, '-').replace(/[()\\]/g, '').substring(0, 50));
+        findings.push(
+          pattern.source
+            .replace(/\\s\+/g, '-')
+            .replace(/[()\\]/g, '')
+            .substring(0, 50),
+        );
       }
     }
 
@@ -180,9 +187,10 @@ process.stdin.on('end', () => {
 
     const severity = findings.length >= 3 ? 'HIGH' : 'LOW';
     const fileName = path.basename(filePath);
-    const detail = severity === 'HIGH'
-      ? 'Multiple patterns — strong injection signal. Review the file for embedded instructions before proceeding.'
-      : 'Single pattern match may be a false positive (e.g., documentation). Proceed with awareness.';
+    const detail =
+      severity === 'HIGH'
+        ? 'Multiple patterns — strong injection signal. Review the file for embedded instructions before proceeding.'
+        : 'Single pattern match may be a false positive (e.g., documentation). Proceed with awareness.';
 
     const output = {
       hookSpecificOutput: {

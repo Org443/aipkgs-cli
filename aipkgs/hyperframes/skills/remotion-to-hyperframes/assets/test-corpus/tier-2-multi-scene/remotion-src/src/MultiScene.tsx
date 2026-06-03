@@ -8,7 +8,7 @@ import {
   staticFile,
   useCurrentFrame,
   useVideoConfig,
-} from "remotion";
+} from 'remotion';
 
 const TitleScene = () => {
   const frame = useCurrentFrame();
@@ -17,19 +17,19 @@ const TitleScene = () => {
   return (
     <AbsoluteFill
       style={{
-        backgroundColor: "#0a0a0a",
-        justifyContent: "center",
-        alignItems: "center",
-        fontFamily: "Helvetica, Arial, sans-serif",
+        backgroundColor: '#0a0a0a',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontFamily: 'Helvetica, Arial, sans-serif',
       }}
     >
       <div
         style={{
           fontSize: 140,
           fontWeight: 800,
-          color: "#ffffff",
+          color: '#ffffff',
           transform: `scale(${scale})`,
-          letterSpacing: "0.05em",
+          letterSpacing: '0.05em',
         }}
       >
         Welcome
@@ -40,18 +40,18 @@ const TitleScene = () => {
 
 const ImageScene = () => {
   const frame = useCurrentFrame();
-  const opacity = interpolate(frame, [0, 15], [0, 1], { extrapolateRight: "clamp" });
-  const scale = interpolate(frame, [0, 60], [0.8, 1.0], { extrapolateRight: "clamp" });
+  const opacity = interpolate(frame, [0, 15], [0, 1], { extrapolateRight: 'clamp' });
+  const scale = interpolate(frame, [0, 60], [0.8, 1.0], { extrapolateRight: 'clamp' });
   return (
     <AbsoluteFill
       style={{
-        backgroundColor: "#0a0a0a",
-        justifyContent: "center",
-        alignItems: "center",
+        backgroundColor: '#0a0a0a',
+        justifyContent: 'center',
+        alignItems: 'center',
       }}
     >
       <Img
-        src={staticFile("square.png")}
+        src={staticFile('square.png')}
         style={{
           width: 200,
           height: 200,
@@ -65,21 +65,21 @@ const ImageScene = () => {
 
 const OutroScene = () => {
   const frame = useCurrentFrame();
-  const opacity = interpolate(frame, [0, 30], [0, 1], { extrapolateRight: "clamp" });
+  const opacity = interpolate(frame, [0, 30], [0, 1], { extrapolateRight: 'clamp' });
   return (
     <AbsoluteFill
       style={{
-        backgroundColor: "#0a0a0a",
-        justifyContent: "center",
-        alignItems: "center",
-        fontFamily: "Helvetica, Arial, sans-serif",
+        backgroundColor: '#0a0a0a',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontFamily: 'Helvetica, Arial, sans-serif',
       }}
     >
       <div
         style={{
           fontSize: 100,
           fontWeight: 600,
-          color: "#ffffff",
+          color: '#ffffff',
           opacity,
         }}
       >
@@ -100,6 +100,6 @@ export const MultiScene = () => (
     <Sequence from={120} durationInFrames={60}>
       <OutroScene />
     </Sequence>
-    <Audio src={staticFile("music.wav")} volume={0.5} />
+    <Audio src={staticFile('music.wav')} volume={0.5} />
   </AbsoluteFill>
 );

@@ -30,11 +30,19 @@ function parseArgs(argv: string[]): ParsedArgs {
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     switch (a) {
-      case 'grant': command = 'grant'; break;
-      case 'revoke': command = 'revoke'; break;
-      case 'list': command = 'list'; break;
+      case 'grant':
+        command = 'grant';
+        break;
+      case 'revoke':
+        command = 'revoke';
+        break;
+      case 'list':
+        command = 'list';
+        break;
       case '--help':
-      case '-h': command = 'help'; break;
+      case '-h':
+        command = 'help';
+        break;
       case '--remote':
       case '--identity':
         identity = argv[++i] ?? null;
@@ -58,8 +66,12 @@ function parseArgs(argv: string[]): ParsedArgs {
         ttlSeconds = v;
         break;
       }
-      case '--note': note = argv[++i] ?? null; break;
-      case '--allowlist-path': path = argv[++i] ?? path; break;
+      case '--note':
+        note = argv[++i] ?? null;
+        break;
+      case '--allowlist-path':
+        path = argv[++i] ?? path;
+        break;
     }
   }
   return { command, identity, capability, ttlSeconds, note, path };
@@ -128,9 +140,12 @@ async function main(): Promise<void> {
       note: args.note ?? undefined,
       path: args.path,
     });
-    const entry = result.entries.find(e => e.identity === args.identity);
-    process.stdout.write(`granted ${args.identity} capability=${args.capability}` +
-      (entry?.expires_at ? ` expires=${entry.expires_at}` : '') + '\n');
+    const entry = result.entries.find((e) => e.identity === args.identity);
+    process.stdout.write(
+      `granted ${args.identity} capability=${args.capability}` +
+        (entry?.expires_at ? ` expires=${entry.expires_at}` : '') +
+        '\n',
+    );
     return;
   }
 

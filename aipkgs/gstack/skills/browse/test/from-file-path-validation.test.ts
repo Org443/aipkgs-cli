@@ -21,7 +21,7 @@ import { join } from 'path';
 
 const ROOT = join(import.meta.dir, '..', 'src');
 const WRITE_SRC = readFileSync(join(ROOT, 'write-commands.ts'), 'utf-8');
-const META_SRC  = readFileSync(join(ROOT, 'meta-commands.ts'), 'utf-8');
+const META_SRC = readFileSync(join(ROOT, 'meta-commands.ts'), 'utf-8');
 
 function stripComments(s: string): string {
   return s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|\s)\/\/[^\n]*/g, '$1');

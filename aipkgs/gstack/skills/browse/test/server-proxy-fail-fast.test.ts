@@ -23,13 +23,24 @@ async function startRejectingUpstream(): Promise<{ port: number; close: () => Pr
   // should retry 3x and exhaust within ~5s.
   const server = net.createServer((sock) => {
     sock.once('data', (greeting) => {
-      if (greeting[0] !== 0x05) { sock.destroy(); return; }
+      if (greeting[0] !== 0x05) {
+        sock.destroy();
+        return;
+      }
       const methods = greeting.subarray(2, 2 + greeting[1]);
-      if (!methods.includes(0x02)) { sock.write(Buffer.from([0x05, 0xFF])); sock.destroy(); return; }
+      if (!methods.includes(0x02)) {
+        sock.write(Buffer.from([0x05, 0xff]));
+        sock.destroy();
+        return;
+      }
       sock.write(Buffer.from([0x05, 0x02]));
       sock.once('data', () => {
         // Reject auth (0x01)
-        try { sock.write(Buffer.from([0x01, 0x01])); } catch { /* peer gone */ }
+        try {
+          sock.write(Buffer.from([0x01, 0x01]));
+        } catch {
+          /* peer gone */
+        }
         sock.destroy();
       });
     });
@@ -69,9 +80,10 @@ describe('server fail-fast on bad SOCKS5 upstream', () => {
         timeout: 30000,
         env,
       });
-      let stdout = ''; let stderr = '';
-      proc.stdout.on('data', (d) => stdout += d.toString());
-      proc.stderr.on('data', (d) => stderr += d.toString());
+      let stdout = '';
+      let stderr = '';
+      proc.stdout.on('data', (d) => (stdout += d.toString()));
+      proc.stderr.on('data', (d) => (stderr += d.toString()));
       proc.on('close', (code) => resolve({ code: code ?? 1, stdout, stderr, ms: Date.now() - start }));
     });
 
@@ -91,7 +103,11 @@ describe('server fail-fast on bad SOCKS5 upstream', () => {
       expect(result.ms).toBeLessThan(30000);
     } finally {
       await upstream.close();
-      try { fs.unlinkSync(stateFile); } catch { /* ignore */ }
+      try {
+        fs.unlinkSync(stateFile);
+      } catch {
+        /* ignore */
+      }
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }
   }, 60000);

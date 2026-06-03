@@ -190,9 +190,7 @@ export async function applyStealth(context: BrowserContext): Promise<void> {
  * script — it changes how Chromium identifies itself in the protocol
  * layer.
  */
-export const STEALTH_LAUNCH_ARGS = [
-  '--disable-blink-features=AutomationControlled',
-];
+export const STEALTH_LAUNCH_ARGS = ['--disable-blink-features=AutomationControlled'];
 
 /** Test-only helper: report whether extended mode is currently active. */
 export function isExtendedStealthEnabled(): boolean {

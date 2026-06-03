@@ -3,65 +3,65 @@
  * and print-css.ts. No Playwright, no PDF generation.
  */
 
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from 'bun:test';
 
-import { render, sanitizeUntrustedHtml } from "../src/render";
-import { smartypants } from "../src/smartypants";
-import { printCss } from "../src/print-css";
+import { render, sanitizeUntrustedHtml } from '../src/render';
+import { smartypants } from '../src/smartypants';
+import { printCss } from '../src/print-css';
 
 // ─── smartypants ──────────────────────────────────────────────
 
-describe("smartypants", () => {
-  test("converts straight double quotes to curly", () => {
+describe('smartypants', () => {
+  test('converts straight double quotes to curly', () => {
     const out = smartypants(`<p>She said "hello" to him.</p>`);
-    expect(out).toContain("\u201chello\u201d");
+    expect(out).toContain('\u201chello\u201d');
   });
 
-  test("converts em dash (--)", () => {
+  test('converts em dash (--)', () => {
     const out = smartypants(`<p>This is it -- the answer.</p>`);
-    expect(out).toContain("\u2014");
+    expect(out).toContain('\u2014');
   });
 
-  test("converts ellipsis (...)", () => {
+  test('converts ellipsis (...)', () => {
     const out = smartypants(`<p>Wait...</p>`);
-    expect(out).toContain("\u2026");
+    expect(out).toContain('\u2026');
   });
 
-  test("converts apostrophes in contractions", () => {
+  test('converts apostrophes in contractions', () => {
     const out = smartypants(`<p>don't you know?</p>`);
-    expect(out).toContain("don\u2019t");
+    expect(out).toContain('don\u2019t');
   });
 
-  test("does NOT touch content inside <code> blocks", () => {
+  test('does NOT touch content inside <code> blocks', () => {
     const input = `<pre><code>const x = "hello"; // it's fine</code></pre>`;
     const out = smartypants(input);
     expect(out).toBe(input); // unchanged
   });
 
-  test("does NOT touch content inside <pre> blocks", () => {
+  test('does NOT touch content inside <pre> blocks', () => {
     const input = `<pre>"quoted" -- don't</pre>`;
     const out = smartypants(input);
     expect(out).toBe(input);
   });
 
-  test("does NOT touch inline code", () => {
+  test('does NOT touch inline code', () => {
     const out = smartypants(`<p>Use <code>it's</code> like this: "hello".</p>`);
     expect(out).toContain("<code>it's</code>");
-    expect(out).toContain("\u201chello\u201d");
+    expect(out).toContain('\u201chello\u201d');
   });
 
-  test("does NOT touch URLs", () => {
+  test('does NOT touch URLs', () => {
     const out = smartypants(`<p>Visit https://example.com/it's-page for "details".</p>`);
     expect(out).toContain("https://example.com/it's-page");
-    expect(out).toContain("\u201cdetails\u201d");
+    expect(out).toContain('\u201cdetails\u201d');
   });
 
-  test("does NOT touch HTML attribute values", () => {
+  test('does NOT touch HTML attribute values', () => {
     const out = smartypants(`<a href="it's-a-test.html">link</a>`);
     expect(out).toContain(`href="it's-a-test.html"`);
   });
 
-  test("does NOT convert -- in CLI flags", () => {
+  test('does NOT convert -- in CLI flags', () => {
     // Prose like "try --verbose mode" should not turn -- into em dash
     const out = smartypants(`<p>Try --verbose mode.</p>`);
     // Since "--" is followed by a word char but not preceded by word/space,
@@ -72,50 +72,50 @@ describe("smartypants", () => {
 
 // ─── sanitizer ──────────────────────────────────────────────
 
-describe("sanitizeUntrustedHtml", () => {
-  test("strips <script> tags and content", () => {
+describe('sanitizeUntrustedHtml', () => {
+  test('strips <script> tags and content', () => {
     const input = `<p>hello</p><script>alert(1)</script><p>world</p>`;
     const out = sanitizeUntrustedHtml(input);
-    expect(out).not.toContain("<script");
-    expect(out).not.toContain("alert");
-    expect(out).toContain("<p>hello</p>");
-    expect(out).toContain("<p>world</p>");
+    expect(out).not.toContain('<script');
+    expect(out).not.toContain('alert');
+    expect(out).toContain('<p>hello</p>');
+    expect(out).toContain('<p>world</p>');
   });
 
-  test("strips <iframe>", () => {
+  test('strips <iframe>', () => {
     const input = `<p>hi</p><iframe src="evil.com"></iframe>`;
-    expect(sanitizeUntrustedHtml(input)).not.toContain("<iframe");
+    expect(sanitizeUntrustedHtml(input)).not.toContain('<iframe');
   });
 
-  test("strips onclick attribute", () => {
+  test('strips onclick attribute', () => {
     const input = `<a href="#" onclick="alert(1)">click</a>`;
     const out = sanitizeUntrustedHtml(input);
-    expect(out).not.toContain("onclick");
-    expect(out).toContain("href=\"#\"");
-  });
-
-  test("strips event handlers with mixed case (onClick, ONCLICK)", () => {
-    const input1 = `<a href="#" onClick="x()">a</a>`;
-    const input2 = `<a href="#" ONCLICK="x()">b</a>`;
-    expect(sanitizeUntrustedHtml(input1)).not.toContain("onClick");
-    expect(sanitizeUntrustedHtml(input2)).not.toContain("ONCLICK");
-  });
-
-  test("rewrites javascript: URLs in href to #", () => {
-    const input = `<a href="javascript:alert(1)">bad</a>`;
-    const out = sanitizeUntrustedHtml(input);
-    expect(out).not.toContain("javascript:");
+    expect(out).not.toContain('onclick');
     expect(out).toContain('href="#"');
   });
 
-  test("strips inline SVG <script>", () => {
-    const input = `<svg><script>alert(1)</script><circle r="5"/></svg>`;
-    const out = sanitizeUntrustedHtml(input);
-    expect(out).not.toContain("<script");
-    expect(out).toContain("<circle");
+  test('strips event handlers with mixed case (onClick, ONCLICK)', () => {
+    const input1 = `<a href="#" onClick="x()">a</a>`;
+    const input2 = `<a href="#" ONCLICK="x()">b</a>`;
+    expect(sanitizeUntrustedHtml(input1)).not.toContain('onClick');
+    expect(sanitizeUntrustedHtml(input2)).not.toContain('ONCLICK');
   });
 
-  test("strips <object>, <embed>, <link>, <meta>, <base>, <form>", () => {
+  test('rewrites javascript: URLs in href to #', () => {
+    const input = `<a href="javascript:alert(1)">bad</a>`;
+    const out = sanitizeUntrustedHtml(input);
+    expect(out).not.toContain('javascript:');
+    expect(out).toContain('href="#"');
+  });
+
+  test('strips inline SVG <script>', () => {
+    const input = `<svg><script>alert(1)</script><circle r="5"/></svg>`;
+    const out = sanitizeUntrustedHtml(input);
+    expect(out).not.toContain('<script');
+    expect(out).toContain('<circle');
+  });
+
+  test('strips <object>, <embed>, <link>, <meta>, <base>, <form>', () => {
     const input = `
       <object data="x.swf"></object>
       <embed src="y.mov">
@@ -125,79 +125,79 @@ describe("sanitizeUntrustedHtml", () => {
       <form action="evil"><input/></form>
     `;
     const out = sanitizeUntrustedHtml(input);
-    expect(out).not.toContain("<object");
-    expect(out).not.toContain("<embed");
-    expect(out).not.toContain("<link");
-    expect(out).not.toContain("<meta");
-    expect(out).not.toContain("<base");
-    expect(out).not.toContain("<form");
+    expect(out).not.toContain('<object');
+    expect(out).not.toContain('<embed');
+    expect(out).not.toContain('<link');
+    expect(out).not.toContain('<meta');
+    expect(out).not.toContain('<base');
+    expect(out).not.toContain('<form');
   });
 
-  test("strips srcdoc attribute (iframe escape vector)", () => {
+  test('strips srcdoc attribute (iframe escape vector)', () => {
     const input = `<div srcdoc="<script>bad</script>">hi</div>`;
-    expect(sanitizeUntrustedHtml(input)).not.toContain("srcdoc");
+    expect(sanitizeUntrustedHtml(input)).not.toContain('srcdoc');
   });
 });
 
 // ─── end-to-end render ──────────────────────────────────────────────
 
-describe("render (end-to-end)", () => {
-  test("produces a full HTML document with title, body, and CSS", () => {
+describe('render (end-to-end)', () => {
+  test('produces a full HTML document with title, body, and CSS', () => {
     const result = render({
       markdown: `# Hello\n\nA paragraph with "quotes" and -- dashes.\n`,
     });
-    expect(result.html).toContain("<!doctype html>");
-    expect(result.html).toContain("<title>Hello</title>");
-    expect(result.html).toContain("<h1");
-    expect(result.html).toContain("Hello");
+    expect(result.html).toContain('<!doctype html>');
+    expect(result.html).toContain('<title>Hello</title>');
+    expect(result.html).toContain('<h1');
+    expect(result.html).toContain('Hello');
     // CSS should be inlined as <style>...
     expect(result.html).toMatch(/<style>[\s\S]*font-family: Helvetica/);
     // Smartypants ran
-    expect(result.html).toContain("\u201cquotes\u201d");
-    expect(result.html).toContain("\u2014");
+    expect(result.html).toContain('\u201cquotes\u201d');
+    expect(result.html).toContain('\u2014');
   });
 
-  test("derives title from first H1 when --title is not passed", () => {
+  test('derives title from first H1 when --title is not passed', () => {
     const result = render({ markdown: `# My Title\n\nBody.` });
-    expect(result.meta.title).toBe("My Title");
+    expect(result.meta.title).toBe('My Title');
   });
 
-  test("uses --title override when provided", () => {
+  test('uses --title override when provided', () => {
     const result = render({
       markdown: `# Auto-derived\n\nBody.`,
-      title: "Explicit Title",
+      title: 'Explicit Title',
     });
-    expect(result.meta.title).toBe("Explicit Title");
+    expect(result.meta.title).toBe('Explicit Title');
   });
 
-  test("includes cover block when cover=true", () => {
+  test('includes cover block when cover=true', () => {
     const result = render({
       markdown: `# Doc\n\nBody.`,
       cover: true,
-      subtitle: "A subtitle",
-      author: "Garry Tan",
+      subtitle: 'A subtitle',
+      author: 'Garry Tan',
     });
     expect(result.html).toContain(`class="cover"`);
     expect(result.html).toContain(`class="cover-title"`);
-    expect(result.html).toContain("A subtitle");
-    expect(result.html).toContain("Garry Tan");
+    expect(result.html).toContain('A subtitle');
+    expect(result.html).toContain('Garry Tan');
   });
 
-  test("omits cover block when cover=false", () => {
+  test('omits cover block when cover=false', () => {
     const result = render({ markdown: `# Memo\n\nBody.` });
     expect(result.html).not.toContain(`class="cover"`);
   });
 
-  test("injects watermark element when --watermark is set", () => {
-    const result = render({ markdown: `# Doc`, watermark: "DRAFT" });
+  test('injects watermark element when --watermark is set', () => {
+    const result = render({ markdown: `# Doc`, watermark: 'DRAFT' });
     expect(result.html).toContain(`class="watermark"`);
-    expect(result.html).toContain("DRAFT");
+    expect(result.html).toContain('DRAFT');
     // And the CSS rule for it must be present
-    expect(result.html).toContain("position: fixed");
-    expect(result.html).toContain("rotate(-30deg)");
+    expect(result.html).toContain('position: fixed');
+    expect(result.html).toContain('rotate(-30deg)');
   });
 
-  test("wraps each H1 in its own .chapter section (default)", () => {
+  test('wraps each H1 in its own .chapter section (default)', () => {
     const result = render({
       markdown: `# One\n\nbody 1\n\n# Two\n\nbody 2\n`,
     });
@@ -206,7 +206,7 @@ describe("render (end-to-end)", () => {
     if (chapterMatches) expect(chapterMatches.length).toBe(2);
   });
 
-  test("does NOT create chapter sections when noChapterBreaks=true", () => {
+  test('does NOT create chapter sections when noChapterBreaks=true', () => {
     const result = render({
       markdown: `# One\n\nbody\n\n# Two\n\nbody\n`,
       noChapterBreaks: true,
@@ -215,119 +215,119 @@ describe("render (end-to-end)", () => {
     expect(chapterMatches.length).toBe(1);
   });
 
-  test("builds a TOC with H1/H2 entries when toc=true", () => {
+  test('builds a TOC with H1/H2 entries when toc=true', () => {
     const result = render({
       markdown: `# One\n\n## Sub\n\nbody\n\n# Two\n\nbody\n`,
       toc: true,
     });
     expect(result.html).toContain(`class="toc"`);
     expect(result.html).toContain(`<h2>Contents</h2>`);
-    expect(result.html).toContain("One");
-    expect(result.html).toContain("Sub");
-    expect(result.html).toContain("Two");
+    expect(result.html).toContain('One');
+    expect(result.html).toContain('Sub');
+    expect(result.html).toContain('Two');
   });
 
-  test("strips dangerous HTML from untrusted markdown", () => {
+  test('strips dangerous HTML from untrusted markdown', () => {
     const result = render({
       markdown: `# Safe\n\n<script>alert('xss')</script>\n\nBody.`,
     });
-    expect(result.html).not.toContain("<script");
-    expect(result.html).not.toContain("alert");
-    expect(result.html).toContain("Safe");
+    expect(result.html).not.toContain('<script');
+    expect(result.html).not.toContain('alert');
+    expect(result.html).toContain('Safe');
   });
 
-  test("respects text-align: left — no justify in print CSS", () => {
+  test('respects text-align: left — no justify in print CSS', () => {
     const result = render({ markdown: `para1\n\npara2\n` });
     // The rule from the design-review fix: no p + p indent, text-align: left.
-    expect(result.printCss).toContain("text-align: left");
-    expect(result.printCss).not.toContain("text-align: justify");
-    expect(result.printCss).not.toContain("text-indent");
+    expect(result.printCss).toContain('text-align: left');
+    expect(result.printCss).not.toContain('text-align: justify');
+    expect(result.printCss).not.toContain('text-indent');
   });
 
-  test("includes CJK font fallback in body", () => {
+  test('includes CJK font fallback in body', () => {
     const result = render({ markdown: `body` });
-    expect(result.printCss).toContain("Hiragino Kaku Gothic");
-    expect(result.printCss).toContain("Noto Sans CJK");
+    expect(result.printCss).toContain('Hiragino Kaku Gothic');
+    expect(result.printCss).toContain('Noto Sans CJK');
   });
 });
 
 // ─── print-css ──────────────────────────────────────────────
 
-describe("printCss", () => {
-  test("emits 1in margins by default", () => {
+describe('printCss', () => {
+  test('emits 1in margins by default', () => {
     const css = printCss();
-    expect(css).toContain("margin: 1in");
+    expect(css).toContain('margin: 1in');
   });
 
-  test("respects custom margins flag", () => {
-    const css = printCss({ margins: "72pt" });
-    expect(css).toContain("margin: 72pt");
+  test('respects custom margins flag', () => {
+    const css = printCss({ margins: '72pt' });
+    expect(css).toContain('margin: 72pt');
   });
 
-  test("emits letter page size by default", () => {
+  test('emits letter page size by default', () => {
     const css = printCss();
-    expect(css).toContain("size: letter");
+    expect(css).toContain('size: letter');
   });
 
-  test("respects custom page size", () => {
-    const css = printCss({ pageSize: "a4" });
-    expect(css).toContain("size: a4");
+  test('respects custom page size', () => {
+    const css = printCss({ pageSize: 'a4' });
+    expect(css).toContain('size: a4');
   });
 
-  test("suppresses running header and footer on cover page", () => {
+  test('suppresses running header and footer on cover page', () => {
     const css = printCss();
     expect(css).toMatch(/@page\s*:first\s*\{[\s\S]*?content:\s*none[\s\S]*?content:\s*none/);
   });
 
-  test("omits CONFIDENTIAL when confidential=false", () => {
+  test('omits CONFIDENTIAL when confidential=false', () => {
     const css = printCss({ confidential: false });
-    expect(css).not.toContain("CONFIDENTIAL");
+    expect(css).not.toContain('CONFIDENTIAL');
   });
 
-  test("emits watermark CSS only when watermark is set", () => {
-    const withWatermark = printCss({ watermark: "DRAFT" });
-    expect(withWatermark).toContain(".watermark");
-    expect(withWatermark).toContain("rotate(-30deg)");
+  test('emits watermark CSS only when watermark is set', () => {
+    const withWatermark = printCss({ watermark: 'DRAFT' });
+    expect(withWatermark).toContain('.watermark');
+    expect(withWatermark).toContain('rotate(-30deg)');
 
     const withoutWatermark = printCss();
-    expect(withoutWatermark).not.toContain(".watermark");
+    expect(withoutWatermark).not.toContain('.watermark');
   });
 
-  test("drops chapter break rule when noChapterBreaks=true", () => {
+  test('drops chapter break rule when noChapterBreaks=true', () => {
     const on = printCss({ noChapterBreaks: false });
-    expect(on).toContain("break-before: page");
+    expect(on).toContain('break-before: page');
 
     const off = printCss({ noChapterBreaks: true });
-    expect(off).not.toContain(".chapter { break-before: page");
+    expect(off).not.toContain('.chapter { break-before: page');
   });
 
-  test("always sets p { text-align: left }", () => {
+  test('always sets p { text-align: left }', () => {
     const css = printCss();
-    expect(css).toContain("text-align: left");
+    expect(css).toContain('text-align: left');
   });
 
-  test("never sets text-indent on p", () => {
+  test('never sets text-indent on p', () => {
     const css = printCss();
     // Confirm no p-indent slipped in
     expect(css).not.toMatch(/p\s*\+\s*p\s*\{[^}]*text-indent/);
   });
 
-  test("emits @bottom-center page-number rule by default", () => {
+  test('emits @bottom-center page-number rule by default', () => {
     const css = printCss();
     expect(css).toMatch(/@bottom-center\s*\{\s*content:\s*counter\(page\)/);
   });
 
-  test("suppresses @bottom-center page-number rule when pageNumbers=false", () => {
+  test('suppresses @bottom-center page-number rule when pageNumbers=false', () => {
     const css = printCss({ pageNumbers: false });
     expect(css).not.toMatch(/@bottom-center\s*\{\s*content:\s*counter\(page\)/);
   });
 
-  test("still emits @bottom-center when pageNumbers=true (explicit)", () => {
+  test('still emits @bottom-center when pageNumbers=true (explicit)', () => {
     const css = printCss({ pageNumbers: true });
     expect(css).toMatch(/@bottom-center\s*\{\s*content:\s*counter\(page\)/);
   });
 
-  test("font stacks include Liberation Sans adjacent to Helvetica", () => {
+  test('font stacks include Liberation Sans adjacent to Helvetica', () => {
     const css = printCss({ confidential: true });
     // Body stack
     expect(css).toMatch(/font-family:\s*Helvetica,\s*"Liberation Sans",\s*Arial/);
@@ -337,8 +337,8 @@ describe("printCss", () => {
     expect(marginBoxStacks.length).toBeGreaterThanOrEqual(1);
   });
 
-  test("all four original Helvetica stacks now include Liberation Sans", () => {
-    const css = printCss({ runningHeader: "Running Title", confidential: true });
+  test('all four original Helvetica stacks now include Liberation Sans', () => {
+    const css = printCss({ runningHeader: 'Running Title', confidential: true });
     // Count: body (1) + running header (1) + page numbers (1) + confidential (1) = 4
     const occurrences = (css.match(/"Liberation Sans"/g) ?? []).length;
     expect(occurrences).toBeGreaterThanOrEqual(4);
@@ -347,18 +347,18 @@ describe("printCss", () => {
 
 // ─── render() — pageNumbers / footerTemplate data flow ───────────────
 
-describe("render() — pageNumbers data flow", () => {
-  test("CSS footer renders by default", () => {
+describe('render() — pageNumbers data flow', () => {
+  test('CSS footer renders by default', () => {
     const result = render({ markdown: `# Doc\n\nBody.` });
     expect(result.printCss).toMatch(/@bottom-center\s*\{\s*content:\s*counter\(page\)/);
   });
 
-  test("--no-page-numbers reaches the CSS layer", () => {
+  test('--no-page-numbers reaches the CSS layer', () => {
     const result = render({ markdown: `# Doc\n\nBody.`, pageNumbers: false });
     expect(result.printCss).not.toMatch(/@bottom-center\s*\{\s*content:\s*counter\(page\)/);
   });
 
-  test("footerTemplate suppresses CSS page numbers (custom footer wins)", () => {
+  test('footerTemplate suppresses CSS page numbers (custom footer wins)', () => {
     const result = render({
       markdown: `# Doc\n\nBody.`,
       footerTemplate: `<div class="foo">custom</div>`,
@@ -366,7 +366,7 @@ describe("render() — pageNumbers data flow", () => {
     expect(result.printCss).not.toMatch(/@bottom-center\s*\{\s*content:\s*counter\(page\)/);
   });
 
-  test("pageNumbers=true + no footerTemplate keeps CSS footer", () => {
+  test('pageNumbers=true + no footerTemplate keeps CSS footer', () => {
     const result = render({ markdown: `# Doc`, pageNumbers: true });
     expect(result.printCss).toMatch(/@bottom-center\s*\{\s*content:\s*counter\(page\)/);
   });
@@ -374,18 +374,18 @@ describe("render() — pageNumbers data flow", () => {
 
 // ─── render() — HTML entity handling in titles, cover, TOC ───────────
 
-describe("render() — no double HTML entity escaping", () => {
+describe('render() — no double HTML entity escaping', () => {
   type Case = { char: string; inTitle: string; expectedTitleMeta: string };
 
   // Only characters that should flow through unchanged. `"` and `'` are
   // omitted from this set because smartypants converts them to curly quotes
   // before heading extraction — asserted separately below.
   const cases: Case[] = [
-    { char: "&", inTitle: "A & B", expectedTitleMeta: "A & B" },
-    { char: "<", inTitle: "A < B", expectedTitleMeta: "A < B" },
-    { char: ">", inTitle: "A > B", expectedTitleMeta: "A > B" },
-    { char: "©", inTitle: "A © B", expectedTitleMeta: "A © B" },
-    { char: "—", inTitle: "A — B", expectedTitleMeta: "A — B" },
+    { char: '&', inTitle: 'A & B', expectedTitleMeta: 'A & B' },
+    { char: '<', inTitle: 'A < B', expectedTitleMeta: 'A < B' },
+    { char: '>', inTitle: 'A > B', expectedTitleMeta: 'A > B' },
+    { char: '©', inTitle: 'A © B', expectedTitleMeta: 'A © B' },
+    { char: '—', inTitle: 'A — B', expectedTitleMeta: 'A — B' },
   ];
 
   for (const { char, inTitle, expectedTitleMeta } of cases) {
@@ -393,7 +393,7 @@ describe("render() — no double HTML entity escaping", () => {
       const result = render({
         markdown: `# ${inTitle}\n\nBody.`,
         cover: true,
-        author: "A",
+        author: 'A',
       });
       // Meta: decoded plain text.
       expect(result.meta.title).toBe(expectedTitleMeta);
@@ -410,8 +410,8 @@ describe("render() — no double HTML entity escaping", () => {
 
   test('ampersand in <title> renders as exactly one "&amp;"', () => {
     const result = render({ markdown: `# Faber & Faber\n\nBody.` });
-    expect(result.html).toContain("<title>Faber &amp; Faber</title>");
-    expect(result.html).not.toContain("&amp;amp;");
+    expect(result.html).toContain('<title>Faber &amp; Faber</title>');
+    expect(result.html).not.toContain('&amp;amp;');
   });
 
   test("TOC entries have no double-escape when a heading contains '&'", () => {
@@ -420,24 +420,24 @@ describe("render() — no double HTML entity escaping", () => {
       toc: true,
     });
     // TOC renders the heading text through escapeHtml; must be single-escaped.
-    expect(result.html).toContain("Faber &amp; Faber");
-    expect(result.html).not.toContain("&amp;amp;");
+    expect(result.html).toContain('Faber &amp; Faber');
+    expect(result.html).not.toContain('&amp;amp;');
   });
 
   test('numeric entity in H1 (e.g. "&#169;") decodes cleanly to <title>', () => {
     // Marked passes through numeric entities verbatim in the HTML output,
     // so the decoder must handle them.
     const result = render({ markdown: `# A &#169; B\n\nBody.` });
-    expect(result.meta.title).toBe("A © B");
-    expect(result.html).toContain("<title>A © B</title>");
+    expect(result.meta.title).toBe('A © B');
+    expect(result.html).toContain('<title>A © B</title>');
   });
 
-  test("smartypants converts raw quotes in title BEFORE extraction (contract)", () => {
+  test('smartypants converts raw quotes in title BEFORE extraction (contract)', () => {
     // We do NOT assert raw `"` survives — smartypants is expected to convert it.
     // The contract is: no double-escape of the encoded form.
     const result = render({ markdown: `# Say "hi"\n\nBody.` });
-    expect(result.html).not.toContain("&amp;quot;");
-    expect(result.html).not.toContain("&amp;#39;");
+    expect(result.html).not.toContain('&amp;quot;');
+    expect(result.html).not.toContain('&amp;#39;');
     // And <title> contains exactly one level of escaping.
     const titleMatch = result.html.match(/<title>([^<]*)<\/title>/);
     expect(titleMatch).toBeTruthy();

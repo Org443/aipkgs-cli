@@ -35,8 +35,9 @@ interface InboxMessage {
 function readInbox(inboxDir: string): InboxMessage[] {
   if (!fs.existsSync(inboxDir)) return [];
 
-  const files = fs.readdirSync(inboxDir)
-    .filter(f => f.endsWith('.json') && !f.startsWith('.'))
+  const files = fs
+    .readdirSync(inboxDir)
+    .filter((f) => f.endsWith('.json') && !f.startsWith('.'))
     .sort()
     .reverse();
 
@@ -79,30 +80,33 @@ function formatInbox(messages: InboxMessage[]): string {
 
 /** Replicate the --clear logic from meta-commands.ts */
 function clearInbox(inboxDir: string): number {
-  const files = fs.readdirSync(inboxDir)
-    .filter(f => f.endsWith('.json') && !f.startsWith('.'));
+  const files = fs.readdirSync(inboxDir).filter((f) => f.endsWith('.json') && !f.startsWith('.'));
   for (const file of files) {
-    try { fs.unlinkSync(path.join(inboxDir, file)); } catch {}
+    try {
+      fs.unlinkSync(path.join(inboxDir, file));
+    } catch {}
   }
   return files.length;
 }
 
-function writeTestInboxFile(
-  inboxDir: string,
-  message: string,
-  pageUrl: string,
-  timestamp: string,
-): string {
+function writeTestInboxFile(inboxDir: string, message: string, pageUrl: string, timestamp: string): string {
   fs.mkdirSync(inboxDir, { recursive: true });
   const filename = `${timestamp.replace(/:/g, '-')}-observation.json`;
   const filePath = path.join(inboxDir, filename);
-  fs.writeFileSync(filePath, JSON.stringify({
-    type: 'observation',
-    timestamp,
-    page: { url: pageUrl, title: '' },
-    userMessage: message,
-    sidebarSessionId: 'test-session',
-  }, null, 2));
+  fs.writeFileSync(
+    filePath,
+    JSON.stringify(
+      {
+        type: 'observation',
+        timestamp,
+        page: { url: pageUrl, title: '' },
+        userMessage: message,
+        sidebarSessionId: 'test-session',
+      },
+      null,
+      2,
+    ),
+  );
   return filePath;
 }
 
@@ -195,10 +199,7 @@ describe('inbox — malformed files', () => {
     writeTestInboxFile(inboxDir, 'valid message', 'https://example.com', '2024-06-15T10:30:00.000Z');
 
     // Write a malformed JSON file
-    fs.writeFileSync(
-      path.join(inboxDir, '2024-06-15T10-35-00.000Z-observation.json'),
-      'this is not valid json {{{',
-    );
+    fs.writeFileSync(path.join(inboxDir, '2024-06-15T10-35-00.000Z-observation.json'), 'this is not valid json {{{');
 
     const messages = readInbox(inboxDir);
     expect(messages.length).toBe(1);
@@ -232,7 +233,7 @@ describe('inbox — --clear flag', () => {
     writeTestInboxFile(inboxDir, 'message 2', 'https://example.com', '2024-06-15T10:31:00.000Z');
 
     // Verify files exist
-    const filesBefore = fs.readdirSync(inboxDir).filter(f => f.endsWith('.json') && !f.startsWith('.'));
+    const filesBefore = fs.readdirSync(inboxDir).filter((f) => f.endsWith('.json') && !f.startsWith('.'));
     expect(filesBefore.length).toBe(2);
 
     // Clear
@@ -240,7 +241,7 @@ describe('inbox — --clear flag', () => {
     expect(cleared).toBe(2);
 
     // Verify files deleted
-    const filesAfter = fs.readdirSync(inboxDir).filter(f => f.endsWith('.json') && !f.startsWith('.'));
+    const filesAfter = fs.readdirSync(inboxDir).filter((f) => f.endsWith('.json') && !f.startsWith('.'));
     expect(filesAfter.length).toBe(0);
   });
 
@@ -265,7 +266,7 @@ describe('inbox — --clear flag', () => {
     // Dotfile should remain
     expect(fs.existsSync(path.join(inboxDir, '.keep'))).toBe(true);
     // Regular file should be gone
-    const jsonFiles = fs.readdirSync(inboxDir).filter(f => f.endsWith('.json') && !f.startsWith('.'));
+    const jsonFiles = fs.readdirSync(inboxDir).filter((f) => f.endsWith('.json') && !f.startsWith('.'));
     expect(jsonFiles.length).toBe(0);
   });
 });

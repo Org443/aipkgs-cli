@@ -16,12 +16,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  EXTENDED_STEALTH_SCRIPT,
-  WEBDRIVER_MASK_SCRIPT,
-  isExtendedStealthEnabled,
-  applyStealth,
-} from '../src/stealth';
+import { EXTENDED_STEALTH_SCRIPT, WEBDRIVER_MASK_SCRIPT, isExtendedStealthEnabled, applyStealth } from '../src/stealth';
 
 let originalEnv: string | undefined;
 

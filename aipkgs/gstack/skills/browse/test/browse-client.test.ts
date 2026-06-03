@@ -36,7 +36,11 @@ async function startMockServer(): Promise<MockServer> {
     async fetch(req) {
       const body = await req.text();
       let parsed: any = body;
-      try { parsed = JSON.parse(body); } catch { /* leave as text */ }
+      try {
+        parsed = JSON.parse(body);
+      } catch {
+        /* leave as text */
+      }
       requests.push({
         method: req.method,
         url: new URL(req.url).pathname,
@@ -51,8 +55,12 @@ async function startMockServer(): Promise<MockServer> {
   return {
     port: server.port,
     requests,
-    setResponse(status: number, body: string) { response = { status, body }; },
-    async stop() { server.stop(true); },
+    setResponse(status: number, body: string) {
+      response = { status, body };
+    },
+    async stop() {
+      server.stop(true);
+    },
   };
 }
 
@@ -92,8 +100,9 @@ describe('browse-client', () => {
       process.env.GSTACK_SKILL_TOKEN = 'scoped-token';
       const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'browse-client-test-'));
       try {
-        expect(() => resolveBrowseAuth({ stateFile: path.join(tmpDir, 'missing.json') }))
-          .toThrow('browse-client: cannot find daemon port + token');
+        expect(() => resolveBrowseAuth({ stateFile: path.join(tmpDir, 'missing.json') })).toThrow(
+          'browse-client: cannot find daemon port + token',
+        );
       } finally {
         fs.rmSync(tmpDir, { recursive: true, force: true });
       }
@@ -116,8 +125,9 @@ describe('browse-client', () => {
     it('throws a clear error when neither env nor state file resolves', () => {
       const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'browse-client-test-'));
       try {
-        expect(() => resolveBrowseAuth({ stateFile: path.join(tmpDir, 'nonexistent.json') }))
-          .toThrow('browse-client: cannot find daemon port + token');
+        expect(() => resolveBrowseAuth({ stateFile: path.join(tmpDir, 'nonexistent.json') })).toThrow(
+          'browse-client: cannot find daemon port + token',
+        );
       } finally {
         fs.rmSync(tmpDir, { recursive: true, force: true });
       }
@@ -286,7 +296,7 @@ describe('browse-client', () => {
       await client.forms();
       await client.accessibility();
       expect(server.requests).toHaveLength(3);
-      expect(server.requests.map(r => r.body.command)).toEqual(['links', 'forms', 'accessibility']);
+      expect(server.requests.map((r) => r.body.command)).toEqual(['links', 'forms', 'accessibility']);
       for (const r of server.requests) expect(r.body.args).toEqual([]);
     });
 

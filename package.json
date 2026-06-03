@@ -7,9 +7,7 @@
   "engines": {
     "node": ">=26"
   },
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": ["packages/*"],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "test": "vitest run",

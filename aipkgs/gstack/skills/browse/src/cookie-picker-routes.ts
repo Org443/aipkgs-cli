@@ -19,7 +19,16 @@
 
 import * as crypto from 'crypto';
 import type { BrowserManager } from './browser-manager';
-import { findInstalledBrowsers, listProfiles, listDomains, importCookies, importCookiesViaCdp, hasV20Cookies, CookieImportError, type PlaywrightCookie } from './cookie-import-browser';
+import {
+  findInstalledBrowsers,
+  listProfiles,
+  listDomains,
+  importCookies,
+  importCookiesViaCdp,
+  hasV20Cookies,
+  CookieImportError,
+  type PlaywrightCookie,
+} from './cookie-import-browser';
 import { getCookiePickerHTML } from './cookie-picker-ui';
 
 // ─── Auth State ─────────────────────────────────────────────────
@@ -69,7 +78,10 @@ function getSessionFromCookie(req: Request): string | null {
 function isValidSession(session: string): boolean {
   const expiry = validSessions.get(session);
   if (!expiry) return false;
-  if (Date.now() > expiry) { validSessions.delete(session); return false; }
+  if (Date.now() > expiry) {
+    validSessions.delete(session);
+    return false;
+  }
   return true;
 }
 
@@ -96,7 +108,11 @@ function jsonResponse(data: any, opts: { port: number; status?: number }): Respo
   });
 }
 
-function errorResponse(message: string, code: string, opts: { port: number; status?: number; action?: string }): Response {
+function errorResponse(
+  message: string,
+  code: string,
+  opts: { port: number; status?: number; action?: string },
+): Response {
   return jsonResponse(
     { error: message, code, ...(opts.action ? { action: opts.action } : {}) },
     { port: opts.port, status: opts.status ?? 400 },
@@ -147,7 +163,7 @@ export async function handleCookiePickerRoute(
         return new Response(null, {
           status: 302,
           headers: {
-            'Location': '/cookie-picker',
+            Location: '/cookie-picker',
             'Set-Cookie': `gstack_picker=${session}; HttpOnly; SameSite=Strict; Path=/cookie-picker; Max-Age=3600`,
             'Cache-Control': 'no-store',
           },
@@ -186,12 +202,15 @@ export async function handleCookiePickerRoute(
     // GET /cookie-picker/browsers — list installed browsers
     if (pathname === '/cookie-picker/browsers' && req.method === 'GET') {
       const browsers = findInstalledBrowsers();
-      return jsonResponse({
-        browsers: browsers.map(b => ({
-          name: b.name,
-          aliases: b.aliases,
-        })),
-      }, { port });
+      return jsonResponse(
+        {
+          browsers: browsers.map((b) => ({
+            name: b.name,
+            aliases: b.aliases,
+          })),
+        },
+        { port },
+      );
     }
 
     // GET /cookie-picker/profiles?browser=<name> — list profiles for a browser
@@ -212,10 +231,13 @@ export async function handleCookiePickerRoute(
       }
       const profile = url.searchParams.get('profile') || 'Default';
       const result = listDomains(browserName, profile);
-      return jsonResponse({
-        browser: result.browser,
-        domains: result.domains,
-      }, { port });
+      return jsonResponse(
+        {
+          browser: result.browser,
+          domains: result.domains,
+        },
+        { port },
+      );
     }
 
     // POST /cookie-picker/import — decrypt + import to Playwright session
@@ -244,25 +266,32 @@ export async function handleCookiePickerRoute(
           result = await importCookiesViaCdp(browser, domains, selectedProfile);
         } catch (cdpErr: any) {
           console.log(`[cookie-picker] CDP fallback failed: ${cdpErr.message}`);
-          return jsonResponse({
-            imported: 0,
-            failed: result.failed,
-            domainCounts: {},
-            message: `Cookies use App-Bound Encryption (v20). Close ${browser}, retry, or use /connect-chrome to browse with your real browser directly.`,
-            code: 'v20_encryption',
-          }, { port });
+          return jsonResponse(
+            {
+              imported: 0,
+              failed: result.failed,
+              domainCounts: {},
+              message: `Cookies use App-Bound Encryption (v20). Close ${browser}, retry, or use /connect-chrome to browse with your real browser directly.`,
+              code: 'v20_encryption',
+            },
+            { port },
+          );
         }
       }
 
       if (result.cookies.length === 0) {
-        return jsonResponse({
-          imported: 0,
-          failed: result.failed,
-          domainCounts: {},
-          message: result.failed > 0
-            ? `All ${result.failed} cookies failed to decrypt`
-            : 'No cookies found for the specified domains',
-        }, { port });
+        return jsonResponse(
+          {
+            imported: 0,
+            failed: result.failed,
+            domainCounts: {},
+            message:
+              result.failed > 0
+                ? `All ${result.failed} cookies failed to decrypt`
+                : 'No cookies found for the specified domains',
+          },
+          { port },
+        );
       }
 
       // Add to Playwright context
@@ -275,13 +304,18 @@ export async function handleCookiePickerRoute(
         importedCounts.set(domain, (importedCounts.get(domain) || 0) + result.domainCounts[domain]);
       }
 
-      console.log(`[cookie-picker] Imported ${result.count} cookies for ${Object.keys(result.domainCounts).length} domains`);
+      console.log(
+        `[cookie-picker] Imported ${result.count} cookies for ${Object.keys(result.domainCounts).length} domains`,
+      );
 
-      return jsonResponse({
-        imported: result.count,
-        failed: result.failed,
-        domainCounts: result.domainCounts,
-      }, { port });
+      return jsonResponse(
+        {
+          imported: result.count,
+          failed: result.failed,
+          domainCounts: result.domainCounts,
+        },
+        { port },
+      );
     }
 
     // POST /cookie-picker/remove — clear cookies for domains
@@ -308,10 +342,13 @@ export async function handleCookiePickerRoute(
 
       console.log(`[cookie-picker] Removed cookies for ${domains.length} domains`);
 
-      return jsonResponse({
-        removed: domains.length,
-        domains,
-      }, { port });
+      return jsonResponse(
+        {
+          removed: domains.length,
+          domains,
+        },
+        { port },
+      );
     }
 
     // GET /cookie-picker/imported — currently imported domains + counts
@@ -322,11 +359,14 @@ export async function handleCookiePickerRoute(
       }
       entries.sort((a, b) => b.count - a.count);
 
-      return jsonResponse({
-        domains: entries,
-        totalDomains: entries.length,
-        totalCookies: entries.reduce((sum, e) => sum + e.count, 0),
-      }, { port });
+      return jsonResponse(
+        {
+          domains: entries,
+          totalDomains: entries.length,
+          totalCookies: entries.reduce((sum, e) => sum + e.count, 0),
+        },
+        { port },
+      );
     }
 
     return new Response('Not found', { status: 404 });

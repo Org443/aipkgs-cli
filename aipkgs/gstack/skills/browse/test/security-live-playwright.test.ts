@@ -34,14 +34,7 @@ import {
 } from '../src/content-security';
 
 // Check if TestSavantAI model cache exists. If missing, ML tests skip.
-const MODEL_CACHE = path.join(
-  os.homedir(),
-  '.gstack',
-  'models',
-  'testsavant-small',
-  'onnx',
-  'model.onnx',
-);
+const MODEL_CACHE = path.join(os.homedir(), '.gstack', 'models', 'testsavant-small', 'onnx', 'model.onnx');
 const ML_AVAILABLE = fs.existsSync(MODEL_CACHE);
 
 describe('defense-in-depth — live Playwright fixture', () => {
@@ -57,7 +50,9 @@ describe('defense-in-depth — live Playwright fixture', () => {
   });
 
   afterAll(() => {
-    try { testServer.server.stop(); } catch {}
+    try {
+      testServer.server.stop();
+    } catch {}
     setTimeout(() => process.exit(0), 500);
   });
 
@@ -67,8 +62,8 @@ describe('defense-in-depth — live Playwright fixture', () => {
     const stripped = await markHiddenElements(page);
     // Expect at least the sneaky div + the ARIA-injection link
     expect(stripped.length).toBeGreaterThanOrEqual(1);
-    const sneakyMatch = stripped.some(s =>
-      s.toLowerCase().includes('opacity') || s.toLowerCase().includes('off-screen'),
+    const sneakyMatch = stripped.some(
+      (s) => s.toLowerCase().includes('opacity') || s.toLowerCase().includes('off-screen'),
     );
     expect(sneakyMatch).toBe(true);
     await cleanupHiddenMarkers(page);
@@ -78,7 +73,7 @@ describe('defense-in-depth — live Playwright fixture', () => {
     const page = bm.getPage();
     await page.goto(`${baseUrl}/injection-combined.html`, { waitUntil: 'domcontentloaded' });
     const stripped = await markHiddenElements(page);
-    const ariaHits = stripped.filter(s => s.toLowerCase().includes('aria injection'));
+    const ariaHits = stripped.filter((s) => s.toLowerCase().includes('aria injection'));
     expect(ariaHits.length).toBeGreaterThanOrEqual(1);
     await cleanupHiddenMarkers(page);
   });
@@ -91,7 +86,7 @@ describe('defense-in-depth — live Playwright fixture', () => {
     expect(result.safe).toBe(false);
     // The fixture has webhook.site, pipedream.com, AND requestbin.com — expect at least 2 distinct hits
     const distinctDomains = new Set(
-      result.warnings.map(w => (w.match(/(webhook\.site|pipedream\.com|requestbin\.com)/) ?? [])[1]).filter(Boolean),
+      result.warnings.map((w) => (w.match(/(webhook\.site|pipedream\.com|requestbin\.com)/) ?? [])[1]).filter(Boolean),
     );
     expect(distinctDomains.size).toBeGreaterThanOrEqual(2);
   });
@@ -119,13 +114,13 @@ describe('defense-in-depth — live Playwright fixture', () => {
     const urlResult = urlBlocklistFilter(html, `${baseUrl}/injection-combined.html`, 'html');
 
     // L2: hidden element stripper
-    const hiddenCount = stripped.filter(s =>
-      s.toLowerCase().includes('opacity') || s.toLowerCase().includes('off-screen'),
+    const hiddenCount = stripped.filter(
+      (s) => s.toLowerCase().includes('opacity') || s.toLowerCase().includes('off-screen'),
     ).length;
     expect(hiddenCount).toBeGreaterThanOrEqual(1);
 
     // L2b: ARIA regex
-    const ariaCount = stripped.filter(s => s.toLowerCase().includes('aria injection')).length;
+    const ariaCount = stripped.filter((s) => s.toLowerCase().includes('aria injection')).length;
     expect(ariaCount).toBeGreaterThanOrEqual(1);
 
     // L3: URL blocklist
@@ -135,32 +130,40 @@ describe('defense-in-depth — live Playwright fixture', () => {
   });
 
   // L4 ML tests — skipped if model cache is absent
-  test.skipIf(!ML_AVAILABLE)('L4 — security.ts ML classifier flags the combined fixture text', async () => {
-    const page = bm.getPage();
-    await page.goto(`${baseUrl}/injection-combined.html`, { waitUntil: 'domcontentloaded' });
-    // Use RAW text (not stripped) so the ML layer sees what Claude would see
-    // in a naive pipeline — content-security.ts strips hidden content, but
-    // we want to assert the ML layer would ALSO catch it independently.
-    const rawText = await page.evaluate(() => document.body.innerText);
+  test.skipIf(!ML_AVAILABLE)(
+    'L4 — security.ts ML classifier flags the combined fixture text',
+    async () => {
+      const page = bm.getPage();
+      await page.goto(`${baseUrl}/injection-combined.html`, { waitUntil: 'domcontentloaded' });
+      // Use RAW text (not stripped) so the ML layer sees what Claude would see
+      // in a naive pipeline — content-security.ts strips hidden content, but
+      // we want to assert the ML layer would ALSO catch it independently.
+      const rawText = await page.evaluate(() => document.body.innerText);
 
-    const { loadTestsavant, scanPageContent } = await import('../src/security-classifier');
-    await loadTestsavant();
-    const signal = await scanPageContent(rawText);
-    // Expect the classifier to flag some confidence > 0 (INJECTION label).
-    // The combined fixture has instruction-heavy content which TestSavantAI
-    // reliably flags at >= 0.5.
-    expect(signal.confidence).toBeGreaterThan(0);
-    expect(signal.layer).toBe('testsavant_content');
-  }, 60000); // allow WASM cold-start up to 60s
+      const { loadTestsavant, scanPageContent } = await import('../src/security-classifier');
+      await loadTestsavant();
+      const signal = await scanPageContent(rawText);
+      // Expect the classifier to flag some confidence > 0 (INJECTION label).
+      // The combined fixture has instruction-heavy content which TestSavantAI
+      // reliably flags at >= 0.5.
+      expect(signal.confidence).toBeGreaterThan(0);
+      expect(signal.layer).toBe('testsavant_content');
+    },
+    60000,
+  ); // allow WASM cold-start up to 60s
 
-  test.skipIf(!ML_AVAILABLE)('L4 — ML classifier does NOT flag the benign product description alone', async () => {
-    const benign = 'Premium Widget. $29.99. High-quality widget with premium features. Add to Cart.';
-    const { loadTestsavant, scanPageContent } = await import('../src/security-classifier');
-    await loadTestsavant();
-    const signal = await scanPageContent(benign);
-    // Product-catalog content should score low. Give generous headroom
-    // to avoid flakiness on model version drift — the contract is just
-    // "doesn't false-positive on obviously-clean ecommerce copy."
-    expect(signal.confidence).toBeLessThan(0.5);
-  }, 60000);
+  test.skipIf(!ML_AVAILABLE)(
+    'L4 — ML classifier does NOT flag the benign product description alone',
+    async () => {
+      const benign = 'Premium Widget. $29.99. High-quality widget with premium features. Add to Cart.';
+      const { loadTestsavant, scanPageContent } = await import('../src/security-classifier');
+      await loadTestsavant();
+      const signal = await scanPageContent(benign);
+      // Product-catalog content should score low. Give generous headroom
+      // to avoid flakiness on model version drift — the contract is just
+      // "doesn't false-positive on obviously-clean ecommerce copy."
+      expect(signal.confidence).toBeLessThan(0.5);
+    },
+    60000,
+  );
 });

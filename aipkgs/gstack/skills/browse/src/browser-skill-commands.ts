@@ -93,14 +93,7 @@ function handleList(ctx: SkillCommandContext): string {
   const lines: string[] = ['NAME                          TIER     HOST                        DESC'];
   for (const s of skills) {
     const desc = (s.frontmatter.description ?? '').slice(0, 40);
-    lines.push(
-      [
-        s.name.padEnd(30),
-        s.tier.padEnd(8),
-        s.frontmatter.host.padEnd(28),
-        desc,
-      ].join(' '),
-    );
+    lines.push([s.name.padEnd(30), s.tier.padEnd(8), s.frontmatter.host.padEnd(28), desc].join(' '));
   }
   return lines.join('\n') + '\n';
 }
@@ -210,7 +203,7 @@ function handleRm(args: string[], ctx: SkillCommandContext): string {
 
   const tiers = ctx.tiers ?? defaultTierPaths();
   // For UX: if no project tier exists at all, default to global.
-  const effectiveTier: 'project' | 'global' = (tier === 'project' && !tiers.project) ? 'global' : tier;
+  const effectiveTier: 'project' | 'global' = tier === 'project' && !tiers.project ? 'global' : tier;
 
   const dst = tombstoneBrowserSkill(name, effectiveTier, tiers);
   return `Tombstoned "${name}" (${effectiveTier} tier) → ${dst}\n`;
@@ -273,7 +266,9 @@ export async function spawnSkill(opts: SpawnSkillOptions): Promise<SpawnSkillRes
     let timedOut = false;
     const killer = setTimeout(() => {
       timedOut = true;
-      try { proc.kill(); } catch {}
+      try {
+        proc.kill();
+      } catch {}
     }, opts.timeoutSeconds * 1000);
 
     const stdoutPromise = readCapped(proc.stdout, MAX_STDOUT_BYTES);
@@ -297,7 +292,10 @@ export async function spawnSkill(opts: SpawnSkillOptions): Promise<SpawnSkillRes
   }
 }
 
-interface CappedRead { text: string; truncated: boolean; }
+interface CappedRead {
+  text: string;
+  truncated: boolean;
+}
 
 async function readCapped(stream: ReadableStream<Uint8Array> | undefined, capBytes: number): Promise<CappedRead> {
   if (!stream) return { text: '', truncated: false };
@@ -316,15 +314,19 @@ async function readCapped(stream: ReadableStream<Uint8Array> | undefined, capByt
         // Take only what fits; drop the rest of the stream (release reader).
         const fits = value.length - (total - capBytes);
         if (fits > 0) chunks.push(value.subarray(0, fits));
-        try { await reader.cancel(); } catch {}
+        try {
+          await reader.cancel();
+        } catch {}
         break;
       }
       chunks.push(value);
     }
   } finally {
-    try { reader.releaseLock(); } catch {}
+    try {
+      reader.releaseLock();
+    } catch {}
   }
-  const buf = Buffer.concat(chunks.map(c => Buffer.from(c)));
+  const buf = Buffer.concat(chunks.map((c) => Buffer.from(c)));
   return { text: buf.toString('utf-8'), truncated };
 }
 
@@ -336,11 +338,23 @@ async function readCapped(stream: ReadableStream<Uint8Array> | undefined, capByt
  * should not see.
  */
 const SECRET_KEY_PATTERNS = [
-  /TOKEN/i, /KEY/i, /SECRET/i, /PASSWORD/i, /CREDENTIAL/i,
-  /^AWS_/, /^AZURE_/, /^GCP_/, /^GOOGLE_APPLICATION_/,
-  /^ANTHROPIC_/, /^OPENAI_/, /^GITHUB_/, /^GH_/,
-  /^SSH_/, /^GPG_/,
-  /^NPM_TOKEN/, /^PYPI_/,
+  /TOKEN/i,
+  /KEY/i,
+  /SECRET/i,
+  /PASSWORD/i,
+  /CREDENTIAL/i,
+  /^AWS_/,
+  /^AZURE_/,
+  /^GCP_/,
+  /^GOOGLE_APPLICATION_/,
+  /^ANTHROPIC_/,
+  /^OPENAI_/,
+  /^GITHUB_/,
+  /^GH_/,
+  /^SSH_/,
+  /^GPG_/,
+  /^NPM_TOKEN/,
+  /^PYPI_/,
 ];
 
 /**
@@ -348,11 +362,7 @@ const SECRET_KEY_PATTERNS = [
  * Includes: minimal PATH, locale, terminal type. Skills get GSTACK_PORT +
  * GSTACK_SKILL_TOKEN injected separately.
  */
-const UNTRUSTED_ALLOWLIST = new Set([
-  'LANG', 'LC_ALL', 'LC_CTYPE',
-  'TERM',
-  'TZ',
-]);
+const UNTRUSTED_ALLOWLIST = new Set(['LANG', 'LC_ALL', 'LC_CTYPE', 'TERM', 'TZ']);
 
 interface BuildEnvOptions {
   trusted: boolean;
@@ -390,7 +400,7 @@ export function buildSpawnEnv(opts: BuildEnvOptions): Record<string, string> {
   // above.)
   if (!opts.trusted) {
     for (const k of Object.keys(out)) {
-      if (SECRET_KEY_PATTERNS.some(p => p.test(k))) delete out[k];
+      if (SECRET_KEY_PATTERNS.some((p) => p.test(k))) delete out[k];
     }
   }
 

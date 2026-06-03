@@ -16,11 +16,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import sharp from 'sharp';
-import {
-  SCREENSHOT_MAX_DIMENSION_PX,
-  guardScreenshotBuffer,
-  guardScreenshotPath,
-} from '../src/screenshot-size-guard';
+import { SCREENSHOT_MAX_DIMENSION_PX, guardScreenshotBuffer, guardScreenshotPath } from '../src/screenshot-size-guard';
 
 let tmp: string;
 
@@ -55,9 +51,7 @@ describe('guardScreenshotBuffer', () => {
     const { buffer, result } = await guardScreenshotBuffer(input);
     expect(result.resized).toBe(true);
     expect(result.originalHeight).toBe(5000);
-    expect(Math.max(result.width, result.height)).toBeLessThanOrEqual(
-      SCREENSHOT_MAX_DIMENSION_PX,
-    );
+    expect(Math.max(result.width, result.height)).toBeLessThanOrEqual(SCREENSHOT_MAX_DIMENSION_PX);
     // Aspect ratio preserved.
     expect(result.height / result.width).toBeCloseTo(5000 / 1200, 1);
     // Buffer is a different (smaller) PNG.
@@ -69,9 +63,7 @@ describe('guardScreenshotBuffer', () => {
     const { buffer, result } = await guardScreenshotBuffer(input);
     expect(result.resized).toBe(true);
     expect(result.originalWidth).toBe(6000);
-    expect(Math.max(result.width, result.height)).toBeLessThanOrEqual(
-      SCREENSHOT_MAX_DIMENSION_PX,
-    );
+    expect(Math.max(result.width, result.height)).toBeLessThanOrEqual(SCREENSHOT_MAX_DIMENSION_PX);
     expect(buffer.length).toBeGreaterThan(0);
   });
 
@@ -90,9 +82,7 @@ describe('guardScreenshotPath', () => {
     expect(result.resized).toBe(true);
     const written = readFileSync(filePath);
     const meta = await sharp(written).metadata();
-    expect(Math.max(meta.width ?? 0, meta.height ?? 0)).toBeLessThanOrEqual(
-      SCREENSHOT_MAX_DIMENSION_PX,
-    );
+    expect(Math.max(meta.width ?? 0, meta.height ?? 0)).toBeLessThanOrEqual(SCREENSHOT_MAX_DIMENSION_PX);
   });
 
   test('leaves the file untouched when already within cap', async () => {

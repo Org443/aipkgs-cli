@@ -100,7 +100,7 @@ describe('terminal-agent detach + re-attach (v1.44+ Commit 3)', () => {
 
   test('9. /internal/restart cancels detach timer before disposal', () => {
     const src = fs.readFileSync(AGENT_TS, 'utf-8');
-    const block = sliceBetween(src, "url.pathname === '/internal/restart'", "// /claude-available");
+    const block = sliceBetween(src, "url.pathname === '/internal/restart'", '// /claude-available');
     // Without the cancellation, a later detach-timer fire would dispose a
     // session that's already been disposed by the explicit restart path.
     expect(block).toContain('clearTimeout(session.detachTimer)');

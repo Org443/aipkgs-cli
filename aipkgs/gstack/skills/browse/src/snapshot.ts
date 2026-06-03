@@ -27,22 +27,35 @@ import { guardScreenshotPath } from './screenshot-size-guard';
 
 // Roles considered "interactive" for the -i flag
 const INTERACTIVE_ROLES = new Set([
-  'button', 'link', 'textbox', 'checkbox', 'radio', 'combobox',
-  'listbox', 'menuitem', 'menuitemcheckbox', 'menuitemradio',
-  'option', 'searchbox', 'slider', 'spinbutton', 'switch', 'tab',
+  'button',
+  'link',
+  'textbox',
+  'checkbox',
+  'radio',
+  'combobox',
+  'listbox',
+  'menuitem',
+  'menuitemcheckbox',
+  'menuitemradio',
+  'option',
+  'searchbox',
+  'slider',
+  'spinbutton',
+  'switch',
+  'tab',
   'treeitem',
 ]);
 
 interface SnapshotOptions {
-  interactive?: boolean;       // -i: only interactive elements
-  compact?: boolean;           // -c: remove empty structural elements
-  depth?: number;              // -d N: limit tree depth
-  selector?: string;           // -s SEL: scope to CSS selector
-  diff?: boolean;              // -D / --diff: diff against last snapshot
-  annotate?: boolean;          // -a / --annotate: annotated screenshot
-  outputPath?: string;         // -o / --output: path for annotated screenshot
+  interactive?: boolean; // -i: only interactive elements
+  compact?: boolean; // -c: remove empty structural elements
+  depth?: number; // -d N: limit tree depth
+  selector?: string; // -s SEL: scope to CSS selector
+  diff?: boolean; // -D / --diff: diff against last snapshot
+  annotate?: boolean; // -a / --annotate: annotated screenshot
+  outputPath?: string; // -o / --output: path for annotated screenshot
   cursorInteractive?: boolean; // -C / --cursor-interactive: scan cursor:pointer etc.
-  heatmap?: string;            // -H / --heatmap: JSON color map for ref overlays
+  heatmap?: string; // -H / --heatmap: JSON color map for ref overlays
 }
 
 /**
@@ -60,23 +73,73 @@ export const SNAPSHOT_FLAGS: Array<{
   valueHint?: string;
   optionKey: keyof SnapshotOptions;
 }> = [
-  { short: '-i', long: '--interactive', description: 'Interactive elements only (buttons, links, inputs) with @e refs. Also auto-enables cursor-interactive scan (-C) to capture dropdowns and popovers.', optionKey: 'interactive' },
+  {
+    short: '-i',
+    long: '--interactive',
+    description:
+      'Interactive elements only (buttons, links, inputs) with @e refs. Also auto-enables cursor-interactive scan (-C) to capture dropdowns and popovers.',
+    optionKey: 'interactive',
+  },
   { short: '-c', long: '--compact', description: 'Compact (no empty structural nodes)', optionKey: 'compact' },
-  { short: '-d', long: '--depth', description: 'Limit tree depth (0 = root only, default: unlimited)', takesValue: true, valueHint: '<N>', optionKey: 'depth' },
-  { short: '-s', long: '--selector', description: 'Scope to CSS selector', takesValue: true, valueHint: '<sel>', optionKey: 'selector' },
-  { short: '-D', long: '--diff', description: 'Unified diff against previous snapshot (first call stores baseline)', optionKey: 'diff' },
-  { short: '-a', long: '--annotate', description: 'Annotated screenshot with red overlay boxes and ref labels', optionKey: 'annotate' },
-  { short: '-o', long: '--output', description: 'Output path for annotated screenshot (default: <temp>/browse-annotated.png)', takesValue: true, valueHint: '<path>', optionKey: 'outputPath' },
-  { short: '-C', long: '--cursor-interactive', description: 'Cursor-interactive elements (@c refs — divs with pointer, onclick). Auto-enabled when -i is used.', optionKey: 'cursorInteractive' },
-  { short: '-H', long: '--heatmap', description: 'Color-coded overlay screenshot from JSON map: \'{"@e1":"green","@e3":"red"}\'. Valid colors: green, yellow, red, blue, orange, gray.', takesValue: true, valueHint: '<json>', optionKey: 'heatmap' },
+  {
+    short: '-d',
+    long: '--depth',
+    description: 'Limit tree depth (0 = root only, default: unlimited)',
+    takesValue: true,
+    valueHint: '<N>',
+    optionKey: 'depth',
+  },
+  {
+    short: '-s',
+    long: '--selector',
+    description: 'Scope to CSS selector',
+    takesValue: true,
+    valueHint: '<sel>',
+    optionKey: 'selector',
+  },
+  {
+    short: '-D',
+    long: '--diff',
+    description: 'Unified diff against previous snapshot (first call stores baseline)',
+    optionKey: 'diff',
+  },
+  {
+    short: '-a',
+    long: '--annotate',
+    description: 'Annotated screenshot with red overlay boxes and ref labels',
+    optionKey: 'annotate',
+  },
+  {
+    short: '-o',
+    long: '--output',
+    description: 'Output path for annotated screenshot (default: <temp>/browse-annotated.png)',
+    takesValue: true,
+    valueHint: '<path>',
+    optionKey: 'outputPath',
+  },
+  {
+    short: '-C',
+    long: '--cursor-interactive',
+    description: 'Cursor-interactive elements (@c refs — divs with pointer, onclick). Auto-enabled when -i is used.',
+    optionKey: 'cursorInteractive',
+  },
+  {
+    short: '-H',
+    long: '--heatmap',
+    description:
+      'Color-coded overlay screenshot from JSON map: \'{"@e1":"green","@e3":"red"}\'. Valid colors: green, yellow, red, blue, orange, gray.',
+    takesValue: true,
+    valueHint: '<json>',
+    optionKey: 'heatmap',
+  },
 ];
 
 interface ParsedNode {
   indent: number;
   role: string;
   name: string | null;
-  props: string;      // e.g., "[level=1]"
-  children: string;   // inline text content after ":"
+  props: string; // e.g., "[level=1]"
+  children: string; // inline text content after ":"
   rawLine: string;
 }
 
@@ -86,7 +149,7 @@ interface ParsedNode {
 export function parseSnapshotArgs(args: string[]): SnapshotOptions {
   const opts: SnapshotOptions = {};
   for (let i = 0; i < args.length; i++) {
-    const flag = SNAPSHOT_FLAGS.find(f => f.short === args[i] || f.long === args[i]);
+    const flag = SNAPSHOT_FLAGS.find((f) => f.short === args[i] || f.long === args[i]);
     if (!flag) throw new Error(`Unknown snapshot flag: ${args[i]}`);
     if (flag.takesValue) {
       const value = args[++i];
@@ -248,9 +311,7 @@ export async function handleSnapshot(
   if (opts.cursorInteractive) {
     try {
       const cursorElements = await target.evaluate(() => {
-        const STANDARD_INTERACTIVE = new Set([
-          'A', 'BUTTON', 'INPUT', 'SELECT', 'TEXTAREA', 'SUMMARY', 'DETAILS',
-        ]);
+        const STANDARD_INTERACTIVE = new Set(['A', 'BUTTON', 'INPUT', 'SELECT', 'TEXTAREA', 'SUMMARY', 'DETAILS']);
 
         const results: Array<{ selector: string; text: string; reason: string }> = [];
         const allElements = document.querySelectorAll('*');
@@ -272,9 +333,11 @@ export async function handleSnapshot(
             let parent: Element | null = el;
             while (parent && parent !== document.documentElement) {
               const pStyle = getComputedStyle(parent);
-              const isFloating = (pStyle.position === 'fixed' || pStyle.position === 'absolute') &&
+              const isFloating =
+                (pStyle.position === 'fixed' || pStyle.position === 'absolute') &&
                 parseInt(pStyle.zIndex || '0', 10) >= 10;
-              const hasPortalAttr = parent.hasAttribute('data-floating-ui-portal') ||
+              const hasPortalAttr =
+                parent.hasAttribute('data-floating-ui-portal') ||
                 parent.hasAttribute('data-radix-popper-content-wrapper') ||
                 parent.hasAttribute('data-radix-portal') ||
                 parent.hasAttribute('data-popper-placement') ||
@@ -290,7 +353,8 @@ export async function handleSnapshot(
             // For elements inside floating containers, also check for role="option"/"menuitem"
             if (isInFloating && hasRole) {
               const role = el.getAttribute('role');
-              if (role !== 'option' && role !== 'menuitem' && role !== 'menuitemcheckbox' && role !== 'menuitemradio') continue;
+              if (role !== 'option' && role !== 'menuitem' && role !== 'menuitemcheckbox' && role !== 'menuitemradio')
+                continue;
             } else {
               continue;
             }
@@ -338,7 +402,13 @@ export async function handleSnapshot(
       }
     } catch (err: any) {
       // Cursor scan fails on pages with strict CSP or when page has navigated
-      if (!err?.message?.includes('Execution context') && !err?.message?.includes('closed') && !err?.message?.includes('Target') && !err?.message?.includes('Content Security')) throw err;
+      if (
+        !err?.message?.includes('Execution context') &&
+        !err?.message?.includes('closed') &&
+        !err?.message?.includes('Target') &&
+        !err?.message?.includes('Content Security')
+      )
+        throw err;
       output.push('');
       output.push('(cursor scan failed — CSP restriction)');
     }
@@ -362,7 +432,12 @@ export async function handleSnapshot(
       const nodeFs = require('fs') as typeof import('fs');
       const absolute = nodePath.resolve(screenshotPath);
       const safeDirs = [TEMP_DIR, process.cwd()].map((d: string) => {
-        try { return nodeFs.realpathSync(d); } catch (err: any) { if (err?.code !== 'ENOENT') throw err; return d; }
+        try {
+          return nodeFs.realpathSync(d);
+        } catch (err: any) {
+          if (err?.code !== 'ENOENT') throw err;
+          return d;
+        }
       });
       let realPath: string;
       try {
@@ -395,7 +470,14 @@ export async function handleSnapshot(
           }
         } catch (err: any) {
           // Element may be offscreen, hidden, or page navigated — skip
-          if (!err?.message?.includes('Timeout') && !err?.message?.includes('timeout') && !err?.message?.includes('closed') && !err?.message?.includes('Target') && !err?.message?.includes('Execution context')) throw err;
+          if (
+            !err?.message?.includes('Timeout') &&
+            !err?.message?.includes('timeout') &&
+            !err?.message?.includes('closed') &&
+            !err?.message?.includes('Target') &&
+            !err?.message?.includes('Execution context')
+          )
+            throw err;
         }
       }
 
@@ -412,7 +494,8 @@ export async function handleSnapshot(
           `;
           const label = document.createElement('span');
           label.textContent = ref;
-          label.style.cssText = 'position: absolute; top: -14px; left: 0; background: red; color: white; padding: 0 3px; font-size: 10px;';
+          label.style.cssText =
+            'position: absolute; top: -14px; left: 0; background: red; color: white; padding: 0 3px; font-size: 10px;';
           overlay.appendChild(label);
           document.body.appendChild(overlay);
         }
@@ -423,20 +506,31 @@ export async function handleSnapshot(
 
       // Always remove overlays
       await page.evaluate(() => {
-        document.querySelectorAll('.__browse_annotation__').forEach(el => el.remove());
+        document.querySelectorAll('.__browse_annotation__').forEach((el) => el.remove());
       });
 
       output.push('');
       output.push(`[annotated screenshot: ${screenshotPath}]`);
     } catch (err: any) {
       // Remove overlays even on screenshot failure — but only swallow page/browser errors
-      if (!err?.message?.includes('closed') && !err?.message?.includes('Target') && !err?.message?.includes('Execution context') && !err?.message?.includes('screenshot')) throw err;
+      if (
+        !err?.message?.includes('closed') &&
+        !err?.message?.includes('Target') &&
+        !err?.message?.includes('Execution context') &&
+        !err?.message?.includes('screenshot')
+      )
+        throw err;
       try {
         await page.evaluate(() => {
-          document.querySelectorAll('.__browse_annotation__').forEach(el => el.remove());
+          document.querySelectorAll('.__browse_annotation__').forEach((el) => el.remove());
         });
       } catch (err2: any) {
-        if (!err2?.message?.includes('closed') && !err2?.message?.includes('Target') && !err2?.message?.includes('Execution context')) throw err2;
+        if (
+          !err2?.message?.includes('closed') &&
+          !err2?.message?.includes('Target') &&
+          !err2?.message?.includes('Execution context')
+        )
+          throw err2;
       }
     }
   }
@@ -450,7 +544,12 @@ export async function handleSnapshot(
       const nodeFs = require('fs') as typeof import('fs');
       const absolute = nodePath.resolve(heatmapPath);
       const safeDirs = [TEMP_DIR, process.cwd()].map((d: string) => {
-        try { return nodeFs.realpathSync(d); } catch (err: any) { if (err?.code !== 'ENOENT') throw err; return d; }
+        try {
+          return nodeFs.realpathSync(d);
+        } catch (err: any) {
+          if (err?.code !== 'ENOENT') throw err;
+          return d;
+        }
       });
       let realPath: string;
       try {
@@ -476,12 +575,12 @@ export async function handleSnapshot(
     // Parse and validate color map
     const VALID_COLORS = new Set(['green', 'yellow', 'red', 'blue', 'orange', 'gray']);
     const COLOR_MAP: Record<string, { border: string; bg: string }> = {
-      green:  { border: '#00b400', bg: 'rgba(0,180,0,0.15)' },
+      green: { border: '#00b400', bg: 'rgba(0,180,0,0.15)' },
       yellow: { border: '#ffb400', bg: 'rgba(255,180,0,0.15)' },
-      red:    { border: '#ff0000', bg: 'rgba(255,0,0,0.15)' },
-      blue:   { border: '#0066ff', bg: 'rgba(0,102,255,0.15)' },
+      red: { border: '#ff0000', bg: 'rgba(255,0,0,0.15)' },
+      blue: { border: '#0066ff', bg: 'rgba(0,102,255,0.15)' },
       orange: { border: '#ff6600', bg: 'rgba(255,102,0,0.15)' },
-      gray:   { border: '#888888', bg: 'rgba(136,136,136,0.15)' },
+      gray: { border: '#888888', bg: 'rgba(136,136,136,0.15)' },
     };
 
     let colorAssignments: Record<string, string>;
@@ -503,7 +602,8 @@ export async function handleSnapshot(
     }
 
     try {
-      const boxes: Array<{ ref: string; box: { x: number; y: number; width: number; height: number }; color: string }> = [];
+      const boxes: Array<{ ref: string; box: { x: number; y: number; width: number; height: number }; color: string }> =
+        [];
       for (const [refKey, color] of Object.entries(colorAssignments)) {
         const cleanRef = refKey.startsWith('@') ? refKey.slice(1) : refKey;
         const entry = refMap.get(cleanRef);
@@ -544,7 +644,7 @@ export async function handleSnapshot(
 
       // Remove heatmap overlays
       await page.evaluate(() => {
-        document.querySelectorAll('.__browse_heatmap__').forEach(el => el.remove());
+        document.querySelectorAll('.__browse_heatmap__').forEach((el) => el.remove());
       });
 
       output.push('');
@@ -553,10 +653,16 @@ export async function handleSnapshot(
       // Cleanup on failure
       try {
         await page.evaluate(() => {
-          document.querySelectorAll('.__browse_heatmap__').forEach(el => el.remove());
+          document.querySelectorAll('.__browse_heatmap__').forEach((el) => el.remove());
         });
       } catch {}
-      if (!err?.message?.includes('closed') && !err?.message?.includes('Target') && !err?.message?.includes('Execution context') && !err?.message?.includes('screenshot')) throw err;
+      if (
+        !err?.message?.includes('closed') &&
+        !err?.message?.includes('Target') &&
+        !err?.message?.includes('Execution context') &&
+        !err?.message?.includes('screenshot')
+      )
+        throw err;
     }
   }
 
@@ -573,7 +679,7 @@ export async function handleSnapshot(
 
     for (const part of changes) {
       const prefix = part.added ? '+' : part.removed ? '-' : ' ';
-      const diffLines = part.value.split('\n').filter(l => l.length > 0);
+      const diffLines = part.value.split('\n').filter((l) => l.length > 0);
       for (const line of diffLines) {
         diffOutput.push(`${prefix} ${line}`);
       }

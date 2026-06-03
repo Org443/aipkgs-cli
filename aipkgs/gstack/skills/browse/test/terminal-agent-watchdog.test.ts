@@ -71,10 +71,7 @@ describe('terminal-agent watchdog (v1.44+)', () => {
   });
 
   test('7. CLI cold-start path uses the same spawnTerminalAgent helper', () => {
-    const cli = fs.readFileSync(
-      path.resolve(new URL(import.meta.url).pathname, '..', '..', 'src', 'cli.ts'),
-      'utf-8',
-    );
+    const cli = fs.readFileSync(path.resolve(new URL(import.meta.url).pathname, '..', '..', 'src', 'cli.ts'), 'utf-8');
     // Otherwise the CLI and watchdog could drift on spawn env/cwd, and
     // teardown invariants tested against one would silently miss the other.
     expect(cli).toContain('spawnTerminalAgent({');

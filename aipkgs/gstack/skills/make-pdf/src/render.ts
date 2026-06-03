@@ -11,9 +11,9 @@
  *      semantic structure (cover, TOC placeholder, body).
  */
 
-import { marked } from "marked";
-import { smartypants } from "./smartypants";
-import { printCss, type PrintCssOptions } from "./print-css";
+import { marked } from 'marked';
+import { smartypants } from './smartypants';
+import { printCss, type PrintCssOptions } from './print-css';
 
 export interface RenderOptions {
   markdown: string;
@@ -21,7 +21,7 @@ export interface RenderOptions {
   // Document-level metadata (used for cover, PDF metadata, running header).
   title?: string;
   author?: string;
-  date?: string;                  // ISO or human string
+  date?: string; // ISO or human string
   subtitle?: string;
 
   // Features
@@ -29,10 +29,10 @@ export interface RenderOptions {
   toc?: boolean;
   watermark?: string;
   noChapterBreaks?: boolean;
-  confidential?: boolean;         // default: true
+  confidential?: boolean; // default: true
 
   // Page layout
-  pageSize?: "letter" | "a4" | "legal" | "tabloid";
+  pageSize?: 'letter' | 'a4' | 'legal' | 'tabloid';
   margins?: string;
 
   // Footer behavior. pageNumbers defaults to true. When footerTemplate is set,
@@ -42,9 +42,9 @@ export interface RenderOptions {
 }
 
 export interface RenderResult {
-  html: string;                   // full HTML document, ready for $B load-html
-  printCss: string;               // for debugging / preview
-  bodyHtml: string;               // just the rendered body (tests, snapshots)
+  html: string; // full HTML document, ready for $B load-html
+  printCss: string; // for debugging / preview
+  bodyHtml: string; // just the rendered body (tests, snapshots)
   meta: {
     title: string;
     author: string;
@@ -74,8 +74,8 @@ export function render(opts: RenderOptions): RenderResult {
   const typographicHtml = smartypants(decoded);
 
   // 4. Derive metadata (title from first H1 if not provided)
-  const derivedTitle = opts.title ?? extractFirstHeading(typographicHtml) ?? "Document";
-  const derivedAuthor = opts.author ?? "";
+  const derivedTitle = opts.title ?? extractFirstHeading(typographicHtml) ?? 'Document';
+  const derivedAuthor = opts.author ?? '';
   const derivedDate = opts.date ?? formatToday();
 
   // 5. Build CSS
@@ -104,20 +104,16 @@ export function render(opts: RenderOptions): RenderResult {
         author: derivedAuthor,
         date: derivedDate,
       })
-    : "";
+    : '';
 
-  const tocBlock = opts.toc
-    ? buildTocBlock(typographicHtml)
-    : "";
+  const tocBlock = opts.toc ? buildTocBlock(typographicHtml) : '';
 
   // Wrap body in .chapter sections at H1 boundaries if chapter breaks are on.
   const chapterHtml = opts.noChapterBreaks
     ? `<section class="chapter">${typographicHtml}</section>`
     : wrapChaptersByH1(typographicHtml);
 
-  const watermarkBlock = opts.watermark
-    ? `<div class="watermark">${escapeHtml(opts.watermark)}</div>`
-    : "";
+  const watermarkBlock = opts.watermark ? `<div class="watermark">${escapeHtml(opts.watermark)}</div>` : '';
 
   const fullHtml = [
     `<!doctype html>`,
@@ -137,7 +133,9 @@ export function render(opts: RenderOptions): RenderResult {
     chapterHtml,
     `</body>`,
     `</html>`,
-  ].filter(Boolean).join("\n");
+  ]
+    .filter(Boolean)
+    .join('\n');
 
   return {
     html: fullHtml,
@@ -159,7 +157,7 @@ export function render(opts: RenderOptions): RenderResult {
  */
 function decodeTypographicEntities(html: string): string {
   return html
-    .replace(/&quot;/g, "\"")
+    .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
     .replace(/&apos;/g, "'")
     .replace(/&#x27;/g, "'");
@@ -188,26 +186,35 @@ export function sanitizeUntrustedHtml(html: string): string {
 
   // Elements to remove entirely (including content).
   const DANGER_TAGS = [
-    "script", "iframe", "object", "embed", "link", "meta", "base", "form",
-    "applet", "frame", "frameset",
+    'script',
+    'iframe',
+    'object',
+    'embed',
+    'link',
+    'meta',
+    'base',
+    'form',
+    'applet',
+    'frame',
+    'frameset',
   ];
   for (const tag of DANGER_TAGS) {
-    const re = new RegExp(`<${tag}\\b[\\s\\S]*?</${tag}>`, "gi");
-    s = s.replace(re, "");
+    const re = new RegExp(`<${tag}\\b[\\s\\S]*?</${tag}>`, 'gi');
+    s = s.replace(re, '');
     // Self-closing / unclosed variants
-    const selfRe = new RegExp(`<${tag}\\b[^>]*/?>`, "gi");
-    s = s.replace(selfRe, "");
+    const selfRe = new RegExp(`<${tag}\\b[^>]*/?>`, 'gi');
+    s = s.replace(selfRe, '');
   }
 
   // SVG <script>
   s = s.replace(/<svg([^>]*)>([\s\S]*?)<\/svg>/gi, (_, attrs, body) => {
-    return `<svg${attrs}>${body.replace(/<script\b[\s\S]*?<\/script>/gi, "")}</svg>`;
+    return `<svg${attrs}>${body.replace(/<script\b[\s\S]*?<\/script>/gi, '')}</svg>`;
   });
 
   // Event handler attributes (on* in any case).
-  s = s.replace(/\s+on[a-zA-Z]+\s*=\s*"[^"]*"/gi, "");
-  s = s.replace(/\s+on[a-zA-Z]+\s*=\s*'[^']*'/gi, "");
-  s = s.replace(/\s+on[a-zA-Z]+\s*=\s*[^\s>]+/gi, "");
+  s = s.replace(/\s+on[a-zA-Z]+\s*=\s*"[^"]*"/gi, '');
+  s = s.replace(/\s+on[a-zA-Z]+\s*=\s*'[^']*'/gi, '');
+  s = s.replace(/\s+on[a-zA-Z]+\s*=\s*[^\s>]+/gi, '');
 
   // javascript: URLs in href/src/action/formaction
   s = s.replace(
@@ -217,11 +224,11 @@ export function sanitizeUntrustedHtml(html: string): string {
 
   // srcdoc attribute (iframe escape hatch — already stripped via iframe above,
   // but defense-in-depth).
-  s = s.replace(/\s+srcdoc\s*=\s*"[^"]*"/gi, "");
-  s = s.replace(/\s+srcdoc\s*=\s*'[^']*'/gi, "");
+  s = s.replace(/\s+srcdoc\s*=\s*"[^"]*"/gi, '');
+  s = s.replace(/\s+srcdoc\s*=\s*'[^']*'/gi, '');
 
   // style="url(javascript:..)" — strip javascript: inside style attrs.
-  s = s.replace(/url\(\s*javascript:[^)]*\)/gi, "url(#)");
+  s = s.replace(/url\(\s*javascript:[^)]*\)/gi, 'url(#)');
 
   return s;
 }
@@ -235,8 +242,8 @@ function buildCoverBlock(opts: {
   date: string;
 }): string {
   const title = escapeHtml(opts.title);
-  const subtitle = opts.subtitle ? escapeHtml(opts.subtitle) : "";
-  const author = opts.author ? escapeHtml(opts.author) : "";
+  const subtitle = opts.subtitle ? escapeHtml(opts.subtitle) : '';
+  const author = opts.author ? escapeHtml(opts.author) : '';
   const date = escapeHtml(opts.date);
   return [
     `<section class="cover">`,
@@ -248,7 +255,9 @@ function buildCoverBlock(opts: {
     `    <div>${date}</div>`,
     `  </div>`,
     `</section>`,
-  ].filter(Boolean).join("\n");
+  ]
+    .filter(Boolean)
+    .join('\n');
 }
 
 /**
@@ -258,28 +267,23 @@ function buildCoverBlock(opts: {
  */
 function buildTocBlock(html: string): string {
   const headings = extractHeadings(html);
-  if (headings.length === 0) return "";
+  if (headings.length === 0) return '';
 
-  const items = headings.map((h, i) => {
-    const level = h.level >= 2 ? "level-2" : "level-1";
-    const id = `toc-${i}`;
-    return [
-      `  <li class="${level}">`,
-      `    <span class="toc-title"><a href="#${id}">${escapeHtml(h.text)}</a></span>`,
-      `    <span class="toc-dots"></span>`,
-      `    <span class="toc-page" data-toc-target="${id}"></span>`,
-      `  </li>`,
-    ].join("\n");
-  }).join("\n");
+  const items = headings
+    .map((h, i) => {
+      const level = h.level >= 2 ? 'level-2' : 'level-1';
+      const id = `toc-${i}`;
+      return [
+        `  <li class="${level}">`,
+        `    <span class="toc-title"><a href="#${id}">${escapeHtml(h.text)}</a></span>`,
+        `    <span class="toc-dots"></span>`,
+        `    <span class="toc-page" data-toc-target="${id}"></span>`,
+        `  </li>`,
+      ].join('\n');
+    })
+    .join('\n');
 
-  return [
-    `<section class="toc">`,
-    `  <h2>Contents</h2>`,
-    `  <ol>`,
-    items,
-    `  </ol>`,
-    `</section>`,
-  ].join("\n");
+  return [`<section class="toc">`, `  <h2>Contents</h2>`, `  <ol>`, items, `  </ol>`, `</section>`].join('\n');
 }
 
 function extractHeadings(html: string): Array<{ level: number; text: string }> {
@@ -319,7 +323,7 @@ function wrapChaptersByH1(html: string): string {
     const end = i + 1 < matches.length ? matches[i + 1] : html.length;
     chunks.push(`<section class="chapter">${html.slice(start, end)}</section>`);
   }
-  return chunks.join("\n");
+  return chunks.join('\n');
 }
 
 function extractFirstHeading(html: string): string | null {
@@ -341,35 +345,35 @@ function extractFirstHeading(html: string): string | null {
  */
 function decodeTextEntities(s: string): string {
   return s
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
     .replace(/&apos;/g, "'")
     .replace(/&#x27;/g, "'")
     .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(parseInt(n, 10)))
     .replace(/&#x([0-9a-fA-F]+);/g, (_, n) => String.fromCodePoint(parseInt(n, 16)))
-    .replace(/&amp;/g, "&");
+    .replace(/&amp;/g, '&');
 }
 
 function stripTags(html: string): string {
-  return html.replace(/<[^>]+>/g, "");
+  return html.replace(/<[^>]+>/g, '');
 }
 
 function escapeHtml(s: string): string {
   return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 function countWords(text: string): number {
-  return text.split(/\s+/).filter(w => w.length > 0).length;
+  return text.split(/\s+/).filter((w) => w.length > 0).length;
 }
 
 function formatToday(): string {
   const now = new Date();
-  return now.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+  return now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 }

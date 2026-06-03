@@ -2,11 +2,7 @@ import { describe, test, expect, beforeEach, beforeAll, afterAll } from 'bun:tes
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
-import {
-  buildFetchHandler,
-  __resetShuttingDown,
-  type ServerConfig,
-} from '../src/server';
+import { buildFetchHandler, __resetShuttingDown, type ServerConfig } from '../src/server';
 import { __resetRegistry } from '../src/token-registry';
 import { BrowserManager } from '../src/browser-manager';
 import { resolveConfig } from '../src/config';
@@ -68,7 +64,11 @@ function writeSentinels(): void {
 }
 
 function readIfExists(p: string): string | null {
-  try { return fs.readFileSync(p, 'utf-8'); } catch { return null; }
+  try {
+    return fs.readFileSync(p, 'utf-8');
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -80,7 +80,7 @@ function readIfExists(p: string): string | null {
  * scope.
  */
 async function withStubs(
-  cb: (killCalls: Array<[number, NodeJS.Signals | number]>) => Promise<void>
+  cb: (killCalls: Array<[number, NodeJS.Signals | number]>) => Promise<void>,
 ): Promise<Array<[number, NodeJS.Signals | number]>> {
   const origExit = process.exit;
   const origKill = process.kill;
@@ -117,9 +117,7 @@ async function runShutdown(handle: { shutdown: (code?: number) => Promise<void> 
 }
 
 // Filter out the signal=0 liveness probes; only count actual termination signals.
-function terminationCalls(
-  calls: Array<[number, NodeJS.Signals | number]>,
-): Array<[number, NodeJS.Signals | number]> {
+function terminationCalls(calls: Array<[number, NodeJS.Signals | number]>): Array<[number, NodeJS.Signals | number]> {
   return calls.filter(([, sig]) => sig !== 0);
 }
 
@@ -145,19 +143,25 @@ describe('buildFetchHandler ownsTerminalAgent gate', () => {
       fs.mkdirSync(stateDir, { recursive: true });
       fs.writeFileSync(PORT_FILE, realPortBackup);
     } else {
-      try { fs.unlinkSync(PORT_FILE); } catch {}
+      try {
+        fs.unlinkSync(PORT_FILE);
+      } catch {}
     }
     if (realTokenBackup !== null) {
       fs.mkdirSync(stateDir, { recursive: true });
       fs.writeFileSync(TOKEN_FILE, realTokenBackup);
     } else {
-      try { fs.unlinkSync(TOKEN_FILE); } catch {}
+      try {
+        fs.unlinkSync(TOKEN_FILE);
+      } catch {}
     }
     if (realAgentRecordBackup !== null) {
       fs.mkdirSync(stateDir, { recursive: true });
       fs.writeFileSync(AGENT_RECORD_FILE, realAgentRecordBackup);
     } else {
-      try { fs.unlinkSync(AGENT_RECORD_FILE); } catch {}
+      try {
+        fs.unlinkSync(AGENT_RECORD_FILE);
+      } catch {}
     }
   });
 
@@ -166,9 +170,15 @@ describe('buildFetchHandler ownsTerminalAgent gate', () => {
     __resetShuttingDown();
     // Clean any leftover sentinels from a prior failed run so the "preserved"
     // assertion can't pass spuriously off a stale file.
-    try { fs.unlinkSync(PORT_FILE); } catch {}
-    try { fs.unlinkSync(TOKEN_FILE); } catch {}
-    try { fs.unlinkSync(AGENT_RECORD_FILE); } catch {}
+    try {
+      fs.unlinkSync(PORT_FILE);
+    } catch {}
+    try {
+      fs.unlinkSync(TOKEN_FILE);
+    } catch {}
+    try {
+      fs.unlinkSync(AGENT_RECORD_FILE);
+    } catch {}
   });
 
   test('1. ownsTerminalAgent:false preserves all three files and sends no signal', async () => {
@@ -216,13 +226,7 @@ describe('buildFetchHandler ownsTerminalAgent gate', () => {
   test('4. CLI start() call site passes ownsTerminalAgent: true literally (static grep)', () => {
     // Resolves browse/src/server.ts relative to this test file so the test
     // works regardless of cwd. import.meta.url is the test file's URL.
-    const serverTsPath = path.resolve(
-      new URL(import.meta.url).pathname,
-      '..',
-      '..',
-      'src',
-      'server.ts',
-    );
+    const serverTsPath = path.resolve(new URL(import.meta.url).pathname, '..', '..', 'src', 'server.ts');
     const source = fs.readFileSync(serverTsPath, 'utf-8');
     // Match the call site inside start()'s buildFetchHandler({...}) literal.
     // The pattern looks for the trailing comma and trailing context so the

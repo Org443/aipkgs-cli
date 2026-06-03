@@ -55,7 +55,8 @@ describe('browser-manager: isCustomChromium', () => {
 
   test('Playwright bundled chromium path → false', () => {
     delete process.env.GSTACK_CHROMIUM_KIND;
-    process.env.GSTACK_CHROMIUM_PATH = '/Users/me/Library/Caches/ms-playwright/chromium-1234/chrome-mac/Chromium.app/Contents/MacOS/Chromium';
+    process.env.GSTACK_CHROMIUM_PATH =
+      '/Users/me/Library/Caches/ms-playwright/chromium-1234/chrome-mac/Chromium.app/Contents/MacOS/Chromium';
     expect(isCustomChromium()).toBe(false);
   });
 

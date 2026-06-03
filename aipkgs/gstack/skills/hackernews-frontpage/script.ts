@@ -77,7 +77,7 @@ export function parseStoriesFromHtml(html: string): Story[] {
     const tail = html.slice(subtextStart);
     const spacerIdx = tail.search(/<tr\b[^>]*\bclass="spacer\b/);
     const nextAthingIdx = tail.search(/<tr\b[^>]*\bclass="athing\b/);
-    const candidates = [spacerIdx, nextAthingIdx].filter(i => i >= 0);
+    const candidates = [spacerIdx, nextAthingIdx].filter((i) => i >= 0);
     const boundary = candidates.length > 0 ? Math.min(...candidates) : tail.length;
     const subtextSlice = tail.slice(0, boundary);
 

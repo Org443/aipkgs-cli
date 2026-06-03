@@ -179,7 +179,15 @@ describe('server.ts factory API surface', () => {
         authToken: 'tok',
         browsePort: 0,
         idleTimeoutMs: 1800000,
-        config: { stateDir: '', stateFile: '', consoleLog: '', networkLog: '', dialogLog: '', auditLog: '', projectDir: '' },
+        config: {
+          stateDir: '',
+          stateFile: '',
+          consoleLog: '',
+          networkLog: '',
+          dialogLog: '',
+          auditLog: '',
+          projectDir: '',
+        },
         browserManager: {} as any,
         startTime: Date.now(),
       } satisfies Partial<ServerConfig>;
@@ -193,7 +201,9 @@ describe('server.ts factory API surface', () => {
         fetchTunnel: any;
         shutdown: any;
         stopListeners: any;
-      } ? true : false;
+      }
+        ? true
+        : false;
       const assertion: AssertHandleFields = true;
       expect(assertion).toBe(true);
     });
@@ -246,7 +256,7 @@ describe('buildFetchHandler factory contract', () => {
     });
     const resp = await handle.fetchLocal(req, null);
     expect(resp.status).toBe(200);
-    const body = await resp.json() as { status: string };
+    const body = (await resp.json()) as { status: string };
     expect(typeof body.status).toBe('string');
   });
 
@@ -274,10 +284,12 @@ describe('buildFetchHandler factory contract', () => {
   });
 
   test('4. throws on missing cfg.browserManager', () => {
-    expect(() => buildFetchHandler({
-      ...makeMinimalConfig(),
-      browserManager: undefined as any,
-    })).toThrow(/browserManager/i);
+    expect(() =>
+      buildFetchHandler({
+        ...makeMinimalConfig(),
+        browserManager: undefined as any,
+      }),
+    ).toThrow(/browserManager/i);
   });
 
   test('5. beforeRoute fires before route dispatch and short-circuits on Response', async () => {
@@ -286,9 +298,14 @@ describe('buildFetchHandler factory contract', () => {
       status: 200,
       headers: { 'X-Source': 'overlay' },
     });
-    const handle = buildFetchHandler(makeMinimalConfig({
-      beforeRoute: async () => { hookCalls++; return overlayResp; },
-    }));
+    const handle = buildFetchHandler(
+      makeMinimalConfig({
+        beforeRoute: async () => {
+          hookCalls++;
+          return overlayResp;
+        },
+      }),
+    );
 
     const req = new Request('http://127.0.0.1/health');
     const resp = await handle.fetchLocal(req, null);
@@ -298,9 +315,11 @@ describe('buildFetchHandler factory contract', () => {
   });
 
   test('6. falls through to gstack dispatch when beforeRoute returns null', async () => {
-    const handle = buildFetchHandler(makeMinimalConfig({
-      beforeRoute: async () => null,
-    }));
+    const handle = buildFetchHandler(
+      makeMinimalConfig({
+        beforeRoute: async () => null,
+      }),
+    );
     const req = new Request('http://127.0.0.1/health');
     const resp = await handle.fetchLocal(req, null);
     expect(resp.headers.get('content-type')).toMatch(/application\/json/);
@@ -311,7 +330,10 @@ describe('buildFetchHandler factory contract', () => {
     let capturedAuth: any = undefined;
     const handle = buildFetchHandler({
       ...cfg,
-      beforeRoute: async (_req, _surface, auth) => { capturedAuth = auth; return null; },
+      beforeRoute: async (_req, _surface, auth) => {
+        capturedAuth = auth;
+        return null;
+      },
     });
     const req = new Request('http://127.0.0.1/health', {
       headers: { Authorization: `Bearer ${cfg.authToken}` },
@@ -323,9 +345,14 @@ describe('buildFetchHandler factory contract', () => {
 
   test('8. passes null to beforeRoute for unauthenticated requests', async () => {
     let capturedAuth: any = 'sentinel';
-    const handle = buildFetchHandler(makeMinimalConfig({
-      beforeRoute: async (_req, _surface, auth) => { capturedAuth = auth; return null; },
-    }));
+    const handle = buildFetchHandler(
+      makeMinimalConfig({
+        beforeRoute: async (_req, _surface, auth) => {
+          capturedAuth = auth;
+          return null;
+        },
+      }),
+    );
     const req = new Request('http://127.0.0.1/health');
     await handle.fetchLocal(req, null);
     expect(capturedAuth).toBeNull();
@@ -343,7 +370,10 @@ describe('buildFetchHandler factory contract', () => {
     let capturedSurface: Surface | undefined;
     const handle = buildFetchHandler({
       ...cfg,
-      beforeRoute: async (_req, surface, _auth) => { capturedSurface = surface; return null; },
+      beforeRoute: async (_req, surface, _auth) => {
+        capturedSurface = surface;
+        return null;
+      },
     });
     // /command is in TUNNEL_PATHS. Use a scoped-token-less request to exercise
     // the tunnel filter's auth gate AFTER the hook fires. The hook should still
@@ -424,7 +454,9 @@ describe('idle timer + onDisconnect dual-instance fix', () => {
   });
 
   test('CRITICAL — REGRESSION: headed embedder does not auto-shutdown at idle', () => {
-    const exitMock = mock((_code?: number) => { throw new Error('process.exit called'); });
+    const exitMock = mock((_code?: number) => {
+      throw new Error('process.exit called');
+    });
     const originalExit = process.exit;
     (process as any).exit = exitMock;
     try {
@@ -433,7 +465,7 @@ describe('idle timer + onDisconnect dual-instance fix', () => {
       // Drive lastActivity past the idle threshold via the test seam instead
       // of mutating Date.now — the leaked module-level setInterval would
       // see fake-time and could fire shutdown if the timing aligned.
-      __testInternals__.setLastActivity(Date.now() - (31 * 60 * 1000));
+      __testInternals__.setLastActivity(Date.now() - 31 * 60 * 1000);
       __testInternals__.idleCheckTick();
       expect(exitMock).not.toHaveBeenCalled();
     } finally {
@@ -451,14 +483,14 @@ describe('idle timer + onDisconnect dual-instance fix', () => {
     try {
       const mockBM = makeMockBrowserManager('launched');
       buildFetchHandler(makeMinimalConfig({ browserManager: mockBM as any }));
-      __testInternals__.setLastActivity(Date.now() - (31 * 60 * 1000));
+      __testInternals__.setLastActivity(Date.now() - 31 * 60 * 1000);
       __testInternals__.idleCheckTick();
       // Drain microtasks: shutdown awaits flushBuffers + cfgBrowserManager.close
       // before reaching process.exit.
       await Promise.resolve();
       await Promise.resolve();
-      await new Promise<void>(r => setImmediate(r));
-      await new Promise<void>(r => setImmediate(r));
+      await new Promise<void>((r) => setImmediate(r));
+      await new Promise<void>((r) => setImmediate(r));
       expect(exitMock).toHaveBeenCalled();
     } finally {
       (process as any).exit = originalExit;
@@ -479,7 +511,9 @@ describe('idle timer + onDisconnect dual-instance fix', () => {
     // callback AND reaches activeShutdown (which calls process.exit at the
     // very end of its async path). Stubbing process.exit to throw aborts
     // the chain before isShuttingDown can leak into later tests.
-    const exitMock = mock((_code?: number) => { throw new Error('process.exit called'); });
+    const exitMock = mock((_code?: number) => {
+      throw new Error('process.exit called');
+    });
     const originalExit = process.exit;
     (process as any).exit = exitMock;
     try {
@@ -492,14 +526,16 @@ describe('idle timer + onDisconnect dual-instance fix', () => {
   });
 
   test('tunnelActive blocks idle-shutdown even in headless mode', () => {
-    const exitMock = mock((_code?: number) => { throw new Error('process.exit called'); });
+    const exitMock = mock((_code?: number) => {
+      throw new Error('process.exit called');
+    });
     const originalExit = process.exit;
     (process as any).exit = exitMock;
     try {
       const mockBM = makeMockBrowserManager('launched');
       buildFetchHandler(makeMinimalConfig({ browserManager: mockBM as any }));
       __testInternals__.setTunnelActive(true);
-      __testInternals__.setLastActivity(Date.now() - (31 * 60 * 1000));
+      __testInternals__.setLastActivity(Date.now() - 31 * 60 * 1000);
       __testInternals__.idleCheckTick();
       expect(exitMock).not.toHaveBeenCalled();
     } finally {

@@ -13,7 +13,12 @@ import * as path from 'path';
 // in the e2e tier.
 
 const TERMINAL_JS = path.resolve(
-  new URL(import.meta.url).pathname, '..', '..', '..', 'extension', 'sidepanel-terminal.js',
+  new URL(import.meta.url).pathname,
+  '..',
+  '..',
+  '..',
+  'extension',
+  'sidepanel-terminal.js',
 );
 
 describe('sidepanel re-attach loop (v1.44+ Commit 3)', () => {

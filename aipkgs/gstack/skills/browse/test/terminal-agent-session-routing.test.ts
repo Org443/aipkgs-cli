@@ -40,7 +40,7 @@ describe('terminal-agent session routing (v1.44+ Commit 2)', () => {
 
   test('4. /internal/restart is scoped to one sessionId, not dispose-all', () => {
     const src = fs.readFileSync(AGENT_TS, 'utf-8');
-    const block = sliceBetween(src, "url.pathname === '/internal/restart'", "// /claude-available");
+    const block = sliceBetween(src, "url.pathname === '/internal/restart'", '// /claude-available');
     expect(block).toContain('sessionsById.get(sid)');
     expect(block).toContain('disposeSession(session)');
     expect(block).toContain('sessionsById.delete(sid)');

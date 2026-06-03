@@ -47,10 +47,7 @@ const CDP_ACQUIRE_TIMEOUT_MS = 5000;
  * inspector), use `getOrCreateCdpSession` instead — it caches and detaches
  * on page close.
  */
-export async function withCdpSession<T>(
-  page: Page,
-  fn: (session: any) => Promise<T>,
-): Promise<T> {
+export async function withCdpSession<T>(page: Page, fn: (session: any) => Promise<T>): Promise<T> {
   const session = await page.context().newCDPSession(page);
   try {
     return await fn(session);
@@ -76,10 +73,7 @@ export async function withCdpSession<T>(
  * pool with different invariants (e.g. the inspector also detaches on
  * `framenavigated` because DOM/CSS domain state is tied to the document).
  */
-export async function getOrCreateCdpSession(
-  page: Page,
-  cache: WeakMap<Page, any>,
-): Promise<any> {
+export async function getOrCreateCdpSession(page: Page, cache: WeakMap<Page, any>): Promise<any> {
   let session = cache.get(page);
   if (session) return session;
   session = await page.context().newCDPSession(page);
@@ -135,7 +129,7 @@ export async function dispatchCdpCall(input: CdpDispatchInput): Promise<CdpDispa
     throw new Error(
       `DENIED: ${qualified} is not on the CDP allowlist.\n` +
         `Cause: deny-default posture; method has not been audited and added to cdp-allowlist.ts.\n` +
-        `Action: if this method is genuinely needed, open a PR adding it to CDP_ALLOWLIST with a one-line justification + scope (tab|browser) + output (trusted|untrusted).`
+        `Action: if this method is genuinely needed, open a PR adding it to CDP_ALLOWLIST with a one-line justification + scope (tab|browser) + output (trusted|untrusted).`,
     );
   }
   // Acquire the right tier of lock.
@@ -146,7 +140,13 @@ export async function dispatchCdpCall(input: CdpDispatchInput): Promise<CdpDispa
       : await input.bm.acquireTabLock(input.tabId, CDP_ACQUIRE_TIMEOUT_MS);
   const acquireMs = Date.now() - acquireStart;
   logTelemetry({ event: 'cdp_method_lock_acquire_ms', domain: input.domain, method: input.method, ms: acquireMs });
-  logTelemetry({ event: 'cdp_method_called', domain: input.domain, method: input.method, allowed: true, scope: entry.scope });
+  logTelemetry({
+    event: 'cdp_method_called',
+    domain: input.domain,
+    method: input.method,
+    allowed: true,
+    scope: entry.scope,
+  });
 
   try {
     const page = input.bm.getPageForTab(input.tabId);
@@ -154,7 +154,7 @@ export async function dispatchCdpCall(input: CdpDispatchInput): Promise<CdpDispa
       throw new Error(
         `Cannot dispatch: tab ${input.tabId} not found.\n` +
           'Cause: tab was closed between command queue and dispatch.\n' +
-          'Action: $B tabs to list current tabs.'
+          'Action: $B tabs to list current tabs.',
       );
     }
     let session;
@@ -164,13 +164,16 @@ export async function dispatchCdpCall(input: CdpDispatchInput): Promise<CdpDispa
       throw new Error(
         `CDPSessionInvalidated: ${e.message}\n` +
           'Cause: Playwright context was recreated (e.g., viewport scale change) and the prior CDP session is stale.\n' +
-          'Action: retry the command; the bridge will create a fresh session.'
+          'Action: retry the command; the bridge will create a fresh session.',
       );
     }
     // Race the call against a hard timeout.
     const callPromise = session.send(qualified, input.params);
     const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error(`CDPBridgeTimeout: ${qualified} did not return within ${CDP_TIMEOUT_MS}ms`)), CDP_TIMEOUT_MS),
+      setTimeout(
+        () => reject(new Error(`CDPBridgeTimeout: ${qualified} did not return within ${CDP_TIMEOUT_MS}ms`)),
+        CDP_TIMEOUT_MS,
+      ),
     );
     const raw = await Promise.race([callPromise, timeoutPromise]);
     return { raw, entry };

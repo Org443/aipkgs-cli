@@ -11,24 +11,22 @@
  * and the non-2xx-response path, and it must NOT assume the specific tmp
  * filename — only that no `<dest>.tmp.*` sibling remains.
  */
-import { describe, expect, test, beforeAll, afterAll, beforeEach, afterEach } from "bun:test";
-import * as fs from "node:fs";
-import * as path from "node:path";
+import { describe, expect, test, beforeAll, afterAll, beforeEach, afterEach } from 'bun:test';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
-import { downloadFile } from "../src/security-classifier";
+import { downloadFile } from '../src/security-classifier';
 
 function tmpSiblings(destDir: string, destBase: string): string[] {
   if (!fs.existsSync(destDir)) return [];
-  return fs.readdirSync(destDir).filter((f) =>
-    f.startsWith(destBase + ".tmp.")
-  );
+  return fs.readdirSync(destDir).filter((f) => f.startsWith(destBase + '.tmp.'));
 }
 
-let FIXTURE_DIR = "";
+let FIXTURE_DIR = '';
 let originalFetch: typeof fetch;
 
 beforeAll(() => {
-  FIXTURE_DIR = fs.mkdtempSync(path.join(process.cwd(), "pr1169-dl-"));
+  FIXTURE_DIR = fs.mkdtempSync(path.join(process.cwd(), 'pr1169-dl-'));
 });
 
 afterAll(() => {
@@ -45,9 +43,9 @@ afterEach(() => {
   globalThis.fetch = originalFetch;
 });
 
-describe("downloadFile error-path cleanup (PR #1169 bug #6)", () => {
-  test("reader rejects mid-stream: throws, no dest, no tmp sibling left", async () => {
-    const dest = path.join(FIXTURE_DIR, "reader-fail-model.bin");
+describe('downloadFile error-path cleanup (PR #1169 bug #6)', () => {
+  test('reader rejects mid-stream: throws, no dest, no tmp sibling left', async () => {
+    const dest = path.join(FIXTURE_DIR, 'reader-fail-model.bin');
     const destDir = path.dirname(dest);
     const destBase = path.basename(dest);
 
@@ -58,59 +56,52 @@ describe("downloadFile error-path cleanup (PR #1169 bug #6)", () => {
       },
       pull(controller) {
         // Second pull triggers the failure path the fix protects against.
-        controller.error(new Error("simulated mid-stream read failure"));
+        controller.error(new Error('simulated mid-stream read failure'));
       },
     });
 
     // @ts-expect-error — overwrite global fetch for the test
-    globalThis.fetch = async () =>
-      new Response(body, { status: 200, statusText: "OK" });
+    globalThis.fetch = async () => new Response(body, { status: 200, statusText: 'OK' });
 
-    await expect(downloadFile("https://example.com/model.bin", dest)).rejects.toThrow(
-      /simulated mid-stream read failure/
+    await expect(downloadFile('https://example.com/model.bin', dest)).rejects.toThrow(
+      /simulated mid-stream read failure/,
     );
 
     expect(fs.existsSync(dest)).toBe(false);
     expect(tmpSiblings(destDir, destBase)).toEqual([]);
   });
 
-  test("non-2xx response: throws with status, no tmp file created", async () => {
-    const dest = path.join(FIXTURE_DIR, "http500-model.bin");
+  test('non-2xx response: throws with status, no tmp file created', async () => {
+    const dest = path.join(FIXTURE_DIR, 'http500-model.bin');
     const destDir = path.dirname(dest);
     const destBase = path.basename(dest);
 
     // @ts-expect-error — overwrite global fetch for the test
-    globalThis.fetch = async () =>
-      new Response("server boom", { status: 500, statusText: "Server Error" });
+    globalThis.fetch = async () => new Response('server boom', { status: 500, statusText: 'Server Error' });
 
-    await expect(downloadFile("https://example.com/model.bin", dest)).rejects.toThrow(
-      /Failed to fetch.*500/
-    );
+    await expect(downloadFile('https://example.com/model.bin', dest)).rejects.toThrow(/Failed to fetch.*500/);
 
     expect(fs.existsSync(dest)).toBe(false);
     expect(tmpSiblings(destDir, destBase)).toEqual([]);
   });
 
-  test("missing body: throws, no tmp file created", async () => {
-    const dest = path.join(FIXTURE_DIR, "nobody-model.bin");
+  test('missing body: throws, no tmp file created', async () => {
+    const dest = path.join(FIXTURE_DIR, 'nobody-model.bin');
     const destDir = path.dirname(dest);
     const destBase = path.basename(dest);
 
     // Response with null body (some upstreams send this on edge errors).
     // @ts-expect-error — overwrite global fetch for the test
-    globalThis.fetch = async () =>
-      new Response(null, { status: 200, statusText: "OK" });
+    globalThis.fetch = async () => new Response(null, { status: 200, statusText: 'OK' });
 
-    await expect(downloadFile("https://example.com/model.bin", dest)).rejects.toThrow(
-      /Failed to fetch/
-    );
+    await expect(downloadFile('https://example.com/model.bin', dest)).rejects.toThrow(/Failed to fetch/);
 
     expect(fs.existsSync(dest)).toBe(false);
     expect(tmpSiblings(destDir, destBase)).toEqual([]);
   });
 
-  test("happy path: 2xx body completes, dest exists, no tmp sibling remains", async () => {
-    const dest = path.join(FIXTURE_DIR, "ok-model.bin");
+  test('happy path: 2xx body completes, dest exists, no tmp sibling remains', async () => {
+    const dest = path.join(FIXTURE_DIR, 'ok-model.bin');
     const destDir = path.dirname(dest);
     const destBase = path.basename(dest);
 
@@ -122,10 +113,9 @@ describe("downloadFile error-path cleanup (PR #1169 bug #6)", () => {
     });
 
     // @ts-expect-error — overwrite global fetch for the test
-    globalThis.fetch = async () =>
-      new Response(body, { status: 200, statusText: "OK" });
+    globalThis.fetch = async () => new Response(body, { status: 200, statusText: 'OK' });
 
-    await downloadFile("https://example.com/model.bin", dest);
+    await downloadFile('https://example.com/model.bin', dest);
 
     expect(fs.existsSync(dest)).toBe(true);
     expect(tmpSiblings(destDir, destBase)).toEqual([]);
@@ -135,4 +125,3 @@ describe("downloadFile error-path cleanup (PR #1169 bug #6)", () => {
     fs.unlinkSync(dest);
   });
 });
-

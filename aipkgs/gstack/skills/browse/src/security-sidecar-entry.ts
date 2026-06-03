@@ -31,12 +31,12 @@
  *     retry or fail-safe to L1-L3-only)
  */
 
-import * as readline from "readline";
-import { scanPageContent, getClassifierStatus, loadTestsavant } from "./security-classifier";
+import * as readline from 'readline';
+import { scanPageContent, getClassifierStatus, loadTestsavant } from './security-classifier';
 
 interface Request {
   id: string;
-  op: "scan-page-content" | "ping" | "status";
+  op: 'scan-page-content' | 'ping' | 'status';
   text?: string;
 }
 
@@ -54,26 +54,26 @@ interface ErrResponse {
 }
 
 function write(obj: OkResponse | ErrResponse): void {
-  process.stdout.write(JSON.stringify(obj) + "\n");
+  process.stdout.write(JSON.stringify(obj) + '\n');
 }
 
 async function handle(req: Request): Promise<void> {
-  if (!req || typeof req.id !== "string") {
+  if (!req || typeof req.id !== 'string') {
     // Drop unidentifiable requests silently — protocol invariant.
     return;
   }
   try {
-    if (req.op === "ping") {
-      write({ id: req.id, ok: true, verdict: { layer: "ping", verdict: "alive", score: 0 } });
+    if (req.op === 'ping') {
+      write({ id: req.id, ok: true, verdict: { layer: 'ping', verdict: 'alive', score: 0 } });
       return;
     }
-    if (req.op === "status") {
+    if (req.op === 'status') {
       write({ id: req.id, ok: true, status: getClassifierStatus() });
       return;
     }
-    if (req.op === "scan-page-content") {
-      if (typeof req.text !== "string") {
-        write({ id: req.id, ok: false, error: "missing-text" });
+    if (req.op === 'scan-page-content') {
+      if (typeof req.text !== 'string') {
+        write({ id: req.id, ok: false, error: 'missing-text' });
         return;
       }
       // Warm the classifier once per process; subsequent scans are fast.
@@ -96,7 +96,7 @@ function main(): void {
   // readline buffers stdin into one-line chunks. Stay alive until stdin
   // closes (parent gone) — Node exits naturally then.
   const rl = readline.createInterface({ input: process.stdin });
-  rl.on("line", (line) => {
+  rl.on('line', (line) => {
     if (!line.trim()) return;
     let req: Request;
     try {
@@ -104,17 +104,17 @@ function main(): void {
     } catch {
       // Malformed line — write a generic error without an id, callers can
       // detect via missing id and trip the circuit breaker.
-      write({ id: "<malformed>", ok: false, error: "malformed-json" });
+      write({ id: '<malformed>', ok: false, error: 'malformed-json' });
       return;
     }
     // Fire-and-forget; concurrent requests get id-correlated responses.
     void handle(req);
   });
-  rl.on("close", () => {
+  rl.on('close', () => {
     process.exit(0);
   });
-  process.on("SIGTERM", () => process.exit(0));
-  process.on("SIGINT", () => process.exit(0));
+  process.on('SIGTERM', () => process.exit(0));
+  process.on('SIGINT', () => process.exit(0));
 }
 
 main();
