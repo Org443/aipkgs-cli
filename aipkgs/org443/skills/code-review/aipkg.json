@@ -1,0 +1,15 @@
+{
+  "type": "skill",
+  "ref": "org443/code-review",
+  "version": "0.0.2",
+  "description": "Reviews modified code applying the rules",
+  "homepage": "https://aipkgs.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Org443/aipkgs-cli.git"
+  },
+  "issues": {
+    "url": "https://github.com/Org443/aipkgs-cli/issues"
+  },
+  "deps": {}
+}

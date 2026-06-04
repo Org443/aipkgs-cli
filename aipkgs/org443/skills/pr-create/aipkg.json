@@ -1,0 +1,15 @@
+{
+  "type": "skill",
+  "ref": "org443/pr-create",
+  "version": "0.0.2",
+  "description": "Create a GitHub PR from current branch",
+  "homepage": "https://aipkgs.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Org443/aipkgs-cli.git"
+  },
+  "issues": {
+    "url": "https://github.com/Org443/aipkgs-cli/issues"
+  },
+  "deps": {}
+}
