@@ -11,8 +11,8 @@ import { place } from '@local/placement';
 import type { Lockfile } from '../../files/lockfile.ts';
 import { installPkg } from './pkg.ts';
 
-export async function resolveDeps(args: { archive: AIpkgArchive; lockfile: Lockfile; target: AgentTarget }) {
-  const { archive, lockfile, target } = args;
+export async function resolveDeps(args: { archive: AIpkgArchive; lockfile: Lockfile; targets: AgentTarget[] }) {
+  const { archive, lockfile, targets } = args;
 
   const { manifest } = archive;
   const { deps } = manifest;
@@ -23,7 +23,7 @@ export async function resolveDeps(args: { archive: AIpkgArchive; lockfile: Lockf
     if (!depsBucket) continue;
     for (const entry of Object.values(depsBucket)) {
       const pkgRef = lockfile.resolvePkgRef({ pkgRef: entry });
-      await installPkg({ pkgRef, lockfile, target, parent });
+      await installPkg({ pkgRef, lockfile, targets, parent });
     }
   }
 
@@ -31,6 +31,6 @@ export async function resolveDeps(args: { archive: AIpkgArchive; lockfile: Lockf
   if (!mcps) return;
   for (const [name, entry] of Object.entries(mcps)) {
     lockfile.upsertMcp({ slug: name, entry, parent });
-    await place.installMcp({ slug: name, entry, target });
+    await place.installMcp({ slug: name, entry, targets });
   }
 }

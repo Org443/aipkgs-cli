@@ -9,11 +9,17 @@ export async function install(args: { archive: AIpkgArchive; slug: string }) {
   const { archive, slug } = args;
   const { type } = archive.manifest;
   const files = archive.files.filter((f) => f.path !== MANIFEST_FILENAME);
-  return installFiles({ type, slug, files });
+
+  return installFiles({ type, slug, files, srcSlug: archive.pkgRef.slug });
 }
 
-export async function installFiles(args: { type: Manifest['type']; slug: string; files: TarEntry[] }) {
-  const { type, slug, files } = args;
+export async function installFiles(args: {
+  type: Manifest['type'];
+  slug: string;
+  files: TarEntry[];
+  srcSlug?: string;
+}) {
+  const { type, slug, files, srcSlug = slug } = args;
 
   if (type === 'hook') return installHook({ slug, files });
 
@@ -33,8 +39,9 @@ export async function installFiles(args: { type: Manifest['type']; slug: string;
 
   await mkdir(dirname(path), { recursive: true });
 
-  const file = files[0];
-  if (!file) throw new Error(`No files to place for ${type}/${slug}`);
+  const primary = `${srcSlug}.md`;
+  const file = files.find((f) => f.path === primary);
+  if (!file) throw new Error(`Archive for ${type}/${slug} is missing ${primary}`);
 
   await writeFile(path, file.body);
   written.push(path);

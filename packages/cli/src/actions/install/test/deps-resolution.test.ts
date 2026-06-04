@@ -103,7 +103,7 @@ describe('resolveDeps', () => {
       });
 
       const lockfile = await Lockfile.resolve();
-      await resolveDeps({ archive: parentArchive, lockfile, target: 'claude' });
+      await resolveDeps({ archive: parentArchive, lockfile, targets: ['claude'] });
       await lockfile.write();
 
       // Each dep type is placed under its expected Claude directory.
@@ -191,7 +191,7 @@ describe('resolveDeps', () => {
       );
 
       const lockfile = await Lockfile.resolve();
-      await resolveDeps({ archive: parentArchive, lockfile, target: 'claude' });
+      await resolveDeps({ archive: parentArchive, lockfile, targets: ['claude'] });
       await lockfile.write();
 
       const cmdContent = await readTestFile('.claude', 'commands', 'pr-create.md');
@@ -218,7 +218,7 @@ describe('resolveDeps', () => {
       const parentArchive = await archiveService.parse(parentTgz);
 
       const lockfile = await Lockfile.resolve();
-      await resolveDeps({ archive: parentArchive, lockfile, target: 'claude' });
+      await resolveDeps({ archive: parentArchive, lockfile, targets: ['claude'] });
       await lockfile.write();
 
       const mcpJson = await readTestJson('.mcp.json');
@@ -250,7 +250,7 @@ describe('resolveDeps', () => {
       // pre-seed an mcp with a different url so the resolved one collides
       lockfile.upsertMcp({ slug: 'linear', entry: { url: 'https://other.example/sse' } });
 
-      await expect(resolveDeps({ archive: parentArchive, lockfile, target: 'claude' })).rejects.toThrow(
+      await expect(resolveDeps({ archive: parentArchive, lockfile, targets: ['claude'] })).rejects.toThrow(
         /mcps conflict/,
       );
     });
@@ -290,7 +290,7 @@ describe('resolveDeps', () => {
         .mockResolvedValue(new Response(ruleTarball, { status: 200, headers: { 'Content-Type': 'application/gzip' } }));
 
       const lockfile = await Lockfile.resolve();
-      await resolveDeps({ archive: parentArchive, lockfile, target: 'claude' });
+      await resolveDeps({ archive: parentArchive, lockfile, targets: ['claude'] });
 
       // biome-ignore lint/style/noNonNullAssertion: test assertion
       const calledUrl = vi.mocked(fetchSpy).mock.calls[0]![0] as string;
@@ -336,7 +336,7 @@ describe('resolveDeps', () => {
       });
 
       const lockfile = await Lockfile.resolve();
-      await resolveDeps({ archive: parentArchive, lockfile, target: 'claude' });
+      await resolveDeps({ archive: parentArchive, lockfile, targets: ['claude'] });
       await lockfile.write();
 
       // Both the direct dep and the transitive dep were placed on disk.

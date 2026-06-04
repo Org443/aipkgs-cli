@@ -235,6 +235,18 @@ describe('removeAction', () => {
     });
   });
 
+  describe('.aipkgs mirror', () => {
+    it('removes the package mirror alongside the placed asset', async () => {
+      await seedCmd({ slug: 'pr-create', ref: 'cmd/org443/pr-create', version: 'latest' });
+      await writeTestFile('# pr-create', '.aipkgs', 'cmds', 'org443', 'pr-create', 'pr-create.md');
+      await writeTestFile('{}', '.aipkgs', 'cmds', 'org443', 'pr-create', 'aipkg.json');
+
+      await removeAction({ type: 'cmd', ref: 'org443/pr-create' });
+
+      expect(testFileExists('.aipkgs', 'cmds', 'org443', 'pr-create')).toBe(false);
+    });
+  });
+
   describe('cascading deps', () => {
     it('removes a non-box entry plus the transitive deps it pulled in', async () => {
       const parentRef = 'aipkg://cmd/org443/parent-cmd@1.0.0';

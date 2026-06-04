@@ -1,6 +1,7 @@
-import { AGENT_TARGETS, MANIFEST_FILENAME, MANIFEST_TYPES, type Manifest } from '@local/archive';
+import { AGENT_TARGETS, type AgentTarget, MANIFEST_FILENAME, MANIFEST_TYPES, type Manifest } from '@local/archive';
 import { Command } from 'commander';
 import pc from 'picocolors';
+import { ensureConfigured } from './actions/first-run.ts';
 import { initAction } from './actions/init.ts';
 import { installAllAction } from './actions/install/all.ts';
 import { interactiveInstallAction } from './actions/install/interactive.ts';
@@ -9,9 +10,10 @@ import { logoutAction } from './actions/logout.ts';
 import { mcpAddAction, mcpRemoveAction } from './actions/mcp.ts';
 import { publishAction } from './actions/publish/publish.ts';
 import { removeAction } from './actions/remove.ts';
-import { isAgentTarget, setTargetAction } from './actions/set.ts';
+import { isAgentTarget, promptTargets, setAipkgsMirrorAction, setTargetsAction } from './actions/set.ts';
 import { whoamiAction } from './actions/whoami.ts';
 import { HttpError } from './api/http.ts';
+import type { MirrorState } from './files/config.ts';
 
 const program = new Command();
 
@@ -20,6 +22,16 @@ program
   .description('Install and manage aipkg packages')
   .version('0.0.0', '-v, --version', 'output the version number')
   .showHelpAfterError();
+
+// First-run gate: before any command runs, make sure an agent target is
+// configured (prompting once on a fresh install). Skipped for `set`, which is
+// the user explicitly configuring targets themselves.
+program.hook('preAction', async (_thisCommand, actionCommand) => {
+  let top = actionCommand;
+  while (top.parent && top.parent !== program) top = top.parent;
+  if (top.name() === 'set') return;
+  await ensureConfigured();
+});
 
 // Asset types: every type supports install (default) and remove.
 // Publishing for asset types is unified under `aipkg publish <type> <name>` below.
@@ -111,14 +123,38 @@ mcpCmd
 const setCmd = program.command('set').description('Update local aipkg configuration');
 
 setCmd
-  .command('target <target>')
-  .description(`Set the agent target (${AGENT_TARGETS.join(', ')})`)
-  .action(async (target: string) => {
-    if (!isAgentTarget(target)) {
-      console.error(pc.red(`Invalid target "${target}". Valid targets: ${AGENT_TARGETS.join(', ')}`));
+  .command('target [targets...]')
+  .description(`Set the agent target(s) (${AGENT_TARGETS.join(', ')}) — omit args to pick interactively`)
+  .action(async (targets: string[]) => {
+    if (targets.length === 0) {
+      const chosen = await promptTargets({ message: 'Select your agent target(s)' });
+      if (chosen === null) {
+        console.error(pc.red('Cancelled — targets unchanged.'));
+        process.exit(1);
+      }
+      return;
+    }
+
+    const invalid = targets.filter((target) => !isAgentTarget(target));
+    if (invalid.length > 0) {
+      console.error(pc.red(`Invalid target(s) "${invalid.join(', ')}". Valid targets: ${AGENT_TARGETS.join(', ')}`));
       process.exit(1);
     }
-    await setTargetAction({ target });
+
+    const unique = [...new Set(targets)] as AgentTarget[];
+    await setTargetsAction({ targets: unique });
+  });
+
+setCmd
+  .command('mirror <state>')
+  .description('Mirror installed archives into ./.aipkgs (enabled|disabled)')
+  .action(async (state: string) => {
+    const mirrorState = parseMirrorState(state);
+    if (mirrorState === null) {
+      console.error(pc.red(`Invalid state "${state}". Use "enabled" or "disabled".`));
+      process.exit(1);
+    }
+    await setAipkgsMirrorAction({ state: mirrorState });
   });
 
 program.parseAsync().catch((err: unknown) => {
@@ -161,6 +197,13 @@ function defineInstallCommand(input: { program: Command; type: Manifest['type'] 
     .action(async (ref: string) => {
       await removeAction({ type, ref });
     });
+}
+
+function parseMirrorState(state: string): MirrorState | null {
+  const normalized = state.trim().toLowerCase();
+  if (normalized === 'enabled' || normalized === 'on') return 'enabled';
+  if (normalized === 'disabled' || normalized === 'off') return 'disabled';
+  return null;
 }
 
 function parseKeyVals(values: string[] | undefined, flag: string): Record<string, string> | undefined {

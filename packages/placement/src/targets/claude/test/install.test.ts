@@ -40,6 +40,24 @@ describe('install', () => {
     expect(await readTestFile('.claude', 'rules', 'no-any.md')).toBe('# no-any\nTest content.');
   });
 
+  it('places the primary file, not a README sidecar that sorts ahead of it', async () => {
+    // Archives are packed sidecars-first ([README.md, LICENSE.txt, <slug>.md]),
+    // so a blind files[0] would write the README's body into <slug>.md.
+    const archive = await buildTestArchive({
+      type: 'rule',
+      slug: 'no-any',
+      files: [
+        { path: 'README.md', body: Buffer.from('# How to install no-any') },
+        { path: 'no-any.md', body: Buffer.from('# no-any\nNever use `any`.') },
+      ],
+    });
+
+    const { written } = await install({ archive, slug: 'no-any' });
+
+    expect(written).toEqual([expect.stringMatching(/\.claude\/rules\/no-any\.md$/)]);
+    expect(await readTestFile('.claude', 'rules', 'no-any.md')).toBe('# no-any\nNever use `any`.');
+  });
+
   it('writes to the provided slug rather than the archive slug', async () => {
     const archive = await buildTestArchive({ type: 'cmd', slug: 'pr-create' });
 
