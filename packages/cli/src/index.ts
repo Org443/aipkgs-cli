@@ -87,7 +87,7 @@ async function main() {
     .description(`Publish the package described by ${MANIFEST_FILENAME} (defaults to cwd)`)
     .argument(
       '[path]',
-      `path to a manifest file, or a directory containing ${MANIFEST_FILENAME} (defaults to current working directory)`,
+      `path to a manifest file, or a directory containing ${MANIFEST_FILENAME} (defaults to current working directory)`
     )
     .option('--dry', 'collect and print the manifest + archive contents without uploading')
     .option('-y, --yes', 'skip the interactive confirmation prompt and publish immediately')
@@ -108,7 +108,7 @@ async function main() {
     .action(
       async (
         slug: string,
-        opts: { url?: string; command?: string; arg?: string[]; header?: string[]; env?: string[] },
+        opts: { url?: string; command?: string; arg?: string[]; header?: string[]; env?: string[] }
       ) => {
         await mcpAddAction({
           slug,
@@ -118,7 +118,7 @@ async function main() {
           headers: parseKeyVals(opts.header, '--header'),
           env: parseKeyVals(opts.env, '--env'),
         });
-      },
+      }
     );
 
   mcpCmd
