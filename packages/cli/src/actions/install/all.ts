@@ -7,7 +7,7 @@ import { ManifestFile } from '../../files/manifest.ts';
 import { installPkg } from './pkg.ts';
 
 export async function installAllAction(args: { manifest?: string } = {}) {
-  const target = await ConfigFile.resolvedTarget();
+  const targets = await ConfigFile.resolvedTargets();
   const manifest = await ManifestFile.resolve({ file: args.manifest });
   const lockfile = await Lockfile.resolve({ file: lockfilePathFor(manifest.path) });
 
@@ -19,14 +19,14 @@ export async function installAllAction(args: { manifest?: string } = {}) {
   }
 
   for (const pkgRef of tasks) {
-    const { archive } = await installPkg({ pkgRef, lockfile, target });
+    const { archive } = await installPkg({ pkgRef, lockfile, targets });
 
     await lockfile.upsertEntry({ pkgRef, archive });
   }
 
   for (const { name, entry } of mcps) {
     lockfile.upsertMcp({ slug: name, entry });
-    await place.installMcp({ slug: name, entry, target });
+    await place.installMcp({ slug: name, entry, targets });
   }
 
   await manifest.write();

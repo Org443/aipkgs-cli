@@ -40,8 +40,8 @@ export async function mcpAddAction(input: {
   manifest.upsertMcp({ slug, entry });
   lockfile.upsertMcp({ slug, entry });
 
-  const target = await ConfigFile.resolvedTarget();
-  const { written } = await place.installMcp({ slug, entry, target });
+  const targets = await ConfigFile.resolvedTargets();
+  const { written } = await place.installMcp({ slug, entry, targets });
 
   await manifest.write();
   await lockfile.write();
@@ -63,8 +63,8 @@ export async function mcpRemoveAction(input: { slug: string }) {
   const { removed: removedFromManifest } = manifest.removeMcp({ slug });
   const removedFromLock = lockfile.removeMcp({ slug });
 
-  const target = await ConfigFile.resolvedTarget();
-  const { removed: removedFromConfig, path } = await place.removeMcp({ slug, target });
+  const targets = await ConfigFile.resolvedTargets();
+  const { removed: removedFromConfig, paths: removedPaths } = await place.removeMcp({ slug, targets });
 
   if (!removedFromManifest && !removedFromLock && !removedFromConfig) {
     console.log(pc.yellow(`Nothing to remove — no mcp "${slug}" tracked`));
@@ -75,7 +75,7 @@ export async function mcpRemoveAction(input: { slug: string }) {
   await lockfile.write();
 
   console.log(`${pc.green('Removed')} ${pc.bold(`mcp ${slug}`)}`);
-  if (removedFromConfig) console.log(pc.dim(`  ${path}`));
+  for (const path of removedPaths) console.log(pc.dim(`  ${path}`));
   if (removedFromManifest) console.log(pc.dim('  aipkg.json'));
   if (removedFromLock) console.log(pc.dim('  aipkg.lock'));
 }

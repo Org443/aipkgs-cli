@@ -10,12 +10,12 @@ export async function installAction(args: { type: Manifest['type']; ref: string 
 
   const pkgRef = new PackageRef({ refStr: `${type}/${refStr}` });
 
-  const target = await ConfigFile.resolvedTarget();
+  const targets = await ConfigFile.resolvedTargets();
   const lockfile = await Lockfile.resolve();
   const manifest = await ManifestFile.resolve();
 
   // writes assets to active folders to be used by the AI, updating the lockfile
-  const { archive } = await installPkg({ pkgRef, lockfile, target });
+  const { archive } = await installPkg({ pkgRef, lockfile, targets });
 
   const upserted = await manifest.upsertEntry({ pkgRef });
 

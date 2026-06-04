@@ -11,15 +11,16 @@ import { place } from '@local/placement';
 import pc from 'picocolors';
 import { api } from '../../api/index.ts';
 import type { Lockfile } from '../../files/lockfile.ts';
+import { writeAipkgsMirror } from '../../io/aipkgs.ts';
 import { resolveDeps } from './deps-resolution.ts';
 
 export async function installPkg(args: {
   pkgRef: PackageRef;
   lockfile: Lockfile;
-  target: AgentTarget;
+  targets: AgentTarget[];
   parent?: string;
 }) {
-  const { pkgRef, parent, lockfile, target } = args;
+  const { pkgRef, parent, lockfile, targets } = args;
   const slug = pkgRef.entryKey();
 
   const lock = lockfile.getEntry({ pkgRef });
@@ -42,26 +43,29 @@ export async function installPkg(args: {
     );
   }
 
+  await writeAipkgsMirror({ archive });
+
   if (pkgRef.type === 'box') {
-    return installBox({ archive, lockfile, target, parent });
+    return installBox({ archive, lockfile, targets, parent });
   }
 
-  const { written, statusLine } = await place.install({ archive, slug, target });
+  // Place the asset into every selected agent's folder layout.
+  const { written, statusLine } = await place.install({ archive, slug, targets });
+  for (const file of written) console.log(pc.dim(`  ${file}`));
 
   if (written.length === 0) {
     throw new Error(`Archive for ${pkgRef.aipkgRef} contained nothing installable`);
   }
-  for (const file of written) console.log(pc.dim(`  ${file}`));
 
   if (statusLine) {
     lockfile.upsertStatusLine({ slug, statusLine, parent });
-    const { path } = await place.setStatusLine({ slug, statusLine, target });
-    console.log(pc.dim(`  ${path}`));
+    const { paths } = await place.setStatusLine({ slug, statusLine, targets });
+    for (const path of paths) console.log(pc.dim(`  ${path}`));
   }
 
   await lockfile.upsertEntry({ pkgRef, archive, parent });
 
-  await resolveDeps({ archive, lockfile, target });
+  await resolveDeps({ archive, lockfile, targets });
 
   return { archive, pkgRef };
 }
@@ -69,10 +73,10 @@ export async function installPkg(args: {
 async function installBox(args: {
   archive: AIpkgArchive;
   lockfile: Lockfile;
-  target: AgentTarget;
+  targets: AgentTarget[];
   parent?: string;
 }) {
-  const { archive, lockfile, target, parent } = args;
+  const { archive, lockfile, targets, parent } = args;
   const { pkgRef } = archive;
 
   await lockfile.upsertEntry({ pkgRef, archive, parent });
@@ -83,18 +87,18 @@ async function installBox(args: {
       type: child.type,
       slug: child.slug,
       files: child.files,
-      target,
+      targets,
     });
     for (const file of written) console.log(pc.dim(`  ${file}`));
     if (statusLine) {
       lockfile.upsertStatusLine({ slug: child.slug, statusLine, parent: pkgRef.aipkgRef });
-      const { path } = await place.setStatusLine({ slug: child.slug, statusLine, target });
-      console.log(pc.dim(`  ${path}`));
+      const { paths } = await place.setStatusLine({ slug: child.slug, statusLine, targets });
+      for (const path of paths) console.log(pc.dim(`  ${path}`));
     }
     await lockfile.upsertBoxChild({ archive, type: child.type, slug: child.slug });
   }
 
-  await resolveDeps({ archive, lockfile, target });
+  await resolveDeps({ archive, lockfile, targets });
 
   return { archive, pkgRef };
 }

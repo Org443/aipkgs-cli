@@ -1,5 +1,9 @@
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { Manifest, type TarEntry, archiveService } from '@local/archive';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ConfigFile } from '../../../files/config.ts';
 import {
   EMPTY_LOCKFILE,
   EMPTY_MANIFEST,
@@ -12,8 +16,16 @@ import {
 } from '../../../test/helpers.ts';
 import { installAction } from '../install.ts';
 
+let home = '';
+let originalHome: string | undefined;
+
 beforeEach(async () => {
   setupTestCwd({ prefix: 'aipkg-install-test-' });
+  // Isolate HOME so the suite reads a fresh config (mirror off) instead of the
+  // dev's real ~/.aipkg/config.json; the mirror tests opt in via ConfigFile.
+  home = mkdtempSync(join(tmpdir(), 'aipkg-install-home-'));
+  originalHome = process.env.HOME;
+  process.env.HOME = home;
   process.env.AIPKG_API = 'http://test.invalid';
   process.env.AIPKG_TARGET = 'claude';
   vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -24,6 +36,8 @@ beforeEach(async () => {
 afterEach(() => {
   teardownTestCwd();
   vi.restoreAllMocks();
+  process.env.HOME = originalHome;
+  rmSync(home, { recursive: true, force: true });
   process.env.AIPKG_API = undefined;
   process.env.AIPKG_TARGET = undefined;
 });
@@ -416,6 +430,59 @@ describe('installAction', () => {
         version: '0.2.0',
         sha: expectedArchive.sha,
       });
+    });
+  });
+
+  describe('.aipkgs mirror', () => {
+    it('mirrors the full archive into a namespaced .aipkgs dir when enabled', async () => {
+      await ConfigFile.setAipkgsMirror('enabled');
+      const tarball = await buildTestTarball({
+        type: 'cmd',
+        org: 'org443',
+        slug: 'code-simplify',
+        version: '1.0.0',
+        files: [
+          { path: 'code-simplify.md', body: Buffer.from('# code-simplify') },
+          { path: 'README.md', body: Buffer.from('# readme') },
+        ],
+      });
+      mockFetch(tarball);
+
+      await installAction({ type: 'cmd', ref: 'org443/code-simplify' });
+
+      const root = ['.aipkgs', 'cmds', 'org443', 'code-simplify'];
+      expect(await readTestFile(...root, 'code-simplify.md')).toBe('# code-simplify');
+      expect(await readTestFile(...root, 'README.md')).toBe('# readme');
+      // The manifest ships inside the mirror so the archive is fully reconstructed,
+      // pretty-printed for readability on disk.
+      const manifestRaw = await readTestFile(...root, 'aipkg.json');
+      expect(manifestRaw).toBe(`${JSON.stringify(JSON.parse(manifestRaw), null, 2)}\n`);
+      expect(JSON.parse(manifestRaw)).toMatchObject({ type: 'cmd', ref: 'org443/code-simplify', version: '1.0.0' });
+    });
+
+    it('mirrors a box archive (children included) under .aipkgs/boxes', async () => {
+      await ConfigFile.setAipkgsMirror('enabled');
+      const tarball = await buildTestTarball({
+        type: 'box',
+        org: 'org443',
+        slug: 'my-box',
+        version: '1.0.0',
+        files: [{ path: 'cmds/pr-create.md', body: Buffer.from('# pr-create') }],
+      });
+      mockFetch(tarball);
+
+      await installAction({ type: 'box', ref: 'org443/my-box' });
+
+      expect(await readTestFile('.aipkgs', 'boxes', 'org443', 'my-box', 'cmds', 'pr-create.md')).toBe('# pr-create');
+    });
+
+    it('does not create .aipkgs when the flag is off', async () => {
+      const tarball = await buildTestTarball({ type: 'cmd', org: 'org443', slug: 'pr-create', version: '1.0.0' });
+      mockFetch(tarball);
+
+      await installAction({ type: 'cmd', ref: 'org443/pr-create' });
+
+      expect(testFileExists('.aipkgs')).toBe(false);
     });
   });
 
