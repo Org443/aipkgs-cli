@@ -5,7 +5,7 @@ Use when starting any conversation - establishes how to find and use skills, req
 ## Install
 
 ```sh
-npx @aipkgs/cli install superpowers/using-superpowers
+npx @aipkgs/cli skill superpowers/using-superpowers
 ```
 
 ## Attribution

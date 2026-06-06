@@ -5,5 +5,5 @@ Create beautiful visual art in .png and .pdf documents using design philosophy. 
 ## Install
 
 ```sh
-npx @aipkgs/cli install os/canvas-design
+npx @aipkgs/cli skill os/canvas-design
 ```

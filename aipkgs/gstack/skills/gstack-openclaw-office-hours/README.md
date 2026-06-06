@@ -5,5 +5,5 @@ Use when asked to brainstorm, evaluate whether an idea is worth building, run of
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/gstack-openclaw-office-hours
+npx @aipkgs/cli skill gstack/gstack-openclaw-office-hours
 ```

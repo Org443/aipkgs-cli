@@ -5,5 +5,5 @@ Creating algorithmic art using p5.js with seeded randomness and interactive para
 ## Install
 
 ```sh
-npx @aipkgs/cli install os/algorithmic-art
+npx @aipkgs/cli skill os/algorithmic-art
 ```

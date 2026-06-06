@@ -5,5 +5,5 @@ Search and discover packages in the AIpkgs registry (commands, skills, rules, ag
 ## Install
 
 ```sh
-npx @aipkgs/cli install org443/search-aipkgs
+npx @aipkgs/cli skill org443/search-aipkgs
 ```

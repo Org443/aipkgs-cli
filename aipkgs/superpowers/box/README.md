@@ -18,7 +18,6 @@ Next up, once you say "go", it launches a *subagent-driven-development* process,
 
 There's a bunch more to it, but that's the core of the system. And because the skills trigger automatically, you don't need to do anything special. Your coding agent just has Superpowers.
 
-
 ## Sponsorship
 
 If Superpowers has helped you do stuff that makes money and you are so inclined, I'd greatly appreciate it if you'd consider [sponsoring my opensource work](https://github.com/sponsors/obra).
@@ -26,7 +25,6 @@ If Superpowers has helped you do stuff that makes money and you are so inclined,
 Thanks! 
 
 - Jesse
-
 
 ## Installation
 

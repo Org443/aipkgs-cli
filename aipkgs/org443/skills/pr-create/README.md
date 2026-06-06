@@ -5,5 +5,5 @@ Create a GitHub PR from current branch
 ## Install
 
 ```sh
-npx @aipkgs/cli install org443/pr-create
+npx @aipkgs/cli skill org443/pr-create
 ```

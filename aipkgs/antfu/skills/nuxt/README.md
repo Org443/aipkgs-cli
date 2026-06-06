@@ -5,5 +5,5 @@ Nuxt full-stack Vue framework with SSR, auto-imports, and file-based routing. Us
 ## Install
 
 ```sh
-npx @aipkgs/cli install antfu/nuxt
+npx @aipkgs/cli skill antfu/nuxt
 ```

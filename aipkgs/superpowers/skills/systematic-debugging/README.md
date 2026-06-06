@@ -5,7 +5,7 @@ Use when encountering any bug, test failure, or unexpected behavior, before prop
 ## Install
 
 ```sh
-npx @aipkgs/cli install superpowers/systematic-debugging
+npx @aipkgs/cli skill superpowers/systematic-debugging
 ```
 
 ## Attribution

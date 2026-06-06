@@ -5,7 +5,7 @@ Use when executing implementation plans with independent tasks in the current se
 ## Install
 
 ```sh
-npx @aipkgs/cli install superpowers/subagent-driven-development
+npx @aipkgs/cli skill superpowers/subagent-driven-development
 ```
 
 ## Attribution

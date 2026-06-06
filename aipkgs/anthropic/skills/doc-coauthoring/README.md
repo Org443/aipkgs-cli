@@ -5,5 +5,5 @@ Guide users through a structured workflow for co-authoring documentation. Use wh
 ## Install
 
 ```sh
-npx @aipkgs/cli install os/doc-coauthoring
+npx @aipkgs/cli skill os/doc-coauthoring
 ```

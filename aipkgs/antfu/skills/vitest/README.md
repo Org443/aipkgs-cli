@@ -5,5 +5,5 @@ Vitest fast unit testing framework powered by Vite with Jest-compatible API. Use
 ## Install
 
 ```sh
-npx @aipkgs/cli install antfu/vitest
+npx @aipkgs/cli skill antfu/vitest
 ```

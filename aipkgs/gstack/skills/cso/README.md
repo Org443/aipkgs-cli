@@ -5,5 +5,5 @@ Chief Security Officer mode. (gstack)
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/cso
+npx @aipkgs/cli skill gstack/cso
 ```

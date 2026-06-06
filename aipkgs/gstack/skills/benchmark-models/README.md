@@ -5,5 +5,5 @@ Cross-model benchmark for gstack skills. (gstack)
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/benchmark-models
+npx @aipkgs/cli skill gstack/benchmark-models
 ```

@@ -5,5 +5,5 @@ Reviews modified code applying the rules
 ## Install
 
 ```sh
-npx @aipkgs/cli install org443/code-review
+npx @aipkgs/cli skill org443/code-review
 ```

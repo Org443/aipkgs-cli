@@ -5,5 +5,5 @@ Scrape the Hacker News front page (titles, points, comment counts).
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/hackernews-frontpage
+npx @aipkgs/cli skill gstack/hackernews-frontpage
 ```

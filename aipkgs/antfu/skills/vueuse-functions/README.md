@@ -5,5 +5,5 @@ Apply VueUse composables where appropriate to build concise, maintainable Vue.js
 ## Install
 
 ```sh
-npx @aipkgs/cli install antfu/vueuse-functions
+npx @aipkgs/cli skill antfu/vueuse-functions
 ```

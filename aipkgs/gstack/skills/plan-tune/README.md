@@ -5,5 +5,5 @@ Self-tuning question sensitivity + developer psychographic for gstack (v1: obser
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/plan-tune
+npx @aipkgs/cli skill gstack/plan-tune
 ```

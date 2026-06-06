@@ -5,5 +5,5 @@ Knowledge and utilities for creating animated GIFs optimized for Slack. Provides
 ## Install
 
 ```sh
-npx @aipkgs/cli install os/slack-gif-creator
+npx @aipkgs/cli skill os/slack-gif-creator
 ```

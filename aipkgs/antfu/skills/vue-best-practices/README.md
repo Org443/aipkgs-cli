@@ -5,5 +5,5 @@ MUST be used for Vue.js tasks. Recommends Composition API with <script setup> an
 ## Install
 
 ```sh
-npx @aipkgs/cli install antfu/vue-best-practices
+npx @aipkgs/cli skill antfu/vue-best-practices
 ```

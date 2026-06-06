@@ -5,5 +5,5 @@ Codify the most recent successful /scrape flow into a permanent browser-skill on
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/skillify
+npx @aipkgs/cli skill gstack/skillify
 ```

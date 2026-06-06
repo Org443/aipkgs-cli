@@ -5,5 +5,5 @@ Review UI code for Web Interface Guidelines compliance. Use when asked to review
 ## Install
 
 ```sh
-npx @aipkgs/cli install antfu/web-design-guidelines
+npx @aipkgs/cli skill antfu/web-design-guidelines
 ```

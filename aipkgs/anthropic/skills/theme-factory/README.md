@@ -5,5 +5,5 @@ Toolkit for styling artifacts with a theme. These artifacts can be slides, docs,
 ## Install
 
 ```sh
-npx @aipkgs/cli install os/theme-factory
+npx @aipkgs/cli skill os/theme-factory
 ```

@@ -5,5 +5,5 @@ Create new skills, modify and improve existing skills, and measure skill perform
 ## Install
 
 ```sh
-npx @aipkgs/cli install os/skill-creator
+npx @aipkgs/cli skill os/skill-creator
 ```

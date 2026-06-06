@@ -5,5 +5,5 @@ Pre-landing PR review. (gstack)
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/review
+npx @aipkgs/cli skill gstack/review
 ```

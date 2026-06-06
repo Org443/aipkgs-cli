@@ -5,5 +5,5 @@ Save working context. (gstack)
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/context-save
+npx @aipkgs/cli skill gstack/context-save
 ```

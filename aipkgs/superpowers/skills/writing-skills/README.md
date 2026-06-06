@@ -5,7 +5,7 @@ Use when creating new skills, editing existing skills, or verifying skills work 
 ## Install
 
 ```sh
-npx @aipkgs/cli install superpowers/writing-skills
+npx @aipkgs/cli skill superpowers/writing-skills
 ```
 
 ## Attribution

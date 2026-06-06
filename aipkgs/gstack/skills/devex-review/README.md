@@ -5,5 +5,5 @@ Live developer experience audit. (gstack)
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/devex-review
+npx @aipkgs/cli skill gstack/devex-review
 ```

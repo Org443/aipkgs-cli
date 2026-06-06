@@ -5,5 +5,5 @@ Node.js package manager with strict dependency resolution. Use when running pnpm
 ## Install
 
 ```sh
-npx @aipkgs/cli install antfu/pnpm
+npx @aipkgs/cli skill antfu/pnpm
 ```

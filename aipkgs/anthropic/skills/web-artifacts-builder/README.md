@@ -5,5 +5,5 @@ Suite of tools for creating elaborate, multi-component claude.ai HTML artifacts 
 ## Install
 
 ```sh
-npx @aipkgs/cli install os/web-artifacts-builder
+npx @aipkgs/cli skill os/web-artifacts-builder
 ```

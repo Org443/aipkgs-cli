@@ -5,5 +5,5 @@ Design shotgun: generate multiple AI design variants, open a comparison board, c
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/design-shotgun
+npx @aipkgs/cli skill gstack/design-shotgun
 ```

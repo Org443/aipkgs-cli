@@ -5,5 +5,5 @@ Auto-review pipeline — reads the full CEO, design, eng, and DX review skills f
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/autoplan
+npx @aipkgs/cli skill gstack/autoplan
 ```

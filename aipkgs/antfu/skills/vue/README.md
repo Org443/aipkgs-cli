@@ -5,5 +5,5 @@ Vue 3 Composition API, script setup macros, reactivity system, and built-in comp
 ## Install
 
 ```sh
-npx @aipkgs/cli install antfu/vue
+npx @aipkgs/cli skill antfu/vue
 ```

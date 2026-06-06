@@ -5,5 +5,5 @@ Use when asked to debug, fix a bug, investigate an error, or do root cause analy
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/gstack-openclaw-investigate
+npx @aipkgs/cli skill gstack/gstack-openclaw-investigate
 ```

@@ -198,14 +198,12 @@ for event in events.data:
 ```python
 import json
 
-
 def run_custom_tool(tool_name: str, tool_input: dict) -> str:
     """Execute a custom tool and return the result."""
     if tool_name == "run_tests":
         # Your tool implementation here
         return "All tests passed."
     return f"Unknown tool: {tool_name}"
-
 
 def run_session(client, session_id: str):
     """Stream events and handle custom tool calls."""

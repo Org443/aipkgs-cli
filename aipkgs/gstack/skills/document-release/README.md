@@ -5,5 +5,5 @@ Post-ship documentation update. (gstack)
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/document-release
+npx @aipkgs/cli skill gstack/document-release
 ```

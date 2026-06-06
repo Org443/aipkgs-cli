@@ -5,5 +5,5 @@ A set of resources to help me write all kinds of internal communications, using 
 ## Install
 
 ```sh
-npx @aipkgs/cli install os/internal-comms
+npx @aipkgs/cli skill os/internal-comms
 ```

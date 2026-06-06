@@ -5,5 +5,5 @@ Ship workflow: detect + merge base branch, run tests, review diff, bump VERSION,
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/ship
+npx @aipkgs/cli skill gstack/ship
 ```

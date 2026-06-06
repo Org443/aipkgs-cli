@@ -5,5 +5,5 @@ Pair a remote AI agent with your browser. (gstack)
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/pair-agent
+npx @aipkgs/cli skill gstack/pair-agent
 ```

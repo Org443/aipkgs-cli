@@ -5,5 +5,5 @@ Set up gbrain for this coding agent: install the CLI, initialize a local PGLite 
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/setup-gbrain
+npx @aipkgs/cli skill gstack/setup-gbrain
 ```

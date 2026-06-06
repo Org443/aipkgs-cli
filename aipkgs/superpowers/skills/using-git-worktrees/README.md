@@ -5,7 +5,7 @@ Use when starting feature work that needs isolation from current workspace or be
 ## Install
 
 ```sh
-npx @aipkgs/cli install superpowers/using-git-worktrees
+npx @aipkgs/cli skill superpowers/using-git-worktrees
 ```
 
 ## Attribution

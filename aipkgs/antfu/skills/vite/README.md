@@ -5,5 +5,5 @@ Vite build tool configuration, plugin API, SSR, and Vite 8 Rolldown migration. U
 ## Install
 
 ```sh
-npx @aipkgs/cli install antfu/vite
+npx @aipkgs/cli skill antfu/vite
 ```

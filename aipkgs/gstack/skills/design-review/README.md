@@ -5,5 +5,5 @@ Designer's eye QA: finds visual inconsistency, spacing issues, hierarchy problem
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/design-review
+npx @aipkgs/cli skill gstack/design-review
 ```

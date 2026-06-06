@@ -5,7 +5,7 @@ Use when implementation is complete, all tests pass, and you need to decide how 
 ## Install
 
 ```sh
-npx @aipkgs/cli install superpowers/finishing-a-development-branch
+npx @aipkgs/cli skill superpowers/finishing-a-development-branch
 ```
 
 ## Attribution
