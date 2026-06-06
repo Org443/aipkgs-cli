@@ -109,6 +109,13 @@ export class Manifest {
     return this.deps[key]?.[slug];
   }
 
+  bumpVersion(release: 'major' | 'minor' | 'patch') {
+    this.version = nextVersion({ version: this.version, release });
+    const fullRef = `${this.type}/${this.ref}@${this.version}`;
+    this.pkgRef = new PackageRef({ refStr: fullRef });
+    return this.version;
+  }
+
   toObject(): z.output<typeof ManifestZ> {
     const deps = {
       skills: serializeBucket(this.deps.skills),
@@ -130,6 +137,25 @@ export class Manifest {
       issues: this.issues,
       deps: hasAnyDep ? deps : undefined,
     };
+  }
+}
+
+function nextVersion(args: { version: string; release: 'major' | 'minor' | 'patch' }) {
+  const { version, release } = args;
+  const match = /^(\d+)\.(\d+)\.(\d+)/.exec(version);
+  if (!match) throw new Error(`Cannot bump invalid version: ${version}`);
+
+  const major = Number(match[1]);
+  const minor = Number(match[2]);
+  const patch = Number(match[3]);
+
+  switch (release) {
+    case 'major':
+      return `${major + 1}.0.0`;
+    case 'minor':
+      return `${major}.${minor + 1}.0`;
+    case 'patch':
+      return `${major}.${minor}.${patch + 1}`;
   }
 }
 

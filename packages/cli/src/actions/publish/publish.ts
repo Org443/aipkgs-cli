@@ -14,16 +14,25 @@ import { isENOENT } from '../../io/fs.ts';
 // to the manifest file itself. The manifest's `type` decides what to do:
 // `box` is routed to the box-manifest publish flow, every other type packs
 // that directory directly.
-export async function publishAction(input: { path?: string; dry?: boolean; yes?: boolean } = {}) {
+export async function publishAction(
+  input: { path?: string; dry?: boolean; yes?: boolean; major?: boolean; minor?: boolean; patch?: boolean } = {},
+) {
   const { path, dry, yes } = input;
   const { dir, file } = await resolveManifestLocation(path);
 
-  let manifest: Manifest;
+  let manifest: ManifestFile;
   try {
     manifest = await ManifestFile.read({ dir, file });
   } catch (err) {
     if (isENOENT(err)) throw new Error(`No ${file ?? MANIFEST_FILENAME} in ${dir}`);
     throw err;
+  }
+
+  const bump = bumpVersion(input);
+  let previousVersion: string | undefined;
+  if (bump) {
+    previousVersion = manifest.version;
+    manifest.bumpVersion(bump);
   }
 
   const { type, pkgRef } = manifest;
@@ -35,6 +44,9 @@ export async function publishAction(input: { path?: string; dry?: boolean; yes?:
   if (dry) {
     logManifest({ manifest });
     logArchiveContents({ manifest, files, tgz });
+    if (bump) {
+      console.log(pc.yellow(`Dry run — would bump ${bump}`), pc.dim(`${previousVersion} → ${version}`));
+    }
     console.log(pc.yellow('Dry run — skipped upload'), pc.bold(`${type} ${slug}`), pc.dim(version));
     return;
   }
@@ -57,10 +69,27 @@ export async function publishAction(input: { path?: string; dry?: boolean; yes?:
 
   await api.packages.uploadArchive({ tarball: tgz });
 
+  if (bump) {
+    await manifest.write();
+    console.log(pc.green(`Bumped ${bump}`), pc.dim(`${previousVersion} → ${version}`), pc.dim(MANIFEST_FILENAME));
+  }
+
   const appUrl = `${ConfigFile.appBase()}${pkgRef.appPath()}`;
 
   console.log(pc.green('Published'), pc.bold(`${type} ${slug}`), pc.dim(version));
   console.log(pc.green('App URL:'), pc.bold(appUrl));
+}
+
+// Resolve which version bump (if any) the publish flags request. Exactly one of
+// `--major`/`--minor`/`--patch` may be active — more than one is ambiguous.
+function bumpVersion(input: { major?: boolean; minor?: boolean; patch?: boolean }) {
+  const active = (['major', 'minor', 'patch'] as const).filter((r) => input[r]);
+  if (active.length === 0) return undefined;
+  if (active.length > 1) {
+    const flags = active.map((r) => `--${r}`).join(', ');
+    throw new Error(`Pass only one of --major, --minor, --patch (got ${flags})`);
+  }
+  return active[0];
 }
 
 function logManifest(args: { manifest: Manifest }) {

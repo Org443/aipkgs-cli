@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isSetupFeatureTag, withSetupFeatureTags } from '../setup-features.ts';
+import { withSetupFeatureTags } from '../setup-features.ts';
 import type { ArchiveSetup } from '../validate/setup.ts';
 
 function buildSetup(overrides: Partial<ArchiveSetup> = {}): ArchiveSetup {
@@ -54,18 +54,5 @@ describe('withSetupFeatureTags', () => {
   it('de-duplicates a user tag that collides with a capability tag', () => {
     const setup = buildSetup({ statusLine: { type: 'command', command: 'status.sh' } });
     expect(withSetupFeatureTags({ tags: ['statusline', 'theme'], setup })).toEqual(['statusline', 'theme']);
-  });
-});
-
-describe('isSetupFeatureTag', () => {
-  it('recognizes the reserved capability tags', () => {
-    expect(isSetupFeatureTag('hooks')).toBe(true);
-    expect(isSetupFeatureTag('mcp')).toBe(true);
-    expect(isSetupFeatureTag('statusline')).toBe(true);
-  });
-
-  it('rejects free-text tags and inherited object keys', () => {
-    expect(isSetupFeatureTag('productivity')).toBe(false);
-    expect(isSetupFeatureTag('toString')).toBe(false);
   });
 });

@@ -26,12 +26,6 @@ export function withSetupFeatureTags(args: { tags?: string[]; setup: ArchiveSetu
   return [...new Set([...tags, ...featureTags])];
 }
 
-// Whether a free-form tag is one of the reserved setup-capability tags. Used by
-// the UI to split capability chips out from user-authored `#tags`.
-export function isSetupFeatureTag(tag: string): tag is SetupFeatureTag {
-  return Object.hasOwn(SETUP_FEATURE_TAGS, tag);
-}
-
 ////
 /// Helpers
 //

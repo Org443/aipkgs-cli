@@ -1,7 +1,7 @@
 import { type ManifestType, archiveService } from '@local/archive';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CredentialsFile } from '../../../files/credentials.ts';
-import { setupTestCwd, teardownTestCwd, testDir, writeTestFile } from '../../../test/helpers.ts';
+import { readTestJson, setupTestCwd, teardownTestCwd, testDir, writeTestFile } from '../../../test/helpers.ts';
 import { publishAction } from '../publish.ts';
 
 const { confirmMock } = vi.hoisted(() => ({ confirmMock: vi.fn() }));
@@ -234,6 +234,95 @@ describe('publishAction', () => {
       expect(joined).toContain('aipkg.json');
       expect(joined).toContain('pr-create.md');
       expect(joined).toContain('README.md');
+    });
+  });
+
+  describe('version bump', () => {
+    it('bumps the patch version, packs the new version, and rewrites aipkg.json', async () => {
+      const dir = ['rules', 'pr-create'];
+      await writePkgManifest({ dir, type: 'rule', ref: 'org443/pr-create', version: '1.2.3' });
+      await writeTestFile('# pr-create', ...dir, 'pr-create.md');
+      const fetchSpy = mockUpload();
+
+      await publishAction({ path: testDir(...dir), patch: true });
+
+      const tarball = await capturedUploadBody(fetchSpy);
+      const archive = await archiveService.parse(tarball);
+      expect(archive.manifest).toMatchObject({ version: '1.2.4' });
+
+      const onDisk = await readTestJson(...dir, 'aipkg.json');
+      expect(onDisk).toMatchObject({ ref: 'org443/pr-create', version: '1.2.4' });
+    });
+
+    it('bumps the minor version and resets patch', async () => {
+      const dir = ['rules', 'pr-create'];
+      await writePkgManifest({ dir, type: 'rule', ref: 'org443/pr-create', version: '1.2.3' });
+      await writeTestFile('# pr-create', ...dir, 'pr-create.md');
+      const fetchSpy = mockUpload();
+
+      await publishAction({ path: testDir(...dir), minor: true });
+
+      const archive = await archiveService.parse(await capturedUploadBody(fetchSpy));
+      expect(archive.manifest).toMatchObject({ version: '1.3.0' });
+      const onDisk = await readTestJson(...dir, 'aipkg.json');
+      expect(onDisk).toMatchObject({ version: '1.3.0' });
+    });
+
+    it('bumps the major version and resets minor + patch', async () => {
+      const dir = ['rules', 'pr-create'];
+      await writePkgManifest({ dir, type: 'rule', ref: 'org443/pr-create', version: '1.2.3' });
+      await writeTestFile('# pr-create', ...dir, 'pr-create.md');
+      const fetchSpy = mockUpload();
+
+      await publishAction({ path: testDir(...dir), major: true });
+
+      const archive = await archiveService.parse(await capturedUploadBody(fetchSpy));
+      expect(archive.manifest).toMatchObject({ version: '2.0.0' });
+      const onDisk = await readTestJson(...dir, 'aipkg.json');
+      expect(onDisk).toMatchObject({ version: '2.0.0' });
+    });
+
+    it('does not rewrite the manifest on --dry, but previews the bumped version', async () => {
+      const dir = ['rules', 'pr-create'];
+      await writePkgManifest({ dir, type: 'rule', ref: 'org443/pr-create', version: '1.2.3' });
+      await writeTestFile('# pr-create', ...dir, 'pr-create.md');
+      const fetchSpy = mockUpload();
+
+      await publishAction({ path: testDir(...dir), patch: true, dry: true });
+
+      expect(fetchSpy).not.toHaveBeenCalled();
+      const onDisk = await readTestJson(...dir, 'aipkg.json');
+      expect(onDisk).toMatchObject({ version: '1.2.3' });
+
+      const logSpy = console.log as unknown as ReturnType<typeof vi.fn>;
+      const joined = logSpy.mock.calls.map((args: unknown[]) => args.join(' ')).join('\n');
+      expect(joined).toContain('"version": "1.2.4"');
+    });
+
+    it('does not rewrite the manifest when the user declines the prompt', async () => {
+      process.stdout.isTTY = true;
+      confirmMock.mockResolvedValue(false);
+      const dir = ['rules', 'pr-create'];
+      await writePkgManifest({ dir, type: 'rule', ref: 'org443/pr-create', version: '1.2.3' });
+      await writeTestFile('# pr-create', ...dir, 'pr-create.md');
+      const fetchSpy = mockUpload();
+
+      await publishAction({ path: testDir(...dir), patch: true });
+
+      expect(fetchSpy).not.toHaveBeenCalled();
+      const onDisk = await readTestJson(...dir, 'aipkg.json');
+      expect(onDisk).toMatchObject({ version: '1.2.3' });
+    });
+
+    it('throws when more than one bump flag is passed', async () => {
+      const dir = ['rules', 'pr-create'];
+      await writePkgManifest({ dir, type: 'rule', ref: 'org443/pr-create', version: '1.2.3' });
+      await writeTestFile('# pr-create', ...dir, 'pr-create.md');
+      mockUpload();
+
+      await expect(publishAction({ path: testDir(...dir), major: true, minor: true })).rejects.toThrow(
+        /only one of --major, --minor, --patch/,
+      );
     });
   });
 

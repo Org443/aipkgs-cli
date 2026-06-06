@@ -90,9 +90,17 @@ async function main() {
     )
     .option('--dry', 'collect and print the manifest + archive contents without uploading')
     .option('-y, --yes', 'skip the interactive confirmation prompt and publish immediately')
-    .action(async (path: string | undefined, opts: { dry?: boolean; yes?: boolean }) => {
-      await publishAction({ path, dry: opts.dry, yes: opts.yes });
-    });
+    .option('--major', 'bump the manifest major version before publishing and rewrite aipkg.json')
+    .option('--minor', 'bump the manifest minor version before publishing and rewrite aipkg.json')
+    .option('--patch', 'bump the manifest patch version before publishing and rewrite aipkg.json')
+    .action(
+      async (
+        path: string | undefined,
+        opts: { dry?: boolean; yes?: boolean; major?: boolean; minor?: boolean; patch?: boolean },
+      ) => {
+        await publishAction({ path, ...opts });
+      },
+    );
 
   const setCmd = program.command('set').description('Update local aipkg configuration');
 
