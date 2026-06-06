@@ -108,3 +108,41 @@ describe('Manifest.toObject()', () => {
     expect(obj.deps?.boxes).toBeUndefined();
   });
 });
+
+describe('Manifest.bumpVersion()', () => {
+  it('increments the patch segment', () => {
+    const manifest = new Manifest({ type: 'rule', ref: 'acme/lint', version: '1.2.3' });
+    expect(manifest.bumpVersion('patch')).toBe('1.2.4');
+    expect(manifest.version).toBe('1.2.4');
+  });
+
+  it('increments the minor segment and resets patch', () => {
+    const manifest = new Manifest({ type: 'rule', ref: 'acme/lint', version: '1.2.3' });
+    expect(manifest.bumpVersion('minor')).toBe('1.3.0');
+    expect(manifest.version).toBe('1.3.0');
+  });
+
+  it('increments the major segment and resets minor + patch', () => {
+    const manifest = new Manifest({ type: 'rule', ref: 'acme/lint', version: '1.2.3' });
+    expect(manifest.bumpVersion('major')).toBe('2.0.0');
+    expect(manifest.version).toBe('2.0.0');
+  });
+
+  it('drops a prerelease suffix when bumping', () => {
+    const manifest = new Manifest({ type: 'rule', ref: 'acme/lint', version: '1.2.3-beta.1' });
+    expect(manifest.bumpVersion('patch')).toBe('1.2.4');
+  });
+
+  it('rebuilds the derived pkgRef so it carries the new version', () => {
+    const manifest = new Manifest({ type: 'rule', ref: 'acme/lint', version: '1.2.3' });
+    manifest.bumpVersion('minor');
+    expect(manifest.pkgRef.version).toBe('1.3.0');
+    expect(manifest.pkgRef.aipkgRef).toBe('aipkg://rule/acme/lint@1.3.0');
+  });
+
+  it('reflects the bumped version in toObject()', () => {
+    const manifest = new Manifest({ type: 'rule', ref: 'acme/lint', version: '1.2.3' });
+    manifest.bumpVersion('major');
+    expect(manifest.toObject()).toMatchObject({ version: '2.0.0' });
+  });
+});

@@ -9,5 +9,5 @@ export type { ArchiveSkill } from './validate/skill.ts';
 export type { ArchiveRule } from './validate/rule.ts';
 export type { ArchiveSubagent } from './validate/subagent.ts';
 export type { ArchiveSetup, HookMatcher, HooksByEvent, McpEntry } from './validate/setup.ts';
-export { SETUP_FEATURE_TAGS, isSetupFeatureTag } from './setup-features.ts';
+export { SETUP_FEATURE_TAGS } from './setup-features.ts';
 export type { SetupFeatureTag } from './setup-features.ts';
