@@ -13,20 +13,31 @@ The `type` of the archive is set in the `aipkg.json` manifest type field.
 ```ts
 type Manifest = {
     ref: string,
-    type: "box" | "cmd" | "skill" | "rule" | "subagent",
-    version: 1,
-    cmds?: Record<string, AssetEntry>,
-    skills?: Record<string, AssetEntry>,
-    rules?: Record<string, AssetEntry>,
-    subagent?: Record<string, AssetEntry>
-    mcps?: Record<string, McpEntry>
+    type: "box" | "skill" | "rule" | "subagent" | "setup",
+    version: string,
+    deps?: {
+        skills?: Record<string, string>,
+        subagents?: Record<string, string>,
+        rules?: Record<string, string>,
+        setups?: Record<string, string>,
+        boxes?: Record<string, string>,
+    }
 }
 ```
 
-### Cmd Archive
+### Setup Archive
+
+A setup bundle configures the agent rather than adding a prompt asset. Its
+`setup.json` carries hooks (an event map), an optional `statusLine`, and any
+`mcps` (MCP server definitions); an optional `scripts/` payload holds the files
+those hooks invoke (referenced via `${PKG_ROOT}`). On install, the scripts land
+under `.claude/hooks/<org>/<key?>/<slug>/`, hooks and the status line merge into
+`.claude/settings.local.json`, and MCP servers merge into `.mcp.json`.
 
 - `aipkg.json`
-- `<cmd-name>.md`
+- `setup.json`
+- `scripts/**` (optional)
+- `README.md` (optional)
 - `LICENSE.txt` (optional)
 
 ### Rule Archive
