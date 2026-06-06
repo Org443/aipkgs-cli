@@ -1,7 +1,7 @@
 {
   "type": "setup",
   "ref": "org443/node-format",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Org443 Node.js related hooks",
   "homepage": "https://aipkgs.com",
   "repository": {

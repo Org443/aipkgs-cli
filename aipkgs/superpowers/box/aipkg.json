@@ -1,7 +1,7 @@
 {
   "type": "box",
   "ref": "superpowers/Superpowers",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Superpowers: a core skills library — TDD, systematic debugging, code review, plan execution, and collaboration patterns. Composes the individually-published superpowers/* skills and the session-start bootstrap hook into one box.",
   "homepage": "https://github.com/obra/superpowers",
   "repository": {
