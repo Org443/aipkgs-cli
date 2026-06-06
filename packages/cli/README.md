@@ -18,7 +18,7 @@ npm install -g @aipkgs/cli
 
 ```bash
 npx @aipkgs/cli init
-npx @aipkgs/cli cmd org443/search-aipkgs
+npx @aipkgs/cli skill org443/search-aipkgs
 npx @aipkgs/cli mcp add linear --url https://mcp.linear.app/mcp
 ```
 
@@ -43,11 +43,11 @@ npx @aipkgs/cli mcp add linear --url https://mcp.linear.app/mcp
 
 ### `archive`
 
-Defines the archive format (`aipkg.json` manifest + assets) that is packed into a tarball and uploaded to the AIpkg registry. Handles manifest parsing/validation, ref resolution, and tarball read/write for the supported archive types (`box`, `cmd`, `skill`, `rule`, `subagent`).
+Defines the archive format (`aipkg.json` manifest + assets) that is packed into a tarball and uploaded to the AIpkg registry. Handles manifest parsing/validation, ref resolution, and tarball read/write for the supported archive types (`box`, `skill`, `rule`, `subagent`).
 
 ### `cli`
 
-The user-facing `aipkg` command, published to npm as `@aipkgs/cli`. Implements commands like `init`, `cmd`, and `mcp`, and orchestrates fetching archives from the registry API and installing them locally via `placement`.
+The user-facing `aipkg` command, published to npm as `@aipkgs/cli`. Implements commands like `init`, `skill`, and `mcp`, and orchestrates fetching archives from the registry API and installing them locally via `placement`.
 
 ### `placement`
 
@@ -59,7 +59,7 @@ This repo itself uses the AIpkg registry — `aipkg.json`, `aipkg.lock`, and `ai
 
 ### `aipkg.json`
 
-The project manifest. Declares the project's `ref`/`type`/`version` and lists registry dependencies under `deps` (by kind: `cmds`, `skills`, `rules`, `subagents`), each pinned to a registry ref like `aipkg://cmd/org443/search-aipkgs@latest`.
+The project manifest. Declares the project's `ref`/`type`/`version` and lists registry dependencies under `deps` (by kind: `skills`, `rules`, `subagents`), each pinned to a registry ref like `aipkg://cmd/org443/search-aipkgs@latest`.
 
 ### `aipkg.lock`
 
@@ -67,7 +67,7 @@ Lockfile generated from `aipkg.json`. Records the exact resolved `version` and `
 
 ### `aipkgs/`
 
-Examples of assets published to the registry, organized by kind (`cmds/`, `skills/`, `rules/`, `subagents/`). Each entry is a full archive we publish (its `aipkg.json` plus assets).
+Examples of assets published to the registry, organized by kind (`skills/`, `rules/`, `subagents/`). Each entry is a full archive we publish (its `aipkg.json` plus assets).
 
 ## Publishing
 

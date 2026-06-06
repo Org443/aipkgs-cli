@@ -7,7 +7,7 @@ import type { TarEntry } from '@local/archive';
 export const SIDECAR_FILES = ['README.md', 'LICENSE.txt'] as const;
 export const SIDECAR_FILENAMES = new Set<string>(SIDECAR_FILES);
 
-// Pack a single flat package (cmd / rule / subagent): just `<slug>.md`.
+// Pack a single flat package (rule / subagent): just `<slug>.md`.
 // Sidecars are handled universally by `collectArchiveFiles`.
 export async function collectSingleFlat(args: { root: string; slug: string }): Promise<TarEntry[]> {
   const { root, slug } = args;
@@ -33,7 +33,7 @@ export async function collectSidecars(args: { dir: string }): Promise<TarEntry[]
   return out;
 }
 
-// Box-level scan for flat-key directories (cmds/, rules/, subagents/): each
+// Box-level scan for flat-key directories (rules/, subagents/): each
 // `*.md` file directly under `dir` becomes a TarEntry whose path is just the
 // filename. The caller prefixes with the key.
 export async function collectFlatFiles(args: { dir: string }): Promise<TarEntry[]> {

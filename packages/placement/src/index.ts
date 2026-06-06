@@ -1,1 +1,1 @@
-export { place } from './place.ts';
+export { AssetPlacement } from './asset-placement.ts';

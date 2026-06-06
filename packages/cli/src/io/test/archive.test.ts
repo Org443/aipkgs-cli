@@ -23,12 +23,12 @@ function bodyFor(entries: { path: string; body: Buffer }[], path: string) {
 }
 
 describe('collectArchiveFiles', () => {
-  describe('type: cmd', () => {
+  describe('type: rule (single md file)', () => {
     it('emits <slug>.md alone when no sidecars are present', async () => {
       await writeTestFile('# pr-create', 'pr-create.md');
 
       const entries = await collectArchiveFiles({
-        type: 'cmd',
+        type: 'rule',
         dir: testDir(),
         slug: 'pr-create',
       });
@@ -43,7 +43,7 @@ describe('collectArchiveFiles', () => {
       await writeTestFile('mit', 'LICENSE.txt');
 
       const entries = await collectArchiveFiles({
-        type: 'cmd',
+        type: 'rule',
         dir: testDir(),
         slug: 'pr-create',
       });
@@ -134,25 +134,25 @@ describe('collectArchiveFiles', () => {
     });
   });
 
-  describe('type: hook', () => {
-    it('packs hooks.json and every nested file in the directory', async () => {
-      await writeTestFile('{"hooks":[]}', 'hooks.json');
+  describe('type: setup', () => {
+    it('packs setup.json and every nested file in the directory', async () => {
+      await writeTestFile('{"PreToolUse":[]}', 'setup.json');
       await writeTestFile('# readme', 'README.md');
       await writeTestFile('#!/bin/sh', 'scripts/lint.sh');
 
       const entries = await collectArchiveFiles({
-        type: 'hook',
+        type: 'setup',
         dir: testDir(),
         slug: 'lint',
       });
 
-      expect(paths(entries)).toEqual(['README.md', 'hooks.json', 'scripts/lint.sh']);
-      expect(bodyFor(entries, 'hooks.json')).toBe('{"hooks":[]}');
+      expect(paths(entries)).toEqual(['README.md', 'scripts/lint.sh', 'setup.json']);
+      expect(bodyFor(entries, 'setup.json')).toBe('{"PreToolUse":[]}');
     });
   });
 
   describe('type: box', () => {
-    it('collects nested skills/hooks under <key>/<slug>/** and flat md files under <key>/', async () => {
+    it('collects nested skills, root setup (+scripts), and flat md files under <key>/', async () => {
       // Root manifest — not collected here, re-emitted by the archive layer.
       await writeTestFile(JSON.stringify({ type: 'box', ref: 'org443/my-box', version: '1.0.0' }), 'aipkg.json');
 
@@ -160,15 +160,12 @@ describe('collectArchiveFiles', () => {
       await writeTestFile('# helper skill', 'skills/helper/SKILL.md');
       await writeTestFile('logo-bytes', 'skills/helper/assets/logo.txt');
 
-      // hooks/<slug>/**
-      await writeTestFile('{"hooks":[]}', 'hooks/hooks.json');
-      await writeTestFile('# readme', 'hooks/script.cmd');
-      await writeTestFile('#!/bin/sh', 'hooks/scripts/lint.sh');
-
-      // cmds/*.md
-      await writeTestFile('# pr-create', 'cmds/pr-create.md');
+      // setup: root setup.json + scripts/**
+      await writeTestFile('{"PreToolUse":[]}', 'setup.json');
+      await writeTestFile('#!/bin/sh', 'scripts/lint.sh');
 
       // rules/*.md
+      await writeTestFile('# pr-create', 'rules/pr-create.md');
       await writeTestFile('# safety', 'rules/safety.md');
 
       // subagents/*.md
@@ -181,11 +178,10 @@ describe('collectArchiveFiles', () => {
       });
 
       expect(paths(entries)).toEqual([
-        'cmds/pr-create.md',
-        'hooks/hooks.json',
-        'hooks/script.cmd',
-        'hooks/scripts/lint.sh',
+        'rules/pr-create.md',
         'rules/safety.md',
+        'scripts/lint.sh',
+        'setup.json',
         'skills/helper/SKILL.md',
         'skills/helper/assets/logo.txt',
         'subagents/reviewer.md',
@@ -193,7 +189,7 @@ describe('collectArchiveFiles', () => {
     });
 
     it('skips dep keys whose directory does not exist', async () => {
-      await writeTestFile('# pr-create', 'cmds/pr-create.md');
+      await writeTestFile('# pr-create', 'rules/pr-create.md');
 
       const entries = await collectArchiveFiles({
         type: 'box',
@@ -201,14 +197,14 @@ describe('collectArchiveFiles', () => {
         slug: 'my-box',
       });
 
-      expect(paths(entries)).toEqual(['cmds/pr-create.md']);
+      expect(paths(entries)).toEqual(['rules/pr-create.md']);
     });
 
     it('includes README and LICENSE sidecars at the box root', async () => {
       await writeTestFile(JSON.stringify({ type: 'box', ref: 'org/x', version: '1.0.0' }), 'aipkg.json');
       await writeTestFile('# readme', 'README.md');
       await writeTestFile('mit', 'LICENSE.txt');
-      await writeTestFile('# pr-create', 'cmds/pr-create.md');
+      await writeTestFile('# pr-create', 'rules/pr-create.md');
 
       const entries = await collectArchiveFiles({
         type: 'box',
@@ -216,7 +212,7 @@ describe('collectArchiveFiles', () => {
         slug: 'my-box',
       });
 
-      expect(paths(entries)).toEqual(['LICENSE.txt', 'README.md', 'cmds/pr-create.md']);
+      expect(paths(entries)).toEqual(['LICENSE.txt', 'README.md', 'rules/pr-create.md']);
       expect(bodyFor(entries, 'README.md')).toBe('# readme');
     });
 
@@ -225,7 +221,7 @@ describe('collectArchiveFiles', () => {
         JSON.stringify({ type: 'box', ref: 'org/inner', version: '1.0.0' }),
         'boxes/inner/aipkg.json',
       );
-      await writeTestFile('# pr-create', 'cmds/pr-create.md');
+      await writeTestFile('# pr-create', 'rules/pr-create.md');
 
       const entries = await collectArchiveFiles({
         type: 'box',
@@ -233,7 +229,7 @@ describe('collectArchiveFiles', () => {
         slug: 'my-box',
       });
 
-      expect(paths(entries)).toEqual(['cmds/pr-create.md']);
+      expect(paths(entries)).toEqual(['rules/pr-create.md']);
     });
   });
 });

@@ -38,10 +38,10 @@ export class PackageRef {
   }
 
   // The key a package is tracked under in the manifest, lockfile, and on disk.
-  // Hooks and boxes are namespaced by their full ref (org/key?/slug); every
+  // Setups and boxes are namespaced by their full ref (org/key?/slug); every
   // other type lives in a flat directory keyed by the bare slug.
   entryKey(): string {
-    if (this.type === 'hook' || this.type === 'box') return this.manifestRef;
+    if (this.type === 'setup' || this.type === 'box') return this.manifestRef;
     return this.slug;
   }
 

@@ -1,21 +1,10 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
+import type { HooksByEvent } from '@local/archive';
 import { isENOENT } from '../../fs.ts';
+import { AIPKG_OWNER_KEY, mergeOwnedHooks, removeOwnedHooks } from '../hooks-format.ts';
 
 export const SETTINGS_LOCAL_FILENAME = join('.claude', 'settings.local.json');
-
-export type HookCommand = {
-  type?: string;
-  command?: string;
-  timeout?: number;
-};
-
-export type HookMatcher = {
-  matcher?: string;
-  hooks: HookCommand[];
-};
-
-export type HooksByEvent = Record<string, HookMatcher[]>;
 
 export type SettingsLocal = {
   hooks?: HooksByEvent;
@@ -46,43 +35,19 @@ export const settingsConfig = {
   },
 
   async mergeHooks(args: { slug: string; hooks: HooksByEvent }) {
-    const { slug, hooks: incoming } = args;
+    const { slug, hooks } = args;
     const settings = await settingsConfig.read();
-    const existing = settings.hooks ?? {};
-
-    for (const [event, matchers] of Object.entries(incoming)) {
-      const tagged = matchers.map((m) => tagMatcher({ matcher: m, slug }));
-      const eventBucket = existing[event] ?? [];
-      const filtered = eventBucket.filter((m) => !isOwnedBy({ matcher: m, slug }));
-      existing[event] = [...filtered, ...tagged];
-    }
-
-    settings.hooks = existing;
+    settings.hooks = mergeOwnedHooks({ existing: settings.hooks ?? {}, incoming: hooks, slug });
     await settingsConfig.write(settings);
   },
 
   async removeHooks(args: { slug: string }) {
     const { slug } = args;
     const settings = await settingsConfig.read();
-    const existing = settings.hooks;
-    if (!existing) return false;
-
-    let changed = false;
-    const rebuilt: HooksByEvent = {};
-    for (const [event, matchers] of Object.entries(existing)) {
-      const after = matchers.filter((m) => !isOwnedBy({ matcher: m, slug }));
-      if (after.length !== matchers.length) changed = true;
-      if (after.length > 0) rebuilt[event] = after;
-    }
-
-    const next: SettingsLocal = { ...settings };
-    if (Object.keys(rebuilt).length === 0) {
-      next.hooks = undefined;
-    } else {
-      next.hooks = rebuilt;
-    }
-
-    if (changed) await settingsConfig.write(next);
+    if (!settings.hooks) return false;
+    const { hooks, changed } = removeOwnedHooks({ existing: settings.hooks, slug });
+    settings.hooks = Object.keys(hooks).length === 0 ? undefined : hooks;
+    if (changed) await settingsConfig.write(settings);
     return changed;
   },
 
@@ -102,16 +67,3 @@ export const settingsConfig = {
     return { removed: true, path: settingsConfig.path() };
   },
 };
-
-const AIPKG_OWNER_KEY = '__aipkg';
-
-function tagMatcher(args: { matcher: HookMatcher; slug: string }): HookMatcher & { [AIPKG_OWNER_KEY]: string } {
-  const { matcher, slug } = args;
-  return { ...matcher, [AIPKG_OWNER_KEY]: slug };
-}
-
-function isOwnedBy(args: { matcher: HookMatcher; slug: string }): boolean {
-  const { matcher, slug } = args;
-  const owner = (matcher as { [AIPKG_OWNER_KEY]?: string })[AIPKG_OWNER_KEY];
-  return owner === slug;
-}

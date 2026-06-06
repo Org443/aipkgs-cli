@@ -12,18 +12,19 @@ function file(path: string, body = ''): TarEntry {
 }
 
 describe('assertSubagentArchive', () => {
-  it('accepts archive with only the required subagent file', () => {
+  it('decodes the subagent into its slug and doc body', () => {
     const manifest = buildManifest();
     const files = [file('aipkg.json'), file('reviewer.md', '---\nname: reviewer\n---\nbody')];
-    const result = assertSubagentArchive({ manifest, files });
-    expect(result.files.map((f) => f.path)).toEqual(['aipkg.json', 'reviewer.md']);
+    const subagent = assertSubagentArchive({ manifest, files });
+    expect(subagent.slug).toBe('reviewer');
+    expect(subagent.doc.toString()).toBe('---\nname: reviewer\n---\nbody');
   });
 
   it('prunes cruft', () => {
     const manifest = buildManifest();
-    const files = [file('aipkg.json'), file('reviewer.md'), file('__pycache__/foo.pyc'), file('Thumbs.db')];
-    const result = assertSubagentArchive({ manifest, files });
-    expect(result.files.map((f) => f.path).sort()).toEqual(['aipkg.json', 'reviewer.md']);
+    const files = [file('aipkg.json'), file('reviewer.md', 'x'), file('__pycache__/foo.pyc'), file('Thumbs.db')];
+    const subagent = assertSubagentArchive({ manifest, files });
+    expect(subagent.doc.toString()).toBe('x');
   });
 
   it('throws when subagent file is missing', () => {

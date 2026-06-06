@@ -7,7 +7,6 @@
  */
 
 import { type AIpkgArchive, type AgentTarget, DEPS_KEYS } from '@local/archive';
-import { place } from '@local/placement';
 import type { Lockfile } from '../../files/lockfile.ts';
 import { installPkg } from './pkg.ts';
 
@@ -25,12 +24,5 @@ export async function resolveDeps(args: { archive: AIpkgArchive; lockfile: Lockf
       const pkgRef = lockfile.resolvePkgRef({ pkgRef: entry });
       await installPkg({ pkgRef, lockfile, targets, parent });
     }
-  }
-
-  const mcps = deps.mcps;
-  if (!mcps) return;
-  for (const [name, entry] of Object.entries(mcps)) {
-    lockfile.upsertMcp({ slug: name, entry, parent });
-    await place.installMcp({ slug: name, entry, targets });
   }
 }

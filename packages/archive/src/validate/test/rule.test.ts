@@ -12,25 +12,26 @@ function file(path: string, body = ''): TarEntry {
 }
 
 describe('assertRuleArchive', () => {
-  it('accepts archive with only the required rule file', () => {
+  it('decodes the rule into its slug and doc body', () => {
     const manifest = buildManifest();
     const files = [file('aipkg.json'), file('lint.md', '# lint')];
-    const result = assertRuleArchive({ manifest, files });
-    expect(result.files.map((f) => f.path)).toEqual(['aipkg.json', 'lint.md']);
+    const rule = assertRuleArchive({ manifest, files });
+    expect(rule.slug).toBe('lint');
+    expect(rule.doc.toString()).toBe('# lint');
   });
 
   it('accepts LICENSE.txt and README.md siblings', () => {
     const manifest = buildManifest();
-    const files = [file('aipkg.json'), file('lint.md'), file('LICENSE.txt'), file('README.md')];
-    const result = assertRuleArchive({ manifest, files });
-    expect(result.files).toHaveLength(4);
+    const files = [file('aipkg.json'), file('lint.md', '# lint'), file('LICENSE.txt'), file('README.md')];
+    const rule = assertRuleArchive({ manifest, files });
+    expect(rule).toMatchObject({ slug: 'lint' });
   });
 
   it('prunes cruft (.DS_Store, .git/*)', () => {
     const manifest = buildManifest();
-    const files = [file('aipkg.json'), file('lint.md'), file('.DS_Store'), file('.git/config')];
-    const result = assertRuleArchive({ manifest, files });
-    expect(result.files.map((f) => f.path).sort()).toEqual(['aipkg.json', 'lint.md']);
+    const files = [file('aipkg.json'), file('lint.md', 'x'), file('.DS_Store'), file('.git/config')];
+    const rule = assertRuleArchive({ manifest, files });
+    expect(rule.doc.toString()).toBe('x');
   });
 
   it('throws when rule file is missing', () => {

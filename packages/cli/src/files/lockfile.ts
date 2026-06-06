@@ -1,13 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, join } from 'node:path';
-import {
-  type AIpkgArchive,
-  MANIFEST_FILENAME,
-  MANIFEST_TYPES,
-  Manifest,
-  type McpEntry,
-  PackageRef,
-} from '@local/archive';
+import { type AIpkgArchive, MANIFEST_FILENAME, MANIFEST_TYPES, Manifest, PackageRef } from '@local/archive';
 import { isENOENT } from '../io/fs.ts';
 
 export const LOCKFILE_FILENAME = 'aipkg.lock';
@@ -30,8 +23,6 @@ export type LockEntry = {
   parent?: string;
 };
 
-export type LockMcpEntry = McpEntry & { parent?: string };
-
 export type LockStatusLineEntry = {
   slug: string;
   statusLine: Record<string, unknown>;
@@ -40,26 +31,22 @@ export type LockStatusLineEntry = {
 
 type LockfileStruct = {
   deps?: {
-    cmds?: Record<string, LockEntry>;
     skills?: Record<string, LockEntry>;
     subagents?: Record<string, LockEntry>;
     rules?: Record<string, LockEntry>;
-    hooks?: Record<string, LockEntry>;
+    setups?: Record<string, LockEntry>;
     boxes?: Record<string, LockEntry>;
-    mcps?: Record<string, LockMcpEntry>;
     statusLine?: LockStatusLineEntry;
   };
 };
 
 export class Lockfile implements LockfileStruct {
   deps?: {
-    cmds?: Record<string, LockEntry>;
     skills?: Record<string, LockEntry>;
     subagents?: Record<string, LockEntry>;
     rules?: Record<string, LockEntry>;
-    hooks?: Record<string, LockEntry>;
+    setups?: Record<string, LockEntry>;
     boxes?: Record<string, LockEntry>;
-    mcps?: Record<string, LockMcpEntry>;
     statusLine?: LockStatusLineEntry;
   };
 
@@ -97,33 +84,8 @@ export class Lockfile implements LockfileStruct {
     await writeFile(this.path, body, 'utf8');
   }
 
-  async upsertEntry(args: { pkgRef: PackageRef; archive: AIpkgArchive; parent?: string }) {
-    const { pkgRef, archive, parent } = args;
-
-    const entryKey = pkgRef.entryKey();
-
-    const typeKey = Manifest.depsKey(pkgRef.type);
-
-    const bucket = this.deps?.[typeKey] ?? {};
-    const deps = this.deps ?? {};
-    deps[typeKey] = bucket;
-    this.deps = deps;
-
-    const existing = bucket[entryKey];
-    if (existing) {
-      if (existing.sha === archive.sha && existing.version === archive.version) return;
-      throw new Error(
-        `lockfile deps conflict importing ${pkgRef.aipkgRef}: ${typeKey} ${entryKey} already locked with a different archive`,
-      );
-    }
-
-    const entry: LockEntry = { aipkgRef: archive.pkgRef.aipkgRef, version: archive.version, sha: archive.sha };
-    if (parent) entry.parent = parent;
-    bucket[entryKey] = entry;
-  }
-
-  async upsertBoxChild(args: { archive: AIpkgArchive; type: Manifest['type']; slug: string }) {
-    const { archive, type, slug } = args;
+  async upsertEntry(args: { archive: AIpkgArchive; type: Manifest['type']; slug: string; parent?: string }) {
+    const { archive, type, slug, parent } = args;
     const typeKey = Manifest.depsKey(type);
 
     const bucket = this.deps?.[typeKey] ?? {};
@@ -131,21 +93,21 @@ export class Lockfile implements LockfileStruct {
     deps[typeKey] = bucket;
     this.deps = deps;
 
-    const boxRef = archive.pkgRef.aipkgRef;
+    const aipkgRef = archive.pkgRef.aipkgRef;
 
     const existing = bucket[slug];
     if (existing) {
-      if (existing.sha === archive.sha && existing.version === archive.version) return;
+      if (existing.sha === archive.sha && existing.version === archive.pkgRef.version) return;
       throw new Error(
-        `lockfile deps conflict importing ${boxRef}: ${typeKey} ${slug} already locked with a different archive`,
+        `lockfile deps conflict importing ${parent ?? aipkgRef}: ${typeKey} ${slug} already locked with a different archive`,
       );
     }
 
     bucket[slug] = {
-      aipkgRef: boxRef,
-      version: archive.version,
+      aipkgRef: aipkgRef,
+      version: archive.pkgRef.version,
       sha: archive.sha,
-      parent: boxRef,
+      parent,
     };
   }
 
@@ -167,12 +129,11 @@ export class Lockfile implements LockfileStruct {
    */
   collectSubtree(args: { rootRef?: string }): {
     entries: Array<{ type: Manifest['type']; slug: string }>;
-    mcps: string[];
   } {
     const { rootRef } = args;
 
     // If no root ref is not provided, return an empty subtree. (DX)
-    if (!rootRef) return { entries: [], mcps: [] };
+    if (!rootRef) return { entries: [] };
 
     const deps = this.deps ?? {};
 
@@ -186,7 +147,6 @@ export class Lockfile implements LockfileStruct {
     }
 
     const entries: Array<{ type: Manifest['type']; slug: string }> = [];
-    const mcps = new Set<string>();
     const queue = [rootRef];
     const seen = new Set<string>();
     while (queue.length > 0) {
@@ -199,12 +159,9 @@ export class Lockfile implements LockfileStruct {
         entries.push({ type: node.type, slug: node.slug });
         queue.push(node.aipkgRef);
       }
-      for (const [name, mcp] of Object.entries(deps.mcps ?? {})) {
-        if (mcp.parent === parent) mcps.add(name);
-      }
     }
 
-    return { entries, mcps: Array.from(mcps) };
+    return { entries };
   }
 
   resolvePkgRef(args: { pkgRef: PackageRef }): PackageRef {
@@ -226,40 +183,9 @@ export class Lockfile implements LockfileStruct {
     return bucket[key];
   }
 
-  upsertMcp(args: { slug: string; entry: McpEntry; parent?: string }) {
-    const { slug, entry, parent } = args;
-
-    const deps = this.deps ?? {};
-    const bucket = deps.mcps ?? {};
-    deps.mcps = bucket;
-    this.deps = deps;
-
-    const existing = bucket[slug];
-    if (existing) {
-      if (mcpEntriesEqual(existing, entry)) return;
-      throw new Error(
-        `lockfile mcps conflict: mcp "${slug}" is already locked with a different config${parent ? ` (importing from ${parent})` : ''}`,
-      );
-    }
-
-    const locked: LockMcpEntry = { ...entry };
-    if (parent) locked.parent = parent;
-    bucket[slug] = locked;
-  }
-
-  removeMcp(args: { slug: string }) {
-    const { slug } = args;
-    const bucket = this.deps?.mcps ?? {};
-    if (!bucket[slug]) return false;
-    delete bucket[slug];
-    return true;
-  }
-
-  getMcp(args: { slug: string }): LockMcpEntry | undefined {
-    const { slug } = args;
-    return this.deps?.mcps?.[slug];
-  }
-
+  // Only one statusLine can be active across all installed setups, so the lockfile
+  // tracks its single owner. A re-install by the same owner with the same config
+  // is idempotent; any other claim is a conflict the install must reject.
   upsertStatusLine(args: { slug: string; statusLine: Record<string, unknown>; parent?: string }) {
     const { slug, statusLine, parent } = args;
 
@@ -298,11 +224,8 @@ export class Lockfile implements LockfileStruct {
   }
 }
 
-function mcpEntriesEqual(a: LockMcpEntry, b: McpEntry): boolean {
-  const { parent: _aParent, ...aRest } = a;
-  return stableStringify(aRest) === stableStringify(b);
-}
-
+// A deterministic stringify (sorted keys, dropped `undefined`) so two statusLine
+// objects that differ only in key order or absent fields compare equal.
 function stableStringify(value: unknown): string {
   if (value === null || typeof value !== 'object') return JSON.stringify(value);
   if (Array.isArray(value)) return `[${value.map(stableStringify).join(',')}]`;

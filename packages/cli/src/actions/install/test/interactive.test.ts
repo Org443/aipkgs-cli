@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, type MockInstance, vi } from 'vitest';
+import { type MockInstance, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { api } from '../../../api/index.ts';
 import { autocomplete } from '../../../autocomplete/autocomplete.ts';
 import { installAction } from '../install.ts';
@@ -27,59 +27,59 @@ describe('interactiveInstallAction', () => {
   it('installs the literal ref without searching in a non-TTY', async () => {
     setTTY(false);
 
-    await interactiveInstallAction({ type: 'cmd', ref: 'org443/pr-create' });
+    await interactiveInstallAction({ type: 'rule', ref: 'org443/pr-create' });
 
     expect(search).not.toHaveBeenCalled();
     expect(autocomplete).not.toHaveBeenCalled();
-    expect(installAction).toHaveBeenCalledWith({ type: 'cmd', ref: 'org443/pr-create' });
+    expect(installAction).toHaveBeenCalledWith({ type: 'rule', ref: 'org443/pr-create' });
   });
 
   it('skips the picker when the single match equals the ref exactly', async () => {
-    search.mockResolvedValue([{ type: 'cmd', ref: 'org443/pr-create', description: '' }]);
+    search.mockResolvedValue([{ type: 'rule', ref: 'org443/pr-create', description: '' }]);
 
-    await interactiveInstallAction({ type: 'cmd', ref: 'org443/pr-create' });
+    await interactiveInstallAction({ type: 'rule', ref: 'org443/pr-create' });
 
     expect(autocomplete).not.toHaveBeenCalled();
-    expect(installAction).toHaveBeenCalledWith({ type: 'cmd', ref: 'org443/pr-create' });
+    expect(installAction).toHaveBeenCalledWith({ type: 'rule', ref: 'org443/pr-create' });
   });
 
   it('preserves a pinned version when the single match equals the bare ref', async () => {
-    search.mockResolvedValue([{ type: 'cmd', ref: 'org443/pr-create', description: '' }]);
+    search.mockResolvedValue([{ type: 'rule', ref: 'org443/pr-create', description: '' }]);
 
-    await interactiveInstallAction({ type: 'cmd', ref: 'org443/pr-create@1.1.1' });
+    await interactiveInstallAction({ type: 'rule', ref: 'org443/pr-create@1.1.1' });
 
     expect(autocomplete).not.toHaveBeenCalled();
-    expect(installAction).toHaveBeenCalledWith({ type: 'cmd', ref: 'org443/pr-create@1.1.1' });
+    expect(installAction).toHaveBeenCalledWith({ type: 'rule', ref: 'org443/pr-create@1.1.1' });
   });
 
   it('opens the picker when a single prefix match does not equal the ref', async () => {
-    search.mockResolvedValue([{ type: 'cmd', ref: 'org443/prettier', description: '' }]);
+    search.mockResolvedValue([{ type: 'rule', ref: 'org443/prettier', description: '' }]);
     vi.mocked(autocomplete).mockResolvedValue('org443/prettier');
 
-    await interactiveInstallAction({ type: 'cmd', ref: 'org443/pr' });
+    await interactiveInstallAction({ type: 'rule', ref: 'org443/pr' });
 
     expect(autocomplete).toHaveBeenCalledOnce();
-    expect(installAction).toHaveBeenCalledWith({ type: 'cmd', ref: 'org443/prettier' });
+    expect(installAction).toHaveBeenCalledWith({ type: 'rule', ref: 'org443/prettier' });
   });
 
   it('opens the picker when more than one package matches', async () => {
     search.mockResolvedValue([
-      { type: 'cmd', ref: 'org443/pr-create', description: '' },
-      { type: 'cmd', ref: 'org443/pr-review', description: '' },
+      { type: 'rule', ref: 'org443/pr-create', description: '' },
+      { type: 'rule', ref: 'org443/pr-review', description: '' },
     ]);
     vi.mocked(autocomplete).mockResolvedValue('org443/pr-review');
 
-    await interactiveInstallAction({ type: 'cmd', ref: 'org443/pr' });
+    await interactiveInstallAction({ type: 'rule', ref: 'org443/pr' });
 
     expect(autocomplete).toHaveBeenCalledOnce();
-    expect(installAction).toHaveBeenCalledWith({ type: 'cmd', ref: 'org443/pr-review' });
+    expect(installAction).toHaveBeenCalledWith({ type: 'rule', ref: 'org443/pr-review' });
   });
 
   it('does nothing when the picker is cancelled', async () => {
     search.mockResolvedValue([]);
     vi.mocked(autocomplete).mockResolvedValue(null);
 
-    await interactiveInstallAction({ type: 'cmd', ref: 'org443/nope' });
+    await interactiveInstallAction({ type: 'rule', ref: 'org443/nope' });
 
     expect(installAction).not.toHaveBeenCalled();
   });

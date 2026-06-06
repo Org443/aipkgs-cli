@@ -1,9 +1,10 @@
-import { readdir, stat } from 'node:fs/promises';
+import { readFile, readdir, stat } from 'node:fs/promises';
 import { isAbsolute, join, resolve } from 'node:path';
-import { DEPS_KEYS, type Manifest, type TarEntry } from '@local/archive';
+import { type Manifest, SETUP_FILENAME, type TarEntry } from '@local/archive';
 import { collectFlatFiles, collectSidecars, collectSingleFlat } from './collect-flat.ts';
-import { collectHookFiles } from './collect-hooks.ts';
+import { collectSetupFile } from './collect-setup.ts';
 import { collectSkillFiles } from './collect-skill.ts';
+import { collectDir } from './walk.ts';
 
 // Resolve a path provided on the CLI or in aipkg.json. Bare paths resolve
 // against cwd. Returns the absolute path on disk.
@@ -44,9 +45,9 @@ async function collectCoreFiles(args: {
       if (!entries) throw new Error(`Missing required file SKILL.md in ${dir}`);
       return entries;
     }
-    case 'hook': {
-      const entries = await collectHookFiles({ root: dir, manifestFilename });
-      if (!entries) throw new Error(`Missing required file hooks.json in ${dir}`);
+    case 'setup': {
+      const entries = await collectSetupFile({ root: dir, manifestFilename });
+      if (!entries) throw new Error(`Missing required file ${SETUP_FILENAME} in ${dir}`);
       return entries;
     }
     default:
@@ -58,39 +59,59 @@ async function collectBoxDirs(args: { root: string }): Promise<TarEntry[]> {
   const { root } = args;
   const out: TarEntry[] = [];
 
-  for (const depType of DEPS_KEYS) {
-    if (depType === 'boxes') continue; // Boxes do not nest inside boxes.
+  // skills/<slug>/** — one skill bundle per slug dir.
+  const skillsDir = join(root, 'skills');
+  if (await isDirectory(skillsDir)) {
+    const items = await readdir(skillsDir, { withFileTypes: true });
+    for (const item of items) {
+      if (!item.isDirectory()) continue; // Only collect the `<slug>/**` dirs.
 
-    const depDir = join(root, depType);
-    const keyStat = await stat(depDir).catch(() => null);
-    if (!keyStat?.isDirectory()) continue;
-
-    if (depType === 'skills') {
-      const items = await readdir(depDir, { withFileTypes: true });
-      for (const item of items) {
-        if (!item.isDirectory()) continue; // Only collect the `<slug>/**` dirs.
-
-        const slug = item.name;
-        const dir = join(depDir, slug); // skills/<slug>/**
-
-        const entries = await collectSkillFiles({ root: dir });
-        if (!entries) continue;
-
-        out.push(...prefixPaths(entries, `${depType}/${slug}`));
-      }
-    } else if (depType === 'hooks') {
-      const entries = await collectHookFiles({ root: depDir });
+      const slug = item.name;
+      const entries = await collectSkillFiles({ root: join(skillsDir, slug) });
       if (!entries) continue;
 
-      out.push(...prefixPaths(entries, depType));
-    } else {
-      // cmds / rules / subagents: flat *.md files directly under keyDir.
-      const entries = await collectFlatFiles({ dir: depDir });
-      out.push(...prefixPaths(entries, depType));
+      out.push(...prefixPaths(entries, `skills/${slug}`));
     }
   }
 
+  // rules|subagents/<name>.md — flat *.md files directly under the dep dir.
+  for (const depType of ['rules', 'subagents'] as const) {
+    const depDir = join(root, depType);
+    if (!(await isDirectory(depDir))) continue;
+
+    const entries = await collectFlatFiles({ dir: depDir });
+    out.push(...prefixPaths(entries, depType));
+  }
+
+  // A box carries its setup at the root as `setup.json` plus an optional
+  // `scripts/` payload (mirroring the box archive layout) — not under a
+  // `setups/` subdir like the manifest's deps key.
+  out.push(...(await collectBoxSetup({ root })));
+
   return out;
+}
+
+async function collectBoxSetup(args: { root: string }): Promise<TarEntry[]> {
+  const { root } = args;
+
+  const setupPath = join(root, SETUP_FILENAME);
+  const s = await stat(setupPath).catch(() => null);
+  if (!s?.isFile()) return []; // No setup in this box.
+
+  const out: TarEntry[] = [{ path: SETUP_FILENAME, body: await readFile(setupPath) }];
+
+  const scriptsDir = join(root, 'scripts');
+  if (await isDirectory(scriptsDir)) {
+    const entries = await collectDir({ root: scriptsDir });
+    out.push(...prefixPaths(entries, 'scripts'));
+  }
+
+  return out;
+}
+
+async function isDirectory(path: string): Promise<boolean> {
+  const s = await stat(path).catch(() => null);
+  return !!s?.isDirectory();
 }
 
 function prefixPaths(entries: TarEntry[], prefix: string): TarEntry[] {

@@ -1,6 +1,6 @@
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
-import { type AIpkgArchive, MANIFEST_FILENAME, MANIFEST_TYPE_TO_DEPS_KEY, type PackageRef } from '@local/archive';
+import { MANIFEST_FILENAME, MANIFEST_TYPE_TO_DEPS_KEY, type PackageRef, type TarEntry } from '@local/archive';
 import pc from 'picocolors';
 import { ConfigFile } from '../files/config.ts';
 import { isENOENT } from './fs.ts';
@@ -9,24 +9,25 @@ export const AIPKGS_MIRROR_ROOT = '.aipkgs';
 
 // Mirror an installed archive's full, unzipped contents into the working
 // directory's `.aipkgs/` tree, namespaced by deps key + ref — e.g. a
-// `cmd org443/code-simplify` mirrors to `.aipkgs/cmds/org443/code-simplify`.
+// `rule org443/code-simplify` mirrors to `.aipkgs/rules/org443/code-simplify`.
 // Gated behind the `mirror` config flag; gives agents the raw archive (manifest
-// included) alongside the assets placed into agent folders. Returns the mirror
+// included) alongside the assets placed into agent folders. The archive's raw
+// tar entries (`archive.files`) are mirrored verbatim. Returns the mirror
 // location.
-export async function writeAipkgsMirror(args: { archive: AIpkgArchive }) {
-  const { archive } = args;
+export async function writeAipkgsMirror(args: { pkgRef: PackageRef; files: TarEntry[] }) {
+  const { pkgRef, files } = args;
 
   // If the mirror is disabled, do nothing.
   const state = await ConfigFile.aipkgsMirror();
   if (state !== 'enabled') return;
 
-  const mirror = aipkgsMirrorFor({ pkgRef: archive.pkgRef });
+  const mirror = aipkgsMirrorFor({ pkgRef });
 
   // Wipe any prior copy first so a reinstall, upgrade, or downgrade can't leave
   // stale files behind from a previous version's layout.
   await rm(mirror, { recursive: true, force: true });
 
-  for (const entry of archive.files) {
+  for (const entry of files) {
     const dest = join(mirror, entry.path);
     await mkdir(dirname(dest), { recursive: true });
     await writeFile(dest, prettyBodyFor(entry));

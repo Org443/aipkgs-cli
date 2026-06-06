@@ -1,6 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { isENOENT } from '../../fs.ts';
+import { AIPKG_OWNER_KEY } from '../hooks-format.ts';
 
 export const MCP_CONFIG_FILENAME = '.mcp.json';
 
@@ -44,11 +45,16 @@ export const mcpConfig = {
     await writeFile(mcpConfig.path(), body, 'utf8');
   },
 
-  async upsertServer(args: { slug: string; server: McpServerConfig }) {
-    const { slug, server } = args;
+  // `owner` tags the server with the slug that installed it (mirroring the hook
+  // and statusLine ownership tags) so `removeOwnedServers` can later strip exactly
+  // the servers a given setup bundle placed. Callers that aren't setup-owned
+  // (e.g. a bare `addMcp`) omit it and the entry stays untagged.
+  async upsertServer(args: { slug: string; server: McpServerConfig; owner?: string }) {
+    const { slug, server, owner } = args;
     const config = await mcpConfig.read();
     const existed = slug in config.mcpServers;
-    config.mcpServers[slug] = server;
+    const stored = owner === undefined ? server : { ...server, [AIPKG_OWNER_KEY]: owner };
+    config.mcpServers[slug] = stored as McpServerConfig;
     await mcpConfig.write(config);
     return { created: !existed };
   },
@@ -60,5 +66,23 @@ export const mcpConfig = {
     delete config.mcpServers[slug];
     await mcpConfig.write(config);
     return true;
+  },
+
+  // Strip every server owned by `owner`, returning the names removed so callers
+  // can report the touched config path. A setup bundle keys its MCP servers by the
+  // author's chosen name rather than its own ref, so removal has to match on the
+  // ownership tag, not the server name.
+  async removeOwnedServers(args: { owner: string }): Promise<{ removed: string[] }> {
+    const { owner } = args;
+    const config = await mcpConfig.read();
+    const removed: string[] = [];
+    for (const [name, server] of Object.entries(config.mcpServers)) {
+      if ((server as { [AIPKG_OWNER_KEY]?: string })[AIPKG_OWNER_KEY] === owner) {
+        delete config.mcpServers[name];
+        removed.push(name);
+      }
+    }
+    if (removed.length > 0) await mcpConfig.write(config);
+    return { removed };
   },
 };

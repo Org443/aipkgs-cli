@@ -4,11 +4,10 @@ import { Command } from 'commander';
 import pc from 'picocolors';
 import { ensureConfigured } from './actions/first-run.ts';
 import { initAction } from './actions/init.ts';
-import { installAllAction } from './actions/install/all.ts';
+import { installAllAction } from './actions/install/install-all.ts';
 import { interactiveInstallAction } from './actions/install/interactive.ts';
 import { loginAction } from './actions/login.ts';
 import { logoutAction } from './actions/logout.ts';
-import { mcpAddAction, mcpRemoveAction } from './actions/mcp.ts';
 import { publishAction } from './actions/publish/publish.ts';
 import { removeAction } from './actions/remove.ts';
 import { isAgentTarget, promptTargets, setAipkgsMirrorAction, setTargetsAction } from './actions/set.ts';
@@ -87,45 +86,12 @@ async function main() {
     .description(`Publish the package described by ${MANIFEST_FILENAME} (defaults to cwd)`)
     .argument(
       '[path]',
-      `path to a manifest file, or a directory containing ${MANIFEST_FILENAME} (defaults to current working directory)`
+      `path to a manifest file, or a directory containing ${MANIFEST_FILENAME} (defaults to current working directory)`,
     )
     .option('--dry', 'collect and print the manifest + archive contents without uploading')
     .option('-y, --yes', 'skip the interactive confirmation prompt and publish immediately')
     .action(async (path: string | undefined, opts: { dry?: boolean; yes?: boolean }) => {
       await publishAction({ path, dry: opts.dry, yes: opts.yes });
-    });
-
-  const mcpCmd = program.command('mcp').description('Manage MCP server entries in aipkg.json + .mcp.json');
-
-  mcpCmd
-    .command('add <slug>')
-    .description('Add an MCP server (provide either --url or --command)')
-    .option('--url <url>', 'HTTP MCP server URL')
-    .option('--command <cmd>', 'stdio MCP server command')
-    .option('--arg <value...>', 'argument to pass to the command (repeatable)')
-    .option('--header <key=value...>', 'HTTP header (repeatable, requires --url)')
-    .option('--env <key=value...>', 'environment variable (repeatable, requires --command)')
-    .action(
-      async (
-        slug: string,
-        opts: { url?: string; command?: string; arg?: string[]; header?: string[]; env?: string[] }
-      ) => {
-        await mcpAddAction({
-          slug,
-          url: opts.url,
-          command: opts.command,
-          args: opts.arg,
-          headers: parseKeyVals(opts.header, '--header'),
-          env: parseKeyVals(opts.env, '--env'),
-        });
-      }
-    );
-
-  mcpCmd
-    .command('remove <slug>')
-    .description('Remove an MCP server from aipkg.json, aipkg.lock, and .mcp.json')
-    .action(async (slug: string) => {
-      await mcpRemoveAction({ slug });
     });
 
   const setCmd = program.command('set').description('Update local aipkg configuration');
@@ -225,17 +191,4 @@ function parseMirrorState(state: string): MirrorState | null {
   if (normalized === 'enabled' || normalized === 'on') return 'enabled';
   if (normalized === 'disabled' || normalized === 'off') return 'disabled';
   return null;
-}
-
-function parseKeyVals(values: string[] | undefined, flag: string): Record<string, string> | undefined {
-  if (!values || values.length === 0) return undefined;
-  const out: Record<string, string> = {};
-  for (const raw of values) {
-    const eq = raw.indexOf('=');
-    if (eq <= 0) throw new Error(`Invalid ${flag} "${raw}" — expected key=value`);
-    const key = raw.slice(0, eq);
-    const value = raw.slice(eq + 1);
-    out[key] = value;
-  }
-  return out;
 }

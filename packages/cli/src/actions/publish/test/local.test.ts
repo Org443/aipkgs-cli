@@ -33,7 +33,7 @@ afterEach(() => {
   process.env.AIPKG_API = undefined;
 });
 
-function mockUpload(response: { path: string } = { path: 'cmd/org443/pr-create/1.0.0' }) {
+function mockUpload(response: { path: string } = { path: 'rule/org443/pr-create/1.0.0' }) {
   return vi
     .spyOn(globalThis, 'fetch')
     .mockResolvedValue(
@@ -62,11 +62,11 @@ async function capturedUploadBody(fetchSpy: ReturnType<typeof mockUpload>): Prom
 
 describe('publishAction', () => {
   describe('happy path', () => {
-    it('publishes a cmd from a directory containing aipkg.json + <slug>.md', async () => {
-      const dir = ['cmds', 'pr-create'];
+    it('publishes a rule from a directory containing aipkg.json + <slug>.md', async () => {
+      const dir = ['rules', 'pr-create'];
       await writePkgManifest({
         dir,
-        type: 'cmd',
+        type: 'rule',
         ref: 'org443/pr-create',
         version: '1.0.0',
         description: 'Create a pull request',
@@ -79,12 +79,13 @@ describe('publishAction', () => {
       const tarball = await capturedUploadBody(fetchSpy);
       const archive = await archiveService.parse(tarball);
       expect(archive.manifest).toMatchObject({
-        type: 'cmd',
+        type: 'rule',
         ref: 'org443/pr-create',
         version: '1.0.0',
         description: 'Create a pull request',
       });
-      const contentFiles = archive.files.filter((f) => f.path !== 'aipkg.json');
+      const files = archive.files;
+      const contentFiles = files.filter((f) => f.path !== 'aipkg.json');
       expect(contentFiles).toEqual([{ path: 'pr-create.md', body: Buffer.from('# pr-create\nLocal content.') }]);
 
       // biome-ignore lint/style/noNonNullAssertion: test assertion
@@ -119,7 +120,8 @@ describe('publishAction', () => {
         ref: 'org443/pr-helper',
         version: '0.1.0',
       });
-      const paths = archive.files
+      const files = archive.files;
+      const paths = files
         .map((f) => f.path)
         .filter((p) => p !== 'aipkg.json')
         .sort();
@@ -142,7 +144,8 @@ describe('publishAction', () => {
 
       const tarball = await capturedUploadBody(fetchSpy);
       const archive = await archiveService.parse(tarball);
-      const paths = archive.files
+      const files = archive.files;
+      const paths = files
         .map((f) => f.path)
         .filter((p) => p !== 'aipkg.json')
         .sort();
@@ -150,10 +153,10 @@ describe('publishAction', () => {
     });
 
     it('ignores unrelated files in non-skill directories', async () => {
-      const dir = ['cmds', 'pr-create'];
+      const dir = ['rules', 'pr-create'];
       await writePkgManifest({
         dir,
-        type: 'cmd',
+        type: 'rule',
         ref: 'org443/pr-create',
         version: '1.0.0',
       });
@@ -166,7 +169,8 @@ describe('publishAction', () => {
 
       const tarball = await capturedUploadBody(fetchSpy);
       const archive = await archiveService.parse(tarball);
-      const paths = archive.files
+      const files = archive.files;
+      const paths = files
         .map((f) => f.path)
         .filter((p) => p !== 'aipkg.json')
         .sort();
@@ -174,10 +178,10 @@ describe('publishAction', () => {
     });
 
     it('publishes a keyed ref (org/key/slug)', async () => {
-      const dir = ['cmds', 'pr-create'];
+      const dir = ['rules', 'pr-create'];
       await writePkgManifest({
         dir,
-        type: 'cmd',
+        type: 'rule',
         ref: 'org443/core/pr-create',
         version: '2.0.0',
       });
@@ -189,7 +193,7 @@ describe('publishAction', () => {
       const tarball = await capturedUploadBody(fetchSpy);
       const archive = await archiveService.parse(tarball);
       expect(archive.manifest).toMatchObject({
-        type: 'cmd',
+        type: 'rule',
         ref: 'org443/core/pr-create',
         version: '2.0.0',
       });
@@ -197,7 +201,10 @@ describe('publishAction', () => {
     });
 
     it('publishes when path points at a manifest file with a non-default name', async () => {
-      await writeTestFile(JSON.stringify({ type: 'cmd', ref: 'org443/pr-create', version: '1.0.0' }), 'aipkg.alt.json');
+      await writeTestFile(
+        JSON.stringify({ type: 'rule', ref: 'org443/pr-create', version: '1.0.0' }),
+        'aipkg.alt.json',
+      );
       await writeTestFile('# pr-create', 'pr-create.md');
       const fetchSpy = mockUpload();
 
@@ -206,18 +213,19 @@ describe('publishAction', () => {
       const tarball = await capturedUploadBody(fetchSpy);
       const archive = await archiveService.parse(tarball);
       expect(archive.manifest).toMatchObject({
-        type: 'cmd',
+        type: 'rule',
         ref: 'org443/pr-create',
         version: '1.0.0',
       });
-      const paths = archive.files.map((f) => f.path).sort();
+      const files = archive.files;
+      const paths = files.map((f) => f.path).sort();
       expect(paths).toEqual(['aipkg.json', 'pr-create.md']);
     });
 
     it('defaults to cwd when no dir is provided', async () => {
       await writePkgManifest({
         dir: [],
-        type: 'cmd',
+        type: 'rule',
         ref: 'org443/pr-create',
         version: '1.0.0',
       });
@@ -229,7 +237,7 @@ describe('publishAction', () => {
       const tarball = await capturedUploadBody(fetchSpy);
       const archive = await archiveService.parse(tarball);
       expect(archive.manifest).toMatchObject({
-        type: 'cmd',
+        type: 'rule',
         ref: 'org443/pr-create',
         version: '1.0.0',
       });
@@ -257,10 +265,10 @@ describe('publishAction', () => {
     });
 
     it('skips upload and prints manifest + archive contents on --dry', async () => {
-      const dir = ['cmds', 'pr-create'];
+      const dir = ['rules', 'pr-create'];
       await writePkgManifest({
         dir,
-        type: 'cmd',
+        type: 'rule',
         ref: 'org443/pr-create',
         version: '1.0.0',
         description: 'Create a pull request',
@@ -289,10 +297,10 @@ describe('publishAction', () => {
     });
 
     it('logs the archive contents to stdout', async () => {
-      const dir = ['cmds', 'pr-create'];
+      const dir = ['rules', 'pr-create'];
       await writePkgManifest({
         dir,
-        type: 'cmd',
+        type: 'rule',
         ref: 'org443/pr-create',
         version: '1.0.0',
       });
@@ -314,8 +322,8 @@ describe('publishAction', () => {
 
   describe('interactive confirmation', () => {
     async function writeCmd() {
-      const dir = ['cmds', 'pr-create'];
-      await writePkgManifest({ dir, type: 'cmd', ref: 'org443/pr-create', version: '1.0.0' });
+      const dir = ['rules', 'pr-create'];
+      await writePkgManifest({ dir, type: 'rule', ref: 'org443/pr-create', version: '1.0.0' });
       await writeTestFile('# pr-create', ...dir, 'pr-create.md');
       return dir;
     }
@@ -389,10 +397,10 @@ describe('publishAction', () => {
     });
 
     it('throws when the primary <slug>.md file is missing from the directory', async () => {
-      const dir = ['cmds', 'pr-create'];
+      const dir = ['rules', 'pr-create'];
       await writePkgManifest({
         dir,
-        type: 'cmd',
+        type: 'rule',
         ref: 'org443/pr-create',
         version: '1.0.0',
       });
@@ -405,10 +413,10 @@ describe('publishAction', () => {
 
   describe('network errors', () => {
     it('throws on HTTP 500', async () => {
-      const dir = ['cmds', 'pr-create'];
+      const dir = ['rules', 'pr-create'];
       await writePkgManifest({
         dir,
-        type: 'cmd',
+        type: 'rule',
         ref: 'org443/pr-create',
         version: '1.0.0',
       });

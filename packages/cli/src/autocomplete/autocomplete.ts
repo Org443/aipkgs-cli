@@ -14,7 +14,7 @@ export interface AutocompleteChoice {
 
 export async function autocomplete(input: {
   message: string;
-  kind?: string; // the package type, rendered as a per-row badge (e.g. "cmd")
+  kind?: string; // the package type, rendered as a per-row badge (e.g. "skill")
   placeholder?: string;
   initialQuery?: string;
   source: (query: string) => Promise<AutocompleteChoice[]>;
@@ -35,7 +35,7 @@ export async function autocomplete(input: {
 
   const prompt = new Prompt(
     {
-      // Seed the query so `aipkg cmd org443/fr` opens pre-filtered.
+      // Seed the query so `aipkg skill org443/fr` opens pre-filtered.
       initialUserInput: input.initialQuery,
       // track:true makes @clack/core mirror typed characters into
       // `this.userInput` (via the readline buffer) and maintain the text cursor

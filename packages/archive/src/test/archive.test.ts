@@ -39,7 +39,7 @@ describe('archiveService.pack()', () => {
 
   it('packed manifest round-trips back through archiveService.parse', async () => {
     const manifest = new Manifest({
-      type: 'cmd',
+      type: 'rule',
       ref: 'acme/johns/pr-create',
       version: '0.4.2',
       targets: ['claude', 'codex'],
@@ -52,5 +52,35 @@ describe('archiveService.pack()', () => {
 
     const archive = await archiveService.parse(tgz);
     expect(archive.manifest.toObject()).toEqual(manifest.toObject());
+  });
+});
+
+describe('archiveService.parse() sidecars', () => {
+  it('surfaces README.md and LICENSE.txt as string docs', async () => {
+    const manifest = new Manifest({ type: 'rule', ref: 'acme/style/lint', version: '1.0.0' });
+    const { tgz } = await archiveService.pack({
+      manifest,
+      files: [
+        { path: 'lint.md', body: Buffer.from('# lint\n') },
+        { path: 'README.md', body: Buffer.from('# readme\n') },
+        { path: 'LICENSE.txt', body: Buffer.from('MIT\n') },
+      ],
+    });
+
+    const archive = await archiveService.parse(tgz);
+    expect(archive.readme).toBe('# readme\n');
+    expect(archive.license).toBe('MIT\n');
+  });
+
+  it('leaves readme/license undefined when absent', async () => {
+    const manifest = new Manifest({ type: 'rule', ref: 'acme/style/lint', version: '1.0.0' });
+    const { tgz } = await archiveService.pack({
+      manifest,
+      files: [{ path: 'lint.md', body: Buffer.from('x') }],
+    });
+
+    const archive = await archiveService.parse(tgz);
+    expect(archive.readme).toBeUndefined();
+    expect(archive.license).toBeUndefined();
   });
 });

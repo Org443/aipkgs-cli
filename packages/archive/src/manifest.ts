@@ -8,7 +8,6 @@ import {
   type ManifestType,
 } from './constants.ts';
 import { InvalidManifest } from './errors.ts';
-import { type McpEntry, McpEntryZ } from './manifest-entry.ts';
 import { PackageRef } from './ref.ts';
 
 export const MANIFEST_FILENAME = 'aipkg.json';
@@ -29,13 +28,11 @@ export class Manifest {
   repository?: Repository;
   issues?: Issues;
   deps: {
-    cmds?: Record<string, PackageRef>;
     skills?: Record<string, PackageRef>;
     subagents?: Record<string, PackageRef>;
     rules?: Record<string, PackageRef>;
-    hooks?: Record<string, PackageRef>;
+    setups?: Record<string, PackageRef>;
     boxes?: Record<string, PackageRef>;
-    mcps?: Record<string, McpEntry>;
   };
   pkgRef: PackageRef;
 
@@ -60,12 +57,12 @@ export class Manifest {
     this.homepage = data.homepage;
     this.repository = data.repository;
     this.issues = data.issues;
-    this.deps = { mcps: data.deps?.mcps };
+    this.deps = {};
 
     const fullRef = `${this.type}/${this.ref}@${this.version}`;
     this.pkgRef = new PackageRef({ refStr: fullRef });
 
-    // Now we need to parse the cmds, skills, subagents, & rules entries
+    // Now we need to parse the skills, subagents, & rules entries
     for (const depKey of DEPS_KEYS) {
       const entries = data.deps?.[depKey];
 
@@ -91,16 +88,14 @@ export class Manifest {
 
   static depsKey(type: Manifest['type']): DepsKey {
     switch (type) {
-      case 'cmd':
-        return 'cmds';
       case 'skill':
         return 'skills';
       case 'subagent':
         return 'subagents';
       case 'rule':
         return 'rules';
-      case 'hook':
-        return 'hooks';
+      case 'setup':
+        return 'setups';
       case 'box':
         return 'boxes';
     }
@@ -114,13 +109,11 @@ export class Manifest {
 
   toObject(): z.output<typeof ManifestZ> {
     const deps = {
-      cmds: serializeBucket(this.deps.cmds),
       skills: serializeBucket(this.deps.skills),
       subagents: serializeBucket(this.deps.subagents),
       rules: serializeBucket(this.deps.rules),
-      hooks: serializeBucket(this.deps.hooks),
+      setups: serializeBucket(this.deps.setups),
       boxes: serializeBucket(this.deps.boxes),
-      mcps: this.deps.mcps,
     };
     const hasAnyDep = Object.values(deps).some((v) => v !== undefined);
     return {
@@ -164,13 +157,11 @@ const ManifestZ = z.object({
   issues: IssuesZ.optional(),
   deps: z
     .strictObject({
-      cmds: z.record(z.string(), z.string()).optional(),
       skills: z.record(z.string(), z.string()).optional(),
       subagents: z.record(z.string(), z.string()).optional(),
       rules: z.record(z.string(), z.string()).optional(),
-      hooks: z.record(z.string(), z.string()).optional(),
+      setups: z.record(z.string(), z.string()).optional(),
       boxes: z.record(z.string(), z.string()).optional(),
-      mcps: z.record(z.string(), McpEntryZ).optional(),
     })
     .optional(),
 });

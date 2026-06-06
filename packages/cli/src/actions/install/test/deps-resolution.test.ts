@@ -28,13 +28,12 @@ afterEach(() => {
 });
 
 async function buildTarball(args: {
-  type: 'cmd' | 'subagent' | 'rule';
+  type: 'subagent' | 'rule';
   org: string;
   slug: string;
   version: string;
   files?: TarEntry[];
   deps?: {
-    cmds?: Record<string, string>;
     subagents?: Record<string, string>;
     rules?: Record<string, string>;
     skills?: Record<string, string>;
@@ -60,8 +59,8 @@ async function buildTarball(args: {
 describe('resolveDeps', () => {
   describe('happy path', () => {
     it('installs each dep declared in the parent archive manifest and populates the lockfile', async () => {
-      const cmdTarball = await buildTarball({ type: 'cmd', org: 'org443', slug: 'pr-create', version: '1.0.0' });
-      const cmdArchive = await archiveService.parse(cmdTarball);
+      const prRuleTarball = await buildTarball({ type: 'rule', org: 'org443', slug: 'pr-create', version: '1.0.0' });
+      const prRuleArchive = await archiveService.parse(prRuleTarball);
 
       const subagentTarball = await buildTarball({
         type: 'subagent',
@@ -80,9 +79,11 @@ describe('resolveDeps', () => {
         version: '0.1.0',
         targets: ['claude'],
         deps: {
-          cmds: { 'pr-create': 'aipkg://cmd/org443/pr-create@1.0.0' },
           subagents: { reviewer: 'aipkg://subagent/org443/reviewer@2.0.0' },
-          rules: { 'no-any': 'aipkg://rule/org443/no-any@1.1.0' },
+          rules: {
+            'pr-create': 'aipkg://rule/org443/pr-create@1.0.0',
+            'no-any': 'aipkg://rule/org443/no-any@1.1.0',
+          },
         },
       });
       const { tgz: parentTgz } = await archiveService.pack({ manifest: parentManifest, files: [] });
@@ -90,8 +91,8 @@ describe('resolveDeps', () => {
 
       vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
         const url = String(input);
-        if (url.includes('/v1/packages/cmd/org443/pr-create/1.0.0/archive.tgz')) {
-          return new Response(cmdTarball, { status: 200, headers: { 'Content-Type': 'application/gzip' } });
+        if (url.includes('/v1/packages/rule/org443/pr-create/1.0.0/archive.tgz')) {
+          return new Response(prRuleTarball, { status: 200, headers: { 'Content-Type': 'application/gzip' } });
         }
         if (url.includes('/v1/packages/subagent/org443/reviewer/2.0.0/archive.tgz')) {
           return new Response(subagentTarball, { status: 200, headers: { 'Content-Type': 'application/gzip' } });
@@ -107,13 +108,11 @@ describe('resolveDeps', () => {
       await lockfile.write();
 
       // Each dep type is placed under its expected Claude directory.
-      expect(await readTestFile('.claude', 'commands', 'pr-create.md')).toBe(
-        '# pr-create\nTest content for pr-create.',
-      );
+      expect(await readTestFile('.claude', 'rules', 'pr-create.md')).toBe('# pr-create\nTest content for pr-create.');
       expect(await readTestFile('.claude', 'agents', 'reviewer.md')).toBe('# reviewer\nTest content for reviewer.');
       expect(await readTestFile('.claude', 'rules', 'no-any.md')).toBe('# no-any\nTest content for no-any.');
 
-      expect(testFileExists('.claude', 'commands', 'pr-create.md')).toBe(true);
+      expect(testFileExists('.claude', 'rules', 'pr-create.md')).toBe(true);
       expect(testFileExists('.claude', 'agents', 'reviewer.md')).toBe(true);
       expect(testFileExists('.claude', 'rules', 'no-any.md')).toBe(true);
 
@@ -123,19 +122,17 @@ describe('resolveDeps', () => {
       // Each dep is recorded in the lockfile under its asset-type bucket with
       // the version and SHA from the downloaded archive.
       const parentRef = parentArchive.pkgRef.aipkgRef;
-      const cmdRef = cmdArchive.pkgRef.aipkgRef;
+      const prRuleRef = prRuleArchive.pkgRef.aipkgRef;
       const subagentRef = subagentArchive.pkgRef.aipkgRef;
       const ruleRef = ruleArchive.pkgRef.aipkgRef;
 
       const lockfileJson = await readTestJson('aipkg.lock');
       expect(lockfileJson.deps).toMatchObject({
-        cmds: {
-          'pr-create': { aipkgRef: cmdRef, version: '1.0.0', sha: cmdArchive.sha, parent: parentRef },
-        },
         subagents: {
           reviewer: { aipkgRef: subagentRef, version: '2.0.0', sha: subagentArchive.sha, parent: parentRef },
         },
         rules: {
+          'pr-create': { aipkgRef: prRuleRef, version: '1.0.0', sha: prRuleArchive.sha, parent: parentRef },
           'no-any': { aipkgRef: ruleRef, version: '1.1.0', sha: ruleArchive.sha, parent: parentRef },
         },
       });
@@ -144,28 +141,26 @@ describe('resolveDeps', () => {
       // same one we wrote — proving the lockfile was threaded through the call
       // graph instead of each recursion re-reading the empty file from disk.
       expect(lockfile.deps).toMatchObject({
-        cmds: {
-          'pr-create': { aipkgRef: cmdRef, version: '1.0.0', sha: cmdArchive.sha, parent: parentRef },
-        },
         subagents: {
           reviewer: { aipkgRef: subagentRef, version: '2.0.0', sha: subagentArchive.sha, parent: parentRef },
         },
         rules: {
+          'pr-create': { aipkgRef: prRuleRef, version: '1.0.0', sha: prRuleArchive.sha, parent: parentRef },
           'no-any': { aipkgRef: ruleRef, version: '1.1.0', sha: ruleArchive.sha, parent: parentRef },
         },
       });
     });
 
     it('honors an existing lockfile entry whose SHA matches the downloaded dep', async () => {
-      const cmdTarball = await buildTarball({ type: 'cmd', org: 'org443', slug: 'pr-create', version: '1.0.0' });
-      const cmdArchive = await archiveService.parse(cmdTarball);
+      const ruleTarball = await buildTarball({ type: 'rule', org: 'org443', slug: 'pr-create', version: '1.0.0' });
+      const ruleArchive = await archiveService.parse(ruleTarball);
 
       const parentManifest = new Manifest({
         type: 'box',
         ref: 'org443/parent',
         version: '0.1.0',
         targets: ['claude'],
-        deps: { cmds: { 'pr-create': 'aipkg://cmd/org443/pr-create@1.0.0' } },
+        deps: { rules: { 'pr-create': 'aipkg://rule/org443/pr-create@1.0.0' } },
       });
       const { tgz: parentTgz } = await archiveService.pack({ manifest: parentManifest, files: [] });
       const parentArchive = await archiveService.parse(parentTgz);
@@ -174,11 +169,11 @@ describe('resolveDeps', () => {
       await writeTestFile(
         JSON.stringify({
           deps: {
-            cmds: {
+            rules: {
               'pr-create': {
-                aipkgRef: 'aipkg://cmd/org443/pr-create@1.0.0',
+                aipkgRef: 'aipkg://rule/org443/pr-create@1.0.0',
                 version: '1.0.0',
-                sha: cmdArchive.sha,
+                sha: ruleArchive.sha,
               },
             },
           },
@@ -187,72 +182,18 @@ describe('resolveDeps', () => {
       );
 
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-        new Response(cmdTarball, { status: 200, headers: { 'Content-Type': 'application/gzip' } }),
+        new Response(ruleTarball, { status: 200, headers: { 'Content-Type': 'application/gzip' } }),
       );
 
       const lockfile = await Lockfile.resolve();
       await resolveDeps({ archive: parentArchive, lockfile, targets: ['claude'] });
       await lockfile.write();
 
-      const cmdContent = await readTestFile('.claude', 'commands', 'pr-create.md');
-      expect(cmdContent).toBe('# pr-create\nTest content for pr-create.');
+      const ruleContent = await readTestFile('.claude', 'rules', 'pr-create.md');
+      expect(ruleContent).toBe('# pr-create\nTest content for pr-create.');
 
       const lockfileJson = await readTestJson('aipkg.lock');
-      expect(lockfileJson.deps.cmds['pr-create']).toMatchObject({ version: '1.0.0', sha: cmdArchive.sha });
-    });
-
-    it('installs MCP deps declared in the parent archive — writes .mcp.json and locks the entry', async () => {
-      const parentManifest = new Manifest({
-        type: 'box',
-        ref: 'org443/parent',
-        version: '0.1.0',
-        targets: ['claude'],
-        deps: {
-          mcps: {
-            linear: { url: 'https://mcp.linear.app/sse', headers: { Authorization: 'Bearer abc' } },
-            git: { command: 'uvx', args: ['mcp-server-git'] },
-          },
-        },
-      });
-      const { tgz: parentTgz } = await archiveService.pack({ manifest: parentManifest, files: [] });
-      const parentArchive = await archiveService.parse(parentTgz);
-
-      const lockfile = await Lockfile.resolve();
-      await resolveDeps({ archive: parentArchive, lockfile, targets: ['claude'] });
-      await lockfile.write();
-
-      const mcpJson = await readTestJson('.mcp.json');
-      expect(mcpJson.mcpServers).toMatchObject({
-        linear: { type: 'http', url: 'https://mcp.linear.app/sse', headers: { Authorization: 'Bearer abc' } },
-        git: { type: 'stdio', command: 'uvx', args: ['mcp-server-git'] },
-      });
-
-      const parentRef = parentArchive.pkgRef.aipkgRef;
-      const lockfileJson = await readTestJson('aipkg.lock');
-      expect(lockfileJson.deps.mcps).toMatchObject({
-        linear: { url: 'https://mcp.linear.app/sse', parent: parentRef },
-        git: { command: 'uvx', args: ['mcp-server-git'], parent: parentRef },
-      });
-    });
-
-    it('throws when two MCPs with the same name declare different configs', async () => {
-      const parentManifest = new Manifest({
-        type: 'box',
-        ref: 'org443/parent',
-        version: '0.1.0',
-        targets: ['claude'],
-        deps: { mcps: { linear: { url: 'https://mcp.linear.app/sse' } } },
-      });
-      const { tgz: parentTgz } = await archiveService.pack({ manifest: parentManifest, files: [] });
-      const parentArchive = await archiveService.parse(parentTgz);
-
-      const lockfile = await Lockfile.resolve();
-      // pre-seed an mcp with a different url so the resolved one collides
-      lockfile.upsertMcp({ slug: 'linear', entry: { url: 'https://other.example/sse' } });
-
-      await expect(resolveDeps({ archive: parentArchive, lockfile, targets: ['claude'] })).rejects.toThrow(
-        /mcps conflict/,
-      );
+      expect(lockfileJson.deps.rules['pr-create']).toMatchObject({ version: '1.0.0', sha: ruleArchive.sha });
     });
 
     it('downloads the locked version when the archive manifest pins a transitive dep at @latest', async () => {
@@ -303,31 +244,31 @@ describe('resolveDeps', () => {
       const ruleTarball = await buildTarball({ type: 'rule', org: 'org443', slug: 'no-any', version: '1.1.0' });
       const ruleArchive = await archiveService.parse(ruleTarball);
 
-      // Middle: a cmd that depends on the rule above.
-      const cmdTarball = await buildTarball({
-        type: 'cmd',
+      // Middle: a rule that depends on the rule above.
+      const prRuleTarball = await buildTarball({
+        type: 'rule',
         org: 'org443',
         slug: 'pr-create',
         version: '1.0.0',
         deps: { rules: { 'no-any': 'aipkg://rule/org443/no-any@1.1.0' } },
       });
-      const cmdArchive = await archiveService.parse(cmdTarball);
+      const prRuleArchive = await archiveService.parse(prRuleTarball);
 
-      // Root: the parent archive depends only on the cmd.
+      // Root: the parent archive depends only on the pr-create rule.
       const parentManifest = new Manifest({
         type: 'box',
         ref: 'org443/parent',
         version: '0.1.0',
         targets: ['claude'],
-        deps: { cmds: { 'pr-create': 'aipkg://cmd/org443/pr-create@1.0.0' } },
+        deps: { rules: { 'pr-create': 'aipkg://rule/org443/pr-create@1.0.0' } },
       });
       const { tgz: parentTgz } = await archiveService.pack({ manifest: parentManifest, files: [] });
       const parentArchive = await archiveService.parse(parentTgz);
 
       vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
         const url = String(input);
-        if (url.includes('/v1/packages/cmd/org443/pr-create/1.0.0/archive.tgz')) {
-          return new Response(cmdTarball, { status: 200, headers: { 'Content-Type': 'application/gzip' } });
+        if (url.includes('/v1/packages/rule/org443/pr-create/1.0.0/archive.tgz')) {
+          return new Response(prRuleTarball, { status: 200, headers: { 'Content-Type': 'application/gzip' } });
         }
         if (url.includes('/v1/packages/rule/org443/no-any/1.1.0/archive.tgz')) {
           return new Response(ruleTarball, { status: 200, headers: { 'Content-Type': 'application/gzip' } });
@@ -340,26 +281,24 @@ describe('resolveDeps', () => {
       await lockfile.write();
 
       // Both the direct dep and the transitive dep were placed on disk.
-      expect(testFileExists('.claude', 'commands', 'pr-create.md')).toBe(true);
+      expect(testFileExists('.claude', 'rules', 'pr-create.md')).toBe(true);
       expect(testFileExists('.claude', 'rules', 'no-any.md')).toBe(true);
 
       // Each archive was downloaded exactly once across the recursion.
       expect(globalThis.fetch).toHaveBeenCalledTimes(2);
 
       const parentRef = parentArchive.pkgRef.aipkgRef;
-      const cmdRef = cmdArchive.pkgRef.aipkgRef;
+      const prRuleRef = prRuleArchive.pkgRef.aipkgRef;
 
-      // The transitive rule's parent is the cmd that pulled it in, NOT the root
-      // — this is what proves the parent ref is the immediate importer.
+      // The transitive rule's parent is the pr-create rule that pulled it in, NOT
+      // the root — this is what proves the parent ref is the immediate importer.
       const ruleRef = ruleArchive.pkgRef.aipkgRef;
 
       const lockfileJson = await readTestJson('aipkg.lock');
       expect(lockfileJson.deps).toMatchObject({
-        cmds: {
-          'pr-create': { aipkgRef: cmdRef, version: '1.0.0', sha: cmdArchive.sha, parent: parentRef },
-        },
         rules: {
-          'no-any': { aipkgRef: ruleRef, version: '1.1.0', sha: ruleArchive.sha, parent: cmdRef },
+          'pr-create': { aipkgRef: prRuleRef, version: '1.0.0', sha: prRuleArchive.sha, parent: parentRef },
+          'no-any': { aipkgRef: ruleRef, version: '1.1.0', sha: ruleArchive.sha, parent: prRuleRef },
         },
       });
     });

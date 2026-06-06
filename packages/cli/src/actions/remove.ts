@@ -1,5 +1,5 @@
 import { type Manifest, PackageRef } from '@local/archive';
-import { place } from '@local/placement';
+import { AssetPlacement } from '@local/placement';
 import pc from 'picocolors';
 import { ConfigFile } from '../files/config.ts';
 import { Lockfile } from '../files/lockfile.ts';
@@ -17,38 +17,32 @@ export async function removeAction(input: { type: Manifest['type']; ref: string 
 
   const rootLock = lockfile.getEntry({ pkgRef });
 
-  const { entries, mcps } = lockfile.collectSubtree({ rootRef: rootLock?.aipkgRef });
+  const { entries } = lockfile.collectSubtree({ rootRef: rootLock?.aipkgRef });
 
   const removedPaths: string[] = [];
   let clearedStatusLine = false;
 
-  // Boxes have no placeable path of their own; everything else writes one file/dir.
-  if (type !== 'box') {
-    const { paths } = await place.remove({ type, slug, targets });
-    removedPaths.push(...paths);
-  }
-
-  const { mirror, removed: removedMirror } = await removeAipkgsMirror({ pkgRef });
-  if (removedMirror) removedPaths.push(mirror);
+  // Remove the top level
+  const { paths: removed } = await AssetPlacement.remove({ type, refStr: slug, targets });
+  removedPaths.push(...removed);
 
   for (const child of entries) {
-    const { paths } = await place.remove({ type: child.type, slug: child.slug, targets });
-    removedPaths.push(...paths);
+    const { paths: removed } = await AssetPlacement.remove({ type: child.type, refStr: child.slug, targets });
+    removedPaths.push(...removed);
     if (lockfile.removeStatusLine({ slug: child.slug })) clearedStatusLine = true;
     await lockfile.removeEntry({ type: child.type, slug: child.slug });
   }
 
-  for (const name of mcps) {
-    await place.removeMcp({ slug: name, targets });
-    lockfile.removeMcp({ slug: name });
-    manifest.removeMcp({ slug: name });
-  }
-
+  // A setup or box may own the single tracked statusLine — drop it when its owner goes.
   if (lockfile.removeStatusLine({ slug })) clearedStatusLine = true;
-  if (clearedStatusLine) await place.clearStatusLine({ targets });
 
-  const { removed: removedFromManifest } = await manifest.removeEntry({ type, key: slug });
-  const removedFromLock = await lockfile.removeEntry({ type, slug });
+  const [removedFromManifest, removedFromLock] = await Promise.all([
+    manifest.removeEntry({ type, key: slug }),
+    lockfile.removeEntry({ type, slug }),
+  ]);
+
+  const { mirror, removed: removedMirror } = await removeAipkgsMirror({ pkgRef });
+  if (removedMirror) removedPaths.push(mirror);
 
   if (!removedFromManifest && !removedFromLock && !clearedStatusLine && entries.length === 0) {
     console.log(pc.yellow(`Nothing to remove — no ${type} "${slug}" tracked in aipkg.json`));

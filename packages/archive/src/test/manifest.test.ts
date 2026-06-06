@@ -57,7 +57,6 @@ describe('Manifest.toObject()', () => {
       ref: 'acme/bot',
       version: '1.0.0',
       deps: {
-        cmds: { greet: 'cmd/acme/greet@1.0.0' },
         skills: { deploy: 'skill/acme/utils/deploy@2.1.0' },
         subagents: { reviewer: 'subagent/acme/reviewer@1.2.3' },
         rules: { lint: 'rule/acme/style/lint@latest' },
@@ -66,35 +65,11 @@ describe('Manifest.toObject()', () => {
 
     expect(manifest.toObject()).toMatchObject({
       deps: {
-        cmds: { greet: 'aipkg://cmd/acme/greet@1.0.0' },
         skills: { deploy: 'aipkg://skill/acme/utils/deploy@2.1.0' },
         subagents: { reviewer: 'aipkg://subagent/acme/reviewer@1.2.3' },
         rules: { lint: 'aipkg://rule/acme/style/lint@latest' },
       },
     });
-  });
-
-  it('preserves mcps as-is', () => {
-    const mcps = {
-      github: {
-        url: 'https://api.github.com',
-        headers: { Authorization: 'Bearer x' },
-      },
-      local: {
-        command: 'node',
-        args: ['server.js'],
-        env: { LOG: 'debug' },
-      },
-    };
-
-    const manifest = new Manifest({
-      type: 'box',
-      ref: 'acme/bot',
-      version: '1.0.0',
-      deps: { mcps },
-    });
-
-    expect(manifest.toObject().deps?.mcps).toEqual(mcps);
   });
 
   it('round-trips through JSON.stringify back into a Manifest', () => {
@@ -105,7 +80,7 @@ describe('Manifest.toObject()', () => {
       description: 'A helpful bot',
       targets: ['claude'],
       deps: {
-        cmds: { greet: 'cmd/acme/greet@1.0.0' },
+        subagents: { reviewer: 'subagent/acme/reviewer@1.2.3' },
         skills: { deploy: 'skill/acme/utils/deploy@2.1.0' },
       },
     });
@@ -122,14 +97,14 @@ describe('Manifest.toObject()', () => {
       ref: 'acme/bot',
       version: '1.0.0',
       deps: {
-        cmds: { greet: 'cmd/acme/greet@1.0.0' },
+        subagents: { reviewer: 'subagent/acme/reviewer@1.2.3' },
       },
     });
 
     const obj = manifest.toObject();
-    expect(obj.deps?.cmds).toEqual({ greet: 'aipkg://cmd/acme/greet@1.0.0' });
+    expect(obj.deps?.subagents).toEqual({ reviewer: 'aipkg://subagent/acme/reviewer@1.2.3' });
     expect(obj.deps?.skills).toBeUndefined();
-    expect(obj.deps?.subagents).toBeUndefined();
     expect(obj.deps?.rules).toBeUndefined();
+    expect(obj.deps?.boxes).toBeUndefined();
   });
 });

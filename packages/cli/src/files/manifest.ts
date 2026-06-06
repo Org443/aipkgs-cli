@@ -1,6 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { isAbsolute, join } from 'node:path';
-import { MANIFEST_FILENAME, Manifest, type McpEntry, type PackageRef } from '@local/archive';
+import { MANIFEST_FILENAME, Manifest, type PackageRef } from '@local/archive';
 import { isENOENT } from '../io/fs.ts';
 
 export class ManifestFile extends Manifest {
@@ -70,35 +70,14 @@ export class ManifestFile extends Manifest {
     const depKey = Manifest.depsKey(type);
 
     const deps = this.deps[depKey];
-    if (!deps) return { removed: false, pkgRef: null };
+    if (!deps) return false;
 
     const pkgRef = deps[key];
-    if (!pkgRef) return { removed: false, pkgRef: null };
+    if (!pkgRef) return false;
 
     delete deps[key];
     this.deps[depKey] = deps;
 
-    return { removed: true, pkgRef };
-  }
-
-  upsertMcp(args: { slug: string; entry: McpEntry }) {
-    const { slug, entry } = args;
-    const mcps = this.deps.mcps ?? {};
-    mcps[slug] = entry;
-    this.deps.mcps = mcps;
-  }
-
-  removeMcp(args: { slug: string }) {
-    const { slug } = args;
-    const mcps = this.deps.mcps;
-    if (!mcps?.[slug]) return { removed: false, entry: null as McpEntry | null };
-    const entry = mcps[slug];
-    delete mcps[slug];
-    return { removed: true, entry };
-  }
-
-  getMcp(args: { slug: string }): McpEntry | undefined {
-    const { slug } = args;
-    return this.deps.mcps?.[slug];
+    return true;
   }
 }
