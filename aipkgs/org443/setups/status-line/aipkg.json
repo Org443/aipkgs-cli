@@ -1,7 +1,7 @@
 {
   "type": "setup",
   "ref": "org443/status-line",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Terminal status line showing model, directory, context window usage, session cost, and API URL after each Claude Code turn",
   "homepage": "https://aipkgs.com",
   "repository": {
