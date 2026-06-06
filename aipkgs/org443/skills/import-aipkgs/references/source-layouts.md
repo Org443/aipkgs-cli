@@ -70,30 +70,37 @@ rule files, copy each to `rules/<slug>.md`. If the "rules" only exist as
 sections inside a big `CLAUDE.md`, ask the user whether to split them out — don't
 silently fragment someone's instruction file.
 
-**Hooks.** Consolidate to one `hooks/hooks.json` for the box plus the scripts it
-calls. Upstream hook configs often live in `settings.json` or a plugin manifest
-(`plugin.json`) rather than a standalone `hooks.json` — translate whatever you
-find into the `hooks.json` shape. Hooks come in two shapes:
+**Hooks / status line / MCP → a setup.** Consolidate to one root `setup.json`
+(for a box) or a standalone `setup` package, plus a `scripts/` payload holding
+the files its commands invoke. Upstream configs often live in `settings.json` or
+a plugin manifest (`plugin.json`) rather than a standalone file — translate
+whatever you find into the `setup.json` shape. A setup carries up to three
+things, any of which may be absent: `hooks` (an event map), `statusLine`, and
+`mcps`.
 
-- **Single command** (e.g. `statusLine`): see [packaging.md](packaging.md#sidecar-files).
+- **Status line** (`statusLine`): see [packaging.md](packaging.md#standalone-layouts).
 - **Event arrays** (`SessionStart`, `UserPromptSubmit`, `PreToolUse`, …): each
-  event maps to an array of matcher/hook groups, e.g.:
+  event maps to an array of matcher/hook groups under a top-level `hooks` key,
+  e.g.:
 
   ```json
   {
-    "SessionStart": [
-      { "hooks": [{ "type": "command", "command": "node \".claude/hooks/<org>/session-start.js\"" }] }
-    ],
-    "UserPromptSubmit": [
-      { "hooks": [{ "type": "command", "command": "node \".claude/hooks/<org>/prompt.js\"" }] }
-    ]
+    "hooks": {
+      "SessionStart": [
+        { "hooks": [{ "type": "command", "command": "node \"${PKG_ROOT}/scripts/session-start.js\"" }] }
+      ],
+      "UserPromptSubmit": [
+        { "hooks": [{ "type": "command", "command": "node \"${PKG_ROOT}/scripts/prompt.js\"" }] }
+      ]
+    }
   }
   ```
 
-Copy the referenced scripts into `hooks/` and **rewrite their paths** to where
-they'll live once installed: `.claude/hooks/<org>/<script>`. Upstream paths like
+Copy the referenced scripts into `scripts/` and **rewrite their command paths**
+to `${PKG_ROOT}/scripts/<script>` — the installer rewrites `${PKG_ROOT}` to the
+script's install dir (`.claude/scripts/<ref>`). Upstream paths like
 `${CLAUDE_PLUGIN_ROOT}/src/hooks/x.js` won't resolve after install, so replace
-them. The archive validator only checks that `hooks.json` is valid JSON — it does
+them. The archive validator only checks that `setup.json` is valid JSON — it does
 **not** verify command paths — so a wrong path fails silently at install time.
 Double-check every command string by hand.
 

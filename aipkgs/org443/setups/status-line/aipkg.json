@@ -1,5 +1,5 @@
 {
-  "type": "hook",
+  "type": "setup",
   "ref": "org443/status-line",
   "version": "0.0.3",
   "description": "Displays a status line in the terminal",

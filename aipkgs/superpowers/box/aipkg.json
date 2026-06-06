@@ -25,8 +25,8 @@
       "using-git-worktrees": "aipkg://skill/superpowers/using-git-worktrees@latest",
       "writing-skills": "aipkg://skill/superpowers/writing-skills@latest"
     },
-    "hooks": {
-      "session-start": "aipkg://hook/superpowers/session-start@latest"
+    "setups": {
+      "session-start": "aipkg://setup/superpowers/session-start@latest"
     }
   }
 }

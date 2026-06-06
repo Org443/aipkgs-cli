@@ -1,0 +1,6 @@
+{
+  "statusLine": {
+    "type": "command",
+    "command": "node ${PKG_ROOT}/scripts/status-line.js"
+  }
+}

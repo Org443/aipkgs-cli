@@ -1,5 +1,5 @@
 {
-  "type": "hook",
+  "type": "setup",
   "ref": "org443/node-format",
   "version": "0.0.1",
   "description": "Org443 Node.js related hooks",
@@ -10,8 +10,5 @@
   },
   "issues": {
     "url": "https://github.com/Org443/aipkgs-cli/issues"
-  },
-  "deps": {
-    "hooks": {}
   }
 }

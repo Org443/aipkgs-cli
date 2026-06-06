@@ -65,7 +65,7 @@ asset may appear in two trees** (dedupe)):
 
 - **Skills** — any dir with a `SKILL.md`.  **Commands** — `*.md` under `commands/` or `.claude/commands/`.
 - **Subagents** — `*.md` under `agents/`.  **Rules** — `*.md` rule files (or split out of CLAUDE.md).
-- **Hooks** — a `hooks.json` plus scripts.  **MCP servers** — see step 7; config, not files.
+- **Setups** — a `setup.json` (hooks / status line) plus a `scripts/` payload.  **MCP servers** — see step 7; config, not files.
 
 Report a short inventory before packaging (e.g. "14 skills, 3 commands, 1 hook").
 
@@ -88,7 +88,7 @@ aipkgs/<org>/
 ├── cmds/<slug>/          # aipkg.json + <slug>.md  (strict: no other files)
 ├── rules/<slug>/         # aipkg.json + <slug>.md
 ├── subagents/<slug>/     # aipkg.json + <slug>.md
-└── hooks/<slug>/         # aipkg.json + hooks.json + scripts
+└── setups/<slug>/        # aipkg.json + setup.json + scripts/
 ```
 
 Each asset is a standalone package; the box under `box/` ships only its own
@@ -106,7 +106,7 @@ Standalone asset:
 ```
 
 The box references every asset as a dep — one bucket per type (`skills`, `cmds`,
-`subagents`, `rules`, `hooks`), alias → `aipkg://<type>/<org>/<slug>@latest`:
+`subagents`, `rules`, `setups`), alias → `aipkg://<type>/<org>/<slug>@latest`:
 
 ```json
 {

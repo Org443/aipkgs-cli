@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \".claude/hooks/GSD/gsd-check-update.js\""
+            "command": "node \"${PKG_ROOT}/scripts/gsd-check-update.js\""
           }
         ]
       },
@@ -13,7 +13,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \".claude/hooks/GSD/gsd-update-banner.js\""
+            "command": "node \"${PKG_ROOT}/scripts/gsd-update-banner.js\""
           }
         ]
       },
@@ -21,7 +21,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \".claude/hooks/GSD/gsd-session-state.sh\""
+            "command": "bash \"${PKG_ROOT}/scripts/gsd-session-state.sh\""
           }
         ]
       }
@@ -32,7 +32,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \".claude/hooks/GSD/gsd-prompt-guard.js\"",
+            "command": "node \"${PKG_ROOT}/scripts/gsd-prompt-guard.js\"",
             "timeout": 5
           }
         ]
@@ -42,7 +42,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \".claude/hooks/GSD/gsd-read-guard.js\"",
+            "command": "node \"${PKG_ROOT}/scripts/gsd-read-guard.js\"",
             "timeout": 5
           }
         ]
@@ -52,7 +52,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \".claude/hooks/GSD/gsd-workflow-guard.js\"",
+            "command": "node \"${PKG_ROOT}/scripts/gsd-workflow-guard.js\"",
             "timeout": 5
           }
         ]
@@ -62,7 +62,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \".claude/hooks/GSD/gsd-validate-commit.sh\"",
+            "command": "bash \"${PKG_ROOT}/scripts/gsd-validate-commit.sh\"",
             "timeout": 5
           }
         ]
@@ -74,7 +74,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \".claude/hooks/GSD/gsd-context-monitor.js\"",
+            "command": "node \"${PKG_ROOT}/scripts/gsd-context-monitor.js\"",
             "timeout": 10
           }
         ]
@@ -84,7 +84,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \".claude/hooks/GSD/gsd-read-injection-scanner.js\"",
+            "command": "node \"${PKG_ROOT}/scripts/gsd-read-injection-scanner.js\"",
             "timeout": 5
           }
         ]
@@ -94,7 +94,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \".claude/hooks/GSD/gsd-graphify-update.sh\"",
+            "command": "bash \"${PKG_ROOT}/scripts/gsd-graphify-update.sh\"",
             "timeout": 5
           }
         ]
@@ -104,7 +104,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \".claude/hooks/GSD/gsd-phase-boundary.sh\"",
+            "command": "bash \"${PKG_ROOT}/scripts/gsd-phase-boundary.sh\"",
             "timeout": 5
           }
         ]

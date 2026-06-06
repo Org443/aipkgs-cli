@@ -29,7 +29,7 @@ node --experimental-strip-types packages/cli/src/index.ts publish --dry "$(pwd)/
 
 | Field         | Required | Notes                                                                 |
 | ------------- | -------- | --------------------------------------------------------------------- |
-| `type`        | yes      | One of `cmd`, `skill`, `subagent`, `rule`, `hook`, `box`.             |
+| `type`        | yes      | One of `cmd`, `skill`, `subagent`, `rule`, `setup`, `box`.             |
 | `ref`         | yes      | `<org>/<slug>` or `<org>/<key>/<slug>`. See constraints below.        |
 | `version`     | yes      | Semver `x.y.z` (pre-release suffix allowed). `latest` only in deps.   |
 | `description` | no\*     | One concise sentence. Always write one — it's the registry blurb.     |
@@ -40,7 +40,7 @@ node --experimental-strip-types packages/cli/src/index.ts publish --dry "$(pwd)/
 | `deps`        | no       | Only meaningful for boxes that reference _separately published_ pkgs. |
 
 `deps` buckets (each maps an alias → an `aipkg://…` ref string):
-`cmds`, `skills`, `subagents`, `rules`, `hooks`, `boxes`, plus `mcps`
+`cmds`, `skills`, `subagents`, `rules`, `setups`, `boxes`, plus `mcps`
 (alias → `{ "url" }` or `{ "command", "args"?, … }`). In the **preferred
 split + box-of-deps shape** the box manifest (under `box/`) populates these
 buckets to reference its separately-published assets, e.g.
@@ -108,9 +108,9 @@ aipkgs/<org>/
 │       ├── SKILL.md      # required for the skill to be collected
 │       ├── README.md     # optional
 │       └── assets/ scripts/ references/ …   # copied wholesale
-└── hooks/
-    ├── hooks.json        # required for hooks to be collected; ONE per box
-    └── <script files>    # any scripts the hooks invoke
+├── setup.json           # type: setup config (hooks/statusLine/mcps); optional, ONE per box
+└── scripts/             # payload the setup's commands invoke via ${PKG_ROOT}
+    └── <script files>
 ```
 
 Rules that bite:
@@ -119,8 +119,8 @@ Rules that bite:
   subdir there is ignored by the box collector.
 - **skills are subdirs**, each needing its own `SKILL.md`. A skill subdir
   without `SKILL.md` is silently skipped.
-- **hooks** are collected from a single `hooks/` dir with one `hooks.json`. If
-  upstream has multiple hook configs, merge them into one `hooks.json`.
+- **setup** is a single root `setup.json` (plus an optional `scripts/` payload).
+  If upstream has multiple hook configs, merge them into one `setup.json`.
 - Boxes do not nest — there is no `boxes/` subdir inside a box.
 
 ## Standalone layouts
@@ -150,19 +150,20 @@ aipkgs/<org>/skills/<slug>/
 └── assets/ scripts/ references/ README.md …   # optional, any depth
 ```
 
-**hook** (arbitrary files allowed alongside the required `hooks.json`):
+**setup** (arbitrary files allowed alongside the required `setup.json`):
 
 ```
-aipkgs/<org>/hooks/<slug>/
-├── aipkg.json            # type: hook
-├── hooks.json            # required, must be valid JSON
-└── <script files>
+aipkgs/<org>/setups/<slug>/
+├── aipkg.json            # type: setup
+├── setup.json            # required, must be valid JSON
+└── scripts/              # scripts the setup's commands invoke (via ${PKG_ROOT})
+    └── <script files>
 ```
 
-`hooks.json` shape (from `aipkgs/org443/hooks/status-line/`):
+`setup.json` shape (from `aipkgs/org443/setups/status-line/`):
 
 ```json
-{ "statusLine": { "type": "command", "command": ".claude/hooks/<org>/<script>.sh" } }
+{ "statusLine": { "type": "command", "command": "node ${PKG_ROOT}/scripts/status-line.js" } }
 ```
 
 ## Sidecar files
@@ -193,9 +194,10 @@ and ships fine — keep it.
   `SKILL.md`, or you placed the skill's files flat instead of in `skills/<slug>/`.
 - **`archive missing required file: <slug>.md`** — a standalone cmd/rule/subagent
   file isn't named exactly `<slug>.md`.
-- **`archive missing required file: hooks.json`** — hooks dir has no `hooks.json`.
+- **`archive missing required file: setup.json`** — a setup package (or a box
+  with a `scripts/` payload) has no root `setup.json`.
 - **`archive contains disallowed file: …`** — a strict flat asset (cmd/rule/
   subagent) has an extra file; move it out or repackage as a skill/box.
 - **`InvalidManifest` / segment errors** — a ref segment has illegal chars
   (uppercase org, spaces, dots) or is > 30 chars, or `version` isn't semver.
-- **`hooks.json is not valid JSON`** — fix the JSON.
+- **`setup.json is not valid JSON`** — fix the JSON.

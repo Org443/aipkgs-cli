@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${PKG_ROOT}/session-start.js\"",
+            "command": "node \"${PKG_ROOT}/scripts/session-start.js\"",
             "async": false
           }
         ]
