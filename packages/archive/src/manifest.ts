@@ -23,6 +23,7 @@ export class Manifest {
   ref: string;
   version: string;
   description?: string;
+  tags?: string[];
   targets?: AgentTarget[];
   homepage?: string;
   repository?: Repository;
@@ -53,6 +54,7 @@ export class Manifest {
     this.ref = data.ref;
     this.version = data.version;
     this.description = data.description;
+    this.tags = data.tags;
     this.targets = data.targets;
     this.homepage = data.homepage;
     this.repository = data.repository;
@@ -121,6 +123,7 @@ export class Manifest {
       ref: this.ref,
       version: this.version,
       description: this.description,
+      tags: this.tags,
       targets: this.targets,
       homepage: this.homepage,
       repository: this.repository,
@@ -151,6 +154,7 @@ const ManifestZ = z.object({
   ref: z.string(),
   version: z.string(),
   description: z.string().optional(),
+  tags: z.array(z.string()).max(5).optional(),
   targets: z.array(z.enum(AGENT_TARGETS)).optional(),
   homepage: z.string().optional(),
   repository: RepositoryZ.optional(),

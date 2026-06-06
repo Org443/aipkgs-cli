@@ -3,7 +3,7 @@ import pc from 'picocolors';
 import { ConfigFile } from '../../files/config.ts';
 import { Lockfile, lockfilePathFor } from '../../files/lockfile.ts';
 import { ManifestFile } from '../../files/manifest.ts';
-import { installPkg } from './pkg.ts';
+import { hydratePkg } from './hydrate-pkg.ts';
 
 export async function installAllAction(args: { manifest?: string } = {}) {
   const targets = await ConfigFile.resolvedTargets();
@@ -18,7 +18,7 @@ export async function installAllAction(args: { manifest?: string } = {}) {
   }
 
   for (const pkgRef of tasks) {
-    const { archive } = await installPkg({ pkgRef, lockfile, targets });
+    const { archive } = await hydratePkg({ pkgRef, lockfile, targets });
 
     await lockfile.upsertEntry({ archive, ...pkgRef });
   }

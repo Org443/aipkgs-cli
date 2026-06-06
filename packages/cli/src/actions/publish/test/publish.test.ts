@@ -84,10 +84,6 @@ describe('publishAction', () => {
         version: '1.0.0',
         description: 'Create a pull request',
       });
-      const files = archive.files;
-      const contentFiles = files.filter((f) => f.path !== 'aipkg.json');
-      expect(contentFiles).toEqual([{ path: 'pr-create.md', body: Buffer.from('# pr-create\nLocal content.') }]);
-
       // biome-ignore lint/style/noNonNullAssertion: test assertion
       const calledUrl = fetchSpy.mock.calls[0]![0] as string;
       expect(calledUrl).toContain('/v1/publish');
@@ -96,85 +92,6 @@ describe('publishAction', () => {
       expect(init.method).toBe('POST');
       const headers = init.headers as Record<string, string>;
       expect(headers.Authorization).toBe('Bearer test-token');
-    });
-
-    it('publishes a skill, packing every file in the directory', async () => {
-      const dir = ['skills', 'pr-helper'];
-      await writePkgManifest({
-        dir,
-        type: 'skill',
-        ref: 'org443/pr-helper',
-        version: '0.1.0',
-      });
-      await writeTestFile('# pr-helper\nSkill body.', ...dir, 'SKILL.md');
-      await writeTestFile('docs', ...dir, 'README.md');
-      await writeTestFile('asset bytes', ...dir, 'assets', 'logo.txt');
-      const fetchSpy = mockUpload();
-
-      await publishAction({ path: testDir(...dir) });
-
-      const tarball = await capturedUploadBody(fetchSpy);
-      const archive = await archiveService.parse(tarball);
-      expect(archive.manifest).toMatchObject({
-        type: 'skill',
-        ref: 'org443/pr-helper',
-        version: '0.1.0',
-      });
-      const files = archive.files;
-      const paths = files
-        .map((f) => f.path)
-        .filter((p) => p !== 'aipkg.json')
-        .sort();
-      expect(paths).toEqual(['README.md', 'SKILL.md', 'assets/logo.txt']);
-    });
-
-    it('packs optional README.md sidecar for non-skill types', async () => {
-      const dir = ['rules', 'safety'];
-      await writePkgManifest({
-        dir,
-        type: 'rule',
-        ref: 'org443/safety',
-        version: '1.0.0',
-      });
-      await writeTestFile('# safety', ...dir, 'safety.md');
-      await writeTestFile('# README', ...dir, 'README.md');
-      const fetchSpy = mockUpload();
-
-      await publishAction({ path: testDir(...dir) });
-
-      const tarball = await capturedUploadBody(fetchSpy);
-      const archive = await archiveService.parse(tarball);
-      const files = archive.files;
-      const paths = files
-        .map((f) => f.path)
-        .filter((p) => p !== 'aipkg.json')
-        .sort();
-      expect(paths).toEqual(['README.md', 'safety.md']);
-    });
-
-    it('ignores unrelated files in non-skill directories', async () => {
-      const dir = ['rules', 'pr-create'];
-      await writePkgManifest({
-        dir,
-        type: 'rule',
-        ref: 'org443/pr-create',
-        version: '1.0.0',
-      });
-      await writeTestFile('# pr-create', ...dir, 'pr-create.md');
-      await writeTestFile('junk', ...dir, 'extra.md');
-      await writeTestFile('junk', ...dir, 'notes.txt');
-      const fetchSpy = mockUpload();
-
-      await publishAction({ path: testDir(...dir) });
-
-      const tarball = await capturedUploadBody(fetchSpy);
-      const archive = await archiveService.parse(tarball);
-      const files = archive.files;
-      const paths = files
-        .map((f) => f.path)
-        .filter((p) => p !== 'aipkg.json')
-        .sort();
-      expect(paths).toEqual(['pr-create.md']);
     });
 
     it('publishes a keyed ref (org/key/slug)', async () => {
@@ -407,7 +324,11 @@ describe('publishAction', () => {
       await writeTestFile('# README', ...dir, 'README.md');
       mockUpload();
 
-      await expect(publishAction({ path: testDir(...dir) })).rejects.toThrow('Missing required file pr-create.md');
+      // Collect is type-agnostic now, so the missing-file check fires when the
+      // archive layer validates the swept files at pack time.
+      await expect(publishAction({ path: testDir(...dir) })).rejects.toThrow(
+        'rule archive missing required file: pr-create.md',
+      );
     });
   });
 

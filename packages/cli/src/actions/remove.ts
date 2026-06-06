@@ -4,7 +4,7 @@ import pc from 'picocolors';
 import { ConfigFile } from '../files/config.ts';
 import { Lockfile } from '../files/lockfile.ts';
 import { ManifestFile } from '../files/manifest.ts';
-import { removeAipkgsMirror } from '../io/aipkgs.ts';
+import { removeAipkgsMirror } from '../io/mirror.ts';
 
 export async function removeAction(input: { type: Manifest['type']; ref: string }) {
   const { type, ref } = input;

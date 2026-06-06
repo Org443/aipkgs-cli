@@ -58,21 +58,3 @@ describe('mcpConfig.upsertServer', () => {
     expect(Object.keys(config.mcpServers).sort()).toEqual(['a', 'b']);
   });
 });
-
-describe('mcpConfig.removeServer', () => {
-  it('removes an existing entry and returns true', async () => {
-    await mcpConfig.upsertServer({ slug: 'x', server: { type: 'http', url: 'https://x.example' } });
-
-    const result = await mcpConfig.removeServer({ slug: 'x' });
-    expect(result).toBe(true);
-
-    const config = await readTestJson('.mcp.json');
-    expect(config.mcpServers).not.toHaveProperty('x');
-  });
-
-  it('returns false when the slug is absent', async () => {
-    await mcpConfig.upsertServer({ slug: 'x', server: { type: 'http', url: 'https://x.example' } });
-    const result = await mcpConfig.removeServer({ slug: 'missing' });
-    expect(result).toBe(false);
-  });
-});

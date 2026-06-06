@@ -1,26 +1,44 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import type { McpEntry } from '@local/archive';
 import { isENOENT } from '../../fs.ts';
 import { AIPKG_OWNER_KEY } from '../hooks-format.ts';
 
-export const MCP_CONFIG_FILENAME = '.mcp.json';
+const MCP_CONFIG_FILENAME = '.mcp.json';
 
-export type McpHttpServerConfig = {
+type McpHttpServerConfig = {
   type: 'http' | 'sse';
   url: string;
   headers?: Record<string, string>;
 };
 
-export type McpStdioServerConfig = {
+type McpStdioServerConfig = {
   type: 'stdio';
   command: string;
   args?: string[];
   env?: Record<string, string>;
 };
 
-export type McpServerConfig = McpHttpServerConfig | McpStdioServerConfig;
+type McpServerConfig = McpHttpServerConfig | McpStdioServerConfig;
 
-export type McpConfig = {
+// Normalize a setup/registry MCP entry into the on-disk Claude server config: a
+// `url` is an HTTP server, a `command` is a stdio server.
+export function toServerConfig(mcp: McpEntry): McpServerConfig {
+  if (mcp.url) {
+    return { type: 'http', url: mcp.url, ...(mcp.headers ? { headers: mcp.headers } : {}) };
+  }
+  if (mcp.command) {
+    return {
+      type: 'stdio',
+      command: mcp.command,
+      ...(mcp.args ? { args: mcp.args } : {}),
+      ...(mcp.env ? { env: mcp.env } : {}),
+    };
+  }
+  throw new Error('MCP entry must define either a url or a command');
+}
+
+type McpConfig = {
   mcpServers: Record<string, McpServerConfig>;
 };
 
@@ -57,15 +75,6 @@ export const mcpConfig = {
     config.mcpServers[slug] = stored as McpServerConfig;
     await mcpConfig.write(config);
     return { created: !existed };
-  },
-
-  async removeServer(args: { slug: string }): Promise<boolean> {
-    const { slug } = args;
-    const config = await mcpConfig.read();
-    if (!(slug in config.mcpServers)) return false;
-    delete config.mcpServers[slug];
-    await mcpConfig.write(config);
-    return true;
   },
 
   // Strip every server owned by `owner`, returning the names removed so callers

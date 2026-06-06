@@ -4,9 +4,9 @@ import type { HooksByEvent } from '@local/archive';
 import { isENOENT } from '../../fs.ts';
 import { AIPKG_OWNER_KEY, mergeOwnedHooks, removeOwnedHooks } from '../hooks-format.ts';
 
-export const SETTINGS_LOCAL_FILENAME = join('.claude', 'settings.local.json');
+const SETTINGS_LOCAL_FILENAME = join('.claude', 'settings.local.json');
 
-export type SettingsLocal = {
+type SettingsLocal = {
   hooks?: HooksByEvent;
   statusLine?: Record<string, unknown>;
   [key: string]: unknown;

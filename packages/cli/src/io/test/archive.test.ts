@@ -1,15 +1,13 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { setupTestCwd, teardownTestCwd, testDir, writeTestFile } from '../../test/helpers.ts';
-import { collectArchiveFiles } from '../archive.ts';
+import { collectArchiveFiles } from '../collect-files.ts';
 
 beforeEach(() => {
   setupTestCwd({ prefix: 'aipkg-archive-collect-test-' });
-  vi.spyOn(console, 'warn').mockImplementation(() => {});
 });
 
 afterEach(() => {
   teardownTestCwd();
-  vi.restoreAllMocks();
 });
 
 function paths(entries: { path: string }[]) {
@@ -23,98 +21,57 @@ function bodyFor(entries: { path: string; body: Buffer }[], path: string) {
 }
 
 describe('collectArchiveFiles', () => {
-  describe('type: rule (single md file)', () => {
-    it('emits <slug>.md alone when no sidecars are present', async () => {
-      await writeTestFile('# pr-create', 'pr-create.md');
-
-      const entries = await collectArchiveFiles({
-        type: 'rule',
-        dir: testDir(),
-        slug: 'pr-create',
-      });
-
-      expect(paths(entries)).toEqual(['pr-create.md']);
-      expect(bodyFor(entries, 'pr-create.md')).toBe('# pr-create');
-    });
-
-    it('emits <slug>.md plus README and LICENSE sidecars', async () => {
-      await writeTestFile('# pr-create', 'pr-create.md');
-      await writeTestFile('# readme', 'README.md');
-      await writeTestFile('mit', 'LICENSE.txt');
-
-      const entries = await collectArchiveFiles({
-        type: 'rule',
-        dir: testDir(),
-        slug: 'pr-create',
-      });
-
-      expect(paths(entries)).toEqual(['LICENSE.txt', 'README.md', 'pr-create.md']);
-    });
+  it('throws when the path is not a directory', async () => {
+    await writeTestFile('# rule', 'pr-create.md');
+    await expect(collectArchiveFiles({ dir: testDir('pr-create.md') })).rejects.toThrow();
   });
 
-  describe('type: rule', () => {
-    it('emits <slug>.md plus sidecars', async () => {
-      await writeTestFile('# safety', 'safety.md');
-      await writeTestFile('# readme', 'README.md');
+  it('walks every nested file, re-rooted to the package directory', async () => {
+    await writeTestFile('# skill body', 'SKILL.md');
+    await writeTestFile('# readme', 'README.md');
+    await writeTestFile('logo-bytes', 'assets/logo.txt');
+    await writeTestFile('echo hi', 'scripts/run.sh');
+    await writeTestFile('ref', 'references/cheatsheet.md');
 
-      const entries = await collectArchiveFiles({
-        type: 'rule',
-        dir: testDir(),
-        slug: 'safety',
-      });
+    const entries = await collectArchiveFiles({ dir: testDir() });
 
-      expect(paths(entries)).toEqual(['README.md', 'safety.md']);
-    });
+    expect(paths(entries)).toEqual([
+      'README.md',
+      'SKILL.md',
+      'assets/logo.txt',
+      'references/cheatsheet.md',
+      'scripts/run.sh',
+    ]);
+    expect(bodyFor(entries, 'assets/logo.txt')).toBe('logo-bytes');
   });
 
-  describe('type: subagent', () => {
-    it('emits <slug>.md plus sidecars', async () => {
-      await writeTestFile('# reviewer', 'reviewer.md');
-      await writeTestFile('mit', 'LICENSE.txt');
+  it('collection is type-agnostic — a box layout is swept verbatim', async () => {
+    await writeTestFile(JSON.stringify({ type: 'box', ref: 'org443/my-box', version: '1.0.0' }), 'aipkg.json');
+    await writeTestFile('# helper skill', 'skills/helper/SKILL.md');
+    await writeTestFile('logo-bytes', 'skills/helper/assets/logo.txt');
+    await writeTestFile('{"PreToolUse":[]}', 'setup.json');
+    await writeTestFile('#!/bin/sh', 'scripts/lint.sh');
+    await writeTestFile('# pr-create', 'rules/pr-create.md');
+    await writeTestFile('# reviewer', 'subagents/reviewer.md');
 
-      const entries = await collectArchiveFiles({
-        type: 'subagent',
-        dir: testDir(),
-        slug: 'reviewer',
-      });
+    const entries = await collectArchiveFiles({ dir: testDir() });
 
-      expect(paths(entries)).toEqual(['LICENSE.txt', 'reviewer.md']);
-    });
+    expect(paths(entries)).toEqual([
+      'rules/pr-create.md',
+      'scripts/lint.sh',
+      'setup.json',
+      'skills/helper/SKILL.md',
+      'skills/helper/assets/logo.txt',
+      'subagents/reviewer.md',
+    ]);
   });
 
-  describe('type: skill', () => {
-    it('packs SKILL.md and every nested file in the directory', async () => {
-      await writeTestFile('# skill body', 'SKILL.md');
-      await writeTestFile('# readme', 'README.md');
-      await writeTestFile('logo-bytes', 'assets/logo.txt');
-      await writeTestFile('echo hi', 'scripts/run.sh');
-      await writeTestFile('ref', 'references/cheatsheet.md');
-
-      const entries = await collectArchiveFiles({
-        type: 'skill',
-        dir: testDir(),
-        slug: 'pr-helper',
-      });
-
-      expect(paths(entries)).toEqual([
-        'README.md',
-        'SKILL.md',
-        'assets/logo.txt',
-        'references/cheatsheet.md',
-        'scripts/run.sh',
-      ]);
-      expect(bodyFor(entries, 'assets/logo.txt')).toBe('logo-bytes');
-    });
-
-    it('skips the on-disk aipkg.json (manifest is re-emitted by the archive layer)', async () => {
+  describe('manifest handling', () => {
+    it('skips the on-disk aipkg.json — re-emitted by the archive layer', async () => {
       await writeTestFile(JSON.stringify({ type: 'skill', ref: 'org/x', version: '1.0.0' }), 'aipkg.json');
       await writeTestFile('# skill', 'SKILL.md');
 
-      const entries = await collectArchiveFiles({
-        type: 'skill',
-        dir: testDir(),
-        slug: 'x',
-      });
+      const entries = await collectArchiveFiles({ dir: testDir() });
 
       expect(paths(entries)).toEqual(['SKILL.md']);
     });
@@ -123,113 +80,68 @@ describe('collectArchiveFiles', () => {
       await writeTestFile('{}', 'aipkg.alt.json');
       await writeTestFile('# skill', 'SKILL.md');
 
-      const entries = await collectArchiveFiles({
-        type: 'skill',
-        dir: testDir(),
-        slug: 'x',
-        manifestFilename: 'aipkg.alt.json',
-      });
+      const entries = await collectArchiveFiles({ dir: testDir(), manifestFilename: 'aipkg.alt.json' });
 
       expect(paths(entries)).toEqual(['SKILL.md']);
     });
   });
 
-  describe('type: setup', () => {
-    it('packs setup.json and every nested file in the directory', async () => {
-      await writeTestFile('{"PreToolUse":[]}', 'setup.json');
-      await writeTestFile('# readme', 'README.md');
-      await writeTestFile('#!/bin/sh', 'scripts/lint.sh');
+  describe('.aipkgignore', () => {
+    it('excludes matching files and the ignore file itself', async () => {
+      await writeTestFile('# skill', 'SKILL.md');
+      await writeTestFile('secret', '.env');
+      await writeTestFile('scratch', 'notes.md');
+      await writeTestFile('.env\nnotes.md\n', '.aipkgignore');
 
-      const entries = await collectArchiveFiles({
-        type: 'setup',
-        dir: testDir(),
-        slug: 'lint',
-      });
+      const entries = await collectArchiveFiles({ dir: testDir() });
 
-      expect(paths(entries)).toEqual(['README.md', 'scripts/lint.sh', 'setup.json']);
-      expect(bodyFor(entries, 'setup.json')).toBe('{"PreToolUse":[]}');
+      expect(paths(entries)).toEqual(['SKILL.md']);
+    });
+
+    it('excludes a directory and everything under it', async () => {
+      await writeTestFile('# skill', 'SKILL.md');
+      await writeTestFile('keep', 'assets/logo.txt');
+      await writeTestFile('drop', 'fixtures/a.json');
+      await writeTestFile('drop', 'fixtures/nested/b.json');
+      await writeTestFile('fixtures/\n', '.aipkgignore');
+
+      const entries = await collectArchiveFiles({ dir: testDir() });
+
+      expect(paths(entries)).toEqual(['SKILL.md', 'assets/logo.txt']);
+    });
+
+    it('supports glob patterns', async () => {
+      await writeTestFile('# skill', 'SKILL.md');
+      await writeTestFile('log', 'debug.log');
+      await writeTestFile('log', 'scripts/run.log');
+      await writeTestFile('keep', 'scripts/run.sh');
+      await writeTestFile('*.log\n', '.aipkgignore');
+
+      const entries = await collectArchiveFiles({ dir: testDir() });
+
+      expect(paths(entries)).toEqual(['SKILL.md', 'scripts/run.sh']);
     });
   });
 
-  describe('type: box', () => {
-    it('collects nested skills, root setup (+scripts), and flat md files under <key>/', async () => {
-      // Root manifest — not collected here, re-emitted by the archive layer.
-      await writeTestFile(JSON.stringify({ type: 'box', ref: 'org443/my-box', version: '1.0.0' }), 'aipkg.json');
+  it('never publishes .env files, but keeps committed templates', async () => {
+    await writeTestFile('# skill', 'SKILL.md');
+    await writeTestFile('SECRET=1', '.env');
+    await writeTestFile('SECRET=2', '.env.local');
+    await writeTestFile('SECRET=3', 'config/.env.production');
+    await writeTestFile('SECRET=', '.env.example');
 
-      // skills/<slug>/**
-      await writeTestFile('# helper skill', 'skills/helper/SKILL.md');
-      await writeTestFile('logo-bytes', 'skills/helper/assets/logo.txt');
+    const entries = await collectArchiveFiles({ dir: testDir() });
 
-      // setup: root setup.json + scripts/**
-      await writeTestFile('{"PreToolUse":[]}', 'setup.json');
-      await writeTestFile('#!/bin/sh', 'scripts/lint.sh');
+    expect(paths(entries)).toEqual(['.env.example', 'SKILL.md']);
+  });
 
-      // rules/*.md
-      await writeTestFile('# pr-create', 'rules/pr-create.md');
-      await writeTestFile('# safety', 'rules/safety.md');
+  it('never descends into heavy directories like node_modules', async () => {
+    await writeTestFile('# skill', 'SKILL.md');
+    await writeTestFile('junk', 'node_modules/dep/index.js');
+    await writeTestFile('junk', '.git/config');
 
-      // subagents/*.md
-      await writeTestFile('# reviewer', 'subagents/reviewer.md');
+    const entries = await collectArchiveFiles({ dir: testDir() });
 
-      const entries = await collectArchiveFiles({
-        type: 'box',
-        dir: testDir(),
-        slug: 'my-box',
-      });
-
-      expect(paths(entries)).toEqual([
-        'rules/pr-create.md',
-        'rules/safety.md',
-        'scripts/lint.sh',
-        'setup.json',
-        'skills/helper/SKILL.md',
-        'skills/helper/assets/logo.txt',
-        'subagents/reviewer.md',
-      ]);
-    });
-
-    it('skips dep keys whose directory does not exist', async () => {
-      await writeTestFile('# pr-create', 'rules/pr-create.md');
-
-      const entries = await collectArchiveFiles({
-        type: 'box',
-        dir: testDir(),
-        slug: 'my-box',
-      });
-
-      expect(paths(entries)).toEqual(['rules/pr-create.md']);
-    });
-
-    it('includes README and LICENSE sidecars at the box root', async () => {
-      await writeTestFile(JSON.stringify({ type: 'box', ref: 'org/x', version: '1.0.0' }), 'aipkg.json');
-      await writeTestFile('# readme', 'README.md');
-      await writeTestFile('mit', 'LICENSE.txt');
-      await writeTestFile('# pr-create', 'rules/pr-create.md');
-
-      const entries = await collectArchiveFiles({
-        type: 'box',
-        dir: testDir(),
-        slug: 'my-box',
-      });
-
-      expect(paths(entries)).toEqual(['LICENSE.txt', 'README.md', 'rules/pr-create.md']);
-      expect(bodyFor(entries, 'README.md')).toBe('# readme');
-    });
-
-    it('ignores the boxes/ dep key (boxes do not nest inside boxes)', async () => {
-      await writeTestFile(
-        JSON.stringify({ type: 'box', ref: 'org/inner', version: '1.0.0' }),
-        'boxes/inner/aipkg.json',
-      );
-      await writeTestFile('# pr-create', 'rules/pr-create.md');
-
-      const entries = await collectArchiveFiles({
-        type: 'box',
-        dir: testDir(),
-        slug: 'my-box',
-      });
-
-      expect(paths(entries)).toEqual(['rules/pr-create.md']);
-    });
+    expect(paths(entries)).toEqual(['SKILL.md']);
   });
 });

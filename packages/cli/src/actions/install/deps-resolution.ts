@@ -8,7 +8,7 @@
 
 import { type AIpkgArchive, type AgentTarget, DEPS_KEYS } from '@local/archive';
 import type { Lockfile } from '../../files/lockfile.ts';
-import { installPkg } from './pkg.ts';
+import { hydratePkg } from './hydrate-pkg.ts';
 
 export async function resolveDeps(args: { archive: AIpkgArchive; lockfile: Lockfile; targets: AgentTarget[] }) {
   const { archive, lockfile, targets } = args;
@@ -22,7 +22,7 @@ export async function resolveDeps(args: { archive: AIpkgArchive; lockfile: Lockf
     if (!depsBucket) continue;
     for (const entry of Object.values(depsBucket)) {
       const pkgRef = lockfile.resolvePkgRef({ pkgRef: entry });
-      await installPkg({ pkgRef, lockfile, targets, parent });
+      await hydratePkg({ pkgRef, lockfile, targets, parent });
     }
   }
 }

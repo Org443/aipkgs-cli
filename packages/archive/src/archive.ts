@@ -3,6 +3,7 @@ import { MANIFEST_TYPES } from './constants.ts';
 import { InvalidArchive, InvalidManifest } from './errors.ts';
 import { MANIFEST_FILENAME, Manifest } from './manifest.ts';
 import type { PackageRef } from './ref.ts';
+import { withSetupFeatureTags } from './setup-features.ts';
 import { type TarEntry, tarballService } from './tarball.ts';
 import { assertBoxArchive } from './validate/box.ts';
 import { pruneCruft } from './validate/prune.ts';
@@ -51,6 +52,10 @@ export const archiveService = {
     const manifest = new Manifest({ text: manifestEntry.body.toString() });
 
     const decoded = assertArchive({ manifest, files });
+
+    if (decoded.setup) {
+      manifest.tags = withSetupFeatureTags({ tags: manifest.tags, setup: decoded.setup });
+    }
 
     const hash = sha256hex(raw);
     const { pkgRef } = manifest;

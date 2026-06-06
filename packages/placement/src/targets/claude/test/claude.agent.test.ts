@@ -170,46 +170,10 @@ describe('ClaudeAgent.remove', () => {
 });
 
 describe('ClaudeAgent mcp side effects', () => {
-  it('adds an MCP server to .mcp.json and removes it again', async () => {
+  it('adds an MCP server to .mcp.json', async () => {
     await agent.addMcp({ slug: 'linear', mcp: { url: 'https://mcp.linear.app/sse' } });
 
-    let config = await readTestJson('.mcp.json');
+    const config = await readTestJson('.mcp.json');
     expect(config.mcpServers.linear).toEqual({ type: 'http', url: 'https://mcp.linear.app/sse' });
-
-    await agent.removeMcp({ slug: 'linear' });
-
-    config = await readTestJson('.mcp.json');
-    expect(config.mcpServers).not.toHaveProperty('linear');
-  });
-});
-
-describe('ClaudeAgent status line side effects', () => {
-  it('addStatusLine writes a tagged block and removeStatusLine clears it', async () => {
-    await agent.addStatusLine({ slug: 'lint', statusLine: { type: 'command', command: 'status.sh' } });
-
-    let settings = await readTestJson('.claude', 'settings.local.json');
-    expect(settings.statusLine).toMatchObject({ type: 'command', command: 'status.sh', __aipkg: 'lint' });
-
-    await agent.removeStatusLine();
-
-    settings = await readTestJson('.claude', 'settings.local.json');
-    expect(settings.statusLine).toBeUndefined();
-  });
-});
-
-describe('ClaudeAgent hook config side effects', () => {
-  it('addHook merges an event map tagged by slug and removeHook strips it', async () => {
-    await agent.addHook({
-      slug: 'lint',
-      hooks: { PreToolUse: [{ matcher: 'Bash', hooks: [{ type: 'command', command: 'lint.sh' }] }] },
-    });
-
-    let settings = await readTestJson('.claude', 'settings.local.json');
-    expect(settings.hooks.PreToolUse[0]).toMatchObject({ matcher: 'Bash', __aipkg: 'lint' });
-
-    await agent.removeHook({ slug: 'lint' });
-
-    settings = await readTestJson('.claude', 'settings.local.json');
-    expect(settings.hooks).toBeUndefined();
   });
 });

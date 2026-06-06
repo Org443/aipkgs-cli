@@ -3,7 +3,7 @@ import pc from 'picocolors';
 import { ConfigFile } from '../../files/config.ts';
 import { Lockfile } from '../../files/lockfile.ts';
 import { ManifestFile } from '../../files/manifest.ts';
-import { installPkg } from './pkg.ts';
+import { hydratePkg } from './hydrate-pkg.ts';
 
 export async function installAction(args: { type: Manifest['type']; ref: string }) {
   const { type, ref: refStr } = args;
@@ -15,7 +15,7 @@ export async function installAction(args: { type: Manifest['type']; ref: string 
   const manifest = await ManifestFile.resolve();
 
   // writes assets to active folders to be used by the AI, updating the lockfile
-  await installPkg({ pkgRef, lockfile, targets });
+  await hydratePkg({ pkgRef, lockfile, targets });
 
   const upserted = await manifest.upsertEntry({ pkgRef });
 
