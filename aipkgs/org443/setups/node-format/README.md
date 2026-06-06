@@ -7,5 +7,5 @@ This requires that you have a NPM script setup in you repo root for `format`
 ## Install
 
 ```sh
-npx @aipkgs/cli install org443/node-format
+npx @aipkgs/cli setup org443/node-format
 ```

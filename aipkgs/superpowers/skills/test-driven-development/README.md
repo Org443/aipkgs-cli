@@ -5,7 +5,7 @@ Use when implementing any feature or bugfix, before writing implementation code
 ## Install
 
 ```sh
-npx @aipkgs/cli install superpowers/test-driven-development
+npx @aipkgs/cli skill superpowers/test-driven-development
 ```
 
 ## Attribution

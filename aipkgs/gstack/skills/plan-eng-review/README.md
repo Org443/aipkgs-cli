@@ -5,5 +5,5 @@ Eng manager-mode plan review. (gstack)
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/plan-eng-review
+npx @aipkgs/cli skill gstack/plan-eng-review
 ```

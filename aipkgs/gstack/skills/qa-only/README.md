@@ -5,5 +5,5 @@ Report-only QA testing. (gstack)
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/qa-only
+npx @aipkgs/cli skill gstack/qa-only
 ```

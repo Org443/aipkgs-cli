@@ -15,5 +15,5 @@ Siqi Chen. Licensed under MIT (see `LICENSE.txt`). The skill content in
 ## Install
 
 ```sh
-npx @aipkgs/cli install humanizer/humanizer
+npx @aipkgs/cli skill humanizer/humanizer
 ```

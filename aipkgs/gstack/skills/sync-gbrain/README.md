@@ -5,5 +5,5 @@ Keep gbrain current with this repo's code and refresh agent search guidance in C
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/sync-gbrain
+npx @aipkgs/cli skill gstack/sync-gbrain
 ```

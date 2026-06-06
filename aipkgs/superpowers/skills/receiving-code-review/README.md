@@ -5,7 +5,7 @@ Use when receiving code review feedback, before implementing suggestions, especi
 ## Install
 
 ```sh
-npx @aipkgs/cli install superpowers/receiving-code-review
+npx @aipkgs/cli skill superpowers/receiving-code-review
 ```
 
 ## Attribution

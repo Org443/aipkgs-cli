@@ -5,7 +5,7 @@ Use when you have a spec or requirements for a multi-step task, before touching 
 ## Install
 
 ```sh
-npx @aipkgs/cli install superpowers/writing-plans
+npx @aipkgs/cli skill superpowers/writing-plans
 ```
 
 ## Attribution

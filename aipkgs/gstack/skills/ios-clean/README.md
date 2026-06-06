@@ -5,5 +5,5 @@ Remove the DebugBridge SPM package and all #if DEBUG wiring from an iOS app. (gs
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/ios-clean
+npx @aipkgs/cli skill gstack/ios-clean
 ```

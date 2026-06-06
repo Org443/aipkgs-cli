@@ -5,5 +5,5 @@ UnoCSS instant atomic CSS engine, superset of Tailwind CSS. Use when configuring
 ## Install
 
 ```sh
-npx @aipkgs/cli install antfu/unocss
+npx @aipkgs/cli skill antfu/unocss
 ```

@@ -5,5 +5,5 @@ Import skills, commands, subagents, rules, and hooks from a git repo into aipkgs
 ## Install
 
 ```sh
-npx @aipkgs/cli install org443/import-aipkgs
+npx @aipkgs/cli skill org443/import-aipkgs
 ```

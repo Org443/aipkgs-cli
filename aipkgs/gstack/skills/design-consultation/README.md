@@ -5,5 +5,5 @@ Design consultation: understands your product, researches the landscape, propose
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/design-consultation
+npx @aipkgs/cli skill gstack/design-consultation
 ```

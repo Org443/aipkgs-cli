@@ -5,7 +5,7 @@ Use when you have a written implementation plan to execute in a separate session
 ## Install
 
 ```sh
-npx @aipkgs/cli install superpowers/executing-plans
+npx @aipkgs/cli skill superpowers/executing-plans
 ```
 
 ## Attribution

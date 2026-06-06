@@ -5,5 +5,5 @@ Toolkit for interacting with and testing local web applications using Playwright
 ## Install
 
 ```sh
-npx @aipkgs/cli install os/webapp-testing
+npx @aipkgs/cli skill os/webapp-testing
 ```

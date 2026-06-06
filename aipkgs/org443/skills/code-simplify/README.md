@@ -5,5 +5,5 @@ Simplifies modified code for readability and clarity
 ## Install
 
 ```sh
-npx @aipkgs/cli install org443/code-simplify
+npx @aipkgs/cli skill org443/code-simplify
 ```

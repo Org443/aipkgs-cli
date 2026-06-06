@@ -5,5 +5,5 @@ Configure deployment settings for /land-and-deploy.
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/setup-deploy
+npx @aipkgs/cli skill gstack/setup-deploy
 ```

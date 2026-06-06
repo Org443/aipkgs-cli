@@ -5,5 +5,5 @@ Create distinctive, production-grade frontend interfaces with high design qualit
 ## Install
 
 ```sh
-npx @aipkgs/cli install os/frontend-design
+npx @aipkgs/cli skill os/frontend-design
 ```

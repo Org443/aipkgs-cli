@@ -5,5 +5,5 @@ Design finalization: generates production-quality Pretext-native HTML/CSS. (gsta
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/design-html
+npx @aipkgs/cli skill gstack/design-html
 ```

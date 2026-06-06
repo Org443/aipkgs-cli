@@ -5,5 +5,5 @@ Pinia official Vue state management library, type-safe and extensible. Use when 
 ## Install
 
 ```sh
-npx @aipkgs/cli install antfu/pinia
+npx @aipkgs/cli skill antfu/pinia
 ```

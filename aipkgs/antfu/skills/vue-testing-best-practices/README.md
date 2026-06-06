@@ -5,5 +5,5 @@ Use for Vue.js testing. Covers Vitest, Vue Test Utils, component testing, mockin
 ## Install
 
 ```sh
-npx @aipkgs/cli install antfu/vue-testing-best-practices
+npx @aipkgs/cli skill antfu/vue-testing-best-practices
 ```

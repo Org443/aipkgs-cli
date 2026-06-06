@@ -5,5 +5,5 @@ Clear the freeze boundary set by /freeze, allowing edits to all directories agai
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/unfreeze
+npx @aipkgs/cli skill gstack/unfreeze
 ```

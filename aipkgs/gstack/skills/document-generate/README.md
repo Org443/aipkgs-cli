@@ -5,5 +5,5 @@ Generate missing documentation from scratch for a feature, module, or entire pro
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/document-generate
+npx @aipkgs/cli skill gstack/document-generate
 ```

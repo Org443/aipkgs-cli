@@ -5,5 +5,5 @@ VitePress static site generator powered by Vite and Vue. Use when building docum
 ## Install
 
 ```sh
-npx @aipkgs/cli install antfu/vitepress
+npx @aipkgs/cli skill antfu/vitepress
 ```

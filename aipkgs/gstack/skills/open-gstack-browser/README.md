@@ -5,5 +5,5 @@ Launch GStack Browser — AI-controlled Chromium with the sidebar extension bake
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/open-gstack-browser
+npx @aipkgs/cli skill gstack/open-gstack-browser
 ```

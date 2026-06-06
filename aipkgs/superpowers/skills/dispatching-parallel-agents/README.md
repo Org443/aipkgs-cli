@@ -5,7 +5,7 @@ Use when facing 2+ independent tasks that can be worked on without shared state 
 ## Install
 
 ```sh
-npx @aipkgs/cli install superpowers/dispatching-parallel-agents
+npx @aipkgs/cli skill superpowers/dispatching-parallel-agents
 ```
 
 ## Attribution

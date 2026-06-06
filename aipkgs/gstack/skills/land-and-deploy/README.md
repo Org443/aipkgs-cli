@@ -5,5 +5,5 @@ Land and deploy workflow. (gstack)
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/land-and-deploy
+npx @aipkgs/cli skill gstack/land-and-deploy
 ```

@@ -5,5 +5,5 @@ Interactive developer experience plan review. (gstack)
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/plan-devex-review
+npx @aipkgs/cli skill gstack/plan-devex-review
 ```

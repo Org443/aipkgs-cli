@@ -5,5 +5,5 @@ Guide for creating high-quality MCP (Model Context Protocol) servers that enable
 ## Install
 
 ```sh
-npx @aipkgs/cli install os/mcp-builder
+npx @aipkgs/cli skill os/mcp-builder
 ```

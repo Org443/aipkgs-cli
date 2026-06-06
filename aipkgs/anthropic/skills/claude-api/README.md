@@ -5,5 +5,5 @@ Build, debug, and optimize Claude API / Anthropic SDK apps. Apps built with this
 ## Install
 
 ```sh
-npx @aipkgs/cli install os/claude-api
+npx @aipkgs/cli skill os/claude-api
 ```

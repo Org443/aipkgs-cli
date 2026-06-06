@@ -5,7 +5,7 @@ Use when completing tasks, implementing major features, or before merging to ver
 ## Install
 
 ```sh
-npx @aipkgs/cli install superpowers/requesting-code-review
+npx @aipkgs/cli skill superpowers/requesting-code-review
 ```
 
 ## Attribution

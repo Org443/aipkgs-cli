@@ -1,7 +1,7 @@
 {
   "type": "box",
   "ref": "gsd/GSD",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "All Get-Shit-Done commands and subagents bundled as a single box.",
   "homepage": "https://github.com/open-gsd/get-shit-done-redux",
   "repository": {

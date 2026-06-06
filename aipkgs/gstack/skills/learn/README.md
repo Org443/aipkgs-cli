@@ -5,5 +5,5 @@ Manage project learnings.
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/learn
+npx @aipkgs/cli skill gstack/learn
 ```

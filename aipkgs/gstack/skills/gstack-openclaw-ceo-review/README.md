@@ -5,5 +5,5 @@ Use when asked to review a plan, challenge a proposal, run a CEO review, poke ho
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/gstack-openclaw-ceo-review
+npx @aipkgs/cli skill gstack/gstack-openclaw-ceo-review
 ```

@@ -1,7 +1,7 @@
 {
   "type": "setup",
   "ref": "org443/status-line",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Displays a status line in the terminal",
   "homepage": "https://aipkgs.com",
   "repository": {

@@ -5,5 +5,5 @@ Anthony Fu's opinionated tooling and conventions for JavaScript/TypeScript proje
 ## Install
 
 ```sh
-npx @aipkgs/cli install antfu/antfu
+npx @aipkgs/cli skill antfu/antfu
 ```

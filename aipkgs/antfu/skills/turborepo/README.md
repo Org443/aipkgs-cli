@@ -5,5 +5,5 @@ Turborepo monorepo build system guidance — task pipelines, dependsOn, caching,
 ## Install
 
 ```sh
-npx @aipkgs/cli install antfu/turborepo
+npx @aipkgs/cli skill antfu/turborepo
 ```

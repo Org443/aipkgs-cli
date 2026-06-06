@@ -5,5 +5,5 @@ Applies Anthropic's official brand colors and typography to any sort of artifact
 ## Install
 
 ```sh
-npx @aipkgs/cli install os/brand-guidelines
+npx @aipkgs/cli skill os/brand-guidelines
 ```

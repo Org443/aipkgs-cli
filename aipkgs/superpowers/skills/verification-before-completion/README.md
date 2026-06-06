@@ -5,7 +5,7 @@ Use when about to claim work is complete, fixed, or passing, before committing o
 ## Install
 
 ```sh
-npx @aipkgs/cli install superpowers/verification-before-completion
+npx @aipkgs/cli skill superpowers/verification-before-completion
 ```
 
 ## Attribution

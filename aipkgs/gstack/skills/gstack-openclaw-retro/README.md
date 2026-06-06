@@ -5,5 +5,5 @@ Weekly engineering retrospective. Analyzes commit history, work patterns, and co
 ## Install
 
 ```sh
-npx @aipkgs/cli install gstack/gstack-openclaw-retro
+npx @aipkgs/cli skill gstack/gstack-openclaw-retro
 ```

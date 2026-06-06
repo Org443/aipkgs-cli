@@ -5,7 +5,7 @@ You MUST use this before any creative work - creating features, building compone
 ## Install
 
 ```sh
-npx @aipkgs/cli install superpowers/brainstorming
+npx @aipkgs/cli skill superpowers/brainstorming
 ```
 
 ## Attribution

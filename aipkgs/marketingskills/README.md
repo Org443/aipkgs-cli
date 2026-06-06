@@ -32,5 +32,5 @@ by Corey Haines, under the MIT License (see `LICENSE.txt`).
 ## Install
 
 ```sh
-npx @aipkgs/cli install aipkgs/marketingskills/MarketingSkills
+npx @aipkgs/cli box marketingskills/MarketingSkills
 ```

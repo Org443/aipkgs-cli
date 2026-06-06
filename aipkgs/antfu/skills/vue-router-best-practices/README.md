@@ -5,5 +5,5 @@ Vue Router 4 patterns, navigation guards, route params, and route-component life
 ## Install
 
 ```sh
-npx @aipkgs/cli install antfu/vue-router-best-practices
+npx @aipkgs/cli skill antfu/vue-router-best-practices
 ```
