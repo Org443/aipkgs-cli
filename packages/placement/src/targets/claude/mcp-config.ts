@@ -10,6 +10,7 @@ type McpHttpServerConfig = {
   type: 'http' | 'sse';
   url: string;
   headers?: Record<string, string>;
+  oauth?: { clientId: string; callbackPort?: number };
 };
 
 type McpStdioServerConfig = {
@@ -22,10 +23,17 @@ type McpStdioServerConfig = {
 type McpServerConfig = McpHttpServerConfig | McpStdioServerConfig;
 
 // Normalize a setup/registry MCP entry into the on-disk Claude server config: a
-// `url` is an HTTP server, a `command` is a stdio server.
+// `url` is an HTTP server (defaulting to `http`, or `sse` when the entry says
+// so), a `command` is a stdio server. An `oauth` block is carried through for
+// servers that authenticate via OAuth (e.g. Slack).
 export function toServerConfig(mcp: McpEntry): McpServerConfig {
   if (mcp.url) {
-    return { type: 'http', url: mcp.url, ...(mcp.headers ? { headers: mcp.headers } : {}) };
+    return {
+      type: mcp.type === 'sse' ? 'sse' : 'http',
+      url: mcp.url,
+      ...(mcp.headers ? { headers: mcp.headers } : {}),
+      ...(mcp.oauth ? { oauth: mcp.oauth } : {}),
+    };
   }
   if (mcp.command) {
     return {

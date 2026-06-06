@@ -68,6 +68,28 @@ describe('parseSetup', () => {
     expect(mcps).toMatchObject({ linear: { url: 'https://mcp.linear.app/sse' } });
   });
 
+  it('decodes an http mcp with an oauth block', () => {
+    const body = JSON.stringify({
+      mcps: {
+        slack: {
+          type: 'http',
+          url: 'https://mcp.slack.com/mcp',
+          oauth: { clientId: '1601185624273.8899143856786', callbackPort: 3118 },
+        },
+      },
+    });
+
+    const { mcps } = parseSetup({ files: [file('setup.json', body)] });
+
+    expect(mcps).toMatchObject({
+      slack: {
+        type: 'http',
+        url: 'https://mcp.slack.com/mcp',
+        oauth: { clientId: '1601185624273.8899143856786', callbackPort: 3118 },
+      },
+    });
+  });
+
   it('rejects statusLine alongside a bare event map', () => {
     const body = JSON.stringify({
       PreToolUse: [{ matcher: 'Bash', hooks: [] }],

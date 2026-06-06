@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { InvalidManifest } from '../errors.ts';
 import { Manifest } from '../manifest.ts';
 
 describe('Manifest.toObject()', () => {
@@ -106,6 +107,22 @@ describe('Manifest.toObject()', () => {
     expect(obj.deps?.skills).toBeUndefined();
     expect(obj.deps?.rules).toBeUndefined();
     expect(obj.deps?.boxes).toBeUndefined();
+  });
+});
+
+describe('Manifest deps validation', () => {
+  it('rejects a deps object with an unknown key', () => {
+    const build = () =>
+      new Manifest({
+        type: 'box',
+        ref: 'acme/bot',
+        version: '1.0.0',
+        deps: {
+          hooks: { lint: 'rule/acme/style/lint@1.0.0' },
+        } as any,
+      });
+
+    expect(build).toThrow(InvalidManifest);
   });
 });
 

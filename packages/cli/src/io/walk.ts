@@ -73,11 +73,6 @@ async function walk(args: {
   }
 }
 
-// `.env` files are never published — they routinely hold secrets (API keys, DB
-// URLs). This guard is unconditional, independent of `.aipkgignore`, so a stray
-// `.env` / `.env.local` can't leak even when the author forgot to list it. The
-// `.env.example` / `.sample` / `.template` convention files are deliberately
-// committed, secret-free templates, so they're allowed through.
 function isSecretEnvFile(name: string): boolean {
   if (name !== '.env' && !name.startsWith('.env.')) return false;
   return !['.example', '.sample', '.template'].some((suffix) => name.endsWith(suffix));

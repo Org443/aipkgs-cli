@@ -21,8 +21,15 @@ export type HookMatcher = {
 export type HooksByEvent = Record<string, HookMatcher[]>;
 
 export const McpEntryZ = z.object({
+  type: z.enum(['http', 'sse', 'stdio']).optional(),
   url: z.string().optional(),
   headers: z.record(z.string(), z.string()).optional(),
+  oauth: z
+    .object({
+      clientId: z.string(),
+      callbackPort: z.number().optional(),
+    })
+    .optional(),
   command: z.string().optional(),
   args: z.array(z.string()).optional(),
   env: z.record(z.string(), z.string()).optional(),

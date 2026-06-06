@@ -20,7 +20,6 @@ export async function installSetup(args: { setup: ArchiveSetup; pkgRef: PackageR
   const written: string[] = [];
 
   const dir = join(process.cwd(), installDir);
-  await mkdir(dir, { recursive: true });
 
   for (const script of setup.scripts) {
     const dest = join(dir, script.path);
