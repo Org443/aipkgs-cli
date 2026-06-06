@@ -1,171 +1,71 @@
 {
   "deps": {
-    "cmds": {
-      "search-aipkgs": {
-        "aipkgRef": "aipkg://cmd/org443/search-aipkgs@latest",
-        "version": "0.0.2",
-        "sha": "sha256:b0f074daa7cacc06320cdf8be843a74e9909730af8a5b6d14ab3939fe5cf45e3"
-      },
-      "code-review": {
-        "aipkgRef": "aipkg://cmd/org443/code-review@latest",
-        "version": "0.0.2",
-        "sha": "sha256:eb1a4465c03f87c3dac1afcf8700f57c025d33c540345a40ada7ab9dc5d05822"
-      }
-    },
     "skills": {
-      "search-aipkgs": {
-        "aipkgRef": "aipkg://skill/org443/search-aipkgs@latest",
-        "version": "0.1.1",
-        "sha": "sha256:28aaae79a413e73797b0c3b55000ed79cdedf01c7a630d454bd57b055b33c194",
-        "parent": "aipkg://cmd/org443/search-aipkgs@0.0.2"
-      },
       "frontend-design": {
-        "aipkgRef": "aipkg://skill/os/frontend-design@latest",
+        "aipkgRef": "aipkg://skill/os/frontend-design@0.1.1",
         "version": "0.1.1",
-        "sha": "sha256:d25456c4e6fd7482ba2e14323af4c979f65cde2aaccbd46ea0c3480f9c905ff2"
+        "sha": "sha256:08b5ffeecf15bdcef29eaee8900ff77556a6d58ebe85e6c4a8d1f2959e2f73f0"
       },
       "skill-creator": {
-        "aipkgRef": "aipkg://skill/os/skill-creator@latest",
+        "aipkgRef": "aipkg://skill/os/skill-creator@0.1.0",
         "version": "0.1.0",
-        "sha": "sha256:7e651bae13b58b78c9b7cf15b4adaaff0420c0c7b2a898d0e030893ab0ef3141"
+        "sha": "sha256:02f5e635944a335ab50a89d70b30eb7ff87bdaf10a3255ecc0f90bd07c19467b"
       },
       "import-aipkgs": {
-        "aipkgRef": "aipkg://skill/org443/import-aipkgs@latest",
+        "aipkgRef": "aipkg://skill/org443/import-aipkgs@0.1.0",
         "version": "0.1.0",
-        "sha": "sha256:1f2f6cacf6c0f7bc08598f7c3a1b2fac3e208e2d476d78d36e5f4557970385cf"
+        "sha": "sha256:4b30039e02574fbafafd0d37d6d6b7f04b7e223b2d46f36e0ffc5db8b670f153"
       },
-      "brainstorming": {
-        "aipkgRef": "aipkg://box/superpowers/Superpowers@0.1.5",
-        "version": "0.1.5",
-        "sha": "sha256:bb0b8b0bef49930b74a30313579e0951fbc14c931bb9de3aa41477667d2427f2",
-        "parent": "aipkg://box/superpowers/Superpowers@0.1.5"
-      },
-      "dispatching-parallel-agents": {
-        "aipkgRef": "aipkg://box/superpowers/Superpowers@0.1.5",
-        "version": "0.1.5",
-        "sha": "sha256:bb0b8b0bef49930b74a30313579e0951fbc14c931bb9de3aa41477667d2427f2",
-        "parent": "aipkg://box/superpowers/Superpowers@0.1.5"
-      },
-      "executing-plans": {
-        "aipkgRef": "aipkg://box/superpowers/Superpowers@0.1.5",
-        "version": "0.1.5",
-        "sha": "sha256:bb0b8b0bef49930b74a30313579e0951fbc14c931bb9de3aa41477667d2427f2",
-        "parent": "aipkg://box/superpowers/Superpowers@0.1.5"
-      },
-      "finishing-a-development-branch": {
-        "aipkgRef": "aipkg://box/superpowers/Superpowers@0.1.5",
-        "version": "0.1.5",
-        "sha": "sha256:bb0b8b0bef49930b74a30313579e0951fbc14c931bb9de3aa41477667d2427f2",
-        "parent": "aipkg://box/superpowers/Superpowers@0.1.5"
-      },
-      "receiving-code-review": {
-        "aipkgRef": "aipkg://box/superpowers/Superpowers@0.1.5",
-        "version": "0.1.5",
-        "sha": "sha256:bb0b8b0bef49930b74a30313579e0951fbc14c931bb9de3aa41477667d2427f2",
-        "parent": "aipkg://box/superpowers/Superpowers@0.1.5"
-      },
-      "requesting-code-review": {
-        "aipkgRef": "aipkg://box/superpowers/Superpowers@0.1.5",
-        "version": "0.1.5",
-        "sha": "sha256:bb0b8b0bef49930b74a30313579e0951fbc14c931bb9de3aa41477667d2427f2",
-        "parent": "aipkg://box/superpowers/Superpowers@0.1.5"
-      },
-      "subagent-driven-development": {
-        "aipkgRef": "aipkg://box/superpowers/Superpowers@0.1.5",
-        "version": "0.1.5",
-        "sha": "sha256:bb0b8b0bef49930b74a30313579e0951fbc14c931bb9de3aa41477667d2427f2",
-        "parent": "aipkg://box/superpowers/Superpowers@0.1.5"
-      },
-      "systematic-debugging": {
-        "aipkgRef": "aipkg://box/superpowers/Superpowers@0.1.5",
-        "version": "0.1.5",
-        "sha": "sha256:bb0b8b0bef49930b74a30313579e0951fbc14c931bb9de3aa41477667d2427f2",
-        "parent": "aipkg://box/superpowers/Superpowers@0.1.5"
-      },
-      "test-driven-development": {
-        "aipkgRef": "aipkg://box/superpowers/Superpowers@0.1.5",
-        "version": "0.1.5",
-        "sha": "sha256:bb0b8b0bef49930b74a30313579e0951fbc14c931bb9de3aa41477667d2427f2",
-        "parent": "aipkg://box/superpowers/Superpowers@0.1.5"
-      },
-      "using-git-worktrees": {
-        "aipkgRef": "aipkg://box/superpowers/Superpowers@0.1.5",
-        "version": "0.1.5",
-        "sha": "sha256:bb0b8b0bef49930b74a30313579e0951fbc14c931bb9de3aa41477667d2427f2",
-        "parent": "aipkg://box/superpowers/Superpowers@0.1.5"
-      },
-      "using-superpowers": {
-        "aipkgRef": "aipkg://box/superpowers/Superpowers@0.1.5",
-        "version": "0.1.5",
-        "sha": "sha256:bb0b8b0bef49930b74a30313579e0951fbc14c931bb9de3aa41477667d2427f2",
-        "parent": "aipkg://box/superpowers/Superpowers@0.1.5"
-      },
-      "verification-before-completion": {
-        "aipkgRef": "aipkg://box/superpowers/Superpowers@0.1.5",
-        "version": "0.1.5",
-        "sha": "sha256:bb0b8b0bef49930b74a30313579e0951fbc14c931bb9de3aa41477667d2427f2",
-        "parent": "aipkg://box/superpowers/Superpowers@0.1.5"
-      },
-      "writing-plans": {
-        "aipkgRef": "aipkg://box/superpowers/Superpowers@0.1.5",
-        "version": "0.1.5",
-        "sha": "sha256:bb0b8b0bef49930b74a30313579e0951fbc14c931bb9de3aa41477667d2427f2",
-        "parent": "aipkg://box/superpowers/Superpowers@0.1.5"
-      },
-      "writing-skills": {
-        "aipkgRef": "aipkg://box/superpowers/Superpowers@0.1.5",
-        "version": "0.1.5",
-        "sha": "sha256:bb0b8b0bef49930b74a30313579e0951fbc14c931bb9de3aa41477667d2427f2",
-        "parent": "aipkg://box/superpowers/Superpowers@0.1.5"
+      "search-aipkgs": {
+        "aipkgRef": "aipkg://skill/org443/search-aipkgs@0.1.1",
+        "version": "0.1.1",
+        "sha": "sha256:143d368c4212ee9da9f2f548c85aaab53c4b458589adb9e21cb8d87d58782716"
       }
     },
     "rules": {
       "node-general": {
-        "aipkgRef": "aipkg://rule/org443/node-general@latest",
-        "version": "0.0.3",
-        "sha": "sha256:95bbe1f71503e4ee31de458192ccf7b1ab11bb7c2c26c7d88895435bbdfd5e21"
+        "aipkgRef": "aipkg://rule/org443/node-general@0.0.4",
+        "version": "0.0.4",
+        "sha": "sha256:fb50b29ba6acc7df0045d9bcd1918ac4fdbe496537be2705b168c39e443f5f5c"
       },
       "node-workspaces": {
-        "aipkgRef": "aipkg://rule/org443/node-workspaces@latest",
+        "aipkgRef": "aipkg://rule/org443/node-workspaces@0.0.3",
         "version": "0.0.3",
-        "sha": "sha256:cc1439cb6a9a27ae47f47dc34d60f83a47b42c80ea7d94dfe1ab30fad54ea0d9"
+        "sha": "sha256:52f0b94b6314858271a450ac150fd5d2578932540dc88e375d488c01ee090f6c"
       },
       "short-comments": {
-        "aipkgRef": "aipkg://rule/org443/short-comments@latest",
+        "aipkgRef": "aipkg://rule/org443/short-comments@0.1.1",
         "version": "0.1.1",
-        "sha": "sha256:21bae1231d1dfef73dec5bc9fdaa5ce5bea46773014b191b66d14468040be556"
+        "sha": "sha256:0c0ac58fe31d193987a08181c69cf8c8a85f8083949c686a361681c37976c451"
+      }
+    },
+    "setups": {
+      "org443/workflow-mcps": {
+        "aipkgRef": "aipkg://setup/org443/workflow-mcps@0.0.1",
+        "version": "0.0.1",
+        "sha": "sha256:6635e0c08cbf3992b35ac4eafa0481253c923c0254e17be1bdcba1c50035a715"
+      },
+      "workflow-mcps": {
+        "aipkgRef": "aipkg://setup/org443/workflow-mcps@0.0.1",
+        "version": "0.0.1",
+        "sha": "sha256:6635e0c08cbf3992b35ac4eafa0481253c923c0254e17be1bdcba1c50035a715"
+      },
+      "org443/status-line": {
+        "aipkgRef": "aipkg://setup/org443/status-line@0.0.5",
+        "version": "0.0.5",
+        "sha": "sha256:ca86535ec5b4399e7f924f7149b3e446324b24393b301c12a3586a63beacff3c"
+      },
+      "status-line": {
+        "aipkgRef": "aipkg://setup/org443/status-line@0.0.5",
+        "version": "0.0.5",
+        "sha": "sha256:ca86535ec5b4399e7f924f7149b3e446324b24393b301c12a3586a63beacff3c"
       }
     },
     "statusLine": {
       "slug": "org443/status-line",
       "statusLine": {
         "type": "command",
-        "command": ".claude/hooks/org443/status-line.sh"
-      }
-    },
-    "hooks": {
-      "org443/status-line": {
-        "aipkgRef": "aipkg://hook/org443/status-line@latest",
-        "version": "0.0.1",
-        "sha": "sha256:7e11931466fea1b3e46ca90d62d84c7cb42123752b82159d4e154c25649ccd56"
-      },
-      "superpowers/Superpowers": {
-        "aipkgRef": "aipkg://box/superpowers/Superpowers@0.1.5",
-        "version": "0.1.5",
-        "sha": "sha256:bb0b8b0bef49930b74a30313579e0951fbc14c931bb9de3aa41477667d2427f2",
-        "parent": "aipkg://box/superpowers/Superpowers@0.1.5"
-      }
-    },
-    "boxes": {
-      "superpowers/Superpowers": {
-        "aipkgRef": "aipkg://box/superpowers/Superpowers@0.1.5",
-        "version": "0.1.5",
-        "sha": "sha256:bb0b8b0bef49930b74a30313579e0951fbc14c931bb9de3aa41477667d2427f2"
-      }
-    },
-    "mcps": {
-      "linear": {
-        "url": "https://mcp.linear.app/mcp"
+        "command": "node ${PKG_ROOT}/scripts/status-line.js"
       }
     }
   }
