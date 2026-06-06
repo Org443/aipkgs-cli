@@ -294,6 +294,45 @@ describe('installAction', () => {
     });
   });
 
+  describe('deps-only box', () => {
+    it('installs a box that places nothing of its own but declares deps', async () => {
+      // The box archive carries no installable assets of its own — its only
+      // content is a declared rule dep. It must install the dep rather than
+      // tripping the "nothing installable" guard.
+      const ruleTarball = await buildTestTarball({ type: 'rule', org: 'org443', slug: 'pr-create', version: '1.0.0' });
+
+      const boxManifest = new Manifest({
+        type: 'box',
+        ref: 'org443/node-suite',
+        version: '1.0.0',
+        targets: ['claude'],
+        deps: { rules: { 'pr-create': 'aipkg://rule/org443/pr-create@1.0.0' } },
+      });
+      const { tgz: boxTarball } = await archiveService.pack({ manifest: boxManifest, files: [] });
+
+      vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+        const url = String(input);
+        if (url.includes('/v1/packages/box/org443/node-suite/')) {
+          return new Response(boxTarball, { status: 200, headers: { 'Content-Type': 'application/gzip' } });
+        }
+        if (url.includes('/v1/packages/rule/org443/pr-create/1.0.0/archive.tgz')) {
+          return new Response(ruleTarball, { status: 200, headers: { 'Content-Type': 'application/gzip' } });
+        }
+        throw new Error(`Unexpected fetch URL: ${url}`);
+      });
+
+      await expect(installAction({ type: 'box', ref: 'org443/node-suite' })).resolves.not.toThrow();
+
+      expect(await readTestFile('.claude', 'rules', 'pr-create.md')).toBe('# pr-create\nTest content.');
+
+      const lockfile = await readTestJson('aipkg.lock');
+      expect(lockfile.deps.rules['pr-create']).toMatchObject({
+        aipkgRef: 'aipkg://rule/org443/pr-create@1.0.0',
+        version: '1.0.0',
+      });
+    });
+  });
+
   describe('network errors', () => {
     it('throws on HTTP 500', async () => {
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('Internal Server Error', { status: 500 }));

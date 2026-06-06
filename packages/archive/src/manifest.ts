@@ -109,6 +109,13 @@ export class Manifest {
     return this.deps[key]?.[slug];
   }
 
+  hasDeps() {
+    return DEPS_KEYS.some((key) => {
+      const bucket = this.deps[key];
+      return bucket && Object.keys(bucket).length > 0;
+    });
+  }
+
   bumpVersion(release: 'major' | 'minor' | 'patch') {
     this.version = nextVersion({ version: this.version, release });
     const fullRef = `${this.type}/${this.ref}@${this.version}`;

@@ -46,7 +46,10 @@ export async function hydratePkg(args: {
   // Place the asset into every selected agent's folder layout.
   const written = await AssetPlacement.install({ archive, targets });
 
-  if (written.paths.length === 0) {
+  // A box can legitimately place nothing of its own and exist purely to pull in
+  // a set of declared deps; those are resolved below in `resolveDeps`. Only an
+  // archive that places nothing *and* declares no deps is genuinely empty.
+  if (written.paths.length === 0 && !archive.manifest.hasDeps()) {
     throw new Error(`Archive for ${pkgRef.aipkgRef} contained nothing installable`);
   }
 

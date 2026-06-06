@@ -50,15 +50,15 @@
         "version": "0.0.1",
         "sha": "sha256:6635e0c08cbf3992b35ac4eafa0481253c923c0254e17be1bdcba1c50035a715"
       },
-      "org443/status-line": {
-        "aipkgRef": "aipkg://setup/org443/status-line@0.0.5",
-        "version": "0.0.5",
-        "sha": "sha256:ca86535ec5b4399e7f924f7149b3e446324b24393b301c12a3586a63beacff3c"
-      },
       "status-line": {
         "aipkgRef": "aipkg://setup/org443/status-line@0.0.5",
         "version": "0.0.5",
         "sha": "sha256:ca86535ec5b4399e7f924f7149b3e446324b24393b301c12a3586a63beacff3c"
+      },
+      "org443/status-line": {
+        "aipkgRef": "aipkg://setup/org443/status-line@0.0.6",
+        "version": "0.0.6",
+        "sha": "sha256:b0aa5ea4e4767715b748a74d78a51a6e16e570c2c47ffa3d3e2b089784498abb"
       }
     },
     "statusLine": {

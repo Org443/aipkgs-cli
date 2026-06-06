@@ -1,0 +1,32 @@
+{
+  "type": "box",
+  "ref": "org443/node-suite",
+  "version": "0.0.1",
+  "description": "Org443's Node/TypeScript Claude Code suite — coding rules for Node, npm workspaces, and clean comments; skills for importing and searching AIpkgs; and setups for workflow MCPs and a terminal status line.",
+  "homepage": "https://aipkgs.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Org443/aipkgs-cli.git"
+  },
+  "issues": {
+    "url": "https://github.com/Org443/aipkgs-cli/issues"
+  },
+  "deps": {
+    "skills": {
+      "frontend-design": "aipkg://skill/os/frontend-design@latest",
+      "skill-creator": "aipkg://skill/os/skill-creator@latest",
+      "import-aipkgs": "aipkg://skill/org443/import-aipkgs@latest",
+      "search-aipkgs": "aipkg://skill/org443/search-aipkgs@latest"
+    },
+    "rules": {
+      "node-general": "aipkg://rule/org443/node-general@latest",
+      "node-workspaces": "aipkg://rule/org443/node-workspaces@latest",
+      "short-comments": "aipkg://rule/org443/short-comments@latest"
+    },
+    "setups": {
+      "org443/workflow-mcps": "aipkg://setup/org443/workflow-mcps@latest",
+      "org443/status-line": "aipkg://setup/org443/status-line@latest"
+    },
+    "boxes": {}
+  }
+}
