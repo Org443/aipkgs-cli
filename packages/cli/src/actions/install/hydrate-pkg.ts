@@ -3,10 +3,10 @@ import { AssetPlacement } from '@local/placement';
 import pc from 'picocolors';
 import { api } from '../../api/index.ts';
 import type { Lockfile } from '../../files/lockfile.ts';
-import { writeAipkgsMirror } from '../../io/aipkgs.ts';
+import { writeAipkgsMirror } from '../../io/mirror.ts';
 import { resolveDeps } from './deps-resolution.ts';
 
-export async function installPkg(args: {
+export async function hydratePkg(args: {
   pkgRef: PackageRef;
   lockfile: Lockfile;
   targets: AgentTarget[];

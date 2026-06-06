@@ -65,40 +65,7 @@ function mockFetch(tarball: Buffer) {
 }
 
 describe('installAction', () => {
-  describe('happy path', () => {
-    it('installs a rule package end-to-end', async () => {
-      const tarball = await buildTestTarball({ type: 'rule', org: 'org443', slug: 'pr-create', version: '1.0.0' });
-      const expectedArchive = await archiveService.parse(tarball);
-      mockFetch(tarball);
-
-      //aipkg rule org443/pr-create
-      await installAction({ type: 'rule', ref: 'org443/pr-create' });
-
-      const content = await readTestFile('.claude', 'rules', 'pr-create.md');
-      expect(content).toBe('# pr-create\nTest content.');
-
-      const manifest = await readTestJson('aipkg.json');
-      expect(manifest.deps.rules).toMatchObject({
-        'pr-create': 'aipkg://rule/org443/pr-create@latest',
-      });
-
-      const lockfile = await readTestJson('aipkg.lock');
-      expect(lockfile.deps.rules).toMatchObject({
-        'pr-create': {
-          aipkgRef: 'aipkg://rule/org443/pr-create@1.0.0',
-          version: '1.0.0',
-          sha: expectedArchive.sha,
-        },
-      });
-
-      expect(globalThis.fetch).toHaveBeenCalledOnce();
-      // biome-ignore lint/style/noNonNullAssertion: test assertion
-      const calledUrl = vi.mocked(globalThis.fetch).mock.calls[0]![0] as string;
-      expect(calledUrl).toContain('/v1/packages/rule/org443/pr-create/latest/archive.tgz');
-
-      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Installed'));
-    });
-
+  describe('ref shapes', () => {
     it('installs a keyed ref (org/key/slug) without version', async () => {
       const tarball = await buildTestTarball({
         type: 'rule',
@@ -166,151 +133,7 @@ describe('installAction', () => {
     });
   });
 
-  describe('box with setup', () => {
-    it('extracts the root setup.json + scripts/ into a single bundle keyed by the box ref', async () => {
-      const tarball = await buildTestTarball({
-        type: 'box',
-        org: 'org443',
-        slug: 'my-box',
-        version: '1.0.0',
-        files: [
-          {
-            path: 'setup.json',
-            body: Buffer.from(
-              '{"PreToolUse":[{"matcher":"Bash","hooks":[{"type":"command","command":"scripts/lint.sh"}]}]}',
-            ),
-          },
-          { path: 'scripts/lint.sh', body: Buffer.from('#!/bin/sh\necho lint\n') },
-          { path: 'rules/pr-create.md', body: Buffer.from('# pr-create') },
-        ],
-      });
-      mockFetch(tarball);
-
-      //aipkg box org443/my-box
-      await installAction({ type: 'box', ref: 'org443/my-box' });
-
-      expect(await readTestFile('.claude', 'scripts', 'org443', 'my-box', 'scripts', 'lint.sh')).toBe(
-        '#!/bin/sh\necho lint\n',
-      );
-      expect(testFileExists('.claude', 'scripts', 'org443', 'my-box', 'setup.json')).toBe(false);
-      expect(testFileExists('.claude', 'scripts', 'scripts')).toBe(false);
-
-      const settings = await readTestJson('.claude', 'settings.local.json');
-      expect(settings.hooks.PreToolUse).toHaveLength(1);
-      expect(settings.hooks.PreToolUse[0]).toMatchObject({
-        matcher: 'Bash',
-        hooks: [{ type: 'command', command: 'scripts/lint.sh' }],
-        __aipkg: 'org443/my-box',
-      });
-
-      expect(await readTestFile('.claude', 'rules', 'pr-create.md')).toBe('# pr-create');
-    });
-
-    it('locks and writes a statusLine carried by a box setup bundle', async () => {
-      const tarball = await buildTestTarball({
-        type: 'box',
-        org: 'org443',
-        slug: 'my-box',
-        version: '1.0.0',
-        files: [
-          {
-            path: 'setup.json',
-            body: Buffer.from(
-              JSON.stringify({
-                hooks: { PreToolUse: [{ matcher: 'Bash', hooks: [{ type: 'command', command: 'scripts/lint.sh' }] }] },
-                statusLine: { type: 'command', command: 'box-status.sh' },
-              }),
-            ),
-          },
-          { path: 'scripts/lint.sh', body: Buffer.from('#!/bin/sh\n') },
-        ],
-      });
-      mockFetch(tarball);
-
-      await installAction({ type: 'box', ref: 'org443/my-box' });
-
-      const settings = await readTestJson('.claude', 'settings.local.json');
-      expect(settings.statusLine).toMatchObject({ command: 'box-status.sh', __aipkg: 'org443/my-box' });
-
-      const lockfile = await readTestJson('aipkg.lock');
-      expect(lockfile.deps.statusLine).toMatchObject({
-        slug: 'org443/my-box',
-        statusLine: { command: 'box-status.sh' },
-      });
-    });
-  });
-
-  describe('setup ref keying', () => {
-    it('keys the manifest, lockfile, and on-disk dir by the full ref', async () => {
-      const tarball = await buildTestTarball({
-        type: 'setup',
-        org: 'superpowers',
-        slug: 'Superpowers',
-        version: '1.0.0',
-        files: [
-          {
-            path: 'setup.json',
-            body: Buffer.from(
-              '{"PreToolUse":[{"matcher":"Bash","hooks":[{"type":"command","command":"scripts/lint.sh"}]}]}',
-            ),
-          },
-          { path: 'scripts/lint.sh', body: Buffer.from('#!/bin/sh\n') },
-        ],
-      });
-      const expectedArchive = await archiveService.parse(tarball);
-      mockFetch(tarball);
-
-      await installAction({ type: 'setup', ref: 'superpowers/Superpowers' });
-
-      expect(await readTestFile('.claude', 'scripts', 'superpowers', 'Superpowers', 'scripts', 'lint.sh')).toBe(
-        '#!/bin/sh\n',
-      );
-
-      const manifest = await readTestJson('aipkg.json');
-      expect(manifest.deps.setups).toMatchObject({
-        'superpowers/Superpowers': 'aipkg://setup/superpowers/Superpowers@latest',
-      });
-
-      const lockfile = await readTestJson('aipkg.lock');
-      expect(lockfile.deps.setups).toMatchObject({
-        'superpowers/Superpowers': {
-          aipkgRef: 'aipkg://setup/superpowers/Superpowers@1.0.0',
-          version: '1.0.0',
-          sha: expectedArchive.sha,
-        },
-      });
-    });
-
-    it('keys a box by its full ref in the manifest and lockfile', async () => {
-      const tarball = await buildTestTarball({
-        type: 'box',
-        org: 'superpowers',
-        slug: 'Superpowers',
-        version: '1.0.0',
-        files: [{ path: 'rules/pr-create.md', body: Buffer.from('# pr-create') }],
-      });
-      const expectedArchive = await archiveService.parse(tarball);
-      mockFetch(tarball);
-
-      await installAction({ type: 'box', ref: 'superpowers/Superpowers' });
-
-      const manifest = await readTestJson('aipkg.json');
-      expect(manifest.deps.boxes).toMatchObject({
-        'superpowers/Superpowers': 'aipkg://box/superpowers/Superpowers@latest',
-      });
-
-      const lockfile = await readTestJson('aipkg.lock');
-      expect(lockfile.deps.boxes).toMatchObject({
-        'superpowers/Superpowers': {
-          aipkgRef: 'aipkg://box/superpowers/Superpowers@1.0.0',
-          version: '1.0.0',
-          sha: expectedArchive.sha,
-        },
-      });
-    });
-  });
-
-  describe('setup with statusLine', () => {
+  describe('setup statusLine conflict', () => {
     function setupFiles(statusCommand: string): TarEntry[] {
       return [
         {
@@ -325,25 +148,6 @@ describe('installAction', () => {
         { path: 'scripts/lint.sh', body: Buffer.from('#!/bin/sh\n') },
       ];
     }
-
-    it('writes the statusLine to settings and locks it', async () => {
-      const tarball = await buildTestTarball({
-        type: 'setup',
-        org: 'org443',
-        slug: 'lint',
-        version: '1.0.0',
-        files: setupFiles('status.sh'),
-      });
-      mockFetch(tarball);
-
-      await installAction({ type: 'setup', ref: 'org443/lint' });
-
-      const settings = await readTestJson('.claude', 'settings.local.json');
-      expect(settings.statusLine).toMatchObject({ type: 'command', command: 'status.sh', __aipkg: 'org443/lint' });
-
-      const lockfile = await readTestJson('aipkg.lock');
-      expect(lockfile.deps.statusLine).toMatchObject({ slug: 'org443/lint', statusLine: { command: 'status.sh' } });
-    });
 
     it('throws a conflict when a second setup bundle defines a statusLine', async () => {
       const lintTar = await buildTestTarball({

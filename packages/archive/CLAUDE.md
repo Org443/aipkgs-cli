@@ -15,6 +15,7 @@ type Manifest = {
     ref: string,
     type: "box" | "skill" | "rule" | "subagent" | "setup",
     version: string,
+    tags?: string[], // up to 5 user-authored discovery tags
     deps?: {
         skills?: Record<string, string>,
         subagents?: Record<string, string>,
@@ -24,6 +25,11 @@ type Manifest = {
     }
 }
 ```
+
+For `setup` archives, `archiveService.parse` augments `tags` with auto-detected
+capability tags (`hooks` / `mcp` / `statusline`) derived from `setup.json`, so
+the parsed manifest advertises both the author's tags and what the setup
+configures. Authors don't write the capability tags themselves.
 
 ### Setup Archive
 

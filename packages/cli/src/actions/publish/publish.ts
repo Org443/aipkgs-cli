@@ -6,7 +6,7 @@ import { api } from '../../api/index.ts';
 import { confirm } from '../../autocomplete/confirm.ts';
 import { ConfigFile } from '../../files/config.ts';
 import { ManifestFile } from '../../files/manifest.ts';
-import { collectArchiveFiles, resolveLocalPath } from '../../io/archive.ts';
+import { collectArchiveFiles, resolveLocalPath } from '../../io/collect-files.ts';
 import { isENOENT } from '../../io/fs.ts';
 
 // Publish the package described by an `aipkg.json` (or alternate manifest
@@ -29,7 +29,7 @@ export async function publishAction(input: { path?: string; dry?: boolean; yes?:
   const { type, pkgRef } = manifest;
   const { slug, version } = pkgRef;
 
-  const files = await collectArchiveFiles({ type, dir, slug, manifestFilename: file });
+  const files = await collectArchiveFiles({ dir, manifestFilename: file });
   const { tgz } = await archiveService.pack({ manifest, files });
 
   if (dry) {
