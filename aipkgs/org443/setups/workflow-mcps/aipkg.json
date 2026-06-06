@@ -1,8 +1,8 @@
 {
   "type": "setup",
-  "ref": "org443/status-line",
-  "version": "0.0.5",
-  "description": "Terminal status line showing model, directory, context window usage, session cost, and API URL after each Claude Code turn",
+  "ref": "org443/workflow-mcps",
+  "version": "0.0.1",
+  "description": "Configures Org443 workflow MCP servers for project management and collaboration",
   "homepage": "https://aipkgs.com",
   "repository": {
     "type": "git",

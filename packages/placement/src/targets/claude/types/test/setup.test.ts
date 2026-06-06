@@ -61,4 +61,16 @@ describe('installSetup', () => {
     expect(testFileExists('.claude/scripts/acme/lint/aipkg.json')).toBe(false);
     expect(testFileExists('.claude/scripts/acme/lint/setup.json')).toBe(false);
   });
+
+  it('does not create scripts/<ref> when the bundle ships no scripts', async () => {
+    const { pkgRef, setup } = asserted({
+      ref: 'acme/lint',
+      files: [file('aipkg.json'), file('setup.json', SETUP_JSON)],
+    });
+
+    await installSetup({ setup, pkgRef });
+
+    // A hooks-only setup has no payload — leave no empty directory behind.
+    expect(testFileExists('.claude/scripts/acme/lint')).toBe(false);
+  });
 });
