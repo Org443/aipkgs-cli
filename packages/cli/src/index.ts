@@ -161,6 +161,11 @@ main().catch((err: unknown) => {
 /// Helper functions
 //
 
+// Shorthand aliases accepted in place of a manifest type on the command line.
+const TYPE_ALIASES: Partial<Record<Manifest['type'], string[]>> = {
+  subagent: ['agent'],
+};
+
 function defineInstallCommand(input: { program: Command; type: Manifest['type'] }) {
   const { program, type } = input;
   const group = program
@@ -175,6 +180,9 @@ function defineInstallCommand(input: { program: Command; type: Manifest['type'] 
 
       await interactiveInstallAction({ type, ref });
     });
+
+  const aliases = TYPE_ALIASES[type];
+  if (aliases) group.aliases(aliases);
 
   group
     .command('remove <ref>')

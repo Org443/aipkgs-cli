@@ -5,9 +5,9 @@ filesystem conventions. Like the Claude target, **all placement is project-local
 (relative to `process.cwd()`) — nothing is written to `~/.codex` or `~/.agents`.
 
 Codex's surfaces don't line up one-to-one with Claude Code's, so this target is
-deliberately partial: three asset surfaces are placed natively, two have no Codex
-equivalent and are skipped with a warning, and MCP config is deferred. The notes
-below capture every meaningful difference and caveat.
+deliberately partial: skills, subagents, rules, hooks, and MCP servers are placed
+natively; the status line has no Codex equivalent and is logged, then skipped. The
+notes below capture every meaningful difference and caveat.
 
 > Codex is moving fast; this reflects behavior verified around **June 2026**
 > (Codex CLI ~0.137). Treat the file locations as the stable contract and the
@@ -19,11 +19,10 @@ below capture every meaningful difference and caveat.
 | --------------- | ------------------------------------ | ------------------------------ | ------ |
 | Skill           | `.agents/skills/<slug>/`             | `SKILL.md` tree (verbatim)     | ✅ native |
 | Subagent        | `.codex/agents/<slug>.toml`          | TOML (`developer_instructions`)| ✅ converted |
-| Hook            | `.codex/hooks.json` + `.codex/hooks/<slug>/` | JSON event map          | ✅ native (needs enabling — see below) |
+| Hook            | `.codex/hooks.json` + `.codex/scripts/<slug>/` | JSON event map          | ✅ native (needs enabling — see below) |
 | Markdown rule   | `./AGENTS.md`                        | aipkg-owned comment block      | ✅ merged |
-| Slash command   | —                                    | —                              | ⚠️ skipped + warn |
-| Status line     | —                                    | —                              | ⚠️ skipped + warn |
-| MCP server      | —                                    | —                              | ⚠️ skipped + warn (deferred) |
+| MCP server      | `.codex/config.toml` (`[mcp_servers.<name>]`) | TOML + sidecar ledger | ✅ native |
+| Status line     | —                                    | —                              | ⚠️ logged + skipped |
 
 ## Supported
 
@@ -57,12 +56,13 @@ converted (see `subagent.ts`):
 Behavioral caveat: unlike Claude, Codex does **not** auto-delegate based on a
 subagent's `description` — it only spawns a subagent when explicitly asked.
 
-### Hooks → `.codex/hooks.json` (+ files under `.codex/hooks/<slug>/`)
+### Hooks → `.codex/hooks.json` (+ script payload under `.codex/scripts/<ref>/`)
 
 Codex's hooks system is deliberately Claude-shaped (event → matcher → command), so
-the package's `settings.json` is merged into **`.codex/hooks.json`** under a top-level
+a setup bundle's event map is merged into **`.codex/hooks.json`** under a top-level
 `hooks` key, with the same `__aipkg` ownership tags and `${PKG_ROOT}` rewriting the
-Claude target uses (`${PKG_ROOT}` → `.codex/hooks/<slug>`). The shared parsing lives
+Claude target uses (`${PKG_ROOT}` → `.codex/scripts/<ref>`, where the bundle's own
+script payload is placed, namespaced by the package ref). The shared parsing lives
 in [`../hooks-format.ts`](../hooks-format.ts).
 
 ⚠️ **Two manual steps are required for placed hooks to actually run** — aipkg does
@@ -77,6 +77,32 @@ neither, by design:
 Coverage caveat: in some Codex builds `PreToolUse` / `PostToolUse` fire reliably only
 for `Bash`. A bundled `statusLine` is surfaced from the install (with `${PKG_ROOT}`
 resolved) but ultimately skipped — see Status line below.
+
+### MCP servers → `.codex/config.toml`
+
+Codex reads MCP servers from `[mcp_servers.<name>]` tables in `config.toml`. aipkg
+writes a **project-level `.codex/config.toml`** (never the user's primary
+`~/.codex/config.toml`), so a setup bundle's `mcps` become `[mcp_servers.<name>]`
+tables there. An aipkg entry maps to Codex's shape via `toCodexServer`: a `url` is an
+HTTP server (its `headers` → `http_headers`); a `command` is a stdio server
+(`command` / `args` / `env`). The aipkg `type` and `oauth` fields have no
+`[mcp_servers.*]` equivalent and are dropped.
+
+Ownership is tracked differently from Claude. Codex parses `config.toml` with strict
+serde (`deny_unknown_fields`), so we **cannot** embed an `__aipkg` owner tag inside a
+server table the way the Claude target does in `.mcp.json` — Codex would reject the
+file. Instead, each `[mcp_servers.*]` table stays schema-clean and ownership lives in
+an aipkg-owned sidecar ledger, **`.codex/aipkg-mcp.json`** (`{ "<server>": "<ref>" }`),
+that Codex never reads. Remove walks the ledger to strip exactly the servers a given
+bundle placed, then deletes the empty `mcp_servers` table and the ledger when nothing
+aipkg-owned remains.
+
+- Caveat: `smol-toml` does not preserve comments or original formatting when it
+  rewrites `config.toml`. A user's hand-written keys and values are preserved, but the
+  file is reformatted. aipkg only ever manages the `mcp_servers` table.
+- Caveat: server names are the author's chosen names, un-namespaced. Two bundles that
+  each ship a server with the same name collide (last write wins); the Claude target
+  avoids this by namespacing the key, but Codex tool names should stay clean.
 
 ### Markdown rules → `./AGENTS.md`
 
@@ -97,25 +123,16 @@ empty). Keep rules concise — Codex caps the per-file size via `project_doc_max
 
 ## Not supported
 
-These surfaces have no faithful Codex equivalent. Rather than throw (which would abort
-an otherwise-fine multi-target install), they **no-op and emit a `codex: …` warning**.
+This surface has no faithful Codex equivalent. Rather than throw (which would abort an
+otherwise-fine multi-target install), it **no-ops and logs a `codex: …` notice**.
 
-
-### Status line — skipped
+### Status line — logged, then skipped
 
 Codex's status line is a fixed set of built-in items configured under `[tui]` in
-`config.toml`; there is no custom-command status line like Claude's `statusLine`.
-`setStatusLine` warns and writes nothing; `clearStatusLine` is a no-op. A `statusLine`
-bundled inside a hook is reported once, centrally, at the `setStatusLine` step.
-
-### MCP servers — skipped (deferred)
-
-Codex MCP servers are `[mcp_servers.<name>]` tables in `config.toml`. aipkg doesn't
-manage these yet: safely editing a user's primary TOML config (preserving comments and
-formatting) is non-trivial, and MCP wasn't in this target's initial scope. `installMcp`
-warns and writes nothing so an install that merely *includes* an MCP dependency still
-succeeds when Codex is among the targets. (Future work: write `[mcp_servers]` into a
-project-level `.codex/config.toml`.)
+`config.toml`; there is no custom-command status line like Claude's `statusLine`. When
+a setup bundle ships a `statusLine`, the install resolves its `${PKG_ROOT}` command,
+logs a `codex: status line not supported` notice (see `notice.ts`), and writes
+nothing.
 
 ## Differences vs. the Claude target
 
@@ -127,16 +144,19 @@ project-level `.codex/config.toml`.)
 | Hooks file        | `.claude/settings.local.json` (`hooks`)  | `.codex/hooks.json` (`{ hooks: … }`)             |
 | Hooks enablement  | on by default                            | needs `[features] hooks = true` + `/hooks` trust |
 | Rules             | `.claude/rules/<slug>.md` (one file)     | block inside `./AGENTS.md`                        |
-| Slash commands    | `.claude/commands/<slug>.md`             | unsupported (skipped)                             |
-| Status line       | `statusLine` in settings (script)        | unsupported (skipped)                             |
-| MCP               | `.mcp.json`                              | unsupported (deferred)                            |
+| MCP               | `.mcp.json` (`__aipkg` tag in object)    | `.codex/config.toml` + `.codex/aipkg-mcp.json` ledger |
+| Status line       | `statusLine` in settings (script)        | unsupported (logged, skipped)                    |
 
 ## Implementation map
 
-- `index.ts` — assembles the `Target` from the modules below.
-- `install.ts` — `install` / `installFiles` / `remove`, routing by asset type.
-- `subagent.ts` — Markdown → Codex TOML agent conversion.
+- `codex.agent.ts` — `CodexAgent extends Agent`; routes `install` / `remove` by manifest type.
+- `types/skill.ts` — places the `SKILL.md` tree under `.agents/skills/<slug>/`.
+- `types/subagent.ts` — Markdown → Codex TOML agent conversion.
+- `types/rule.ts` — delegates to `agents-config.ts`.
+- `types/setup.ts` — scripts + hooks + MCP + status-line notice; `removeSetup` reverses them.
+- `types/box.ts` — fans a box's children + setup out to the per-type installers.
 - `hooks-config.ts` — read/merge/remove for `.codex/hooks.json`.
+- `mcp-config.ts` — `[mcp_servers.*]` tables in `.codex/config.toml` + the sidecar ownership ledger.
 - `agents-config.ts` — aipkg-owned rule blocks in `AGENTS.md`.
-- `status-line.ts`, `mcp.ts`, `unsupported.ts` — the skipped surfaces + the shared warning helper.
+- `notice.ts` — the `codex:` notice helper for logged/skipped surfaces.
 - `../hooks-format.ts` — hook parsing / `${PKG_ROOT}` / `__aipkg` ownership shared with the Claude target.

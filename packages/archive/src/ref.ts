@@ -46,9 +46,7 @@ export class PackageRef {
   }
 
   appPath(): string {
-    const assetKey = MANIFEST_TYPE_TO_DEPS_KEY[this.type];
-    const rest = [this.org, this.key, this.slug, this.version].filter(Boolean).join('/');
-    return `/packages/${assetKey}/${rest}`;
+    return `/packages/${this.path}`;
   }
   apiPath(): string {
     return `/v1/packages/${this.path}`;

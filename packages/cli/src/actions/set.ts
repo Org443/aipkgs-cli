@@ -6,6 +6,7 @@ import { ConfigFile, type MirrorState } from '../files/config.ts';
 const TARGET_HINTS: Record<AgentTarget, string> = {
   claude: 'Claude Code — ~/.claude, .claude/',
   codex: 'Codex — ~/.codex, .codex/',
+  'open-std': 'Open Standard (agentskills.io) — .agents/',
 };
 
 export async function setTargetsAction({ targets }: { targets: AgentTarget[] }) {

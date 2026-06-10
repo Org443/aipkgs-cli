@@ -1,5 +1,5 @@
 ---
-paths: "**/*.{.ts,tsx}"
+paths: '**/*.{.ts,tsx}'
 ---
 
 # Node + TypeScript General Coding Rules
@@ -9,34 +9,37 @@ Apply these rules when writing any Node + TypeScript code.
 ## TypeScript
 
 > ### ⚠️ AVOID INTERMEDIATE TYPES
-> **Do not invent new types if not necessary** Use the existing types and object.  Do not destructure and existing type and rename the properties to form a new type.  It good to pass around original objects with direct lineage.  
+>
+> **Do not invent new types if not necessary** Use the existing types and object. Do not destructure and existing type and rename the properties to form a new type. It good to pass around original objects with direct lineage.  
 > Do not do this
+
 ```ts
 // exiting types
-type Foo = { a: string, foo: string } 
-type Bar = { b: string, bar: string }
+type Foo = { a: string; foo: string };
+type Bar = { b: string; bar: string };
 
 //Bad intermediate type
 type FooBar = {
-  fooA: string
-  fooFoo: string
-  barB: string
-  barBar: string
-}
+  fooA: string;
+  fooFoo: string;
+  barB: string;
+  barBar: string;
+};
 
-function example(args: { foo: Foo, bar: Bar}): FooBar {
- const { foo, bar }
+function example(args: { foo: Foo; bar: Bar }): FooBar {
+  const { foo, bar };
 
- // This is BAD
- return {
-  fooA: foo.a,
-  fooFoo: foo.foo,
-  barB: bar.b,
-  barBar: barBar
- }
+  // This is BAD
+  return {
+    fooA: foo.a,
+    fooFoo: foo.foo,
+    barB: bar.b,
+    barBar: barBar,
+  };
 }
 ```
-> Instead we should just use the type `Foo` and `Bar`.  The `example(): FooBar` just serves as misdirection.
+
+> Instead we should just use the type `Foo` and `Bar`. The `example(): FooBar` just serves as misdirection.
 
 - **Don't annotate return types when inference works.** Only annotate when inference is wrong, the function is a stable public surface, or the inferred type is so wide it actually helps readers.
 
@@ -65,7 +68,8 @@ function example(args: { foo: Foo, bar: Bar}): FooBar {
 
 ## File layout
 
-- **Exports at the top, helpers below.** Readers should see the public surface first. JS hoists function declarations, so forward-referencing a helper is fine.
+- **Exports at the top, functional helpers below.** Readers should see the public surface first. JS hoists function declarations, so forward-referencing a helper is fine.
+- **`const`s and types at the top** Static consts like `const FILE_NAME = 'file.txt'` and types should be decalred at the top of the file.
 - **Soft ~300-line trigger** for splitting a file: if it holds multiple named sub-units, pull them into their own files. A single cohesive unit that genuinely needs the space is fine.
 
 ## Dates and time
