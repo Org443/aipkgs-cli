@@ -1,7 +1,7 @@
 export const MANIFEST_TYPES = ['skill', 'subagent', 'rule', 'setup', 'box'] as const;
 export const DEPS_KEYS = ['skills', 'subagents', 'rules', 'setups', 'boxes'] as const;
 
-export const AGENT_TARGETS = ['claude', 'codex'] as const;
+export const AGENT_TARGETS = ['claude', 'codex', 'open-std'] as const;
 
 export type ManifestType = (typeof MANIFEST_TYPES)[number];
 export type DepsKey = (typeof DEPS_KEYS)[number];

@@ -13,6 +13,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@local/archive": "*"
+    "@local/archive": "*",
+    "smol-toml": "^1.6.1"
   }
 }

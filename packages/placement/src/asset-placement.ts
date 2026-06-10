@@ -2,10 +2,12 @@ import type { AIpkgArchive, Manifest } from '@local/archive';
 import type { Agent, InstallResult, RemoveResult } from './agent.abstract.ts';
 import { ClaudeAgent } from './targets/claude/claude.agent.ts';
 import { CodexAgent } from './targets/codex/codex.agent.ts';
+import { OpenStdAgent } from './targets/open-std/open-std.agent.ts';
 
 const AGENTS = new Map<string, Agent>([
   ['claude', new ClaudeAgent()],
   ['codex', new CodexAgent()],
+  ['open-std', new OpenStdAgent()],
 ]);
 
 /**

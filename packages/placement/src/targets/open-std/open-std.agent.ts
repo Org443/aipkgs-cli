@@ -2,14 +2,21 @@ import { rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { AIpkgArchive, Manifest } from '@local/archive';
 import { Agent, type InstallResult, type RemoveResult } from '../../agent.abstract.ts';
-import { agentsConfig } from './agents-config.ts';
 import { installBox } from './types/box.ts';
 import { installRule } from './types/rule.ts';
 import { installSetup, removeSetup } from './types/setup.ts';
 import { installSkill } from './types/skill.ts';
 import { installSubagent } from './types/subagent.ts';
 
-export class CodexAgent extends Agent {
+/**
+ * The "Open Standard" target follows the Agent Skills open standard
+ * (agentskills.io), which places skills under `.agents/skills/<slug>`. That spec
+ * covers only skills, so the other asset types mirror the Claude layout rooted at
+ * `.agents/` — rules at `.agents/rules`, subagents at `.agents/agents`, and setup
+ * bundles under `.agents/scripts` with hooks/status line in
+ * `.agents/settings.json` and MCP servers in `.agents/mcp.json`.
+ */
+export class OpenStdAgent extends Agent {
   async install({ archive }: { archive: AIpkgArchive }): Promise<InstallResult> {
     const { manifest, pkgRef } = archive;
 
@@ -46,7 +53,9 @@ export class CodexAgent extends Agent {
           setup: archive.setup,
           pkgRef,
         });
-        return { paths: dedupe(written), deps: boxDeps(archive) };
+        const paths = dedupe(written);
+        const deps = boxDeps(archive);
+        return { paths, deps };
       }
       default:
         throw new Error(`Unknown manifest type: ${manifest.type}`);
@@ -56,22 +65,23 @@ export class CodexAgent extends Agent {
   async remove({ type, refStr }: { type: Manifest['type']; refStr: string }): Promise<RemoveResult> {
     switch (type) {
       case 'rule': {
-        await agentsConfig.removeRule({ slug: refStr });
-        return { paths: [agentsConfig.path()], deps: [] };
+        const dir = join('.agents', 'rules');
+        return this.removeFile({ dir, name: `${refStr}.md` });
       }
-      case 'subagent':
-        return this.removeFile({ dir: join('.codex', 'agents'), name: `${refStr}.toml` });
-      case 'skill':
-        return this.removeTree({ path: join(process.cwd(), '.agents', 'skills', refStr) });
-      case 'setup': {
-        const { removed } = await removeSetup({ ref: refStr });
-        return { paths: removed, deps: [] };
+      case 'subagent': {
+        const dir = join('.agents', 'agents');
+        return this.removeFile({ dir, name: `${refStr}.md` });
       }
+      case 'skill': {
+        const cwd = process.cwd();
+        const path = join(cwd, '.agents', 'skills', refStr);
+        return this.removeTree({ path });
+      }
+      case 'setup':
       case 'box': {
-        // A box's bundled rule/subagent/skill children reverse themselves via the
-        // caller walking the lockfile subtree (each by its own type). What only the
-        // box owns is its setup bundle — scripts, hooks, and MCP servers tagged with
-        // the box ref — so reverse those here, as a standalone setup remove does.
+        // A box's bundled rule/subagent/skill children are reversed by the caller
+        // walking the lockfile subtree (each by its own type); only the setup
+        // bundle — tagged with the ref — is reversed here.
         const { removed } = await removeSetup({ ref: refStr });
         return { paths: removed, deps: [] };
       }
@@ -84,22 +94,25 @@ export class CodexAgent extends Agent {
   /// Helpers
   //
 
-  private async removeFile(args: { dir: string; name: string }): Promise<RemoveResult> {
-    const path = join(process.cwd(), args.dir, args.name);
+  private async removeFile(args: { dir: string; name: string }) {
+    const { dir, name } = args;
+    const cwd = process.cwd();
+    const path = join(cwd, dir, name);
     await rm(path, { force: true });
     return { paths: [path], deps: [] };
   }
 
-  private async removeTree(args: { path: string }): Promise<RemoveResult> {
-    await rm(args.path, { recursive: true, force: true });
-    return { paths: [args.path], deps: [] };
+  private async removeTree(args: { path: string }) {
+    const { path } = args;
+    await rm(path, { recursive: true, force: true });
+    return { paths: [path], deps: [] };
   }
 }
 
 // A box's lockable children are the flat assets it bundles — each becomes a
 // lockfile entry keyed by its own slug. The box's setup bundle is part of the box
 // itself, not a separate child, so it is not listed here.
-function boxDeps(archive: AIpkgArchive): InstallResult['deps'] {
+function boxDeps(archive: AIpkgArchive) {
   return [
     ...archive.rules.map((r) => ({ type: 'rule' as const, slug: r.slug })),
     ...archive.subagents.map((s) => ({ type: 'subagent' as const, slug: s.slug })),
@@ -107,6 +120,6 @@ function boxDeps(archive: AIpkgArchive): InstallResult['deps'] {
   ];
 }
 
-function dedupe(paths: string[]): string[] {
+function dedupe(paths: string[]) {
   return [...new Set(paths)];
 }
