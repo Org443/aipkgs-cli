@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/support/analytics-reporter",
+  "version": "0.1.0",
+  "description": "Expert data analyst transforming raw data into actionable business insights. Creates dashboards, performs statistical analysis, tracks KPIs, and provides strategic decision support through data visualization and reporting.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "support"
+  }
+}

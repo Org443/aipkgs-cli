@@ -1,7 +1,7 @@
 {
   "type": "skill",
   "ref": "gstack/context-restore",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Restore working context saved earlier by /context-save. (gstack)",
   "deps": {
     "skills": {

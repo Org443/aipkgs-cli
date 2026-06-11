@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/game-development/roblox-systems-scripter",
+  "version": "0.1.0",
+  "description": "Roblox platform engineering specialist - Masters Luau, the client-server security model, RemoteEvents/RemoteFunctions, DataStore, and module architecture for scalable Roblox experiences",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "game-development"
+  }
+}

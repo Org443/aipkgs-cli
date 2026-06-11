@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/spatial-computing/macos-spatial-metal-engineer",
+  "version": "0.1.0",
+  "description": "Native Swift and Metal specialist building high-performance 3D rendering systems and spatial computing experiences for macOS and Vision Pro",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "spatial-computing"
+  }
+}

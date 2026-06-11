@@ -1,0 +1,20 @@
+{
+  "type": "box",
+  "ref": "agency-agents/Unreal-Engine",
+  "version": "0.1.0",
+  "description": "The Agency's unreal engine game-engine subagents \u2014 4 specialists bundled as one box.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "game-development/unreal-engine"
+  },
+  "deps": {
+    "subagents": {
+      "unreal-multiplayer-architect": "aipkg://subagent/agency-agents/game-development/unreal-multiplayer-architect@latest",
+      "unreal-systems-engineer": "aipkg://subagent/agency-agents/game-development/unreal-systems-engineer@latest",
+      "unreal-technical-artist": "aipkg://subagent/agency-agents/game-development/unreal-technical-artist@latest",
+      "unreal-world-builder": "aipkg://subagent/agency-agents/game-development/unreal-world-builder@latest"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/finance/financial-analyst",
+  "version": "0.1.0",
+  "description": "Expert financial analyst specializing in financial modeling, forecasting, scenario analysis, and data-driven decision support. Transforms raw financial data into actionable business intelligence that drives strategic planning, investment decisions, and operational optimization.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "finance"
+  }
+}

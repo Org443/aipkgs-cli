@@ -1,7 +1,7 @@
 {
   "type": "skill",
   "ref": "gstack/benchmark-models",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Cross-model benchmark for gstack skills. (gstack)",
   "deps": {
     "skills": {

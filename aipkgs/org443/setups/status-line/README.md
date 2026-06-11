@@ -14,14 +14,6 @@ A terminal status line for Claude Code that displays live session context at a g
 | **Cost**      | Cumulative session cost in USD                                         |
 | **API URL**   | `ANTHROPIC_BASE_URL` (useful when proxying or using a custom endpoint) |
 
-## Install
-
-```sh
-npx @aipkgs/cli setup org443/status-line
-```
-
-This registers a `statusLine` hook that runs automatically after each Claude Code turn, piping session state into the status line script.
-
 ## How it works
 
 The setup adds a `statusLine` command to your Claude Code configuration. Claude Code calls the script at the end of each response, passing a JSON payload with model info, workspace path, token usage, and cost. The script renders a single-line summary to stdout, which Claude Code displays in the terminal status bar.

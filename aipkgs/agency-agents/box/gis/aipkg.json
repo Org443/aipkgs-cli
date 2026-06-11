@@ -1,0 +1,29 @@
+{
+  "type": "box",
+  "ref": "agency-agents/Gis",
+  "version": "0.1.0",
+  "description": "The Agency's gis department \u2014 13 specialist subagents bundled as one box.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "gis"
+  },
+  "deps": {
+    "subagents": {
+      "3d-scene-developer": "aipkg://subagent/agency-agents/gis/3d-scene-developer@latest",
+      "analyst": "aipkg://subagent/agency-agents/gis/analyst@latest",
+      "bim-specialist": "aipkg://subagent/agency-agents/gis/bim-specialist@latest",
+      "cartography-designer": "aipkg://subagent/agency-agents/gis/cartography-designer@latest",
+      "drone-reality-mapping": "aipkg://subagent/agency-agents/gis/drone-reality-mapping@latest",
+      "geoai-ml-engineer": "aipkg://subagent/agency-agents/gis/geoai-ml-engineer@latest",
+      "geoprocessing-specialist": "aipkg://subagent/agency-agents/gis/geoprocessing-specialist@latest",
+      "qa-engineer": "aipkg://subagent/agency-agents/gis/qa-engineer@latest",
+      "solution-engineer": "aipkg://subagent/agency-agents/gis/solution-engineer@latest",
+      "spatial-data-engineer": "aipkg://subagent/agency-agents/gis/spatial-data-engineer@latest",
+      "spatial-data-scientist": "aipkg://subagent/agency-agents/gis/spatial-data-scientist@latest",
+      "technical-consultant": "aipkg://subagent/agency-agents/gis/technical-consultant@latest",
+      "web-gis-developer": "aipkg://subagent/agency-agents/gis/web-gis-developer@latest"
+    }
+  }
+}

@@ -1,7 +1,7 @@
 {
   "type": "skill",
   "ref": "gstack/ship",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Ship workflow: detect + merge base branch, run tests, review diff, bump VERSION, update CHANGELOG, commit, push, create PR. (gstack)",
   "deps": {
     "skills": {

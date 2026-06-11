@@ -8,12 +8,6 @@ Reactive wrapper for [`change-case`](https://github.com/blakeembrey/change-case)
 
 Subsitutes `useCamelCase`, `usePascalCase`, `useSnakeCase`, `useSentenceCase`, `useCapitalize`, etc.
 
-## Install
-
-```bash
-npm i change-case@^5
-```
-
 ## Usage
 
 ```ts

@@ -1,7 +1,7 @@
 {
   "type": "skill",
   "ref": "gstack/document-release",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Post-ship documentation update. (gstack)",
   "deps": {
     "skills": {

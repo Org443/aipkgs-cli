@@ -1,7 +1,7 @@
 {
   "type": "skill",
   "ref": "org443/code-simplify",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Simplifies modified code for readability and clarity",
   "homepage": "https://aipkgs.com",
   "repository": {

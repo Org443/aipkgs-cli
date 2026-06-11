@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/engineering/email-intelligence-engineer",
+  "version": "0.1.0",
+  "description": "Expert in extracting structured, reasoning-ready data from raw email threads for AI agents and automation systems",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "engineering"
+  }
+}

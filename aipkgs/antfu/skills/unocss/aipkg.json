@@ -1,6 +1,6 @@
 {
   "type": "skill",
   "ref": "antfu/unocss",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "UnoCSS instant atomic CSS engine, superset of Tailwind CSS. Use when configuring UnoCSS, writing utility rules, shortcuts, or working with presets like Wind, Icons, Attributify."
 }

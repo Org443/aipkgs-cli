@@ -28,9 +28,3 @@ by Corey Haines, under the MIT License (see `LICENSE.txt`).
 > references and CLI scripts. That directory is not part of the skill package
 > format, so those `../../tools/...` links are not bundled here — the skill
 > instructions themselves are self-contained.
-
-## Install
-
-```sh
-npx @aipkgs/cli box marketingskills/MarketingSkills
-```

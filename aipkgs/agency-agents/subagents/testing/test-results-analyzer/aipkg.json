@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/testing/test-results-analyzer",
+  "version": "0.1.0",
+  "description": "Expert test analysis specialist focused on comprehensive test result evaluation, quality metrics analysis, and actionable insight generation from testing activities",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "testing"
+  }
+}

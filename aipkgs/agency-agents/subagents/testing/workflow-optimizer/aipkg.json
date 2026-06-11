@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/testing/workflow-optimizer",
+  "version": "0.1.0",
+  "description": "Expert process improvement specialist focused on analyzing, optimizing, and automating workflows across all business functions for maximum productivity and efficiency",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "testing"
+  }
+}

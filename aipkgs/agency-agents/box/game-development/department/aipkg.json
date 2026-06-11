@@ -1,0 +1,36 @@
+{
+  "type": "box",
+  "ref": "agency-agents/Game-Development",
+  "version": "0.1.0",
+  "description": "The Agency's game development department \u2014 20 specialist subagents bundled as one box.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "game-development"
+  },
+  "deps": {
+    "subagents": {
+      "blender-addon-engineer": "aipkg://subagent/agency-agents/game-development/blender-addon-engineer@latest",
+      "game-audio-engineer": "aipkg://subagent/agency-agents/game-development/game-audio-engineer@latest",
+      "game-designer": "aipkg://subagent/agency-agents/game-development/game-designer@latest",
+      "godot-gameplay-scripter": "aipkg://subagent/agency-agents/game-development/godot-gameplay-scripter@latest",
+      "godot-multiplayer-engineer": "aipkg://subagent/agency-agents/game-development/godot-multiplayer-engineer@latest",
+      "godot-shader-developer": "aipkg://subagent/agency-agents/game-development/godot-shader-developer@latest",
+      "level-designer": "aipkg://subagent/agency-agents/game-development/level-designer@latest",
+      "narrative-designer": "aipkg://subagent/agency-agents/game-development/narrative-designer@latest",
+      "roblox-avatar-creator": "aipkg://subagent/agency-agents/game-development/roblox-avatar-creator@latest",
+      "roblox-experience-designer": "aipkg://subagent/agency-agents/game-development/roblox-experience-designer@latest",
+      "roblox-systems-scripter": "aipkg://subagent/agency-agents/game-development/roblox-systems-scripter@latest",
+      "technical-artist": "aipkg://subagent/agency-agents/game-development/technical-artist@latest",
+      "unity-architect": "aipkg://subagent/agency-agents/game-development/unity-architect@latest",
+      "unity-editor-tool-developer": "aipkg://subagent/agency-agents/game-development/unity-editor-tool-developer@latest",
+      "unity-multiplayer-engineer": "aipkg://subagent/agency-agents/game-development/unity-multiplayer-engineer@latest",
+      "unity-shader-graph-artist": "aipkg://subagent/agency-agents/game-development/unity-shader-graph-artist@latest",
+      "unreal-multiplayer-architect": "aipkg://subagent/agency-agents/game-development/unreal-multiplayer-architect@latest",
+      "unreal-systems-engineer": "aipkg://subagent/agency-agents/game-development/unreal-systems-engineer@latest",
+      "unreal-technical-artist": "aipkg://subagent/agency-agents/game-development/unreal-technical-artist@latest",
+      "unreal-world-builder": "aipkg://subagent/agency-agents/game-development/unreal-world-builder@latest"
+    }
+  }
+}

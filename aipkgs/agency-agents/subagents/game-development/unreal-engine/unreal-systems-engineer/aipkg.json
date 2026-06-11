@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/game-development/unreal-systems-engineer",
+  "version": "0.1.0",
+  "description": "Performance and hybrid architecture specialist - Masters C++/Blueprint continuum, Nanite geometry, Lumen GI, and Gameplay Ability System for AAA-grade Unreal Engine projects",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "game-development"
+  }
+}

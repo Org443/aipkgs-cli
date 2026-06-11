@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/sales/outbound-strategist",
+  "version": "0.1.0",
+  "description": "Signal-based outbound specialist who designs multi-channel prospecting sequences, defines ICPs, and builds pipeline through research-driven personalization \u2014 not volume.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "sales"
+  }
+}

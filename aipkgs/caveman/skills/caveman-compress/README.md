@@ -69,18 +69,6 @@ All validations passed ✅ — headings, code blocks, URLs, file paths preserved
 
 `caveman-compress` is flagged as Snyk High Risk due to subprocess and file I/O patterns detected by static analysis. This is a false positive — see [SECURITY.md](./SECURITY.md) for a full explanation of what the skill does and does not do.
 
-## Install
-
-Compress is built in with the `caveman` plugin. Install `caveman` once, then use `/caveman-compress`.
-
-If you need local files, the compress skill lives at:
-
-```bash
-caveman-compress/
-```
-
-**Requires:** Python 3.10+
-
 ## Usage
 
 ```

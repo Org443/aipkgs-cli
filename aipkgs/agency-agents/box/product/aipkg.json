@@ -1,0 +1,21 @@
+{
+  "type": "box",
+  "ref": "agency-agents/Product",
+  "version": "0.1.0",
+  "description": "The Agency's product department \u2014 5 specialist subagents bundled as one box.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "product"
+  },
+  "deps": {
+    "subagents": {
+      "behavioral-nudge-engine": "aipkg://subagent/agency-agents/product/behavioral-nudge-engine@latest",
+      "feedback-synthesizer": "aipkg://subagent/agency-agents/product/feedback-synthesizer@latest",
+      "manager": "aipkg://subagent/agency-agents/product/manager@latest",
+      "sprint-prioritizer": "aipkg://subagent/agency-agents/product/sprint-prioritizer@latest",
+      "trend-researcher": "aipkg://subagent/agency-agents/product/trend-researcher@latest"
+    }
+  }
+}

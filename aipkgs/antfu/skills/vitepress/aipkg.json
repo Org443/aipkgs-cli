@@ -1,6 +1,6 @@
 {
   "type": "skill",
   "ref": "antfu/vitepress",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "VitePress static site generator powered by Vite and Vue. Use when building documentation sites, configuring themes, or writing Markdown with Vue components."
 }

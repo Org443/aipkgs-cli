@@ -13,9 +13,3 @@ docs for API usage, troubleshooting, and usage patterns.
 
 Imported from [PleasePrompto/notebooklm-skill](https://github.com/PleasePrompto/notebooklm-skill)
 by the original author. Licensed under MIT (see `LICENSE.txt`).
-
-## Install
-
-```sh
-aipkg install notebooklm/notebooklm
-```

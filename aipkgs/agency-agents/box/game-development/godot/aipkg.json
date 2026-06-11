@@ -1,0 +1,19 @@
+{
+  "type": "box",
+  "ref": "agency-agents/Godot",
+  "version": "0.1.0",
+  "description": "The Agency's godot game-engine subagents \u2014 3 specialists bundled as one box.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "game-development/godot"
+  },
+  "deps": {
+    "subagents": {
+      "godot-gameplay-scripter": "aipkg://subagent/agency-agents/game-development/godot-gameplay-scripter@latest",
+      "godot-multiplayer-engineer": "aipkg://subagent/agency-agents/game-development/godot-multiplayer-engineer@latest",
+      "godot-shader-developer": "aipkg://subagent/agency-agents/game-development/godot-shader-developer@latest"
+    }
+  }
+}

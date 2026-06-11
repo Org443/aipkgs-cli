@@ -1,6 +1,6 @@
 {
   "type": "skill",
   "ref": "antfu/nuxt",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Nuxt full-stack Vue framework with SSR, auto-imports, and file-based routing. Use when working with Nuxt apps, server routes, useFetch, middleware, or hybrid rendering."
 }

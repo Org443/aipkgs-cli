@@ -1,7 +1,7 @@
 {
   "type": "skill",
   "ref": "org443/pr-create",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Create a GitHub PR from current branch",
   "homepage": "https://aipkgs.com",
   "repository": {

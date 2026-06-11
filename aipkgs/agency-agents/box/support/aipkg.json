@@ -1,0 +1,22 @@
+{
+  "type": "box",
+  "ref": "agency-agents/Support",
+  "version": "0.1.0",
+  "description": "The Agency's support department \u2014 6 specialist subagents bundled as one box.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "support"
+  },
+  "deps": {
+    "subagents": {
+      "analytics-reporter": "aipkg://subagent/agency-agents/support/analytics-reporter@latest",
+      "executive-summary-generator": "aipkg://subagent/agency-agents/support/executive-summary-generator@latest",
+      "finance-tracker": "aipkg://subagent/agency-agents/support/finance-tracker@latest",
+      "infrastructure-maintainer": "aipkg://subagent/agency-agents/support/infrastructure-maintainer@latest",
+      "legal-compliance-checker": "aipkg://subagent/agency-agents/support/legal-compliance-checker@latest",
+      "support-responder": "aipkg://subagent/agency-agents/support/support-responder@latest"
+    }
+  }
+}

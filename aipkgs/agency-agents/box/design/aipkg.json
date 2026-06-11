@@ -1,0 +1,25 @@
+{
+  "type": "box",
+  "ref": "agency-agents/Design",
+  "version": "0.1.0",
+  "description": "The Agency's design department \u2014 9 specialist subagents bundled as one box.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "design"
+  },
+  "deps": {
+    "subagents": {
+      "brand-guardian": "aipkg://subagent/agency-agents/design/brand-guardian@latest",
+      "image-prompt-engineer": "aipkg://subagent/agency-agents/design/image-prompt-engineer@latest",
+      "inclusive-visuals-specialist": "aipkg://subagent/agency-agents/design/inclusive-visuals-specialist@latest",
+      "persona-walkthrough": "aipkg://subagent/agency-agents/design/persona-walkthrough@latest",
+      "ui-designer": "aipkg://subagent/agency-agents/design/ui-designer@latest",
+      "ux-architect": "aipkg://subagent/agency-agents/design/ux-architect@latest",
+      "ux-researcher": "aipkg://subagent/agency-agents/design/ux-researcher@latest",
+      "visual-storyteller": "aipkg://subagent/agency-agents/design/visual-storyteller@latest",
+      "whimsy-injector": "aipkg://subagent/agency-agents/design/whimsy-injector@latest"
+    }
+  }
+}

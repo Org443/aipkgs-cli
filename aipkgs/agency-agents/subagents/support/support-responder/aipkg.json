@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/support/support-responder",
+  "version": "0.1.0",
+  "description": "Expert customer support specialist delivering exceptional customer service, issue resolution, and user experience optimization. Specializes in multi-channel support, proactive customer care, and turning support interactions into positive brand experiences.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "support"
+  }
+}

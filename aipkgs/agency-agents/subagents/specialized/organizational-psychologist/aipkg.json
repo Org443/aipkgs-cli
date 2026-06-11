@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/specialized/organizational-psychologist",
+  "version": "0.1.0",
+  "description": "Applied organizational psychologist who diagnoses team dynamics, psychological safety, burnout risk, and culture health \u2014 using evidence-based frameworks to help leaders build high-performing, resilient, and psychologically safe organizations.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "specialized"
+  }
+}

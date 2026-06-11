@@ -6,12 +6,6 @@ category: '@Integrations'
 
 Reactive wrapper for [`nprogress`](https://github.com/rstacruz/nprogress).
 
-## Install
-
-```bash
-npm i nprogress@^0
-```
-
 ## Usage
 
 ```ts {6}

@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/project-management/studio-operations",
+  "version": "0.1.0",
+  "description": "Expert operations manager specializing in day-to-day studio efficiency, process optimization, and resource coordination. Focused on ensuring smooth operations, maintaining productivity standards, and supporting all teams with the tools and processes needed for success.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "project-management"
+  }
+}

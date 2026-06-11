@@ -1,7 +1,7 @@
 {
   "type": "skill",
   "ref": "superpowers/test-driven-development",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Use when implementing any feature or bugfix, before writing implementation code",
   "homepage": "https://github.com/obra/superpowers",
   "repository": {

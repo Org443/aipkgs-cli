@@ -1,7 +1,7 @@
 {
   "type": "skill",
   "ref": "humanizer/humanizer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Detect and remove signs of AI-generated writing to make text sound natural and human, based on Wikipedia's \"Signs of AI writing\" guide.",
   "homepage": "https://github.com/blader/humanizer",
   "repository": { "type": "git", "url": "https://github.com/blader/humanizer.git" }

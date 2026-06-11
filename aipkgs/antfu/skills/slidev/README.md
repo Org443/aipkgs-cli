@@ -12,12 +12,6 @@ Create and present web-based slidedecks for developers using Slidev with Markdow
 - **Presenter Mode** - Recording, timer, remote access
 - **Exporting** - PDF, PPTX, PNG, SPA hosting
 
-## Install
-
-```sh
-npx @aipkgs/cli skill antfu/slidev
-```
-
 ## Documentation
 
 - [Slidev Documentation](https://sli.dev)

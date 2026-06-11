@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/game-development/game-audio-engineer",
+  "version": "0.1.0",
+  "description": "Interactive audio specialist - Masters FMOD/Wwise integration, adaptive music systems, spatial audio, and audio performance budgeting across all game engines",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "game-development"
+  }
+}

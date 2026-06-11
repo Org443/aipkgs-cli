@@ -1,7 +1,7 @@
 {
   "type": "skill",
   "ref": "gstack/retro",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Weekly engineering retrospective. (gstack)",
   "deps": {
     "skills": {

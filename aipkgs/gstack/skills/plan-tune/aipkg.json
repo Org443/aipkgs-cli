@@ -1,7 +1,7 @@
 {
   "type": "skill",
   "ref": "gstack/plan-tune",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Self-tuning question sensitivity + developer psychographic for gstack (v1: observational). (gstack)",
   "deps": {
     "skills": {

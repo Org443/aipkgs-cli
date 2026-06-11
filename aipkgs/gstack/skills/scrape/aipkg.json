@@ -1,7 +1,7 @@
 {
   "type": "skill",
   "ref": "gstack/scrape",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Pull data from a web page. (gstack)",
   "deps": {
     "skills": {

@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/specialized/agents-orchestrator",
+  "version": "0.1.0",
+  "description": "Autonomous pipeline manager that orchestrates the entire development workflow. You are the leader of this process.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "specialized"
+  }
+}

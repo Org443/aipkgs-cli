@@ -1,7 +1,7 @@
 {
   "type": "skill",
   "ref": "superpowers/executing-plans",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Use when you have a written implementation plan to execute in a separate session with review checkpoints",
   "homepage": "https://github.com/obra/superpowers",
   "repository": {

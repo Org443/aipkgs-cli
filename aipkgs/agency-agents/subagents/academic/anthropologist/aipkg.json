@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/academic/anthropologist",
+  "version": "0.1.0",
+  "description": "Expert in cultural systems, rituals, kinship, belief systems, and ethnographic method \u2014 builds culturally coherent societies that feel lived-in rather than invented",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "academic"
+  }
+}

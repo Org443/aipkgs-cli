@@ -1,7 +1,7 @@
 {
   "type": "skill",
   "ref": "gstack/setup-browser-cookies",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Import cookies from your real Chromium browser into the headless browse session. (gstack)",
   "deps": {
     "skills": {

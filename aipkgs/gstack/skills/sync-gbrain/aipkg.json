@@ -1,7 +1,7 @@
 {
   "type": "skill",
   "ref": "gstack/sync-gbrain",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Keep gbrain current with this repo's code and refresh agent search guidance in CLAUDE.md. Wraps the gstack-gbrain-sync orchestrator with state (gstack)",
   "deps": {
     "skills": {

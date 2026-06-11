@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/sales/discovery-coach",
+  "version": "0.1.0",
+  "description": "Coaches sales teams on elite discovery methodology \u2014 question design, current-state mapping, gap quantification, and call structure that surfaces real buying motivation.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "sales"
+  }
+}

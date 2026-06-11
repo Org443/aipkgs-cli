@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/spatial-computing/xr-interface-architect",
+  "version": "0.1.0",
+  "description": "Spatial interaction designer and interface strategist for immersive AR/VR/XR environments",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "spatial-computing"
+  }
+}

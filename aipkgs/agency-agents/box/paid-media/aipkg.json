@@ -1,0 +1,23 @@
+{
+  "type": "box",
+  "ref": "agency-agents/Paid-Media",
+  "version": "0.1.0",
+  "description": "The Agency's paid media department \u2014 7 specialist subagents bundled as one box.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "paid-media"
+  },
+  "deps": {
+    "subagents": {
+      "auditor": "aipkg://subagent/agency-agents/paid-media/auditor@latest",
+      "creative-strategist": "aipkg://subagent/agency-agents/paid-media/creative-strategist@latest",
+      "paid-social-strategist": "aipkg://subagent/agency-agents/paid-media/paid-social-strategist@latest",
+      "ppc-strategist": "aipkg://subagent/agency-agents/paid-media/ppc-strategist@latest",
+      "programmatic-buyer": "aipkg://subagent/agency-agents/paid-media/programmatic-buyer@latest",
+      "search-query-analyst": "aipkg://subagent/agency-agents/paid-media/search-query-analyst@latest",
+      "tracking-specialist": "aipkg://subagent/agency-agents/paid-media/tracking-specialist@latest"
+    }
+  }
+}

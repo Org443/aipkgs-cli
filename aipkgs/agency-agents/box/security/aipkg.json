@@ -1,0 +1,26 @@
+{
+  "type": "box",
+  "ref": "agency-agents/Security",
+  "version": "0.1.0",
+  "description": "The Agency's security department \u2014 10 specialist subagents bundled as one box.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "security"
+  },
+  "deps": {
+    "subagents": {
+      "appsec-engineer": "aipkg://subagent/agency-agents/security/appsec-engineer@latest",
+      "architect": "aipkg://subagent/agency-agents/security/architect@latest",
+      "blockchain-security-auditor": "aipkg://subagent/agency-agents/security/blockchain-security-auditor@latest",
+      "cloud-security-architect": "aipkg://subagent/agency-agents/security/cloud-security-architect@latest",
+      "compliance-auditor": "aipkg://subagent/agency-agents/security/compliance-auditor@latest",
+      "incident-responder": "aipkg://subagent/agency-agents/security/incident-responder@latest",
+      "penetration-tester": "aipkg://subagent/agency-agents/security/penetration-tester@latest",
+      "senior-secops": "aipkg://subagent/agency-agents/security/senior-secops@latest",
+      "threat-detection-engineer": "aipkg://subagent/agency-agents/security/threat-detection-engineer@latest",
+      "threat-intelligence-analyst": "aipkg://subagent/agency-agents/security/threat-intelligence-analyst@latest"
+    }
+  }
+}

@@ -1,7 +1,7 @@
 {
   "type": "skill",
   "ref": "gstack/setup-gbrain",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Set up gbrain for this coding agent: install the CLI, initialize a local PGLite or Supabase brain, register MCP, capture per-remote trust policy. (gstack)",
   "deps": {
     "skills": {

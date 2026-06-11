@@ -1,0 +1,22 @@
+{
+  "type": "box",
+  "ref": "agency-agents/Spatial-Computing",
+  "version": "0.1.0",
+  "description": "The Agency's spatial computing department \u2014 6 specialist subagents bundled as one box.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "spatial-computing"
+  },
+  "deps": {
+    "subagents": {
+      "macos-spatial-metal-engineer": "aipkg://subagent/agency-agents/spatial-computing/macos-spatial-metal-engineer@latest",
+      "terminal-integration-spec": "aipkg://subagent/agency-agents/spatial-computing/terminal-integration-spec@latest",
+      "visionos-spatial-engineer": "aipkg://subagent/agency-agents/spatial-computing/visionos-spatial-engineer@latest",
+      "xr-cockpit-interaction-spec": "aipkg://subagent/agency-agents/spatial-computing/xr-cockpit-interaction-spec@latest",
+      "xr-immersive-developer": "aipkg://subagent/agency-agents/spatial-computing/xr-immersive-developer@latest",
+      "xr-interface-architect": "aipkg://subagent/agency-agents/spatial-computing/xr-interface-architect@latest"
+    }
+  }
+}

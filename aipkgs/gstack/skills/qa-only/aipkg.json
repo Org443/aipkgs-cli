@@ -1,7 +1,7 @@
 {
   "type": "skill",
   "ref": "gstack/qa-only",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Report-only QA testing. (gstack)",
   "deps": {
     "skills": {

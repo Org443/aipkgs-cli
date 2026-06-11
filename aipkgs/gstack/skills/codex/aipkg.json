@@ -1,7 +1,7 @@
 {
   "type": "skill",
   "ref": "gstack/codex",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "OpenAI Codex CLI wrapper — three modes. (gstack)",
   "deps": {
     "skills": {

@@ -1,0 +1,49 @@
+{
+  "type": "box",
+  "ref": "agency-agents/Engineering",
+  "version": "0.1.0",
+  "description": "The Agency's engineering department \u2014 33 specialist subagents bundled as one box.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "engineering"
+  },
+  "deps": {
+    "subagents": {
+      "ai-data-remediation-engineer": "aipkg://subagent/agency-agents/engineering/ai-data-remediation-engineer@latest",
+      "ai-engineer": "aipkg://subagent/agency-agents/engineering/ai-engineer@latest",
+      "autonomous-optimization-arch": "aipkg://subagent/agency-agents/engineering/autonomous-optimization-arch@latest",
+      "backend-architect": "aipkg://subagent/agency-agents/engineering/backend-architect@latest",
+      "cms-developer": "aipkg://subagent/agency-agents/engineering/cms-developer@latest",
+      "code-reviewer": "aipkg://subagent/agency-agents/engineering/code-reviewer@latest",
+      "codebase-onboarding-engineer": "aipkg://subagent/agency-agents/engineering/codebase-onboarding-engineer@latest",
+      "data-engineer": "aipkg://subagent/agency-agents/engineering/data-engineer@latest",
+      "database-optimizer": "aipkg://subagent/agency-agents/engineering/database-optimizer@latest",
+      "devops-automator": "aipkg://subagent/agency-agents/engineering/devops-automator@latest",
+      "drupal-shopping-cart": "aipkg://subagent/agency-agents/engineering/drupal-shopping-cart@latest",
+      "email-intelligence-engineer": "aipkg://subagent/agency-agents/engineering/email-intelligence-engineer@latest",
+      "embedded-firmware-engineer": "aipkg://subagent/agency-agents/engineering/embedded-firmware-engineer@latest",
+      "feishu-integration-developer": "aipkg://subagent/agency-agents/engineering/feishu-integration-developer@latest",
+      "filament-optimization-spec": "aipkg://subagent/agency-agents/engineering/filament-optimization-spec@latest",
+      "frontend-developer": "aipkg://subagent/agency-agents/engineering/frontend-developer@latest",
+      "git-workflow-master": "aipkg://subagent/agency-agents/engineering/git-workflow-master@latest",
+      "incident-response-commander": "aipkg://subagent/agency-agents/engineering/incident-response-commander@latest",
+      "it-service-manager": "aipkg://subagent/agency-agents/engineering/it-service-manager@latest",
+      "minimal-change-engineer": "aipkg://subagent/agency-agents/engineering/minimal-change-engineer@latest",
+      "mobile-app-builder": "aipkg://subagent/agency-agents/engineering/mobile-app-builder@latest",
+      "multi-agent-systems-architect": "aipkg://subagent/agency-agents/engineering/multi-agent-systems-architect@latest",
+      "orgscript-engineer": "aipkg://subagent/agency-agents/engineering/orgscript-engineer@latest",
+      "prompt-engineer": "aipkg://subagent/agency-agents/engineering/prompt-engineer@latest",
+      "rapid-prototyper": "aipkg://subagent/agency-agents/engineering/rapid-prototyper@latest",
+      "senior-developer": "aipkg://subagent/agency-agents/engineering/senior-developer@latest",
+      "software-architect": "aipkg://subagent/agency-agents/engineering/software-architect@latest",
+      "solidity-contract-engineer": "aipkg://subagent/agency-agents/engineering/solidity-contract-engineer@latest",
+      "sre": "aipkg://subagent/agency-agents/engineering/sre@latest",
+      "technical-writer": "aipkg://subagent/agency-agents/engineering/technical-writer@latest",
+      "voice-ai-integration-engineer": "aipkg://subagent/agency-agents/engineering/voice-ai-integration-engineer@latest",
+      "wechat-mini-program-developer": "aipkg://subagent/agency-agents/engineering/wechat-mini-program-developer@latest",
+      "wordpress-shopping-cart": "aipkg://subagent/agency-agents/engineering/wordpress-shopping-cart@latest"
+    }
+  }
+}

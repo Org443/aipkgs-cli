@@ -1,0 +1,52 @@
+{
+  "type": "box",
+  "ref": "agency-agents/Marketing",
+  "version": "0.1.0",
+  "description": "The Agency's marketing department \u2014 36 specialist subagents bundled as one box.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "marketing"
+  },
+  "deps": {
+    "subagents": {
+      "aeo-foundations": "aipkg://subagent/agency-agents/marketing/aeo-foundations@latest",
+      "agentic-search-optimizer": "aipkg://subagent/agency-agents/marketing/agentic-search-optimizer@latest",
+      "ai-citation-strategist": "aipkg://subagent/agency-agents/marketing/ai-citation-strategist@latest",
+      "app-store-optimizer": "aipkg://subagent/agency-agents/marketing/app-store-optimizer@latest",
+      "baidu-seo-specialist": "aipkg://subagent/agency-agents/marketing/baidu-seo-specialist@latest",
+      "bilibili-content-strategist": "aipkg://subagent/agency-agents/marketing/bilibili-content-strategist@latest",
+      "book-co-author": "aipkg://subagent/agency-agents/marketing/book-co-author@latest",
+      "carousel-growth-engine": "aipkg://subagent/agency-agents/marketing/carousel-growth-engine@latest",
+      "china-ecommerce-operator": "aipkg://subagent/agency-agents/marketing/china-ecommerce-operator@latest",
+      "china-localization-strategist": "aipkg://subagent/agency-agents/marketing/china-localization-strategist@latest",
+      "content-creator": "aipkg://subagent/agency-agents/marketing/content-creator@latest",
+      "cross-border-ecommerce": "aipkg://subagent/agency-agents/marketing/cross-border-ecommerce@latest",
+      "douyin-strategist": "aipkg://subagent/agency-agents/marketing/douyin-strategist@latest",
+      "email-strategist": "aipkg://subagent/agency-agents/marketing/email-strategist@latest",
+      "global-podcast-strategist": "aipkg://subagent/agency-agents/marketing/global-podcast-strategist@latest",
+      "growth-hacker": "aipkg://subagent/agency-agents/marketing/growth-hacker@latest",
+      "instagram-curator": "aipkg://subagent/agency-agents/marketing/instagram-curator@latest",
+      "kuaishou-strategist": "aipkg://subagent/agency-agents/marketing/kuaishou-strategist@latest",
+      "linkedin-content-creator": "aipkg://subagent/agency-agents/marketing/linkedin-content-creator@latest",
+      "livestream-commerce-coach": "aipkg://subagent/agency-agents/marketing/livestream-commerce-coach@latest",
+      "multi-platform-publisher": "aipkg://subagent/agency-agents/marketing/multi-platform-publisher@latest",
+      "podcast-strategist": "aipkg://subagent/agency-agents/marketing/podcast-strategist@latest",
+      "pr-communications-manager": "aipkg://subagent/agency-agents/marketing/pr-communications-manager@latest",
+      "private-domain-operator": "aipkg://subagent/agency-agents/marketing/private-domain-operator@latest",
+      "reddit-community-builder": "aipkg://subagent/agency-agents/marketing/reddit-community-builder@latest",
+      "seo-specialist": "aipkg://subagent/agency-agents/marketing/seo-specialist@latest",
+      "short-video-editing-coach": "aipkg://subagent/agency-agents/marketing/short-video-editing-coach@latest",
+      "social-media-strategist": "aipkg://subagent/agency-agents/marketing/social-media-strategist@latest",
+      "tiktok-strategist": "aipkg://subagent/agency-agents/marketing/tiktok-strategist@latest",
+      "twitter-engager": "aipkg://subagent/agency-agents/marketing/twitter-engager@latest",
+      "video-optimization-specialist": "aipkg://subagent/agency-agents/marketing/video-optimization-specialist@latest",
+      "wechat-official-account": "aipkg://subagent/agency-agents/marketing/wechat-official-account@latest",
+      "weibo-strategist": "aipkg://subagent/agency-agents/marketing/weibo-strategist@latest",
+      "x-twitter-intelligence-analyst": "aipkg://subagent/agency-agents/marketing/x-twitter-intelligence-analyst@latest",
+      "xiaohongshu-specialist": "aipkg://subagent/agency-agents/marketing/xiaohongshu-specialist@latest",
+      "zhihu-strategist": "aipkg://subagent/agency-agents/marketing/zhihu-strategist@latest"
+    }
+  }
+}

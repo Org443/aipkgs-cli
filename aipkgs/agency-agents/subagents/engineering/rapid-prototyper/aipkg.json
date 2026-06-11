@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/engineering/rapid-prototyper",
+  "version": "0.1.0",
+  "description": "Specialized in ultra-fast proof-of-concept development and MVP creation using efficient tools and frameworks",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "engineering"
+  }
+}

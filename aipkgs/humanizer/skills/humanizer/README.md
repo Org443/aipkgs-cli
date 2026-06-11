@@ -11,9 +11,3 @@ negative parallelisms, filler phrases, and more — and rewrites them.
 Imported from [blader/humanizer](https://github.com/blader/humanizer) by
 Siqi Chen. Licensed under MIT (see `LICENSE.txt`). The skill content in
 `SKILL.md` is preserved verbatim from upstream.
-
-## Install
-
-```sh
-npx @aipkgs/cli skill humanizer/humanizer
-```

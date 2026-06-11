@@ -1,7 +1,7 @@
 {
   "type": "box",
   "ref": "org443/node-suite",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Org443's Node/TypeScript Claude Code suite — coding rules for Node, npm workspaces, and clean comments; skills for importing and searching AIpkgs; and setups for workflow MCPs and a terminal status line.",
   "homepage": "https://aipkgs.com",
   "repository": {
