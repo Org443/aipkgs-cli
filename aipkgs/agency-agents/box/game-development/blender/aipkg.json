@@ -1,0 +1,17 @@
+{
+  "type": "box",
+  "ref": "agency-agents/Blender",
+  "version": "0.1.0",
+  "description": "The Agency's blender game-engine subagents \u2014 1 specialist bundled as one box.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "game-development/blender"
+  },
+  "deps": {
+    "subagents": {
+      "blender-addon-engineer": "aipkg://subagent/agency-agents/game-development/blender-addon-engineer@latest"
+    }
+  }
+}

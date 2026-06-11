@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/sales/pipeline-analyst",
+  "version": "0.1.0",
+  "description": "Revenue operations analyst specializing in pipeline health diagnostics, deal velocity analysis, forecast accuracy, and data-driven sales coaching. Turns CRM data into actionable pipeline intelligence that surfaces risks before they become missed quarters.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "sales"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/marketing/growth-hacker",
+  "version": "0.1.0",
+  "description": "Expert growth strategist specializing in rapid user acquisition through data-driven experimentation. Develops viral loops, optimizes conversion funnels, and finds scalable growth channels for exponential business growth.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "marketing"
+  }
+}

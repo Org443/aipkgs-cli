@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/design/whimsy-injector",
+  "version": "0.1.0",
+  "description": "Expert creative specialist focused on adding personality, delight, and playful elements to brand experiences. Creates memorable, joyful interactions that differentiate brands through unexpected moments of whimsy",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "design"
+  }
+}

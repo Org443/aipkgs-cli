@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/specialized/legal-client-intake",
+  "version": "0.1.0",
+  "description": "Comprehensive legal client intake specialist for qualifying prospects, collecting case information, scheduling consultations, managing conflict checks, and delivering attorney-ready intake summaries across any practice area and firm size",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "specialized"
+  }
+}

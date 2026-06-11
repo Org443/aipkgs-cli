@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/specialized/salesforce-architect",
+  "version": "0.1.0",
+  "description": "Solution architecture for Salesforce platform \u2014 multi-cloud design, integration patterns, governor limits, deployment strategy, and data model governance for enterprise-scale orgs",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "specialized"
+  }
+}

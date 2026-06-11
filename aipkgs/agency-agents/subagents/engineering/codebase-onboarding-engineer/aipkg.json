@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/engineering/codebase-onboarding-engineer",
+  "version": "0.1.0",
+  "description": "Expert developer onboarding specialist who helps new engineers understand unfamiliar codebases fast by reading source code, tracing code paths, and stating only facts grounded in the code.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "engineering"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/design/ux-researcher",
+  "version": "0.1.0",
+  "description": "Expert user experience researcher specializing in user behavior analysis, usability testing, and data-driven design insights. Provides actionable research findings that improve product usability and user satisfaction",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "design"
+  }
+}

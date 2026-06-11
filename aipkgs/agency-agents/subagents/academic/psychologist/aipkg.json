@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/academic/psychologist",
+  "version": "0.1.0",
+  "description": "Expert in human behavior, personality theory, motivation, and cognitive patterns \u2014 builds psychologically credible characters and interactions grounded in clinical and research frameworks",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "academic"
+  }
+}

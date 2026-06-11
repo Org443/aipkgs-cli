@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/engineering/code-reviewer",
+  "version": "0.1.0",
+  "description": "Expert code reviewer who provides constructive, actionable feedback focused on correctness, maintainability, security, and performance \u2014 not style preferences.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "engineering"
+  }
+}

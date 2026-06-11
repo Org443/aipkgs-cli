@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/paid-media/programmatic-buyer",
+  "version": "0.1.0",
+  "description": "Display advertising and programmatic media buying specialist covering managed placements, Google Display Network, DV360, trade desk platforms, partner media (newsletters, sponsored content), and ABM display strategies via platforms like Demandbase and 6Sense.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "paid-media"
+  }
+}

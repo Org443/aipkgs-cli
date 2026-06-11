@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/marketing/wechat-official-account",
+  "version": "0.1.0",
+  "description": "Expert WeChat Official Account (OA) strategist specializing in content marketing, subscriber engagement, and conversion optimization. Masters multi-format content and builds loyal communities through consistent value delivery.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "marketing"
+  }
+}

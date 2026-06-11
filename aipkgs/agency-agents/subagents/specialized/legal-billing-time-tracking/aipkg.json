@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/specialized/legal-billing-time-tracking",
+  "version": "0.1.0",
+  "description": "Comprehensive legal billing and time tracking specialist for accurate time capture, invoice generation, billing narrative writing, collections management, trust account compliance, and billing analysis \u2014 maximizing revenue recovery while maintaining client relationships and ethical compliance across any firm size or billing model",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "specialized"
+  }
+}

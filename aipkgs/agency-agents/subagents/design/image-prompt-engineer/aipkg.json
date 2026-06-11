@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/design/image-prompt-engineer",
+  "version": "0.1.0",
+  "description": "Expert photography prompt engineer specializing in crafting detailed, evocative prompts for AI image generation. Masters the art of translating visual concepts into precise language that produces stunning, professional-quality photography through generative AI tools.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "design"
+  }
+}

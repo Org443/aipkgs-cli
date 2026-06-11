@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/marketing/linkedin-content-creator",
+  "version": "0.1.0",
+  "description": "Expert LinkedIn content strategist focused on thought leadership, personal brand building, and high-engagement professional content. Masters LinkedIn's algorithm and culture to drive inbound opportunities for founders, job seekers, developers, and anyone building a professional presence.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "marketing"
+  }
+}

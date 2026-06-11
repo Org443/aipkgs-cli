@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/project-management/jira-workflow-steward",
+  "version": "0.1.0",
+  "description": "Expert delivery operations specialist who enforces Jira-linked Git workflows, traceable commits, structured pull requests, and release-safe branch strategy across software teams.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "project-management"
+  }
+}

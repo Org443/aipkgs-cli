@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/specialized/model-qa",
+  "version": "0.1.0",
+  "description": "Independent model QA expert who audits ML and statistical models end-to-end - from documentation review and data reconstruction to replication, calibration testing, interpretability analysis, performance monitoring, and audit-grade reporting.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "specialized"
+  }
+}

@@ -6,12 +6,6 @@ category: '@Integrations'
 
 Wrapper for [`axios`](https://github.com/axios/axios).
 
-## Install
-
-```bash
-npm i axios@^1
-```
-
 ## Usage
 
 ```ts

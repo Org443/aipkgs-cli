@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/engineering/drupal-shopping-cart",
+  "version": "0.1.0",
+  "description": "Expert Drupal e-commerce engineer specializing in Drupal Commerce for product catalog management, payment gateway integration, checkout workflow design, order management, tax and promotion configuration, and high-reliability storefront delivery on Drupal 10/11",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "engineering"
+  }
+}

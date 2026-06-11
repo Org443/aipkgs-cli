@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/marketing/reddit-community-builder",
+  "version": "0.1.0",
+  "description": "Expert Reddit marketing specialist focused on authentic community engagement, value-driven content creation, and long-term relationship building. Masters Reddit culture navigation.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "marketing"
+  }
+}

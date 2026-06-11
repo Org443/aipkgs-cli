@@ -1,7 +1,7 @@
 {
   "type": "skill",
   "ref": "org443/search-aipkgs",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Search and discover packages in the AIpkgs registry (commands, skills, rules, agents, boxes).",
   "homepage": "https://aipkgs.com",
   "repository": {

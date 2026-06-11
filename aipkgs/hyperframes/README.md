@@ -18,9 +18,3 @@ registry, and website/Remotion → HyperFrames conversion.
 Imported from [heygen-com/hyperframes](https://github.com/heygen-com/hyperframes)
 by HeyGen. Licensed under Apache-2.0 (see `LICENSE.txt`). Several skills drive
 the `hyperframes` CLI, which is installed separately.
-
-## Install
-
-```sh
-aipkg install hyperframes/Hyperframes
-```

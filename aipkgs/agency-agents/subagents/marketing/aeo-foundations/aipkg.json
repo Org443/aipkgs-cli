@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/marketing/aeo-foundations",
+  "version": "0.1.0",
+  "description": "Expert in AI Engine Optimization infrastructure \u2014 implements llms.txt, AI-aware robots.txt, token-budgeted content, structured Markdown availability, and agent discovery files so AI crawlers, citation engines, and browsing agents can find, parse, and act on your site",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "marketing"
+  }
+}

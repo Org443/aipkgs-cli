@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/engineering/technical-writer",
+  "version": "0.1.0",
+  "description": "Expert technical writer specializing in developer documentation, API references, README files, and tutorials. Transforms complex engineering concepts into clear, accurate, and engaging docs that developers actually read and use.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "engineering"
+  }
+}

@@ -1,7 +1,7 @@
 {
   "type": "box",
   "ref": "antfu/AntfuKit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Anthony Fu's skills collection — best-practice Claude Code skills for the Vue/Vite ecosystem: Vue, Nuxt, Pinia, Vite, Vitest, UnoCSS, pnpm, VitePress, Slidev, and more. Bundles the individually-published antfu/* skills as one box.",
   "homepage": "https://github.com/antfu/skills",
   "repository": {

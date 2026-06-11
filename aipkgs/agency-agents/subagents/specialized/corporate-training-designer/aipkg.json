@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/specialized/corporate-training-designer",
+  "version": "0.1.0",
+  "description": "Expert in enterprise training system design and curriculum development \u2014 proficient in training needs analysis, instructional design methodology, blended learning program design, internal trainer development, leadership programs, and training effectiveness evaluation and continuous optimization.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "specialized"
+  }
+}

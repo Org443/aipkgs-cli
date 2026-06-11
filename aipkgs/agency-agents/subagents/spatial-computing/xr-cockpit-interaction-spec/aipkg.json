@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/spatial-computing/xr-cockpit-interaction-spec",
+  "version": "0.1.0",
+  "description": "Specialist in designing and developing immersive cockpit-based control systems for XR environments",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "spatial-computing"
+  }
+}

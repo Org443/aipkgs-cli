@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/testing/performance-benchmarker",
+  "version": "0.1.0",
+  "description": "Expert performance testing and optimization specialist focused on measuring, analyzing, and improving system performance across all applications and infrastructure",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "testing"
+  }
+}

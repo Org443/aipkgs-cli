@@ -1,0 +1,21 @@
+{
+  "type": "box",
+  "ref": "agency-agents/Academic",
+  "version": "0.1.0",
+  "description": "The Agency's academic department \u2014 5 specialist subagents bundled as one box.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "academic"
+  },
+  "deps": {
+    "subagents": {
+      "anthropologist": "aipkg://subagent/agency-agents/academic/anthropologist@latest",
+      "geographer": "aipkg://subagent/agency-agents/academic/geographer@latest",
+      "historian": "aipkg://subagent/agency-agents/academic/historian@latest",
+      "narratologist": "aipkg://subagent/agency-agents/academic/narratologist@latest",
+      "psychologist": "aipkg://subagent/agency-agents/academic/psychologist@latest"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/security/cloud-security-architect",
+  "version": "0.1.0",
+  "description": "Cloud-native security specialist designing zero trust architectures, implementing defense-in-depth across AWS, Azure, and GCP, and securing infrastructure-as-code pipelines from day one.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "security"
+  }
+}

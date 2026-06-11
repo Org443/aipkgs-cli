@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/security/incident-responder",
+  "version": "0.1.0",
+  "description": "Digital forensics and incident response specialist who leads breach investigations, contains active threats, coordinates crisis response, and writes post-mortems that prevent recurrence.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "security"
+  }
+}

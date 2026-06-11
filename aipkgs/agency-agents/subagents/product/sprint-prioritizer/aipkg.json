@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/product/sprint-prioritizer",
+  "version": "0.1.0",
+  "description": "Expert product manager specializing in agile sprint planning, feature prioritization, and resource allocation. Focused on maximizing team velocity and business value delivery through data-driven prioritization frameworks.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "product"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/gis/drone-reality-mapping",
+  "version": "0.1.0",
+  "description": "Photogrammetry and reality capture expert who processes drone imagery into orthomosaics, digital terrain models, point clouds, and 3D meshes \u2014 bridging field capture and GIS-ready products.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "gis"
+  }
+}

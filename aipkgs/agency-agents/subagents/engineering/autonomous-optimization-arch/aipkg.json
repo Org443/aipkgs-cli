@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/engineering/autonomous-optimization-arch",
+  "version": "0.1.0",
+  "description": "Intelligent system governor that continuously shadow-tests APIs for performance while enforcing strict financial and security guardrails against runaway costs.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "engineering"
+  }
+}

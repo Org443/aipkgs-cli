@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/engineering/mobile-app-builder",
+  "version": "0.1.0",
+  "description": "Specialized mobile application developer with expertise in native iOS/Android development and cross-platform frameworks",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "engineering"
+  }
+}

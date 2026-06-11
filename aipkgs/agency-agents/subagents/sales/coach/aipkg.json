@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/sales/coach",
+  "version": "0.1.0",
+  "description": "Expert sales coaching specialist focused on rep development, pipeline review facilitation, call coaching, deal strategy, and forecast accuracy. Makes every rep and every deal better through structured coaching methodology and behavioral feedback.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "sales"
+  }
+}

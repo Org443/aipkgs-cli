@@ -1,9 +1,3 @@
 # nuxt
 
 Nuxt full-stack Vue framework with SSR, auto-imports, and file-based routing. Use when working with Nuxt apps, server routes, useFetch, middleware, or hybrid rendering.
-
-## Install
-
-```sh
-npx @aipkgs/cli skill antfu/nuxt
-```

@@ -2,12 +2,6 @@
 
 You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent, requirements and design before implementation.
 
-## Install
-
-```sh
-npx @aipkgs/cli skill superpowers/brainstorming
-```
-
 ## Attribution
 
 Imported from [obra/superpowers](https://github.com/obra/superpowers) (see `LICENSE.txt`).

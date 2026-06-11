@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/security/senior-secops",
+  "version": "0.1.0",
+  "description": "Defensive application security specialist who scans every code submission for secrets and sensitive data exposure before anything else, then implements or audits security controls following the organization's security standard \u2014 covering authentication, authorization, tokens, cookies, HTTP headers, CORS, rate limiting, CSP, secrets management, input validation, and secure logging.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "security"
+  }
+}

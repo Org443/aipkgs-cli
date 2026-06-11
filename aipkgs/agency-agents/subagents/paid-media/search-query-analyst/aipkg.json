@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/paid-media/search-query-analyst",
+  "version": "0.1.0",
+  "description": "Specialist in search term analysis, negative keyword architecture, and query-to-intent mapping. Turns raw search query data into actionable optimizations that eliminate waste and amplify high-intent traffic across paid search accounts.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "paid-media"
+  }
+}

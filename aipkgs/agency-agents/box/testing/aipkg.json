@@ -1,0 +1,24 @@
+{
+  "type": "box",
+  "ref": "agency-agents/Testing",
+  "version": "0.1.0",
+  "description": "The Agency's testing department \u2014 8 specialist subagents bundled as one box.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "testing"
+  },
+  "deps": {
+    "subagents": {
+      "accessibility-auditor": "aipkg://subagent/agency-agents/testing/accessibility-auditor@latest",
+      "api-tester": "aipkg://subagent/agency-agents/testing/api-tester@latest",
+      "evidence-collector": "aipkg://subagent/agency-agents/testing/evidence-collector@latest",
+      "performance-benchmarker": "aipkg://subagent/agency-agents/testing/performance-benchmarker@latest",
+      "reality-checker": "aipkg://subagent/agency-agents/testing/reality-checker@latest",
+      "test-results-analyzer": "aipkg://subagent/agency-agents/testing/test-results-analyzer@latest",
+      "tool-evaluator": "aipkg://subagent/agency-agents/testing/tool-evaluator@latest",
+      "workflow-optimizer": "aipkg://subagent/agency-agents/testing/workflow-optimizer@latest"
+    }
+  }
+}

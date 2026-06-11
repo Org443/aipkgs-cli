@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/specialized/french-consulting-market",
+  "version": "0.1.0",
+  "description": "Navigate the French ESN/SI freelance ecosystem \u2014 margin models, platform mechanics (Malt, collective.work), portage salarial, rate positioning, and payment cycle realities",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "specialized"
+  }
+}

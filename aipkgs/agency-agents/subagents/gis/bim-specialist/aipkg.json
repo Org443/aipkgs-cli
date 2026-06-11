@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/gis/bim-specialist",
+  "version": "0.1.0",
+  "description": "Integration specialist who bridges Building Information Modeling and Geographic Information Systems \u2014 Revit/IFC data conversion, indoor mapping, digital twin architecture, and facility management data models.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "gis"
+  }
+}

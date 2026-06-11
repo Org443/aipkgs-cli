@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/engineering/prompt-engineer",
+  "version": "0.1.0",
+  "description": "Specialist in crafting, testing, and systematically optimizing prompts for LLMs \u2014 turning vague instructions into reliable, production-grade AI behaviors.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "engineering"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/specialized/data-privacy-officer",
+  "version": "0.1.0",
+  "description": "Corporate data privacy specialist and DPO who builds GDPR, CCPA, and global privacy compliance programs \u2014 covering data mapping, privacy impact assessments, consent management, breach response, vendor due diligence, and regulatory engagement.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "specialized"
+  }
+}

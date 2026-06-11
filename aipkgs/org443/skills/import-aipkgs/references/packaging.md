@@ -29,7 +29,7 @@ node --experimental-strip-types packages/cli/src/index.ts publish --dry "$(pwd)/
 
 | Field         | Required | Notes                                                                 |
 | ------------- | -------- | --------------------------------------------------------------------- |
-| `type`        | yes      | One of `cmd`, `skill`, `subagent`, `rule`, `setup`, `box`.             |
+| `type`        | yes      | One of `skill`, `subagent`, `rule`, `setup`, `box`.                    |
 | `ref`         | yes      | `<org>/<slug>` or `<org>/<key>/<slug>`. See constraints below.        |
 | `version`     | yes      | Semver `x.y.z` (pre-release suffix allowed). `latest` only in deps.   |
 | `description` | no\*     | One concise sentence. Always write one — it's the registry blurb.     |
@@ -40,8 +40,8 @@ node --experimental-strip-types packages/cli/src/index.ts publish --dry "$(pwd)/
 | `deps`        | no       | Only meaningful for boxes that reference _separately published_ pkgs. |
 
 `deps` buckets (each maps an alias → an `aipkg://…` ref string):
-`cmds`, `skills`, `subagents`, `rules`, `setups`, `boxes`, plus `mcps`
-(alias → `{ "url" }` or `{ "command", "args"?, … }`). In the **preferred
+`skills`, `subagents`, `rules`, `setups`, `boxes`. There is no `mcps` bucket —
+MCP servers are declared inside a setup package's `setup.json`. In the **preferred
 split + box-of-deps shape** the box manifest (under `box/`) populates these
 buckets to reference its separately-published assets, e.g.
 `"skills": { "vue": "aipkg://skill/<org>/vue@latest" }`; assets can also depend
@@ -97,8 +97,6 @@ aipkgs/<org>/
 ├── aipkg.json            # type: box  (required)
 ├── README.md             # recommended
 ├── LICENSE.txt           # required for third-party imports
-├── cmds/
-│   └── <name>.md         # FLAT files, one per command
 ├── rules/
 │   └── <name>.md         # FLAT files, one per rule
 ├── subagents/
@@ -115,7 +113,7 @@ aipkgs/<org>/
 
 Rules that bite:
 
-- **cmds / rules / subagents are flat `*.md`** directly under their dir. A
+- **rules / subagents are flat `*.md`** directly under their dir. A
   subdir there is ignored by the box collector.
 - **skills are subdirs**, each needing its own `SKILL.md`. A skill subdir
   without `SKILL.md` is silently skipped.
@@ -128,16 +126,15 @@ Rules that bite:
 Use only when packaging a single asset (the fallback case). Each gets its own
 directory with its own `aipkg.json`. This matches `aipkgs/org443/`'s own assets.
 
-Flat assets — **cmd**, **rule**, **subagent** — are strict: the _only_ files
-allowed are `aipkg.json`, `<slug>.md`, and the sidecars. Anything else fails
-validation (`assertOnlyAllowedFiles`).
+Flat assets — **rule**, **subagent** — are strict: the _only_ files allowed are
+`aipkg.json`, `<slug>.md`, and the sidecars. Anything else fails validation
+(`assertOnlyAllowedFiles`).
 
 ```
-aipkgs/<org>/cmds/<slug>/
-├── aipkg.json            # type: cmd
+aipkgs/<org>/rules/<slug>/
+├── aipkg.json            # type: rule
 └── <slug>.md             # filename MUST equal the slug
 
-aipkgs/<org>/rules/<slug>/        # type: rule, <slug>.md
 aipkgs/<org>/subagents/<slug>/    # type: subagent, <slug>.md
 ```
 
@@ -160,10 +157,24 @@ aipkgs/<org>/setups/<slug>/
     └── <script files>
 ```
 
-`setup.json` shape (from `aipkgs/org443/setups/status-line/`):
+`setup.json` carries up to three keys — `hooks`, `statusLine`, `mcps` — any of
+which may be absent. Status-line example (from `aipkgs/org443/setups/status-line/`):
 
 ```json
 { "statusLine": { "type": "command", "command": "node ${PKG_ROOT}/scripts/status-line.js" } }
+```
+
+MCP-server example — an HTTP server uses `url`, a stdio server uses
+`command`/`args` (+ optional `env`); on add, entries merge into the user's
+`.mcp.json`:
+
+```json
+{
+  "mcps": {
+    "linear": { "url": "https://mcp.linear.app/sse" },
+    "local-tools": { "command": "node", "args": ["server.js"] }
+  }
+}
 ```
 
 ## Sidecar files
@@ -192,11 +203,11 @@ and ships fine — keep it.
 
 - **`archive missing required file: SKILL.md`** — a skill subdir lacks
   `SKILL.md`, or you placed the skill's files flat instead of in `skills/<slug>/`.
-- **`archive missing required file: <slug>.md`** — a standalone cmd/rule/subagent
+- **`archive missing required file: <slug>.md`** — a standalone rule/subagent
   file isn't named exactly `<slug>.md`.
 - **`archive missing required file: setup.json`** — a setup package (or a box
   with a `scripts/` payload) has no root `setup.json`.
-- **`archive contains disallowed file: …`** — a strict flat asset (cmd/rule/
+- **`archive contains disallowed file: …`** — a strict flat asset (rule/
   subagent) has an extra file; move it out or repackage as a skill/box.
 - **`InvalidManifest` / segment errors** — a ref segment has illegal chars
   (uppercase org, spaces, dots) or is > 30 chars, or `version` isn't semver.

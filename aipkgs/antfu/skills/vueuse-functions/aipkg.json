@@ -1,6 +1,6 @@
 {
   "type": "skill",
   "ref": "antfu/vueuse-functions",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Apply VueUse composables where appropriate to build concise, maintainable Vue.js / Nuxt features."
 }

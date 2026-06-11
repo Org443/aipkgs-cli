@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/marketing/multi-platform-publisher",
+  "version": "0.1.0",
+  "description": "Expert orchestrator for one-click Chinese blog publishing. Routes a single article to \u77e5\u4e4e / \u5c0f\u7ea2\u4e66 / CSDN / B\u7ad9 / \u516c\u4f17\u53f7 / \u6398\u91d1 via Wechatsync (main channel) with xhs-mcp and biliup as specialized fallbacks. Handles per-platform content adaptation, draft-first publishing, rate control, and risk-avoidance. Does NOT auto-publish \u2014 always stops at draft for human review.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "marketing"
+  }
+}

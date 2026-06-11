@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/design/ux-architect",
+  "version": "0.1.0",
+  "description": "Technical architecture and UX specialist who provides developers with solid foundations, CSS systems, and clear implementation guidance",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "design"
+  }
+}

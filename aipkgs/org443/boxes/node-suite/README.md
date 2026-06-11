@@ -28,12 +28,6 @@ Org443's full Node/TypeScript Claude Code setup as a single installable box. Bun
 | `org443/workflow-mcps` | Registers Org443's workflow MCP servers (Linear, Slack) for project management and collaboration |
 | `org443/status-line` | Terminal status line that displays model name, workspace path, context window usage, session cost, and API URL after each Claude Code turn |
 
-## Install
-
-```sh
-npx @aipkgs/cli box org443/node-suite
-```
-
 ## Source
 
 All packages in this box are published from [Org443/aipkgs-cli](https://github.com/Org443/aipkgs-cli). Install individual packages if you only need a subset.

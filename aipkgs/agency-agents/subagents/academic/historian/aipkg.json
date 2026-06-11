@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/academic/historian",
+  "version": "0.1.0",
+  "description": "Expert in historical analysis, periodization, material culture, and historiography \u2014 validates historical coherence and enriches settings with authentic period detail grounded in primary and secondary sources",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "academic"
+  }
+}

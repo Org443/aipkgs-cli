@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/gis/analyst",
+  "version": "0.1.0",
+  "description": "Day-to-day GIS operator who creates maps, manages layers, performs spatial queries, and maintains geospatial data integrity across desktop and web environments.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "gis"
+  }
+}

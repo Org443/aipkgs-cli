@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/game-development/godot-shader-developer",
+  "version": "0.1.0",
+  "description": "Godot 4 visual effects specialist - Masters the Godot Shading Language (GLSL-like), VisualShader editor, CanvasItem and Spatial shaders, post-processing, and performance optimization for 2D/3D effects",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "game-development"
+  }
+}

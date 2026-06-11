@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/paid-media/creative-strategist",
+  "version": "0.1.0",
+  "description": "Paid media creative specialist focused on ad copywriting, RSA optimization, asset group design, and creative testing frameworks across Google, Meta, Microsoft, and programmatic platforms. Bridges the gap between performance data and persuasive messaging.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "paid-media"
+  }
+}

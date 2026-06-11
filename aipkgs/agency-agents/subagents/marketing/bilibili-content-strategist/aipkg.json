@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/marketing/bilibili-content-strategist",
+  "version": "0.1.0",
+  "description": "Expert Bilibili marketing specialist focused on UP\u4e3b growth, danmaku culture mastery, B\u7ad9 algorithm optimization, community building, and branded content strategy for China's leading video community platform.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "marketing"
+  }
+}

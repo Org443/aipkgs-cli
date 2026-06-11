@@ -26,9 +26,3 @@ that shell out to it.
 
 Imported from [garrytan/gstack](https://github.com/garrytan/gstack). Licensed
 under MIT (see `LICENSE.txt`).
-
-## Install
-
-```sh
-aipkg install gstack/Gstack
-```

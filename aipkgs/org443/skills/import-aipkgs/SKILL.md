@@ -1,23 +1,34 @@
 ---
 name: import-aipkgs
 description: >-
-  Import skills, commands, subagents, rules, and hooks from an external git
-  repository into this repo's aipkgs/ tree, packaged with the correct
-  aipkg.json manifest, preserved LICENSE.txt, and a README.md so they can be
-  published to the AIpkgs registry with `aipkg publish`. Use this whenever the
-  user wants to vendor, import, pull in, mirror, package, or "add" a GitHub
-  repo's Claude Code plugins / skills / commands / agents into aipkgs, when they
-  point at a repo URL and ask to make it publishable, or when working through
-  the backlog in todo.md. Triggers even when the user just says "package this
-  repo for aipkgs" or names a project (superpowers, caveman, marketingskills…)
-  without spelling out the steps.
+  Import skills, subagents, rules, and setups (hooks, MCP servers, status
+  lines) from an external git repository into this repo's aipkgs/ tree,
+  packaged with the correct aipkg.json manifest, preserved LICENSE.txt, and a
+  README.md so they can be published to the AIpkgs registry with `aipkg
+  publish`. Use this whenever the user wants to vendor, import, pull in,
+  mirror, package, or "add" a GitHub repo's Claude Code plugins / skills /
+  commands / agents into aipkgs, when they point at a repo URL and ask to make
+  it publishable, or when working through the backlog in todo.md. Triggers
+  even when the user just says "package this repo for aipkgs" or names a
+  project (superpowers, caveman, marketingskills…) without spelling out the
+  steps.
 ---
 
 # Import aipkgs
 
 Turn an external git repository full of Claude Code assets (skills, slash
-commands, subagents, rules, hooks) into publishable AIpkgs packages under
-`aipkgs/<org>/`, validated against the CLI's archive rules.
+commands, subagents, rules, hooks/MCP configs) into publishable AIpkgs packages
+under `aipkgs/<org>/`, validated against the CLI's archive rules. The registry
+has five package types — `skill`, `box`, `rule`, `agent` (subagent), and
+`setup` — and users **add** a published package with:
+
+```sh
+npx @aipkgs/cli <type> <ref>     # e.g. npx @aipkgs/cli skill <org>/<slug>
+```
+
+Always phrase it as _adding_ a package via that `npx` command — avoid the
+"install" verb in descriptions and reports. READMEs don't need explicit
+add/install instructions at all (see step 6).
 
 ## Why this exists
 
@@ -26,13 +37,13 @@ each in its own **org namespace**, with upstream attribution and license
 preserved. The end state is a tree that `aipkg publish` accepts without complaint.
 
 **Default shape: split + box-of-deps.** Publish every asset as its own
-standalone package (own `aipkg.json` + `LICENSE.txt`) so each installs on its
-own, then add one **box** that bundles them by *referencing* them as `deps` —
+standalone package (own `aipkg.json` + `LICENSE.txt`) so each can be added on
+its own, then add one **box** that bundles them by _referencing_ them as `deps` —
 not by packaging their files. The box manifest lives in a `box/` subdir so its
 archive collector never sweeps the sibling assets. A repo with exactly one asset
 skips the box. (Older imports like `superpowers` and `caveman` bundled
 everything into a single box; prefer the split model for new imports — users can
-install one skill, and the box can express inter-asset dependencies.)
+add just one skill, and the box can express inter-asset dependencies.)
 
 See [references/packaging.md](references/packaging.md) for the manifest schema,
 layouts, and per-type file rules — read it before writing any `aipkg.json`.
@@ -63,11 +74,11 @@ Scan for each asset type (heuristics in
 bite: **commands may be `.toml`, not `.md`** (convert, don't drop) and **the same
 asset may appear in two trees** (dedupe)):
 
-- **Skills** — any dir with a `SKILL.md`.  **Commands** — `*.md` under `commands/` or `.claude/commands/`.
-- **Subagents** — `*.md` under `agents/`.  **Rules** — `*.md` rule files (or split out of CLAUDE.md).
-- **Setups** — a `setup.json` (hooks / status line) plus a `scripts/` payload.  **MCP servers** — see step 7; config, not files.
+- **Skills** — any dir with a `SKILL.md`. **Commands** — `*.md` under `commands/` or `.claude/commands/`; there is no `cmd` package type — each command becomes a **skill** (see step 7).
+- **Subagents** — `*.md` under `agents/`. **Rules** — `*.md` rule files (or split out of CLAUDE.md).
+- **Setups** — hooks, MCP server configs, and status lines all map to the `setup` type: a `setup.json` plus an optional `scripts/` payload (see step 7).
 
-Report a short inventory before packaging (e.g. "14 skills, 3 commands, 1 hook").
+Report a short inventory before packaging (e.g. "14 skills, 3 commands, 1 setup").
 
 Then **analyze the assets for dependencies within the org namespace**: read them
 for places where one asset invokes, requires, or chains to another (`/other-skill`,
@@ -85,7 +96,6 @@ Give every asset its own package dir, and put the box in its own subdir:
 aipkgs/<org>/
 ├── box/                  # type: box — manifest + README.md + LICENSE.txt only
 ├── skills/<slug>/        # aipkg.json + SKILL.md + assets/scripts/references + LICENSE.txt
-├── cmds/<slug>/          # aipkg.json + <slug>.md  (strict: no other files)
 ├── rules/<slug>/         # aipkg.json + <slug>.md
 ├── subagents/<slug>/     # aipkg.json + <slug>.md
 └── setups/<slug>/        # aipkg.json + setup.json + scripts/
@@ -105,7 +115,7 @@ Standalone asset:
 { "type": "skill", "ref": "<org>/<slug>", "version": "0.1.0", "description": "<from the asset>" }
 ```
 
-The box references every asset as a dep — one bucket per type (`skills`, `cmds`,
+The box references every asset as a dep — one bucket per type (`skills`,
 `subagents`, `rules`, `setups`), alias → `aipkg://<type>/<org>/<slug>@latest`:
 
 ```json
@@ -124,7 +134,7 @@ The box references every asset as a dep — one bucket per type (`skills`, `cmds
 tightly-coupled edges you mapped in step 3 in each asset's own manifest**: list a
 dependency under the dependent asset's own `deps`, same `aipkg://…` ref format —
 e.g. `skills/autoplan/aipkg.json` lists the four `plan-*-review` skills it drives,
-so installing it pulls them in. Encode only real "needs to run" edges, not
+so adding it pulls them in. Encode only real "needs to run" edges, not
 topical or downstream-suggestion mentions.
 
 ### 6. Preserve license, write README
@@ -133,17 +143,21 @@ topical or downstream-suggestion mentions.
   the box dir **and each standalone asset dir** (each ships on its own). No
   license → stop and ask; don't publish unlicensed third-party code.
 - **README.md** — short, at the box root: what it is, imported from `<upstream>`,
-  attribution, one-line install hint. Don't copy the upstream README wholesale.
+  attribution. **No add/install instructions** — the registry shows the
+  `npx @aipkgs/cli` add command for every package; don't repeat it in the
+  README. Don't copy the upstream README wholesale.
 
-### 7. Handle MCP servers (if any)
+### 7. Handle hooks, and MCP servers
 
-MCP servers aren't file-based — they're `deps.mcps` entries in a consumer's
-manifest. If the repo *is* an MCP server, don't package files; hand the user the
-wiring command instead of editing their manifest:
+These upstream asset kinds have no package type of their own — map them:
 
-```sh
-aipkg mcp add <slug> --url https://example.com/mcp   # or --command npx --arg -y --arg <server>
-```
+- **Hooks, status lines, and MCP servers → a `setup`.** Consolidate into one
+  `setup.json` with up to three keys — `hooks` (event map), `statusLine`, and
+  `mcps` (alias → `{ "url" }` or `{ "command", "args"?, "env"? }`) — plus a
+  `scripts/` payload for the files hooks invoke (via `${PKG_ROOT}`). If the
+  repo _is_ an MCP server, that's a one-key setup package whose `setup.json`
+  holds just the `mcps` entry; on add, the CLI merges it into the user's
+  `.mcp.json`.
 
 ### 8. Validate
 
@@ -171,6 +185,13 @@ order: assets with no deps first, then the rest, then the box.
 ```sh
 aipkg publish aipkgs/<org>/skills/<slug>   # each asset
 aipkg publish aipkgs/<org>/box             # box, last
+```
+
+In the report, show how users add the published packages — the `npx` command,
+not "install" (CLI accepts `agent` as an alias for `subagent`):
+
+```sh
+npx @aipkgs/cli <skill|box|rule|agent|setup> <org>/<slug>
 ```
 
 ## Guardrails

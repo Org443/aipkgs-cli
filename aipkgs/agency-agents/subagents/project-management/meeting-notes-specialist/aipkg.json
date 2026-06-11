@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/project-management/meeting-notes-specialist",
+  "version": "0.1.0",
+  "description": "Extract structured decisions, action items, and open questions from meeting transcripts or rough notes into a clean 4-section summary.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "project-management"
+  }
+}

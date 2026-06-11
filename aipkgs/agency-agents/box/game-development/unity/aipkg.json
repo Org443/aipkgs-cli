@@ -1,0 +1,20 @@
+{
+  "type": "box",
+  "ref": "agency-agents/Unity",
+  "version": "0.1.0",
+  "description": "The Agency's unity game-engine subagents \u2014 4 specialists bundled as one box.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "game-development/unity"
+  },
+  "deps": {
+    "subagents": {
+      "unity-architect": "aipkg://subagent/agency-agents/game-development/unity-architect@latest",
+      "unity-editor-tool-developer": "aipkg://subagent/agency-agents/game-development/unity-editor-tool-developer@latest",
+      "unity-multiplayer-engineer": "aipkg://subagent/agency-agents/game-development/unity-multiplayer-engineer@latest",
+      "unity-shader-graph-artist": "aipkg://subagent/agency-agents/game-development/unity-shader-graph-artist@latest"
+    }
+  }
+}

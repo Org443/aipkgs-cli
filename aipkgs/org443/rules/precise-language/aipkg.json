@@ -1,7 +1,7 @@
 {
   "type": "rule",
   "ref": "org443/precise-language",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Drop vague adjectives. State the threshold, not the impression.",
   "homepage": "https://aipkgs.com",
   "repository": {

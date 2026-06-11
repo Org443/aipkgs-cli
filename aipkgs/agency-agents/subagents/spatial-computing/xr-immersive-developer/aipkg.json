@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/spatial-computing/xr-immersive-developer",
+  "version": "0.1.0",
+  "description": "Expert WebXR and immersive technology developer with specialization in browser-based AR/VR/XR applications",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "spatial-computing"
+  }
+}

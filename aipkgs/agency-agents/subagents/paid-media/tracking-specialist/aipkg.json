@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/paid-media/tracking-specialist",
+  "version": "0.1.0",
+  "description": "Expert in conversion tracking architecture, tag management, and attribution modeling across Google Tag Manager, GA4, Google Ads, Meta CAPI, LinkedIn Insight Tag, and server-side implementations. Ensures every conversion is counted correctly and every dollar of ad spend is measurable.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "paid-media"
+  }
+}

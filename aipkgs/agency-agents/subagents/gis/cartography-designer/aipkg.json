@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/gis/cartography-designer",
+  "version": "0.1.0",
+  "description": "Map aesthetics specialist who designs beautiful, readable, and effective maps \u2014 color theory, typography, label placement, basemap selection, and visual hierarchy for both print and web.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "gis"
+  }
+}

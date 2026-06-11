@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/security/penetration-tester",
+  "version": "0.1.0",
+  "description": "Offensive security specialist conducting authorized penetration tests, red team operations, and vulnerability assessments across networks, web applications, and cloud infrastructure.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "security"
+  }
+}

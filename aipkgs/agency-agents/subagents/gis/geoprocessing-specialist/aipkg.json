@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/gis/geoprocessing-specialist",
+  "version": "0.1.0",
+  "description": "ArcPy and Python toolbox expert who automates spatial workflows \u2014 builds .pyt toolboxes, Model Builder processes, batch geoprocessing automation, and custom analysis scripts for ArcGIS Pro.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "gis"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/design/brand-guardian",
+  "version": "0.1.0",
+  "description": "Expert brand strategist and guardian specializing in brand identity development, consistency maintenance, and strategic brand positioning",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "design"
+  }
+}

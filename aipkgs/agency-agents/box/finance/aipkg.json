@@ -1,0 +1,21 @@
+{
+  "type": "box",
+  "ref": "agency-agents/Finance",
+  "version": "0.1.0",
+  "description": "The Agency's finance department \u2014 5 specialist subagents bundled as one box.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "finance"
+  },
+  "deps": {
+    "subagents": {
+      "bookkeeper-controller": "aipkg://subagent/agency-agents/finance/bookkeeper-controller@latest",
+      "financial-analyst": "aipkg://subagent/agency-agents/finance/financial-analyst@latest",
+      "fpa-analyst": "aipkg://subagent/agency-agents/finance/fpa-analyst@latest",
+      "investment-researcher": "aipkg://subagent/agency-agents/finance/investment-researcher@latest",
+      "tax-strategist": "aipkg://subagent/agency-agents/finance/tax-strategist@latest"
+    }
+  }
+}

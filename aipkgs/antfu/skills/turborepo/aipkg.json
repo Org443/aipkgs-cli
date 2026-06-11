@@ -1,6 +1,6 @@
 {
   "type": "skill",
   "ref": "antfu/turborepo",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Turborepo monorepo build system guidance — task pipelines, dependsOn, caching, remote cache, --filter/--affected, internal packages, and boundaries. Use when configuring tasks, creating packages, sharing code between apps, or debugging cache."
 }

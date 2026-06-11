@@ -14,12 +14,6 @@ Bundle TypeScript and JavaScript libraries with blazing-fast speed powered by Ro
 - **CLI Commands** - All CLI options and usage patterns
 - **Migration** - Migrating from tsup to tsdown
 
-## Install
-
-```sh
-npx @aipkgs/cli skill antfu/tsdown
-```
-
 ## Documentation
 
 - [tsdown Documentation](https://tsdown.dev)

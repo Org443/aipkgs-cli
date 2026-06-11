@@ -18,9 +18,3 @@ Imported from [antfu/skills](https://github.com/antfu/skills) by Anthony Fu.
 Licensed under MIT (see `LICENSE.txt`). Only the self-contained `skills/` tree
 is vendored; the upstream `instructions/`, `sources/`, and `vendor/` build
 inputs are not included.
-
-## Install
-
-```sh
-aipkg install antfu/Antfu
-```

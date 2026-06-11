@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/testing/accessibility-auditor",
+  "version": "0.1.0",
+  "description": "Expert accessibility specialist who audits interfaces against WCAG standards, tests with assistive technologies, and ensures inclusive design. Defaults to finding barriers \u2014 if it's not tested with a screen reader, it's not accessible.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "testing"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "type": "box",
+  "ref": "agency-agents/Roblox-Studio",
+  "version": "0.1.0",
+  "description": "The Agency's roblox studio game-engine subagents \u2014 3 specialists bundled as one box.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "game-development/roblox-studio"
+  },
+  "deps": {
+    "subagents": {
+      "roblox-avatar-creator": "aipkg://subagent/agency-agents/game-development/roblox-avatar-creator@latest",
+      "roblox-experience-designer": "aipkg://subagent/agency-agents/game-development/roblox-experience-designer@latest",
+      "roblox-systems-scripter": "aipkg://subagent/agency-agents/game-development/roblox-systems-scripter@latest"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/specialized/accounts-payable-agent",
+  "version": "0.1.0",
+  "description": "Autonomous payment processing specialist that executes vendor payments, contractor invoices, and recurring bills across any payment rail \u2014 crypto, fiat, stablecoins. Integrates with AI agent workflows via tool calls.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "specialized"
+  }
+}

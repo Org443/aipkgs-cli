@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/project-management/studio-producer",
+  "version": "0.1.0",
+  "description": "Senior strategic leader specializing in high-level creative and technical project orchestration, resource allocation, and multi-project portfolio management. Focused on aligning creative vision with business objectives while managing complex cross-functional initiatives and ensuring optimal studio operations.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "project-management"
+  }
+}

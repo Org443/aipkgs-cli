@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/product/manager",
+  "version": "0.1.0",
+  "description": "Holistic product leader who owns the full product lifecycle \u2014 from discovery and strategy through roadmap, stakeholder alignment, go-to-market, and outcome measurement. Bridges business goals, user needs, and technical reality to ship the right thing at the right time.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "product"
+  }
+}

@@ -16,14 +16,14 @@ double-count. Pick one canonical source: if a `plugin.json` / `.claude-plugin/`
 manifest declares a root, trust it; otherwise prefer the most complete tree.
 Dedupe by slug and tell the user which copy you used.
 
-| Asset      | Common upstream locations                                              | Identify by                           |
-| ---------- | ---------------------------------------------------------------------- | ------------------------------------- |
-| Skill      | `skills/<name>/`, `.claude/skills/<name>/`, a bare top-level skill     | a `SKILL.md` file                     |
-| Command    | `commands/`, `.claude/commands/`, `cmds/`                              | `*.md` with command frontmatter       |
-| Subagent   | `agents/`, `.claude/agents/`, `subagents/`                             | `*.md` with agent frontmatter         |
-| Rule       | `rules/`, instruction `*.md`, sections of `CLAUDE.md`/`AGENTS.md`      | persistent-instruction markdown       |
-| Hook       | `hooks/`, `.claude/hooks/`, `hooks` in `settings.json`/`plugin.json`   | a `hooks.json` + scripts              |
-| MCP server | repo _is_ an MCP server (has a server entry point, `mcp` in name/docs) | exposes an MCP `url` or stdio command |
+| Asset      | Common upstream locations                                              | Identify by                           | Packages as |
+| ---------- | ---------------------------------------------------------------------- | ------------------------------------- | ----------- |
+| Skill      | `skills/<name>/`, `.claude/skills/<name>/`, a bare top-level skill     | a `SKILL.md` file                     | `skill`     |
+| Command    | `commands/`, `.claude/commands/`, `cmds/`                              | `*.md` with command frontmatter       | `skill`     |
+| Subagent   | `agents/`, `.claude/agents/`, `subagents/`                             | `*.md` with agent frontmatter         | `subagent`  |
+| Rule       | `rules/`, instruction `*.md`, sections of `CLAUDE.md`/`AGENTS.md`      | persistent-instruction markdown       | `rule`      |
+| Hook       | `hooks/`, `.claude/hooks/`, `hooks` in `settings.json`/`plugin.json`   | a `hooks.json` + scripts              | `setup`     |
+| MCP server | repo _is_ an MCP server (has a server entry point, `mcp` in name/docs) | exposes an MCP `url` or stdio command | `setup`     |
 
 ## Plugin manifests
 
@@ -38,16 +38,16 @@ inventory. But still verify each referenced file exists before packaging.
 flatten nested resources. If a repo is a _single_ top-level skill (root
 `SKILL.md`), that's the standalone-skill fallback case.
 
-**Commands.** Each command becomes a flat `cmds/<slug>.md` in the box (slug =
-the command's filename, sanitized). As a standalone `cmd` package it's a
-`<slug>.md` at the package root next to `aipkg.json`. Keep the frontmatter —
-that's what the agent reads.
+**Commands.** There is no `cmd` package type — each command becomes a **skill**:
+`skills/<slug>/SKILL.md` (slug = the command's filename, sanitized). Keep the
+frontmatter — that's what the agent reads. This is how the registry migrated
+its own command packages (see `aipkgs/gsd/`, `aipkgs/caveman/`).
 
 Commands ship in two upstream formats; both must be packaged, never dropped:
 
-- **Markdown** (`commands/*.md`): copy as-is.
+- **Markdown** (`commands/*.md`): copy as-is into `skills/<slug>/SKILL.md`.
 - **TOML** (`commands/*.toml`, Claude Code's newer format with `description` and
-  `prompt` keys): **convert** to `<slug>.md`. Put `description` into YAML
+  `prompt` keys): **convert** to a `SKILL.md`. Put `description` into YAML
   frontmatter and the `prompt` value as the markdown body:
 
   ```md
@@ -104,16 +104,17 @@ them. The archive validator only checks that `setup.json` is valid JSON — it d
 **not** verify command paths — so a wrong path fails silently at install time.
 Double-check every command string by hand.
 
-**MCP servers.** Don't package files. Determine the connection: an HTTP server
-exposes a `url`; a stdio server is launched by a `command` + `args` (often shown
-in the repo's README install section). Hand the user the matching
-`aipkg mcp add` command — see SKILL.md step 8.
+**MCP servers.** Package as a `setup` whose `setup.json` carries the `mcps`
+key. Determine the connection: an HTTP server exposes a `url`
+(`{ "mcps": { "<alias>": { "url": "https://…" } } }`); a stdio server is
+launched by a `command` + `args` + optional `env` (often shown in the repo's
+README). On add, the CLI merges the entries into the user's `.mcp.json`.
 
 ## Sanity checks before packaging
 
 - Does each discovered skill dir actually contain `SKILL.md`? (Else the box
   collector skips it.)
-- Did you convert any `.toml` commands to `<slug>.md` rather than dropping them?
+- Did you convert any `.toml` commands to skills rather than dropping them?
 - Did you dedupe assets that appear in more than one tree?
 - Any slug clashes after sanitizing names to `^[a-z0-9-_]+$`? Rename to
   disambiguate and tell the user.

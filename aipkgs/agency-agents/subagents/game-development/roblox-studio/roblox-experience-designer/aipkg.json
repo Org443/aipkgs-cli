@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/game-development/roblox-experience-designer",
+  "version": "0.1.0",
+  "description": "Roblox platform UX and monetization specialist - Masters engagement loop design, DataStore-driven progression, Roblox monetization systems (Passes, Developer Products, UGC), and player retention for Roblox experiences",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "game-development"
+  }
+}

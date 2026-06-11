@@ -1,7 +1,7 @@
 {
   "type": "box",
   "ref": "gstack/Gstack",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Garry Tan's gstack — a large library of Claude Code skills for shipping: QA, design review, planning, investigation, iOS workflows, deploys, and headless-browser dogfooding. Bundles the individually-published gstack/* skills as one box.",
   "homepage": "https://github.com/garrytan/gstack",
   "repository": {

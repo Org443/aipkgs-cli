@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/sales/proposal-strategist",
+  "version": "0.1.0",
+  "description": "Strategic proposal architect who transforms RFPs and sales opportunities into compelling win narratives. Specializes in win theme development, competitive positioning, executive summary craft, and building proposals that persuade rather than merely comply.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "sales"
+  }
+}

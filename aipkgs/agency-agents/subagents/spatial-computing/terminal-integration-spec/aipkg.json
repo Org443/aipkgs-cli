@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/spatial-computing/terminal-integration-spec",
+  "version": "0.1.0",
+  "description": "Terminal emulation, text rendering optimization, and SwiftTerm integration for modern Swift applications",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "spatial-computing"
+  }
+}

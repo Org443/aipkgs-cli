@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/engineering/orgscript-engineer",
+  "version": "0.1.0",
+  "description": "Expert in designing, parsing, and implementing OrgScript grammar, AST validation, and business logic definitions.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "engineering"
+  }
+}

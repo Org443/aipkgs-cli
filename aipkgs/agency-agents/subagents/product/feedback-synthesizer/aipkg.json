@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/product/feedback-synthesizer",
+  "version": "0.1.0",
+  "description": "Expert in collecting, analyzing, and synthesizing user feedback from multiple channels to extract actionable product insights. Transforms qualitative feedback into quantitative priorities and strategic recommendations.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "product"
+  }
+}

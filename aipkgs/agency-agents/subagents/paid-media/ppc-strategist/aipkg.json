@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/paid-media/ppc-strategist",
+  "version": "0.1.0",
+  "description": "Senior paid media strategist specializing in large-scale search, shopping, and performance max campaign architecture across Google, Microsoft, and Amazon ad platforms. Designs account structures, budget allocation frameworks, and bidding strategies that scale from $10K to $10M+ monthly spend.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "paid-media"
+  }
+}

@@ -1,7 +1,7 @@
 {
   "type": "skill",
   "ref": "gstack/design-shotgun",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Design shotgun: generate multiple AI design variants, open a comparison board, collect structured feedback, and iterate. (gstack)",
   "deps": {
     "skills": {

@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/academic/narratologist",
+  "version": "0.1.0",
+  "description": "Expert in narrative theory, story structure, character arcs, and literary analysis \u2014 grounds advice in established frameworks from Propp to Campbell to modern narratology",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "academic"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/security/compliance-auditor",
+  "version": "0.1.0",
+  "description": "Expert technical compliance auditor specializing in SOC 2, ISO 27001, HIPAA, and PCI-DSS audits \u2014 from readiness assessment through evidence collection to certification.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "security"
+  }
+}

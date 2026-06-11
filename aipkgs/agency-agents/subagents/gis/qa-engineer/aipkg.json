@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/gis/qa-engineer",
+  "version": "0.1.0",
+  "description": "Quality assurance specialist who validates geospatial data integrity \u2014 topology checks, metadata audits, CRS consistency, accuracy assessment, and compliance verification.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "gis"
+  }
+}

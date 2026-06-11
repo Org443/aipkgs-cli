@@ -1,7 +1,7 @@
 {
   "type": "skill",
   "ref": "org443/code-review",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Reviews modified code applying the rules",
   "homepage": "https://aipkgs.com",
   "repository": {

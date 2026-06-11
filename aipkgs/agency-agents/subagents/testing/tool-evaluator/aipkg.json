@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/testing/tool-evaluator",
+  "version": "0.1.0",
+  "description": "Expert technology assessment specialist focused on evaluating, testing, and recommending tools, software, and platforms for business use and productivity optimization",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "testing"
+  }
+}

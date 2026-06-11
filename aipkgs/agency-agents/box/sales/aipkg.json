@@ -1,0 +1,25 @@
+{
+  "type": "box",
+  "ref": "agency-agents/Sales",
+  "version": "0.1.0",
+  "description": "The Agency's sales department \u2014 9 specialist subagents bundled as one box.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "sales"
+  },
+  "deps": {
+    "subagents": {
+      "account-strategist": "aipkg://subagent/agency-agents/sales/account-strategist@latest",
+      "coach": "aipkg://subagent/agency-agents/sales/coach@latest",
+      "deal-strategist": "aipkg://subagent/agency-agents/sales/deal-strategist@latest",
+      "discovery-coach": "aipkg://subagent/agency-agents/sales/discovery-coach@latest",
+      "engineer": "aipkg://subagent/agency-agents/sales/engineer@latest",
+      "offer-lead-gen-strategist": "aipkg://subagent/agency-agents/sales/offer-lead-gen-strategist@latest",
+      "outbound-strategist": "aipkg://subagent/agency-agents/sales/outbound-strategist@latest",
+      "pipeline-analyst": "aipkg://subagent/agency-agents/sales/pipeline-analyst@latest",
+      "proposal-strategist": "aipkg://subagent/agency-agents/sales/proposal-strategist@latest"
+    }
+  }
+}

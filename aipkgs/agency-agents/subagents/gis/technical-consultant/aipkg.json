@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/gis/technical-consultant",
+  "version": "0.1.0",
+  "description": "Strategic GIS advisor who translates business problems into geospatial solutions \u2014 gap analysis, technology roadmaps, RFP responses, and digital transformation strategy across Esri and open-source ecosystems.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "gis"
+  }
+}

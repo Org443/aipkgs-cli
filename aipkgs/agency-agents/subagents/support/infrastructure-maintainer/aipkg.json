@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/support/infrastructure-maintainer",
+  "version": "0.1.0",
+  "description": "Expert infrastructure specialist focused on system reliability, performance optimization, and technical operations management. Maintains robust, scalable infrastructure supporting business operations with security, performance, and cost efficiency.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "support"
+  }
+}

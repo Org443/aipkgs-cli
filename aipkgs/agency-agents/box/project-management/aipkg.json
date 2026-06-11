@@ -1,0 +1,23 @@
+{
+  "type": "box",
+  "ref": "agency-agents/Project-Management",
+  "version": "0.1.0",
+  "description": "The Agency's project management department \u2014 7 specialist subagents bundled as one box.",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "project-management"
+  },
+  "deps": {
+    "subagents": {
+      "experiment-tracker": "aipkg://subagent/agency-agents/project-management/experiment-tracker@latest",
+      "jira-workflow-steward": "aipkg://subagent/agency-agents/project-management/jira-workflow-steward@latest",
+      "meeting-notes-specialist": "aipkg://subagent/agency-agents/project-management/meeting-notes-specialist@latest",
+      "project-shepherd": "aipkg://subagent/agency-agents/project-management/project-shepherd@latest",
+      "studio-operations": "aipkg://subagent/agency-agents/project-management/studio-operations@latest",
+      "studio-producer": "aipkg://subagent/agency-agents/project-management/studio-producer@latest",
+      "project-manager-senior": "aipkg://subagent/agency-agents/project-management/project-manager-senior@latest"
+    }
+  }
+}

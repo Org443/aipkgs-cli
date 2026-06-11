@@ -1,7 +1,7 @@
 {
   "type": "skill",
   "ref": "gstack/plan-eng-review",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Eng manager-mode plan review. (gstack)",
   "deps": {
     "skills": {

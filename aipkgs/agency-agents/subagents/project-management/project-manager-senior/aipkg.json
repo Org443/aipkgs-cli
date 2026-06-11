@@ -1,0 +1,12 @@
+{
+  "type": "subagent",
+  "ref": "agency-agents/project-management/project-manager-senior",
+  "version": "0.1.0",
+  "description": "Converts specs to tasks and remembers previous projects. Focused on realistic scope, no background processes, exact spec requirements",
+  "homepage": "https://github.com/msitarzewski/agency-agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msitarzewski/agency-agents.git",
+    "directory": "project-management"
+  }
+}

@@ -12,12 +12,6 @@ For more information on what options can be passed, see [`Sortable.options`](htt
 Currently, `useSortable` only implements drag-and-drop sorting for a single list.
 :::
 
-## Install
-
-```bash
-npm i sortablejs@^1
-```
-
 ## Usage
 
 ### Use template ref

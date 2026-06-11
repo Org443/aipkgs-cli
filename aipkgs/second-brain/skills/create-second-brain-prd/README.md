@@ -9,9 +9,3 @@ architecture reference.
 
 Imported from [coleam00/second-brain-starter](https://github.com/coleam00/second-brain-starter)
 by the original author.
-
-## Install
-
-```sh
-aipkg install second-brain/create-second-brain-prd
-```

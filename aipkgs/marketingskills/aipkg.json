@@ -1,7 +1,7 @@
 {
   "type": "box",
   "ref": "marketingskills/MarketingSkills",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "42 marketing skills for founders and technical marketers — CRO, copywriting, cold email, prospecting, SEO, AI SEO, paid ads, ad creative, video, pricing, referrals, and growth.",
   "homepage": "https://github.com/coreyhaines31/marketingskills",
   "repository": { "type": "git", "url": "https://github.com/coreyhaines31/marketingskills.git" }
