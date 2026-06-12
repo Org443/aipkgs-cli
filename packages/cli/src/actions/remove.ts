@@ -21,25 +21,18 @@ export async function removeAction(input: { type: Manifest['type']; ref: string 
 
   const removedPaths: string[] = [];
   let clearedStatusLine = false;
+  let removedFromLock = false;
 
-  // Remove the top level
-  const { paths: removed } = await AssetPlacement.remove({ type, refStr: slug, targets });
-  removedPaths.push(...removed);
-
-  for (const child of entries) {
-    const { paths: removed } = await AssetPlacement.remove({ type: child.type, refStr: child.slug, targets });
-    removedPaths.push(...removed);
-    if (lockfile.removeStatusLine({ slug: child.slug })) clearedStatusLine = true;
-    await lockfile.removeEntry({ type: child.type, slug: child.slug });
+  // The root entry and its locked subtree get the same treatment: placed files,
+  // statusLine claim (a setup or box may own the single tracked one), lock entry.
+  for (const entry of [{ type, slug }, ...entries]) {
+    const { paths } = await AssetPlacement.remove({ type: entry.type, refStr: entry.slug, targets });
+    removedPaths.push(...paths);
+    if (lockfile.removeStatusLine({ slug: entry.slug })) clearedStatusLine = true;
+    if (lockfile.removeEntry({ type: entry.type, slug: entry.slug })) removedFromLock = true;
   }
 
-  // A setup or box may own the single tracked statusLine — drop it when its owner goes.
-  if (lockfile.removeStatusLine({ slug })) clearedStatusLine = true;
-
-  const [removedFromManifest, removedFromLock] = await Promise.all([
-    manifest.removeEntry({ type, key: slug }),
-    lockfile.removeEntry({ type, slug }),
-  ]);
+  const removedFromManifest = manifest.removeEntry({ type, key: slug });
 
   const { mirror, removed: removedMirror } = await removeAipkgsMirror({ pkgRef });
   if (removedMirror) removedPaths.push(mirror);

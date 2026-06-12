@@ -1,8 +1,8 @@
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import type { McpEntry } from '@local/archive';
+import { isENOENT } from '@local/shared/fs';
 import { parse, stringify } from 'smol-toml';
-import { isENOENT } from '../../fs.ts';
 
 // Codex reads MCP servers from `[mcp_servers.<name>]` tables in `config.toml`.
 // aipkg writes a *project-level* `.codex/config.toml` (never the user's primary
@@ -82,12 +82,10 @@ export const mcpConfig = {
     const { name, server, owner } = args;
     const config = await mcpConfig.read();
     const servers = asTable(config.mcp_servers);
-    const existed = name in servers;
     servers[name] = server;
     config.mcp_servers = servers;
     await mcpConfig.write(config);
     await recordOwner({ name, owner });
-    return { created: !existed };
   },
 
   // Strip every server the ledger attributes to `owner`, returning the names

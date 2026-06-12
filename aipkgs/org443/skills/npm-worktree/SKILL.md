@@ -1,5 +1,5 @@
 ---
-name: worktree
+name: npm-worktree
 description: Create a fully-functional git worktree for a branch in an npm project. Use this whenever the user asks to create a worktree, work on a branch in parallel, spin up an isolated copy of the repo, or remove an existing worktree — even if they don't say the word "worktree" (e.g. "set me up to work on branch X without touching my current checkout").
 allowed-tools: Bash, Read, Glob
 allowed-commands:
@@ -22,7 +22,7 @@ Produce a worktree that behaves exactly like the checkout this skill was run fro
 If the user asks to remove/delete a worktree, run:
 
 ```
-scripts/worktree <branch-name> -d
+${PKG_ROOT}/scripts/worktree <branch-name> -d
 ```
 
 and stop there.
@@ -34,7 +34,7 @@ Follow these steps in order.
 ### Step 1 — Run the worktree script
 
 ```
-scripts/worktree <branch-name>
+${PKG_ROOT}/scripts/worktree <branch-name>
 ```
 
 The script (run it from anywhere inside the repo):
@@ -102,14 +102,14 @@ Report visually — a table and a small ASCII diagram are easier to scan than pr
 
 - A table of setup actions, one row per item:
 
-  | Item         | Action            | Notes                          |
-  |--------------|-------------------|--------------------------------|
-  | `.env`       | copied            |                                |
-  | `.env.dev`   | copied            |                                |
-  | `.npmrc`     | copied            | private registry auth          |
-  | node_modules | `npm install`     | exited cleanly                 |
-  | `.claude/`   | `npx @aipkgs/cli install` | rebuilt from `aipkg.json` |
-  | `data/`      | skipped           | 2.3 GB — copy manually if needed |
+  | Item         | Action                    | Notes                            |
+  | ------------ | ------------------------- | -------------------------------- |
+  | `.env`       | copied                    |                                  |
+  | `.env.dev`   | copied                    |                                  |
+  | `.npmrc`     | copied                    | private registry auth            |
+  | node_modules | `npm install`             | exited cleanly                   |
+  | `.claude/`   | `npx @aipkgs/cli install` | rebuilt from `aipkg.json`        |
+  | `data/`      | skipped                   | 2.3 GB — copy manually if needed |
 
 Include rows for anything deliberately skipped so the user can handle those themselves.
 

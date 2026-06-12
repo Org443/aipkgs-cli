@@ -11,12 +11,19 @@ CLI for [AIpkg](https://aipkgs.com) — a registry for AI commands, skills, prom
 ## Install
 
 ```bash
+npm install -g @aipkgs/cli
+```
+
+Or run it on demand without installing:
+
+```bash
 npx @aipkgs/cli <command>
 ```
 
 ## Quick start
 
 ```bash
+npx @aipkgs/cli init                                            # create aipkg.json in the current project
 npx @aipkgs/cli skill org443/search-aipkgs                      # install a skill from the registry
 ```
 

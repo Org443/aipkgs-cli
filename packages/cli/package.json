@@ -1,6 +1,6 @@
 {
   "name": "@aipkgs/cli",
-  "version": "0.1.16",
+  "version": "0.1.13",
   "description": "aipkg CLI.",
   "repository": {
     "type": "git",
@@ -15,9 +15,7 @@
   "bin": {
     "aipkg": "dist/index.js"
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "engines": {
     "node": ">=22"
   },
@@ -41,13 +39,12 @@
   "devDependencies": {
     "@local/archive": "*",
     "@local/placement": "*",
-    "@types/tar-stream": "^3.1.4",
+    "@local/shared": "*",
     "esbuild": "^0.24.0"
   },
   "dependencies": {
     "@clack/core": "^1.4.0",
     "commander": "^14.0.3",
-    "picocolors": "^1.1.1",
-    "tar-stream": "^3.2.0"
+    "picocolors": "^1.1.1"
   }
 }

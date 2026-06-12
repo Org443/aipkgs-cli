@@ -1,9 +1,9 @@
 import { stat } from 'node:fs/promises';
 import { MANIFEST_FILENAME } from '@local/archive';
+import { isENOENT } from '@local/shared/fs';
 import pc from 'picocolors';
 import { LOCKFILE_FILENAME, Lockfile } from '../files/lockfile.ts';
 import { ManifestFile } from '../files/manifest.ts';
-import { isENOENT } from '../io/fs.ts';
 
 export async function initAction() {
   const manifestExisted = await fileExists(ManifestFile.resolvePath());

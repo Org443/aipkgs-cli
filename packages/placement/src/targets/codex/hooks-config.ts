@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import type { HooksByEvent } from '@local/archive';
-import { isENOENT } from '../../fs.ts';
+import { isENOENT } from '@local/shared/fs';
 import { mergeOwnedHooks, removeOwnedHooks } from '../hooks-format.ts';
 
 // Codex's hooks system is deliberately Claude-shaped (event → matcher → command),
@@ -51,10 +51,9 @@ export const hooksConfig = {
   async removeHooks(args: { slug: string }) {
     const { slug } = args;
     const file = await hooksConfig.read();
-    if (!file.hooks) return false;
+    if (!file.hooks) return;
     const { hooks, changed } = removeOwnedHooks({ existing: file.hooks, slug });
     file.hooks = Object.keys(hooks).length === 0 ? undefined : hooks;
     if (changed) await hooksConfig.write(file);
-    return changed;
   },
 };

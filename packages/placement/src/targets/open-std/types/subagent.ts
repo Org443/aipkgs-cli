@@ -1,18 +1,8 @@
-import { mkdir, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
 import type { ArchiveSubagent } from '@local/archive';
+import { writeDocFile } from '../../../io/writers.ts';
 
-// One markdown-with-front-matter file per subagent at `.agents/agents/<slug>.md`,
-// written verbatim — flat, no subdirectories.
+// One markdown-with-front-matter file per subagent at `.agents/agents/<slug>.md`.
 export async function installSubagent(args: { subagent: ArchiveSubagent }) {
   const { subagent } = args;
-
-  const cwd = process.cwd();
-  const dir = join(cwd, '.agents', 'agents');
-  await mkdir(dir, { recursive: true });
-
-  const dest = join(dir, `${subagent.slug}.md`);
-  await writeFile(dest, subagent.doc);
-
-  return { written: [dest] };
+  return writeDocFile({ dir: ['.agents', 'agents'], slug: subagent.slug, doc: subagent.doc });
 }

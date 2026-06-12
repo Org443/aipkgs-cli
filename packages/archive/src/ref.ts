@@ -1,4 +1,4 @@
-import { MANIFEST_TYPES, MANIFEST_TYPE_TO_DEPS_KEY } from './constants.ts';
+import { MANIFEST_TYPES } from './constants.ts';
 import type { Manifest } from './manifest.ts';
 
 type SegmentArgs = { type: string; org: string; key?: string | null; slug: string; version: string };

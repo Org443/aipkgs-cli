@@ -5,6 +5,8 @@ export * from './ref.ts';
 export * from './tarball.ts';
 export * from './constants.ts';
 
+export { LICENSE_FILENAME, README_FILENAME } from './validate/shared.ts';
+
 export type { ArchiveSkill } from './validate/skill.ts';
 export type { ArchiveRule } from './validate/rule.ts';
 export type { ArchiveSubagent } from './validate/subagent.ts';

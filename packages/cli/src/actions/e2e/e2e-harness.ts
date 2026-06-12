@@ -34,8 +34,10 @@ export function useE2EWorld(args: { prefix: string }) {
     vi.restoreAllMocks();
     process.env.HOME = originalHome;
     rmSync(home, { recursive: true, force: true });
-    process.env.AIPKG_API = undefined;
-    process.env.AIPKG_TARGET = undefined;
+    // biome-ignore lint/performance/noDelete: assigning undefined to process.env stores the string "undefined"
+    delete process.env.AIPKG_API;
+    // biome-ignore lint/performance/noDelete: assigning undefined to process.env stores the string "undefined"
+    delete process.env.AIPKG_TARGET;
   });
 }
 

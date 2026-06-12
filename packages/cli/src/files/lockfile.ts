@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, join } from 'node:path';
 import { type AIpkgArchive, MANIFEST_FILENAME, MANIFEST_TYPES, Manifest, PackageRef } from '@local/archive';
-import { isENOENT } from '../io/fs.ts';
+import { isENOENT } from '@local/shared/fs';
 
 export const LOCKFILE_FILENAME = 'aipkg.lock';
 
@@ -41,14 +41,7 @@ type LockfileStruct = {
 };
 
 export class Lockfile implements LockfileStruct {
-  deps?: {
-    skills?: Record<string, LockEntry>;
-    subagents?: Record<string, LockEntry>;
-    rules?: Record<string, LockEntry>;
-    setups?: Record<string, LockEntry>;
-    boxes?: Record<string, LockEntry>;
-    statusLine?: LockStatusLineEntry;
-  };
+  deps?: LockfileStruct['deps'];
 
   readonly path: string;
 
@@ -84,7 +77,7 @@ export class Lockfile implements LockfileStruct {
     await writeFile(this.path, body, 'utf8');
   }
 
-  async upsertEntry(args: { archive: AIpkgArchive; type: Manifest['type']; slug: string; parent?: string }) {
+  upsertEntry(args: { archive: AIpkgArchive; type: Manifest['type']; slug: string; parent?: string }) {
     const { archive, type, slug, parent } = args;
     const typeKey = Manifest.depsKey(type);
 
@@ -111,7 +104,7 @@ export class Lockfile implements LockfileStruct {
     };
   }
 
-  async removeEntry(args: { type: Manifest['type']; slug: string }) {
+  removeEntry(args: { type: Manifest['type']; slug: string }) {
     const { type, slug } = args;
 
     const typeKey = Manifest.depsKey(type);

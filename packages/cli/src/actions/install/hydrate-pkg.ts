@@ -1,4 +1,4 @@
-import { type AIpkgArchive, type AgentTarget, type PackageRef, archiveService } from '@local/archive';
+import { type AgentTarget, type PackageRef, archiveService } from '@local/archive';
 import { AssetPlacement } from '@local/placement';
 import pc from 'picocolors';
 import { api } from '../../api/index.ts';
@@ -21,7 +21,7 @@ export async function hydratePkg(args: {
   // downgrade — drop the stale pin so the SHA guard below and the later
   // upsertEntry don't reject the new archive.
   if (lock && lock.version !== pkgRef.version) {
-    await lockfile.removeEntry({ type: pkgRef.type, slug });
+    lockfile.removeEntry({ type: pkgRef.type, slug });
   }
 
   const tarball = await api.packages.downloadArchive({ pkgRef });
@@ -60,13 +60,13 @@ export async function hydratePkg(args: {
   // not this install's `parent` — so a later `remove box` can walk the subtree
   // and reverse them. (Non-box archives carry no `written.deps`.)
   for (const dep of written.deps) {
-    await lockfile.upsertEntry({ archive, ...dep, parent: archive.pkgRef.aipkgRef });
+    lockfile.upsertEntry({ archive, ...dep, parent: archive.pkgRef.aipkgRef });
   }
 
   // Setups and boxes are keyed by their full ref, not the bare slug — use
   // entryKey() (already computed as `slug`) so the lockfile, manifest, and disk
   // all agree on the key.
-  await lockfile.upsertEntry({ archive, type: pkgRef.type, slug, parent });
+  lockfile.upsertEntry({ archive, type: pkgRef.type, slug, parent });
 
   await resolveDeps({ archive, lockfile, targets });
 

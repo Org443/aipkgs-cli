@@ -18,9 +18,7 @@ export async function installAllAction(args: { manifest?: string } = {}) {
   }
 
   for (const pkgRef of tasks) {
-    const { archive } = await hydratePkg({ pkgRef, lockfile, targets });
-
-    await lockfile.upsertEntry({ archive, ...pkgRef });
+    await hydratePkg({ pkgRef, lockfile, targets });
   }
 
   await manifest.write();
