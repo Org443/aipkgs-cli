@@ -30,7 +30,6 @@ export const authService = {
   async login(args: { openBrowser: boolean; timeoutMs?: number }) {
     const { openBrowser, timeoutMs } = args;
     const cliState = randomBytes(32).toString('base64url');
-    const apiUrl = ConfigFile.apiBase();
     const app = ConfigFile.appBase();
 
     const { port, awaitCallback, close } = await startLoopback();
@@ -56,13 +55,11 @@ export const authService = {
 
       const { token, user } = await api.auth.exchange({ code, cliState });
 
-      await ConfigFile.setApi(apiUrl);
       await CredentialsFile.setToken(token);
       await CredentialsFile.setUser({ id: user.id, email: user.email });
 
-      const config = await ConfigFile.resolve();
       const credentials = await CredentialsFile.resolve();
-      return { config, credentials };
+      return { credentials };
     } finally {
       close();
     }

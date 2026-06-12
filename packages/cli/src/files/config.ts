@@ -2,7 +2,7 @@ import { chmod, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { AGENT_TARGETS, type AgentTarget } from '@local/archive';
-import { isENOENT } from '../io/fs.ts';
+import { isENOENT } from '@local/shared/fs';
 
 export const DEFAULT_API = 'https://api.aipkgs.com';
 export const DEFAULT_APP = 'https://aipkgs.com';
@@ -10,7 +10,6 @@ export const DEFAULT_APP = 'https://aipkgs.com';
 export type MirrorState = 'enabled' | 'disabled';
 
 export type Config = {
-  api: string;
   targets?: AgentTarget[];
   mirror?: MirrorState;
 };
@@ -46,17 +45,11 @@ export class ConfigFile {
     try {
       raw = await readFile(ConfigFile.path(), 'utf8');
     } catch (err) {
-      if (isENOENT(err)) return { api: DEFAULT_API };
+      if (isENOENT(err)) return {};
       throw err;
     }
     const parsed = JSON.parse(raw) as Config & { target?: AgentTarget };
     return migrateLegacyTarget(parsed);
-  }
-
-  static async setApi(api: string): Promise<void> {
-    const config = await ConfigFile.resolve();
-    config.api = api;
-    await writeConfig(config);
   }
 
   static async setTargets(targets: AgentTarget[]): Promise<void> {

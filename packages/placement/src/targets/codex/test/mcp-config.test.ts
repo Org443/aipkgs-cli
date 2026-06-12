@@ -35,13 +35,12 @@ describe('toCodexServer', () => {
 
 describe('mcpConfig.upsertServer', () => {
   it('writes a schema-clean table and records ownership in the ledger', async () => {
-    const result = await mcpConfig.upsertServer({
+    await mcpConfig.upsertServer({
       name: 'context7',
       server: { command: 'npx' },
       owner: 'acme/tools',
     });
 
-    expect(result.created).toBe(true);
     const config = await readToml('.codex/config.toml');
     expect(config.mcp_servers.context7).toEqual({ command: 'npx' });
     expect(await readTestFile('.codex/aipkg-mcp.json')).toContain('"context7": "acme/tools"');

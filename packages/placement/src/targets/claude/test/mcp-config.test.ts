@@ -62,33 +62,37 @@ describe('toServerConfig', () => {
 });
 
 describe('mcpConfig.upsertServer', () => {
-  it('adds a new entry and reports created: true', async () => {
-    const result = await mcpConfig.upsertServer({
+  it('adds a new entry tagged with its owner', async () => {
+    await mcpConfig.upsertServer({
       slug: 'x',
       server: { type: 'http', url: 'https://x.example' },
+      owner: 'acme/tools',
     });
 
-    expect(result.created).toBe(true);
     const config = await readTestJson('.mcp.json');
-    expect(config.mcpServers.x).toEqual({ type: 'http', url: 'https://x.example' });
+    expect(config.mcpServers.x).toEqual({ type: 'http', url: 'https://x.example', __aipkg: 'acme/tools' });
   });
 
-  it('updates an existing entry and reports created: false', async () => {
-    await mcpConfig.upsertServer({ slug: 'x', server: { type: 'http', url: 'https://old.example' } });
-
-    const result = await mcpConfig.upsertServer({
+  it('overwrites an existing entry', async () => {
+    await mcpConfig.upsertServer({
       slug: 'x',
-      server: { type: 'http', url: 'https://new.example' },
+      server: { type: 'http', url: 'https://old.example' },
+      owner: 'acme/tools',
     });
 
-    expect(result.created).toBe(false);
+    await mcpConfig.upsertServer({
+      slug: 'x',
+      server: { type: 'http', url: 'https://new.example' },
+      owner: 'acme/tools',
+    });
+
     const config = await readTestJson('.mcp.json');
     expect(config.mcpServers.x.url).toBe('https://new.example');
   });
 
   it('preserves unrelated entries when upserting', async () => {
-    await mcpConfig.upsertServer({ slug: 'a', server: { type: 'http', url: 'https://a.example' } });
-    await mcpConfig.upsertServer({ slug: 'b', server: { type: 'http', url: 'https://b.example' } });
+    await mcpConfig.upsertServer({ slug: 'a', server: { type: 'http', url: 'https://a.example' }, owner: 'acme/a' });
+    await mcpConfig.upsertServer({ slug: 'b', server: { type: 'http', url: 'https://b.example' }, owner: 'acme/b' });
 
     const config = await readTestJson('.mcp.json');
     expect(Object.keys(config.mcpServers).sort()).toEqual(['a', 'b']);

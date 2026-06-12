@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import type { HooksByEvent } from '@local/archive';
-import { isENOENT } from '../../fs.ts';
+import { isENOENT } from '@local/shared/fs';
 import { AIPKG_OWNER_KEY, mergeOwnedHooks, removeOwnedHooks } from '../hooks-format.ts';
 
 const SETTINGS_LOCAL_FILENAME = join('.claude', 'settings.local.json');
@@ -44,11 +44,10 @@ export const settingsConfig = {
   async removeHooks(args: { slug: string }) {
     const { slug } = args;
     const settings = await settingsConfig.read();
-    if (!settings.hooks) return false;
+    if (!settings.hooks) return;
     const { hooks, changed } = removeOwnedHooks({ existing: settings.hooks, slug });
     settings.hooks = Object.keys(hooks).length === 0 ? undefined : hooks;
     if (changed) await settingsConfig.write(settings);
-    return changed;
   },
 
   async setStatusLine(args: { slug: string; statusLine: Record<string, unknown> }) {
@@ -56,14 +55,12 @@ export const settingsConfig = {
     const settings = await settingsConfig.read();
     settings.statusLine = { ...statusLine, [AIPKG_OWNER_KEY]: slug };
     await settingsConfig.write(settings);
-    return { path: settingsConfig.path() };
   },
 
   async clearStatusLine() {
     const settings = await settingsConfig.read();
-    if (settings.statusLine === undefined) return { removed: false, path: settingsConfig.path() };
+    if (settings.statusLine === undefined) return;
     settings.statusLine = undefined;
     await settingsConfig.write(settings);
-    return { removed: true, path: settingsConfig.path() };
   },
 };

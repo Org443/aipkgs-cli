@@ -1,13 +1,13 @@
 import { stat } from 'node:fs/promises';
 import { basename, dirname } from 'node:path';
 import { MANIFEST_FILENAME, type Manifest, archiveService } from '@local/archive';
+import { isENOENT } from '@local/shared/fs';
 import pc from 'picocolors';
 import { api } from '../../api/index.ts';
 import { confirm } from '../../autocomplete/confirm.ts';
 import { ConfigFile } from '../../files/config.ts';
 import { ManifestFile } from '../../files/manifest.ts';
 import { collectArchiveFiles, resolveLocalPath } from '../../io/collect-files.ts';
-import { isENOENT } from '../../io/fs.ts';
 
 // Publish the package described by an `aipkg.json` (or alternate manifest
 // file). `path` may point to a directory containing the manifest, or directly

@@ -1,6 +1,6 @@
 import { readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { isENOENT } from '../../fs.ts';
+import { isENOENT } from '@local/shared/fs';
 
 // Codex has no per-rule files — it reads a single concatenated `AGENTS.md` (and
 // has no import syntax). So each rule lives as an aipkg-owned, comment-delimited

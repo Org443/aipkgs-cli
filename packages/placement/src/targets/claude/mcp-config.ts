@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { McpEntry } from '@local/archive';
-import { isENOENT } from '../../fs.ts';
+import { isENOENT } from '@local/shared/fs';
 import { AIPKG_OWNER_KEY } from '../hooks-format.ts';
 
 const MCP_CONFIG_FILENAME = '.mcp.json';
@@ -73,16 +73,13 @@ export const mcpConfig = {
 
   // `owner` tags the server with the slug that installed it (mirroring the hook
   // and statusLine ownership tags) so `removeOwnedServers` can later strip exactly
-  // the servers a given setup bundle placed. Callers that aren't setup-owned
-  // (e.g. a bare `addMcp`) omit it and the entry stays untagged.
-  async upsertServer(args: { slug: string; server: McpServerConfig; owner?: string }) {
+  // the servers a given setup bundle placed.
+  async upsertServer(args: { slug: string; server: McpServerConfig; owner: string }) {
     const { slug, server, owner } = args;
     const config = await mcpConfig.read();
-    const existed = slug in config.mcpServers;
-    const stored = owner === undefined ? server : { ...server, [AIPKG_OWNER_KEY]: owner };
+    const stored = { ...server, [AIPKG_OWNER_KEY]: owner };
     config.mcpServers[slug] = stored as McpServerConfig;
     await mcpConfig.write(config);
-    return { created: !existed };
   },
 
   // Strip every server owned by `owner`, returning the names removed so callers

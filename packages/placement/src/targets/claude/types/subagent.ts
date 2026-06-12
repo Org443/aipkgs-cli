@@ -1,20 +1,8 @@
-import { mkdir, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
 import type { ArchiveSubagent } from '@local/archive';
+import { writeDocFile } from '../../../io/writers.ts';
 
-/**
- * Claude subagents are stored in the `.claude/agents/<slug>.md` file.
- * The `.claude/agents` directory is flat with no subdirectories — only agent
- * markdown files.
- */
+// Claude subagents are one flat markdown-with-front-matter file each at `.claude/agents/<slug>.md`.
 export async function installSubagent(args: { subagent: ArchiveSubagent }) {
   const { subagent } = args;
-
-  const dir = join(process.cwd(), '.claude', 'agents');
-  await mkdir(dir, { recursive: true });
-
-  const dest = join(dir, `${subagent.slug}.md`);
-  await writeFile(dest, subagent.doc);
-
-  return { written: [dest] };
+  return writeDocFile({ dir: ['.claude', 'agents'], slug: subagent.slug, doc: subagent.doc });
 }

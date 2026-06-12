@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { isENOENT } from './fs.ts';
+import { isENOENT } from '@local/shared/fs';
 
 // Authors drop an `.aipkgignore` at the package root to keep stray files out of
 // the published archive. It matters most for skills, whose layout is arbitrary —

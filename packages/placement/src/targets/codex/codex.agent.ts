@@ -1,7 +1,5 @@
-import { rm } from 'node:fs/promises';
 import { join } from 'node:path';
-import type { AIpkgArchive, Manifest } from '@local/archive';
-import { Agent, type InstallResult, type RemoveResult } from '../../agent.abstract.ts';
+import { Agent, type PlacementResult } from '../../agent.abstract.ts';
 import { agentsConfig } from './agents-config.ts';
 import { installBox } from './types/box.ts';
 import { installRule } from './types/rule.ts';
@@ -10,103 +8,27 @@ import { installSkill } from './types/skill.ts';
 import { installSubagent } from './types/subagent.ts';
 
 export class CodexAgent extends Agent {
-  async install({ archive }: { archive: AIpkgArchive }): Promise<InstallResult> {
-    const { manifest, pkgRef } = archive;
+  protected installSkill = installSkill;
+  protected installSubagent = installSubagent;
+  protected installRule = installRule;
+  protected installSetup = installSetup;
+  protected installBox = installBox;
 
-    switch (manifest.type) {
-      case 'skill': {
-        const [skill] = archive.skills;
-        if (!skill) throw new Error(`skill archive for ${pkgRef.aipkgRef} decoded no skill`);
-        const { written } = await installSkill({ skill });
-        return { paths: written, deps: [] };
-      }
-      case 'subagent': {
-        const [subagent] = archive.subagents;
-        if (!subagent) throw new Error(`subagent archive for ${pkgRef.aipkgRef} decoded no subagent`);
-        const { written } = await installSubagent({ subagent });
-        return { paths: written, deps: [] };
-      }
-      case 'rule': {
-        const [rule] = archive.rules;
-        if (!rule) throw new Error(`rule archive for ${pkgRef.aipkgRef} decoded no rule`);
-        const { written } = await installRule({ rule });
-        return { paths: written, deps: [] };
-      }
-      case 'setup': {
-        const { setup } = archive;
-        if (!setup) throw new Error(`setup archive for ${pkgRef.aipkgRef} decoded no setup`);
-        const { written } = await installSetup({ setup, pkgRef });
-        return { paths: written, deps: [] };
-      }
-      case 'box': {
-        const { written } = await installBox({
-          rules: archive.rules,
-          subagents: archive.subagents,
-          skills: archive.skills,
-          setup: archive.setup,
-          pkgRef,
-        });
-        return { paths: dedupe(written), deps: boxDeps(archive) };
-      }
-      default:
-        throw new Error(`Unknown manifest type: ${manifest.type}`);
-    }
+  protected async removeRule({ refStr }: { refStr: string }): Promise<PlacementResult> {
+    await agentsConfig.removeRule({ slug: refStr });
+    return { paths: [agentsConfig.path()], deps: [] };
   }
 
-  async remove({ type, refStr }: { type: Manifest['type']; refStr: string }): Promise<RemoveResult> {
-    switch (type) {
-      case 'rule': {
-        await agentsConfig.removeRule({ slug: refStr });
-        return { paths: [agentsConfig.path()], deps: [] };
-      }
-      case 'subagent':
-        return this.removeFile({ dir: join('.codex', 'agents'), name: `${refStr}.toml` });
-      case 'skill':
-        return this.removeTree({ path: join(process.cwd(), '.agents', 'skills', refStr) });
-      case 'setup': {
-        const { removed } = await removeSetup({ ref: refStr });
-        return { paths: removed, deps: [] };
-      }
-      case 'box': {
-        // A box's bundled rule/subagent/skill children reverse themselves via the
-        // caller walking the lockfile subtree (each by its own type). What only the
-        // box owns is its setup bundle — scripts, hooks, and MCP servers tagged with
-        // the box ref — so reverse those here, as a standalone setup remove does.
-        const { removed } = await removeSetup({ ref: refStr });
-        return { paths: removed, deps: [] };
-      }
-      default:
-        throw new Error(`Unknown manifest type: ${type}`);
-    }
+  protected removeSubagent({ refStr }: { refStr: string }): Promise<PlacementResult> {
+    return this.removeFile({ dir: join('.codex', 'agents'), name: `${refStr}.toml` });
   }
 
-  ////
-  /// Helpers
-  //
-
-  private async removeFile(args: { dir: string; name: string }): Promise<RemoveResult> {
-    const path = join(process.cwd(), args.dir, args.name);
-    await rm(path, { force: true });
-    return { paths: [path], deps: [] };
+  protected removeSkill({ refStr }: { refStr: string }): Promise<PlacementResult> {
+    return this.removeTree({ path: join(process.cwd(), '.agents', 'skills', refStr) });
   }
 
-  private async removeTree(args: { path: string }): Promise<RemoveResult> {
-    await rm(args.path, { recursive: true, force: true });
-    return { paths: [args.path], deps: [] };
+  protected async removeSetupBundle({ refStr }: { refStr: string }): Promise<PlacementResult> {
+    const { removed } = await removeSetup({ ref: refStr });
+    return { paths: removed, deps: [] };
   }
-}
-
-// A box's lockable children are the flat assets it bundles — each becomes a
-// lockfile entry keyed by its own slug. The box's setup bundle is part of the box
-// itself, not a separate child, so it is not listed here.
-function boxDeps(archive: AIpkgArchive): InstallResult['deps'] {
-  return [
-    ...archive.rules.map((r) => ({ type: 'rule' as const, slug: r.slug })),
-    ...archive.subagents.map((s) => ({ type: 'subagent' as const, slug: s.slug })),
-    ...archive.skills.map((s) => ({ type: 'skill' as const, slug: s.slug })),
-  ];
-}
-
-function dedupe(paths: string[]): string[] {
-  return [...new Set(paths)];
 }

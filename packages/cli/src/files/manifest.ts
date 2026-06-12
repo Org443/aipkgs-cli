@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { isAbsolute, join } from 'node:path';
 import { MANIFEST_FILENAME, Manifest, type PackageRef } from '@local/archive';
-import { isENOENT } from '../io/fs.ts';
+import { isENOENT } from '@local/shared/fs';
 
 export class ManifestFile extends Manifest {
   readonly path: string;
@@ -50,7 +50,7 @@ export class ManifestFile extends Manifest {
     await writeFile(this.path, body, 'utf8');
   }
 
-  async upsertEntry(args: { pkgRef: PackageRef }) {
+  upsertEntry(args: { pkgRef: PackageRef }) {
     const { pkgRef } = args;
 
     const slug = pkgRef.entryKey();
@@ -64,7 +64,7 @@ export class ManifestFile extends Manifest {
     return { slug };
   }
 
-  async removeEntry(args: { type: Manifest['type']; key: string }) {
+  removeEntry(args: { type: Manifest['type']; key: string }) {
     const { type, key } = args;
 
     const depKey = Manifest.depsKey(type);

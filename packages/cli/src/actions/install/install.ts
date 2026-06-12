@@ -17,7 +17,7 @@ export async function installAction(args: { type: Manifest['type']; ref: string 
   // writes assets to active folders to be used by the AI, updating the lockfile
   await hydratePkg({ pkgRef, lockfile, targets });
 
-  const upserted = await manifest.upsertEntry({ pkgRef });
+  const upserted = manifest.upsertEntry({ pkgRef });
 
   await manifest.write();
   await lockfile.write();

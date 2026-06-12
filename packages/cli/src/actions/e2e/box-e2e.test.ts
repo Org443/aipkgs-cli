@@ -1,7 +1,7 @@
 import { join } from 'node:path';
 import { Manifest, type TarEntry, archiveService } from '@local/archive';
 import { describe, expect, it } from 'vitest';
-import { readTestFile, readTestJson, testFileExists, writeTestFile } from '../../test/helpers.ts';
+import { readTestFile, readTestJson, testFileExists } from '../../test/helpers.ts';
 import { installAction } from '../install/install.ts';
 import { removeAction } from '../remove.ts';
 import { mockArchiveFetch, useE2EWorld } from './e2e-harness.ts';

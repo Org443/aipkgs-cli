@@ -172,12 +172,7 @@ function defineInstallCommand(input: { program: Command; type: Manifest['type'] 
     .command(type)
     .description(`Search and install a ${type} package`)
     .argument('<ref>', 'full or partial <org>/<slug> — opens a live picker, then installs into cwd')
-    .action(async (ref: string | undefined) => {
-      if (!ref) {
-        group.help();
-        return;
-      }
-
+    .action(async (ref: string) => {
       await interactiveInstallAction({ type, ref });
     });
 

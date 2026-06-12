@@ -17,7 +17,6 @@ afterEach(() => {
 describe('loginAction', () => {
   it('prints the logged-in email on success', async () => {
     vi.spyOn(authService, 'login').mockResolvedValue({
-      config: {} as any,
       credentials: { user: { id: 'u1', email: 'tester@example.com' } } as any,
     });
 

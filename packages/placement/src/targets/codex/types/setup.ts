@@ -1,6 +1,7 @@
-import { mkdir, rm, writeFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { rm } from 'node:fs/promises';
+import { join } from 'node:path';
 import type { ArchiveSetup, PackageRef } from '@local/archive';
+import { writeFileTree } from '../../../io/writers.ts';
 import { REF_TOKEN, substituteRef } from '../../hooks-format.ts';
 import { hooksConfig } from '../hooks-config.ts';
 import { mcpConfig, toCodexServer } from '../mcp-config.ts';
@@ -26,12 +27,8 @@ export async function installSetup(args: { setup: ArchiveSetup; pkgRef: PackageR
 
   const dir = join(process.cwd(), installDir);
 
-  for (const script of setup.scripts) {
-    const dest = join(dir, script.path);
-    await mkdir(dirname(dest), { recursive: true });
-    await writeFile(dest, script.body);
-    written.push(dest);
-  }
+  const scripts = await writeFileTree({ dir, files: setup.scripts });
+  written.push(...scripts.written);
 
   if (Object.keys(setup.events).length > 0) {
     const hooks = substituteRef({ events: setup.events, installDir });

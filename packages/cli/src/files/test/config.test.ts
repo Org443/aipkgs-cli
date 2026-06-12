@@ -12,11 +12,13 @@ beforeEach(() => {
   home = mkdtempSync(join(tmpdir(), 'aipkg-config-test-'));
   originalHome = process.env.HOME;
   process.env.HOME = home;
+  // biome-ignore lint/performance/noDelete: assigning undefined to process.env stores the string "undefined"
   delete process.env.AIPKG_TARGET;
 });
 
 afterEach(() => {
   process.env.HOME = originalHome;
+  // biome-ignore lint/performance/noDelete: assigning undefined to process.env stores the string "undefined"
   delete process.env.AIPKG_TARGET;
   rmSync(home, { recursive: true, force: true });
 });

@@ -168,12 +168,3 @@ describe('ClaudeAgent.remove', () => {
     expect(settings.hooks).toBeUndefined();
   });
 });
-
-describe('ClaudeAgent mcp side effects', () => {
-  it('adds an MCP server to .mcp.json', async () => {
-    await agent.addMcp({ slug: 'linear', mcp: { url: 'https://mcp.linear.app/sse' } });
-
-    const config = await readTestJson('.mcp.json');
-    expect(config.mcpServers.linear).toEqual({ type: 'http', url: 'https://mcp.linear.app/sse' });
-  });
-});
