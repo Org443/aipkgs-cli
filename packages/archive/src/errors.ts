@@ -1,3 +1,7 @@
+export function isENOENT(err: unknown) {
+  return typeof err === 'object' && err !== null && 'code' in err && (err as { code: string }).code === 'ENOENT';
+}
+
 export class InvalidArchive extends Error {
   constructor(args: { message: string }) {
     const { message } = args;

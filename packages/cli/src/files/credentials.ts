@@ -1,7 +1,7 @@
 import { chmod, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { isENOENT } from '@local/shared/fs';
+import { isENOENT } from '@local/archive';
 
 export type Credentials = {
   token?: string;

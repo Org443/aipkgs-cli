@@ -1,7 +1,6 @@
 import { stat } from 'node:fs/promises';
 import { basename, dirname } from 'node:path';
-import { MANIFEST_FILENAME, type Manifest, archiveService } from '@local/archive';
-import { isENOENT } from '@local/shared/fs';
+import { MANIFEST_FILENAME, type Manifest, archiveService, isENOENT } from '@local/archive';
 import pc from 'picocolors';
 import { api } from '../../api/index.ts';
 import { confirm } from '../../autocomplete/confirm.ts';

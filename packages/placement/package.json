@@ -16,7 +16,6 @@
     "smol-toml": "^1.6.1"
   },
   "devDependencies": {
-    "@local/archive": "*",
-    "@local/shared": "*"
+    "@local/archive": "*"
   }
 }

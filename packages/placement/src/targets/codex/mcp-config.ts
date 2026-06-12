@@ -1,7 +1,6 @@
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
-import type { McpEntry } from '@local/archive';
-import { isENOENT } from '@local/shared/fs';
+import { type McpEntry, isENOENT } from '@local/archive';
 import { parse, stringify } from 'smol-toml';
 
 // Codex reads MCP servers from `[mcp_servers.<name>]` tables in `config.toml`.

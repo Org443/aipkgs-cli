@@ -1,8 +1,7 @@
 import { chmod, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { AGENT_TARGETS, type AgentTarget } from '@local/archive';
-import { isENOENT } from '@local/shared/fs';
+import { AGENT_TARGETS, type AgentTarget, isENOENT } from '@local/archive';
 
 export const DEFAULT_API = 'https://api.aipkgs.com';
 export const DEFAULT_APP = 'https://aipkgs.com';

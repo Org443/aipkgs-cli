@@ -1,7 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { isAbsolute, join } from 'node:path';
-import { MANIFEST_FILENAME, Manifest, type PackageRef } from '@local/archive';
-import { isENOENT } from '@local/shared/fs';
+import { MANIFEST_FILENAME, Manifest, type PackageRef, isENOENT } from '@local/archive';
 
 export class ManifestFile extends Manifest {
   readonly path: string;

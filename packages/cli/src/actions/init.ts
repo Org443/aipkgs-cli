@@ -1,6 +1,5 @@
 import { stat } from 'node:fs/promises';
-import { MANIFEST_FILENAME } from '@local/archive';
-import { isENOENT } from '@local/shared/fs';
+import { MANIFEST_FILENAME, isENOENT } from '@local/archive';
 import pc from 'picocolors';
 import { LOCKFILE_FILENAME, Lockfile } from '../files/lockfile.ts';
 import { ManifestFile } from '../files/manifest.ts';

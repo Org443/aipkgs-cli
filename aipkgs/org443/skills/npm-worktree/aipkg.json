@@ -1,7 +1,7 @@
 {
   "type": "skill",
   "ref": "org443/npm-worktree",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Create a worktree for a branch.  Places the worktree in the `<repo>.worktrees/` directory and initiates the npm install and other worktree copy overs.",
   "homepage": "https://aipkgs.com",
   "repository": {

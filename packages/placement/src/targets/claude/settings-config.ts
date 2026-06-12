@@ -1,7 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
-import type { HooksByEvent } from '@local/archive';
-import { isENOENT } from '@local/shared/fs';
+import { type HooksByEvent, isENOENT } from '@local/archive';
 import { AIPKG_OWNER_KEY, mergeOwnedHooks, removeOwnedHooks } from '../hooks-format.ts';
 
 const SETTINGS_LOCAL_FILENAME = join('.claude', 'settings.local.json');

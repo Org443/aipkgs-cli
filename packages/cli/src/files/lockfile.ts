@@ -1,7 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, join } from 'node:path';
-import { type AIpkgArchive, MANIFEST_FILENAME, MANIFEST_TYPES, Manifest, PackageRef } from '@local/archive';
-import { isENOENT } from '@local/shared/fs';
+import { type AIpkgArchive, MANIFEST_FILENAME, MANIFEST_TYPES, Manifest, PackageRef, isENOENT } from '@local/archive';
 
 export const LOCKFILE_FILENAME = 'aipkg.lock';
 

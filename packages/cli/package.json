@@ -39,7 +39,6 @@
   "devDependencies": {
     "@local/archive": "*",
     "@local/placement": "*",
-    "@local/shared": "*",
     "esbuild": "^0.24.0"
   },
   "dependencies": {

@@ -1,7 +1,6 @@
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
-import { MANIFEST_FILENAME, MANIFEST_TYPE_TO_DEPS_KEY, type PackageRef, type TarEntry } from '@local/archive';
-import { isENOENT } from '@local/shared/fs';
+import { MANIFEST_FILENAME, MANIFEST_TYPE_TO_DEPS_KEY, type PackageRef, type TarEntry, isENOENT } from '@local/archive';
 import pc from 'picocolors';
 import { ConfigFile } from '../files/config.ts';
 
