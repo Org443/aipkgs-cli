@@ -1,6 +1,6 @@
 import { Manifest, type TarEntry, archiveService } from '@local/archive';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { readTestFile, setupTestCwd, teardownTestCwd, testFileExists } from '../../../../test/helpers.ts';
+import { readTestFile, setupTestCwd, teardownTestCwd, testFileExists, testFileMode } from '../../../../test/helpers.ts';
 import { installSetup } from '../setup.ts';
 
 function file(path: string, body = ''): TarEntry {
@@ -36,6 +36,23 @@ describe('installSetup', () => {
     expect(written).toEqual(
       expect.arrayContaining([expect.stringMatching(/\.agents\/scripts\/acme\/lint\/scripts\/lint\.sh$/)]),
     );
+  });
+
+  it('places scripts marked executable with the execute bit set', async () => {
+    const { pkgRef, setup } = asserted({
+      ref: 'acme/lint',
+      files: [
+        file('aipkg.json'),
+        file('setup.json', SETUP_JSON),
+        { path: 'scripts/lint.sh', body: Buffer.from('#!/bin/sh\n'), executable: true },
+        file('scripts/config.json', '{}'),
+      ],
+    });
+
+    await installSetup({ setup, pkgRef });
+
+    expect(await testFileMode('.agents/scripts/acme/lint/scripts/lint.sh')).toBe(0o755);
+    expect(await testFileMode('.agents/scripts/acme/lint/scripts/config.json')).toBe(0o644);
   });
 
   it('keys the on-disk directory by the full org/key/slug ref', async () => {

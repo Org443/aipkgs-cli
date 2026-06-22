@@ -1,7 +1,24 @@
 import { gunzipSync, gzipSync } from 'node:zlib';
 import tar from 'tar-stream';
 
-export type TarEntry = { path: string; body: Buffer };
+// Modes are normalized to 0o644 / 0o755 at pack time — only the executable bit
+// survives packaging, so tarballs stay byte-identical regardless of the
+// author's umask or group/other permissions.
+export type TarEntry = { path: string; body: Buffer; executable?: boolean };
+
+export const EXECUTABLE_MODE = 0o755;
+export const REGULAR_FILE_MODE = 0o644;
+
+// A file counts as executable if any execute bit (owner/group/other) is set.
+export function isExecutableMode(mode: number) {
+  return (mode & 0o111) !== 0;
+}
+
+// The normalized on-disk mode for an entry: only the executable bit is carried
+// through, everything else is fixed so packaging is umask-independent.
+export function determineExecMode(entry: { executable?: boolean }) {
+  return entry.executable ? EXECUTABLE_MODE : REGULAR_FILE_MODE;
+}
 
 export const tarballService = {
   async unwrap(raw: Buffer) {
@@ -28,7 +45,8 @@ export const tarballService = {
         const chunks: Buffer[] = [];
         stream.on('data', (c: Buffer) => chunks.push(c));
         stream.on('end', () => {
-          files.push({ path: normalizePath(header.name), body: Buffer.concat(chunks) });
+          const executable = isExecutableMode(header.mode ?? 0);
+          files.push({ path: normalizePath(header.name), body: Buffer.concat(chunks), executable });
           next();
         });
       });
@@ -55,8 +73,9 @@ export const tarballService = {
 
       (async () => {
         for (const entry of entries) {
+          const mode = determineExecMode(entry);
           await new Promise<void>((r, j) => {
-            pack.entry({ name: entry.path, type: 'file', size: entry.body.length }, entry.body, (err) =>
+            pack.entry({ name: entry.path, type: 'file', size: entry.body.length, mode }, entry.body, (err) =>
               err ? j(err) : r(),
             );
           });

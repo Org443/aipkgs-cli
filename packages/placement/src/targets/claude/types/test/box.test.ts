@@ -1,6 +1,6 @@
 import { Manifest, type TarEntry, archiveService } from '@local/archive';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { readTestFile, setupTestCwd, teardownTestCwd, testFileExists } from '../../../../test/helpers.ts';
+import { readTestFile, setupTestCwd, teardownTestCwd, testFileExists, testFileMode } from '../../../../test/helpers.ts';
 import { installBox } from '../box.ts';
 
 function file(path: string, body = ''): TarEntry {
@@ -49,6 +49,21 @@ describe('installBox', () => {
 
     expect(await readTestFile('.claude/skills/foo/SKILL.md')).toBe('# foo');
     expect(await readTestFile('.claude/skills/foo/assets/diagram.txt')).toBe('drawing');
+  });
+
+  it('keeps the execute bit on a bundled skill asset through the box re-rooting', async () => {
+    const { pkgRef, rules, subagents, skills, setup } = asserted({
+      ref: 'acme/mega',
+      files: [
+        file('aipkg.json'),
+        file('skills/foo/SKILL.md', '# foo'),
+        { path: 'skills/foo/scripts/build.sh', body: Buffer.from('#!/bin/sh\n'), executable: true },
+      ],
+    });
+
+    await installBox({ rules, subagents, skills, setup, pkgRef });
+
+    expect(await testFileMode('.claude/skills/foo/scripts/build.sh')).toBe(0o755);
   });
 
   it('namespaces the setup script bundle under .claude/scripts/<box-ref>/, keyed by the box', async () => {

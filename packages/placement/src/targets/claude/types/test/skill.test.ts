@@ -1,6 +1,7 @@
+import { join } from 'node:path';
 import { Manifest, type TarEntry, archiveService } from '@local/archive';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { readTestFile, setupTestCwd, teardownTestCwd, testFileExists } from '../../../../test/helpers.ts';
+import { readTestFile, setupTestCwd, teardownTestCwd, testFileExists, testFileMode } from '../../../../test/helpers.ts';
 import { installSkill } from '../skill.ts';
 
 function file(path: string, body = ''): TarEntry {
@@ -39,6 +40,34 @@ describe('installSkill', () => {
         expect.stringMatching(/\.claude\/skills\/pr-helper\/assets\/diagram\.txt$/),
       ]),
     );
+  });
+
+  it('rewrites ${PKG_ROOT} in SKILL.md to the absolute .claude/skills/<slug> dir', async () => {
+    const skill = asserted([
+      file('aipkg.json'),
+      file('SKILL.md', 'Run ${PKG_ROOT}/scripts/build.sh from ${PKG_ROOT}.'),
+    ]);
+
+    await installSkill({ skill });
+
+    const installDir = join(process.cwd(), '.claude', 'skills', 'pr-helper');
+    expect(await readTestFile('.claude/skills/pr-helper/SKILL.md')).toBe(
+      `Run ${installDir}/scripts/build.sh from ${installDir}.`,
+    );
+  });
+
+  it('places assets marked executable with the execute bit set', async () => {
+    const skill = asserted([
+      file('aipkg.json'),
+      file('SKILL.md', '# pr-helper'),
+      { path: 'scripts/build.sh', body: Buffer.from('#!/bin/sh\n'), executable: true },
+      file('assets/diagram.txt', 'drawing'),
+    ]);
+
+    await installSkill({ skill });
+
+    expect(await testFileMode('.claude/skills/pr-helper/scripts/build.sh')).toBe(0o755);
+    expect(await testFileMode('.claude/skills/pr-helper/assets/diagram.txt')).toBe(0o644);
   });
 
   it('prunes cruft and does not place the aipkg.json manifest inside the skill', async () => {

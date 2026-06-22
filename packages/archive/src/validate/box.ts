@@ -73,7 +73,7 @@ function parseBoxSkills(files: TarEntry[]): ArchiveSkill[] {
     const [top, slug, ...sub] = file.path.split('/');
     if (top !== 'skills' || !slug || sub.length === 0) continue;
     const group = groups.get(slug) ?? [];
-    group.push({ path: sub.join('/'), body: file.body });
+    group.push({ ...file, path: sub.join('/') });
     groups.set(slug, group);
   }
 
@@ -90,7 +90,7 @@ function parseBoxFlatAssets(files: TarEntry[]): { rules: ArchiveRule[]; subagent
     const [top, name, ...rest] = file.path.split('/');
     if (rest.length > 0 || !name || !name.endsWith('.md')) continue;
     const slug = name.slice(0, -'.md'.length);
-    const childFiles = [{ path: name, body: file.body }];
+    const childFiles = [{ ...file, path: name }];
 
     if (top === 'rules') rules.push(parseRule({ slug, files: childFiles }));
     else if (top === 'subagents') subagents.push(parseSubagent({ slug, files: childFiles }));

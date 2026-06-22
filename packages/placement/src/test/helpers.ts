@@ -1,5 +1,5 @@
 import { existsSync, mkdtempSync, rmSync } from 'node:fs';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { type AIpkgArchive, Manifest, type ManifestType, type TarEntry, archiveService } from '@local/archive';
@@ -41,6 +41,11 @@ export async function writeTestFile(content: string, ...parts: string[]) {
 
 export function testFileExists(...parts: string[]) {
   return existsSync(testDir(...parts));
+}
+
+export async function testFileMode(...parts: string[]) {
+  const stats = await stat(testDir(...parts));
+  return stats.mode & 0o777;
 }
 
 export async function buildTestArchive(args: {
