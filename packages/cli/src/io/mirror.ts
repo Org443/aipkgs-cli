@@ -1,6 +1,13 @@
-import { mkdir, rm, writeFile } from 'node:fs/promises';
+import { chmod, mkdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
-import { MANIFEST_FILENAME, MANIFEST_TYPE_TO_DEPS_KEY, type PackageRef, type TarEntry, isENOENT } from '@local/archive';
+import {
+  EXECUTABLE_MODE,
+  MANIFEST_FILENAME,
+  MANIFEST_TYPE_TO_DEPS_KEY,
+  type PackageRef,
+  type TarEntry,
+  isENOENT,
+} from '@local/archive';
 import pc from 'picocolors';
 import { ConfigFile } from '../files/config.ts';
 
@@ -29,7 +36,9 @@ export async function writeAipkgsMirror(args: { pkgRef: PackageRef; files: TarEn
   for (const entry of files) {
     const dest = join(mirror, entry.path);
     await mkdir(dirname(dest), { recursive: true });
-    await writeFile(dest, prettyBodyFor(entry));
+    const body = prettyBodyFor(entry);
+    await writeFile(dest, body);
+    if (entry.executable) await chmod(dest, EXECUTABLE_MODE);
   }
 
   console.log(pc.dim(`  ${mirror}`));

@@ -1,3 +1,4 @@
+import { chmod } from 'node:fs/promises';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { setupTestCwd, teardownTestCwd, testDir, writeTestFile } from '../../test/helpers.ts';
 import { collectArchiveFiles } from '../collect-files.ts';
@@ -64,6 +65,20 @@ describe('collectArchiveFiles', () => {
       'skills/helper/assets/logo.txt',
       'subagents/reviewer.md',
     ]);
+  });
+
+  it('records the executable bit on collected files', async () => {
+    await writeTestFile('# skill body', 'SKILL.md');
+    await writeTestFile('#!/bin/sh\necho hi\n', 'scripts/run.sh');
+    const scriptPath = testDir('scripts/run.sh');
+    await chmod(scriptPath, 0o755);
+
+    const entries = await collectArchiveFiles({ dir: testDir() });
+
+    const script = entries.find((e) => e.path === 'scripts/run.sh');
+    const doc = entries.find((e) => e.path === 'SKILL.md');
+    expect(script).toMatchObject({ executable: true });
+    expect(doc).toMatchObject({ executable: false });
   });
 
   describe('manifest handling', () => {

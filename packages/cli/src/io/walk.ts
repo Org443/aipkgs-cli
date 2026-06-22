@@ -1,6 +1,6 @@
-import { readFile, readdir } from 'node:fs/promises';
+import { readFile, readdir, stat } from 'node:fs/promises';
 import { join, relative } from 'node:path';
-import { MANIFEST_FILENAME, type TarEntry } from '@local/archive';
+import { MANIFEST_FILENAME, type TarEntry, isExecutableMode } from '@local/archive';
 import { IGNORE_FILENAME, type Ignore } from './ignore.ts';
 
 // Heavy directories we never descend into, regardless of `.aipkgignore`. This is
@@ -69,7 +69,9 @@ async function walk(args: {
     if (ignore.matches({ relPath: rel, isDir: false })) continue;
 
     const body = await readFile(full);
-    out.push({ path: rel, body });
+    const fileStat = await stat(full);
+    const executable = isExecutableMode(fileStat.mode);
+    out.push({ path: rel, body, executable });
   }
 }
 

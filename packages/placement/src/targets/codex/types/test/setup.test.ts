@@ -1,7 +1,14 @@
 import { Manifest, type TarEntry, archiveService } from '@local/archive';
 import { parse } from 'smol-toml';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { readTestFile, readTestJson, setupTestCwd, teardownTestCwd, testFileExists } from '../../../../test/helpers.ts';
+import {
+  readTestFile,
+  readTestJson,
+  setupTestCwd,
+  teardownTestCwd,
+  testFileExists,
+  testFileMode,
+} from '../../../../test/helpers.ts';
 import { installSetup, removeSetup } from '../setup.ts';
 
 function file(path: string, body = ''): TarEntry {
@@ -47,6 +54,23 @@ describe('installSetup', () => {
     // ${PKG_ROOT} is rewritten to the install dir; the matcher is owner-tagged.
     expect(hooks.hooks.PreToolUse[0]).toMatchObject({ matcher: 'Bash', __aipkg: 'acme/lint' });
     expect(hooks.hooks.PreToolUse[0].hooks[0].command).toBe('.codex/scripts/acme/lint/scripts/lint.sh');
+  });
+
+  it('places scripts marked executable with the execute bit set', async () => {
+    const { pkgRef, setup } = asserted({
+      ref: 'acme/lint',
+      files: [
+        file('aipkg.json'),
+        file('setup.json', HOOKS_JSON),
+        { path: 'scripts/lint.sh', body: Buffer.from('#!/bin/sh\n'), executable: true },
+        file('scripts/config.json', '{}'),
+      ],
+    });
+
+    await installSetup({ setup, pkgRef });
+
+    expect(await testFileMode('.codex/scripts/acme/lint/scripts/lint.sh')).toBe(0o755);
+    expect(await testFileMode('.codex/scripts/acme/lint/scripts/config.json')).toBe(0o644);
   });
 
   it('writes MCP servers into .codex/config.toml with a sidecar ownership ledger', async () => {

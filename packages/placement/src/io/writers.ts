@@ -1,6 +1,15 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { chmod, mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
-import type { ArchiveRule, ArchiveSetup, ArchiveSkill, ArchiveSubagent, PackageRef, TarEntry } from '@local/archive';
+import {
+  type ArchiveRule,
+  type ArchiveSetup,
+  type ArchiveSkill,
+  type ArchiveSubagent,
+  type PackageRef,
+  type TarEntry,
+  determineExecMode,
+} from '@local/archive';
+import { REF_TOKEN } from '../targets/hooks-format.ts';
 
 // The decoded children of a box archive. Every target's `installBox` accepts
 // this same shape — boxes install identically everywhere, only the per-type
@@ -26,6 +35,11 @@ export async function writeFileTree(args: { dir: string; files: TarEntry[] }) {
     const dest = join(dir, file.path);
     await mkdir(dirname(dest), { recursive: true });
     await writeFile(dest, file.body);
+    // chmod after the write — `writeFile`'s mode option only applies on create,
+    // and a reinstall over an existing file must still converge on the
+    // archive's mode in either direction.
+    const mode = determineExecMode(file);
+    await chmod(dest, mode);
     written.push(dest);
   }
 
@@ -43,7 +57,10 @@ export async function writeSkillTree(args: { dir: readonly string[]; skill: Arch
   const { slug, skillMd, assets } = skill;
 
   const dir = join(process.cwd(), ...root, slug);
-  const skillEntry = { path: 'SKILL.md', body: skillMd };
+  // SKILL.md may reference its own placed assets via `${PKG_ROOT}`; resolve it to
+  // the absolute install dir so the path holds regardless of the agent's cwd.
+  const resolvedMd = Buffer.from(skillMd.toString('utf8').replace(REF_TOKEN, dir));
+  const skillEntry = { path: 'SKILL.md', body: resolvedMd };
   const files = [skillEntry, ...assets];
   return writeFileTree({ dir, files });
 }
