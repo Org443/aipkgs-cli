@@ -1,0 +1,8 @@
+{
+  "type": "skill",
+  "ref": "ponytail/ponytail-audit",
+  "version": "0.1.0",
+  "description": "Whole-repo over-engineering audit: scans the entire codebase (not a diff) and returns a ranked list of what to delete, simplify, or replace with stdlib/native equivalents. One-shot report.",
+  "homepage": "https://github.com/DietrichGebert/ponytail",
+  "repository": { "type": "git", "url": "https://github.com/DietrichGebert/ponytail.git" }
+}
