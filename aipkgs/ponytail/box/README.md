@@ -18,10 +18,8 @@ Imported from [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponyta
 - **`activate`** (setup) — SessionStart/SubagentStart/UserPromptSubmit hooks that
   keep ponytail mode on every turn; configurable via `PONYTAIL_DEFAULT_MODE`.
 
-## Install
+## Add
 
 ```sh
-aipkg box ponytail/Ponytail
+npx @aipkgs/cli box ponytail/Ponytail
 ```
-
-Or install any single asset on its own, e.g. `aipkg install ponytail/ponytail`.

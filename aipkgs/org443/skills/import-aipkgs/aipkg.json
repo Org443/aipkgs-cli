@@ -1,7 +1,7 @@
 {
   "type": "skill",
   "ref": "org443/import-aipkgs",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Import skills, subagents, rules, and setups (hooks, MCP servers, status lines) from a git repo into aipkgs/ as publishable packages with the correct manifest, LICENSE, and README.",
   "homepage": "https://aipkgs.com",
   "repository": {
