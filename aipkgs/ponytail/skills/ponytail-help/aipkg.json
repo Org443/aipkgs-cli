@@ -1,0 +1,8 @@
+{
+  "type": "skill",
+  "ref": "ponytail/ponytail-help",
+  "version": "0.1.0",
+  "description": "Quick-reference card for all ponytail modes, skills, and commands, plus how to configure the default mode. One-shot display, not a persistent mode.",
+  "homepage": "https://github.com/DietrichGebert/ponytail",
+  "repository": { "type": "git", "url": "https://github.com/DietrichGebert/ponytail.git" }
+}

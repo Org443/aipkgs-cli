@@ -1,0 +1,8 @@
+{
+  "type": "skill",
+  "ref": "ponytail/ponytail-debt",
+  "version": "0.1.0",
+  "description": "Harvests every `ponytail:` comment in the codebase into a debt ledger so deliberate shortcuts and deferrals get tracked instead of rotting into \"later means never\". One-shot report.",
+  "homepage": "https://github.com/DietrichGebert/ponytail",
+  "repository": { "type": "git", "url": "https://github.com/DietrichGebert/ponytail.git" }
+}

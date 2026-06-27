@@ -34,7 +34,7 @@ add/install instructions at all (see step 6).
 
 The registry grows by vendoring good third-party repos into `aipkgs/<org>/`,
 each in its own **org namespace**, with upstream attribution and license
-preserved. The end state is a tree that `aipkg publish` accepts without complaint.
+preserved. The end state is a tree that `npx @aipkgs/cli publish` accepts without complaint.
 
 **Default shape: split + box-of-deps.** Publish every asset as its own
 standalone package (own `aipkg.json` + `LICENSE.txt`) so each can be added on
@@ -183,8 +183,8 @@ before dependents, box last** — its `@latest` deps must already resolve. Safe
 order: assets with no deps first, then the rest, then the box.
 
 ```sh
-aipkg publish aipkgs/<org>/skills/<slug>   # each asset
-aipkg publish aipkgs/<org>/box             # box, last
+npx @aipkgs/cli publish aipkgs/<org>/skills/<slug>   # each asset
+npx @aipkgs/cli publish aipkgs/<org>/box             # box, last
 ```
 
 In the report, show how users add the published packages — the `npx` command,

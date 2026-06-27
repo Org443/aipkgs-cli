@@ -1,0 +1,13 @@
+{
+  "type": "setup",
+  "ref": "ponytail/activate",
+  "version": "0.1.0",
+  "description": "Always-on ponytail hooks: SessionStart/SubagentStart inject lazy-senior-dev mode into every conversation and subagent, and UserPromptSubmit tracks level changes (lite/full/ultra, off). Configurable via PONYTAIL_DEFAULT_MODE.",
+  "homepage": "https://github.com/DietrichGebert/ponytail",
+  "repository": { "type": "git", "url": "https://github.com/DietrichGebert/ponytail.git" },
+  "deps": {
+    "skills": {
+      "ponytail": "aipkg://skill/ponytail/ponytail@latest"
+    }
+  }
+}

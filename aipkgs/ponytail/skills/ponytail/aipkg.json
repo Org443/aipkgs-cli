@@ -1,0 +1,8 @@
+{
+  "type": "skill",
+  "ref": "ponytail/ponytail",
+  "version": "0.1.0",
+  "description": "Lazy senior dev mode: forces the simplest, shortest solution that works — YAGNI, stdlib first, native before deps, no unrequested abstractions. Intensity levels lite/full/ultra.",
+  "homepage": "https://github.com/DietrichGebert/ponytail",
+  "repository": { "type": "git", "url": "https://github.com/DietrichGebert/ponytail.git" }
+}

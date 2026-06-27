@@ -1,0 +1,8 @@
+{
+  "type": "skill",
+  "ref": "ponytail/ponytail-gain",
+  "version": "0.1.0",
+  "description": "Shows ponytail's measured impact as a compact scoreboard — less code, less cost, more speed — from the published benchmark medians. One-shot display, not a per-repo number.",
+  "homepage": "https://github.com/DietrichGebert/ponytail",
+  "repository": { "type": "git", "url": "https://github.com/DietrichGebert/ponytail.git" }
+}

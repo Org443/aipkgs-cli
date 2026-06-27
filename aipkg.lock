@@ -12,9 +12,9 @@
         "sha": "sha256:02f5e635944a335ab50a89d70b30eb7ff87bdaf10a3255ecc0f90bd07c19467b"
       },
       "import-aipkgs": {
-        "aipkgRef": "aipkg://skill/org443/import-aipkgs@0.1.0",
-        "version": "0.1.0",
-        "sha": "sha256:4b30039e02574fbafafd0d37d6d6b7f04b7e223b2d46f36e0ffc5db8b670f153"
+        "aipkgRef": "aipkg://skill/org443/import-aipkgs@0.1.2",
+        "version": "0.1.2",
+        "sha": "sha256:4f39c3a5efabb12f3944da85eb04ad40ab6f0db23e777c13d2c57ba087d79b99"
       },
       "search-aipkgs": {
         "aipkgRef": "aipkg://skill/org443/search-aipkgs@0.1.1",
@@ -44,16 +44,6 @@
         "aipkgRef": "aipkg://setup/org443/workflow-mcps@0.0.1",
         "version": "0.0.1",
         "sha": "sha256:6635e0c08cbf3992b35ac4eafa0481253c923c0254e17be1bdcba1c50035a715"
-      },
-      "workflow-mcps": {
-        "aipkgRef": "aipkg://setup/org443/workflow-mcps@0.0.1",
-        "version": "0.0.1",
-        "sha": "sha256:6635e0c08cbf3992b35ac4eafa0481253c923c0254e17be1bdcba1c50035a715"
-      },
-      "status-line": {
-        "aipkgRef": "aipkg://setup/org443/status-line@0.0.5",
-        "version": "0.0.5",
-        "sha": "sha256:ca86535ec5b4399e7f924f7149b3e446324b24393b301c12a3586a63beacff3c"
       },
       "org443/status-line": {
         "aipkgRef": "aipkg://setup/org443/status-line@0.0.6",

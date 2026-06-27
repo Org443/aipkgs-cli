@@ -1,0 +1,24 @@
+{
+  "type": "box",
+  "ref": "ponytail/Ponytail",
+  "version": "0.1.1",
+  "description": "Dietrich Gebert's ponytail — lazy-senior-dev mode that forces the simplest solution that works (YAGNI, stdlib first, no unrequested abstractions). Bundles the ponytail skill, its review/audit/debt/gain/help skills, and the always-on activation hooks.",
+  "homepage": "https://github.com/DietrichGebert/ponytail",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DietrichGebert/ponytail.git"
+  },
+  "deps": {
+    "skills": {
+      "ponytail": "aipkg://skill/ponytail/ponytail@latest",
+      "ponytail-review": "aipkg://skill/ponytail/ponytail-review@latest",
+      "ponytail-audit": "aipkg://skill/ponytail/ponytail-audit@latest",
+      "ponytail-debt": "aipkg://skill/ponytail/ponytail-debt@latest",
+      "ponytail-gain": "aipkg://skill/ponytail/ponytail-gain@latest",
+      "ponytail-help": "aipkg://skill/ponytail/ponytail-help@latest"
+    },
+    "setups": {
+      "activate": "aipkg://setup/ponytail/activate@latest"
+    }
+  }
+}
