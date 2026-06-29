@@ -22,7 +22,7 @@ Produce a worktree that behaves exactly like the checkout this skill was run fro
 If the user asks to remove/delete a worktree, run:
 
 ```
-${PKG_ROOT}/scripts/worktree <branch-name> -d
+node ${PKG_ROOT}/scripts/worktree.js <branch-name> -d
 ```
 
 and stop there.
@@ -34,10 +34,8 @@ Follow these steps in order.
 ### Step 1 — Run the worktree script
 
 ```
-${PKG_ROOT}/scripts/worktree <branch-name>
+node ${PKG_ROOT}/scripts/worktree.js <branch-name>
 ```
-
-The script (run it from anywhere inside the repo):
 
 - Places the worktree at `../<repo>.worktrees/<branch-name>` (a sibling of the repo, so it never pollutes the repo itself)
 - Reuses the branch if it exists locally, otherwise creates it

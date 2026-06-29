@@ -7,7 +7,8 @@
       "frontend-design": "aipkg://skill/os/frontend-design@latest",
       "skill-creator": "aipkg://skill/os/skill-creator@latest",
       "import-aipkgs": "aipkg://skill/org443/import-aipkgs@latest",
-      "search-aipkgs": "aipkg://skill/org443/search-aipkgs@latest"
+      "search-aipkgs": "aipkg://skill/org443/search-aipkgs@latest",
+      "npm-worktree": "aipkg://skill/org443/npm-worktree@latest"
     },
     "rules": {
       "node-general": "aipkg://rule/org443/node-general@latest",

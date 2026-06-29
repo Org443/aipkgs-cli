@@ -20,6 +20,11 @@
         "aipkgRef": "aipkg://skill/org443/search-aipkgs@0.1.1",
         "version": "0.1.1",
         "sha": "sha256:143d368c4212ee9da9f2f548c85aaab53c4b458589adb9e21cb8d87d58782716"
+      },
+      "npm-worktree": {
+        "aipkgRef": "aipkg://skill/org443/npm-worktree@0.1.0",
+        "version": "0.1.0",
+        "sha": "sha256:62b409564bfca8aad662b79ed9e190b8ad5effb9f2bbc046b430981546b4111d"
       }
     },
     "rules": {
